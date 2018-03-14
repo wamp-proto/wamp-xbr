@@ -34,5 +34,48 @@ Install Truffle + Ganache:
 ```console
 npm install -g truffle
 npm install -g ganache-cli
+npm install -g zeppelin-solidity
 ```
 
+
+### Using Truffle
+
+Scaffold an example, compile and test:
+
+```console
+truffle unbox metacoin
+truffle compile
+truffle test
+```
+
+Eg:
+
+```console
+oberstet@thinkpad-t430s:~/scm/xbr/xbr-protocol/core$ truffle test
+Using network 'test'.
+
+Compiling ./contracts/ConvertLib.sol...
+Compiling ./contracts/MetaCoin.sol...
+Compiling ./contracts/SimpleStorage.sol...
+Compiling ./test/TestMetacoin.sol...
+Compiling ./test/TestSimpleStorage.sol...
+Compiling truffle/Assert.sol...
+Compiling truffle/DeployedAddresses.sol...
+
+
+  TestMetacoin
+    ✓ testInitialBalanceUsingDeployedContract (86ms)
+    ✓ testInitialBalanceWithNewMetaCoin (72ms)
+
+  TestSimpleStorage
+    ✓ test_deployed_initial_value (87ms)
+    ✓ test_new_initial_value (63ms)
+
+  Contract: MetaCoin
+    ✓ should put 10000 MetaCoin in the first account
+    ✓ should call a function that depends on a linked library (41ms)
+    ✓ should send coin correctly (120ms)
+
+
+  7 passing (2s)
+```
