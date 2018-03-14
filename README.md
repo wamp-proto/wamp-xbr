@@ -7,9 +7,11 @@ This repository contains the XBR smart contracts, with Ethereum as blockchain, a
 
 ## Development
 
-Development is using the [Truffle](http://truffleframework.com/) Ethereum toolbelt, and the [OpenZeppelin](https://openzeppelin.org/) Solidity smart contracts framework.
+Development is using the [Truffle](http://truffleframework.com/) Ethereum toolbelt, and the [OpenZeppelin](https://openzeppelin.org/) Solidity smart contracts framework, and the [Ganache CLI](https://github.com/trufflesuite/ganache-cli/#welcome-to-ganache-cli) local blockchain.
 
 ### Requirements
+
+Install NodeJS and NPM.
 
 Install Ethereum:
 
@@ -27,8 +29,10 @@ sudo apt-get update
 sudo apt-get install -y solc
 ```
 
-Install Truffle:
+Install Truffle + Ganache:
 
 ```console
 npm install -g truffle
+npm install -g ganache-cli
 ```
+
