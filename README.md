@@ -1,8 +1,10 @@
 # The XBR Protocol
 
-The XBR protocol, with "protocol" used in the context of the decentralized Internet, all things blockchain based, mainly consists of a set of smart contracts, programs to run on a blockchain that has a virtual machine to run programs, and a database to store data.
+This repository contains the XBR smart contracts, with Ethereum as target blockchain, and Solidity as implementation language for the XBR smart contracts.
 
-This repository contains the XBR smart contracts, with Ethereum as blockchain, and Solidity as implementation language for the XBR smart contracts.
+Copyright Crossbar.io Technologies GmbH. Licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
+
+---
 
 
 ## Development
@@ -36,6 +38,8 @@ npm install -g truffle
 npm install -g ganache-cli
 npm install -g zeppelin-solidity
 ```
+
+---
 
 
 ### Using Truffle
@@ -79,3 +83,5 @@ Compiling truffle/DeployedAddresses.sol...
 
   7 passing (2s)
 ```
+
+---
