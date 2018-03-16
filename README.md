@@ -39,6 +39,26 @@ npm install -g ganache-cli
 npm install -g zeppelin-solidity
 ```
 
+Install Populus (in a fresh Python 3 virtualenv):
+
+```console
+pip install -U populus
+pip install eth_utils==0.7.4
+```
+
+---
+
+
+### Using Populus
+
+Scaffold an example, compile and test:
+
+```console
+truffle unbox metacoin
+truffle compile
+truffle test
+```
+
 ---
 
 
