@@ -1,3 +1,12 @@
+default:
+	@echo 'Targets: clean compile test'
+
+clean:
+	-rm -rf ./chains
+	-rm -rf ./build
+	-rm -rf ./.pytest_cache/
+	-rm -rf ./node_modules
+
 compile:
 	populus compile
 

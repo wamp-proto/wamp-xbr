@@ -39,6 +39,13 @@ npm install -g ganache-cli
 npm install -g zeppelin-solidity
 ```
 
+Install Open Zeppelin (project folder):
+
+```console
+npm init -y
+npm install -E zeppelin-solidity
+```
+
 Install Populus (in a fresh Python 3 virtualenv):
 
 ```console
@@ -75,6 +82,9 @@ at block: 0 (Thu, 01 Jan 1970 01:00:00 CET)
 1000000000000
 >
 ```
+
+
+
 
 ---
 
