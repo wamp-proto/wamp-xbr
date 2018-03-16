@@ -2,4 +2,18 @@ compile:
 	populus compile
 
 test: compile
-	py.test --disable-pytest-warnings tests
+	#pytest --disable-pytest-warnings tests
+	pytest -p no:warnings 2> /dev/null
+
+chain_init:
+	populus chain new horton
+	chains/horton/./init_chain.sh
+
+chain_run:
+	chains/horton/./run_chain.sh
+
+chain_deploy:
+	populus deploy --chain tester --no-wait-for-sync
+
+chain_attach:
+	geth attach chains/horton/chain_data/geth.ipc

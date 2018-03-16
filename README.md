@@ -54,12 +54,33 @@ pip install eth_utils==0.7.4
 Scaffold an example, compile and test:
 
 ```console
-truffle unbox metacoin
-truffle compile
-truffle test
+populus init
+populus compile
+py.test tests
+```
+
+Connect to the chain:
+
+```console
+oberstet@thinkpad-t430s:~/scm/xbr/xbr-protocol/main$ geth attach chains/horton/chain_data/geth.ipc
+Welcome to the Geth JavaScript console!
+
+instance: Geth/v1.6.7-stable-ab5646c5/linux-amd64/go1.8.3
+coinbase: 0x70e9c4c76190b628f04a146e7db00fe889c2d258
+at block: 0 (Thu, 01 Jan 1970 01:00:00 CET)
+ datadir: /home/oberstet/scm/xbr/xbr-protocol/main/chains/horton/chain_data
+ modules: admin:1.0 debug:1.0 eth:1.0 miner:1.0 net:1.0 personal:1.0 rpc:1.0 txpool:1.0 web3:1.0
+
+> web3.fromWei(eth.getBalance(eth.coinbase))
+1000000000000
+>
 ```
 
 ---
+
+
+geth account new
+
 
 
 ### Using Truffle
