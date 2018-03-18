@@ -1,3 +1,5 @@
+.PHONY: docs clean
+
 default:
 	@echo 'Targets: clean compile test'
 
@@ -26,3 +28,9 @@ chain_deploy:
 
 chain_attach:
 	geth attach chains/horton/chain_data/geth.ipc
+
+docs:
+	cp README.tmpl.md README.md
+	solmd contracts/* --dest sol.md
+	cat sol.md >> README.md
+	rm sol.md
