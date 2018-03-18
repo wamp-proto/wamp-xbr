@@ -1,5 +1,5 @@
 {
-  "name": "main",
+  "name": "xbr",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,10 @@
     "test": "tests"
   },
   "scripts": {
+    "build": "echo \"BUILD\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "Apache 2.0"
 }

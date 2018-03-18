@@ -22,4 +22,10 @@ contract XBRMarket {
 
     function XBRMarket() public {
     }
+
+    function register_api(string domain, string name, string descriptor) returns (uint256) {
+    }
+
+    function register_service(bytes32 public_key, string prefix, uint256[] implements, uint256[] provides) {
+    }
 }

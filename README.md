@@ -53,6 +53,14 @@ pip install -U populus
 pip install eth_utils==0.7.4
 ```
 
+Install [Doxity](https://github.com/DigixGlobal/doxity):
+
+```console
+npm install -g @digix/doxity
+mkdir docs
+mkdir -p scripts/doxity/pages/docs
+```
+
 ---
 
 

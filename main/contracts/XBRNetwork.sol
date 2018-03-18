@@ -18,10 +18,22 @@
 
 pragma solidity ^0.4.0;
 
+// without this, complex returns types won't compile
+pragma experimental ABIEncoderV2;
+
+import "./XBRMarket.sol";
+
+
 contract XBRNetwork {
     address public network_token;
     address public network_sponsor;
     address public dns_oracle;
+
+    //
+    struct Agent {
+        uint32 public_key;
+        string descriptor;
+    }
 
     struct Domain {
         uint256 cookie;
@@ -40,15 +52,14 @@ contract XBRNetwork {
         dns_oracle = dns_oracle;
     }
 
-    /**
-     *
-     */
-    function claim_domain(string domain, string descriptor) returns (uint256) {
-        // FIXME
+    function register_domain(string domain, string descriptor) returns (uint256) {
     }
 
+
     function verify_domain(uint256 domain_cookie, uint8 v, bytes32 r, bytes32 s) {
-        // FIXME
+    }
+
+    function get_domain(string domain) returns (Domain) {
     }
 
     // Register an XBR agent in a data market.
@@ -60,7 +71,15 @@ contract XBRNetwork {
     //              e.g. `QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq`.
     //
     function register_agent(bytes32 public_key, uint block_number, string descriptor) {
-        // FIXME
+    }
+
+    function get_agent(bytes32 public_key) returns (Agent) {
+    }
+
+    function register_market(string domain, string market, string descriptor) {
+    }
+
+    function get_market(string domain, string market) returns (XBRMarket) {
     }
 
     function is_signed_by(address signer, bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns (bool) {
