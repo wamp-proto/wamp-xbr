@@ -53,15 +53,23 @@ pip install -U populus
 pip install eth_utils==0.7.4
 ```
 
-Install [Doxity](https://github.com/DigixGlobal/doxity):
+Install [solmd](http://danepilcher.com/solmd/):
 
 ```console
-npm install -g @digix/doxity
-mkdir docs
-mkdir -p scripts/doxity/pages/docs
+npm install -g solmd
 ```
 
 ---
+
+
+### Using solmd
+
+```console
+solmd contracts/* --dest README.md
+```
+
+---
+
 
 
 ### Using Populus
