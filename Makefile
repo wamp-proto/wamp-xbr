@@ -1,7 +1,5 @@
 .PHONY: docs clean
 
-SOLMD=${PWD}/node_modules/.bin/solmd
-
 default:
 	@echo 'Targets: clean compile test'
 
@@ -36,7 +34,7 @@ chain_attach:
 	geth attach chains/horton/chain_data/geth.ipc
 
 docs:
-	cp README.tmpl.md README.md
-	$(SOLMD) contracts/* --dest sol.md
-	cat sol.md >> README.md
-	rm sol.md
+	npx solidity-docgen . contracts .
+
+test_docs:
+	cd website && yarn start

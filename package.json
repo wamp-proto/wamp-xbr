@@ -18,6 +18,5 @@
   "keywords": [],
   "author": "Crossbar.io Technologies GmbH",
   "devDependencies": {
-    "@digix/doxity": "^0.5.2"
   }
 }
