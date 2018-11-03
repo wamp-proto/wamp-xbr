@@ -1,5 +1,7 @@
 .PHONY: docs clean
 
+SOLMD=${PWD}/node_modules/.bin/solmd
+
 default:
 	@echo 'Targets: clean compile test'
 
@@ -8,6 +10,10 @@ clean:
 	-rm -rf ./build
 	-rm -rf ./.pytest_cache/
 	-rm -rf ./node_modules
+
+requirements:
+	pip install -r requirements.txt
+	npm install
 
 compile:
 	populus compile
@@ -31,6 +37,6 @@ chain_attach:
 
 docs:
 	cp README.tmpl.md README.md
-	solmd contracts/* --dest sol.md
+	$(SOLMD) contracts/* --dest sol.md
 	cat sol.md >> README.md
 	rm sol.md

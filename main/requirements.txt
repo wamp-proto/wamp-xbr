@@ -1,0 +1,3 @@
+# currently (2018/11), we need populus master because of https://github.com/ethereum/populus/pull/474
+git+https://github.com/ethereum/populus.git@master#egg=populus
+web3>=4.8.1
