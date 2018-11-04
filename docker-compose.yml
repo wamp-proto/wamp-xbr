@@ -1,0 +1,33 @@
+version: '3'
+services:
+  
+    crossbar:
+        image: crossbario/crossbarfx:latest
+        user: "${UID}:${GID}"
+        ports:
+            - "8080:8080"
+        volumes:
+            - "${PWD}/crossbar:/node"
+
+    ganache:
+        image: trufflesuite/ganache-cli:latest
+        user: "${UID}:${GID}"
+        ports:
+            - "8545:8545"
+        volumes:
+            # mount a data location from the host into the container - read-write
+            - "${PWD}/ganache/.data:/ganache:rw"
+        command:
+            - "--accounts"
+            - "5"
+            - "--defaultBalanceEther"
+            - "1000"
+            - "--deterministic"
+            - "--mnemonic"
+            - "myth like bonus scare over problem client lizard pioneer submit female collect"
+            - "--port"
+            - "8545"
+            - "--networkId"
+            - "5777"
+            - "--db"
+            - "/ganache"
