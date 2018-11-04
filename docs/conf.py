@@ -6,6 +6,22 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+import os
+import json
+
+try:
+    import sphinx_rtd_theme
+except ImportError:
+    sphinx_rtd_theme = None
+
+try:
+    from sphinxcontrib import spelling
+except ImportError:
+    spelling = None
+
+# Check if we are building on readthedocs
+RTD_BUILD = os.environ.get('READTHEDOCS', None) == 'True'
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -19,14 +35,17 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'The XBR Protocol'
+project = 'XBR Protocol'
 copyright = '2018, Crossbar.io Technologies GmbH'
-author = 'Crossbar.io Technologies GmbH'
+author = 'The XBR Project'
 
 # The short X.Y version
-version = ''
+with open('../package.json') as f:
+    pkg = json.loads(f.read())
+    version = pkg.get('version', '?.?.?')
+
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,7 +60,22 @@ release = '0.1.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.soliditydomain',
+
+    # Usage: .. thumbnail:: picture.png
+    'sphinxcontrib.images',
 ]
+
+# https://pythonhosted.org/sphinxcontrib-images/#how-to-configure
+images_config = {
+    'override_image_directive': False
+}
+
+# extensions not available on RTD
+if spelling is not None:
+    extensions.append('sphinxcontrib.spelling')
+    spelling_lang = 'en_US'
+    spelling_show_suggestions = False
+    spelling_word_list_filename = 'spelling_wordlist.txt'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -67,22 +101,41 @@ language = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
-
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
+# the following trickery is to make it build both locally and on RTD
 #
-html_theme = 'alabaster'
+# see: https://blog.deimos.fr/2014/10/02/sphinxdoc-and-readthedocs-theme-tricks-2/
+#
+if RTD_BUILD:
+    html_context = {
+        'css_files': [
+            'https://media.readthedocs.org/css/sphinx_rtd_theme.css',
+            'https://media.readthedocs.org/css/readthedocs-doc-embed.css',
+            '_static/custom.css'
+        ]
+    }
+else:
+    if sphinx_rtd_theme:
+        html_theme = 'sphinx_rtd_theme'
+        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+        # add custom CSS on top of Sphinx RTD standard CSS
+        def setup(app):
+            app.add_stylesheet('custom.css')
+    else:
+        html_theme = 'default'
+
+html_logo = '_static/xbr_logo_on_white.png'
+full_logo = True
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
+html_theme_options = {
+    'collapse_navigation': False,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -99,80 +152,11 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
-
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'TheXBRProtocoldoc'
-
-
-# -- Options for LaTeX output ------------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'TheXBRProtocol.tex', 'The XBR Protocol Documentation',
-     'Crossbar.io Technologies GmbH', 'manual'),
-]
-
-
-# -- Options for manual page output ------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'thexbrprotocol', 'The XBR Protocol Documentation',
-     [author], 1)
-]
-
-
-# -- Options for Texinfo output ----------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'TheXBRProtocol', 'The XBR Protocol Documentation',
-     author, 'TheXBRProtocol', 'One line description of project.',
-     'Miscellaneous'),
-]
-
-
-# -- Options for Epub output -------------------------------------------------
-
-# Bibliographic Dublin Core info.
-epub_title = project
-
-# The unique identifier of the text. This can be a ISBN number
-# or the project homepage.
-#
-# epub_identifier = ''
-
-# A unique identification for the text.
-#
-# epub_uid = ''
-
-# A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
-
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+#pygments_style = 'monokai'
+#pygments_style = 'native'
+#pygments_style = 'pastie'
+#pygments_style = 'friendly'
 
 # -- Extension configuration -------------------------------------------------

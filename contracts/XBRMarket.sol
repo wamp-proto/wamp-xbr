@@ -23,6 +23,15 @@ contract XBRMarket {
     constructor () public {
     }
 
+    function contribute(uint campaignID) public payable {
+        Campaign storage c = campaigns[campaignID];
+        // Creates a new temporary memory struct, initialised with the given values
+        // and copies it over to storage.
+        // Note that you can also use Funder(msg.sender, msg.value) to initialise.
+        c.funders[c.numFunders++] = Funder({addr: msg.sender, amount: msg.value});
+        c.amount += msg.value;
+    }
+
     function register_api (string domain, string name, string descriptor) public returns (uint256) {
     }
 

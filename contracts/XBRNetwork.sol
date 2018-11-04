@@ -16,80 +16,82 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.24;
 
-// without this, complex returns types won't compile
-pragma experimental ABIEncoderV2;
-
-import "./XBRMarket.sol";
+import "./XBRAdminRole.sol";
 
 
-contract XBRNetwork {
+/**
+ * @title XBR Network root SC
+ * @author The XBR Project
+ */
+contract XBRNetwork is XBRAdminRole {
 
-    address public _network_token;
+    /// XBR Network membership levels
+    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
-    address public _network_sponsor;
-
-    address public _dns_oracle;
-
-    struct Agent {
-        uint32 public_key;
-        string descriptor;
+    /// Value type for holding XBR Network membership information.
+    struct Member {
+        bytes32 profile;
+        bytes32 eula;
+        MemberLevel level;
     }
 
-    struct Domain {
-        uint256 cookie;
+    /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    address public network_token;
+
+    /// Address of the `XBR Network Organization <https://xbr.network/>`_
+    address public network_organization;
+    
+    /// Current XBR Network members.
+    mapping(address => Member) public members;
+    
+    /**
+     * Create a new network.
+     * 
+     * @param _network_token The token to run this network on.
+     * @param _network_organization The network technology sponsor.
+     */
+    constructor (address _network_token,
+                 address _network_organization) public {
+        network_token = _network_token;
+        network_organization = _network_organization;
     }
-    mapping(string => Domain) _domains;
+    
+    /**
+     * Join the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+     * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
+     * with the XBR Network on the global blockchain by calling this function.
+     * 
+     * @param profile Optional public member profile: the file hash (SHA2-256)
+     *                of the member profile file stored on a well-known location
+     *                (suchas as IPFS).
+     * @param eula The file hash (SHA2-256) of the XBR Network EULA documents
+     *             stored as one ZIP file archive on IPFS.    
+     */
+    function register (bytes32 profile, bytes32 eula) public {
+        require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_EXISTS");
 
-    struct DomainVerification {
-        uint started;
-        Domain domain;
+        members[msg.sender] = Member(profile, eula, MemberLevel.ACTIVE);
     }
-    mapping(uint256 => DomainVerification) _domain_verifications;
+    
+    function retire () public {
+        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
-    /// Create a new network.
-    /// @param network_token The token to run this network on.
-    /// @param network_sponsor The network technology sponsor.
-    /// @param dns_oracle The DNS oracle within the network.
-    constructor (address network_token, address network_sponsor, address dns_oracle) public {
-        network_token = network_token;
-        network_sponsor = network_sponsor;
-        dns_oracle = dns_oracle;
-    }
-
-    function register_domain(string domain, string descriptor) public returns (uint256) {
-    }
-
-
-    function verify_domain(uint256 domain_cookie, uint8 v, bytes32 r, bytes32 s) public {
-    }
-
-    function get_domain(string domain) public returns (Domain) {
-    }
-
-    /// Register an XBR agent in a data market.
-    /// @param public_key The WAMP-cryptosign (Ed25519) public key of the peer
-    /// @param block_number The Ethereum block number from which onwards the association should be established.
-    /// @param descriptor The IPFS object content address of the agent descriptor bundle. e.g. `QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq`.
-    function register_agent(bytes32 public_key, uint block_number, string descriptor) public {
-    }
-
-    function get_agent(bytes32 public_key) public returns (Agent) {
-    }
-
-    function register_market(string domain, string market, string descriptor) public {
-    }
-
-    function get_market(string domain, string market) public returns (XBRMarket) {
+        members[msg.sender].level = MemberLevel.RETIRED;
     }
 
-    function is_signed_by(address signer, bytes32 hash, uint8 v, bytes32 r, bytes32 s) private constant returns (bool) {
+    /**
+     * Manually override the member level of a XBR Network member. Being able to do so
+     * currently serves two purposes:
+     * 
+     * - having a last resort to handle situation where members violated the EULA
+     * - being able to manually patch things in error/bug cases
+     */
+    function set_member_level (address member, MemberLevel level) public onlyAdmin {
+        // only network admins are allowed to override member level
+        //require(network_admins.has(msg.sender), "DOES_NOT_HAVE_NETWORK_ADMIN_ROLE");
 
-        /*
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 prefixedHash = keccak256(prefix, hash);
-        return ecrecover(prefixedHash, v, r, s) == signer;
-        */
+        members[member].level = level;
     }
 }

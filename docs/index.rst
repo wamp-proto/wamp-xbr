@@ -6,12 +6,21 @@
 Welcome to The XBR Protocol's documentation!
 ============================================
 
+.. note::
+
+    The XBR protocol is documented primarily directly
+    within source code using the
+    `Natspec (Ethereum Natural Specification Format) <https://github.com/ethereum/wiki/wiki/Ethereum-Natural-Specification-Format>`_
+    and `Sphinx <http://www.sphinx-doc.org/>`_ is used to generate static HTML
+    from the Solidity source code files.
+
 .. toctree::
     :maxdepth: 2
     :caption: Contents:
 
     getting_started
     api
+    developers
 
 Indices and tables
 ==================

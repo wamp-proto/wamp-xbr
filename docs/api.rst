@@ -5,12 +5,19 @@ Here is the API reference documentation directly generated from the XBR protocol
 using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`_.
 
 .. autosolcontract:: XBRToken
+    :members:
 
 .. autosolcontract:: XBRNetwork
+    :members:
+        network_token,
+        network_organization,
+        members,
+        join
 
 .. autosolcontract:: XBRMarket
 
 
+.. autosolcontract:: "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol"
 
 
 Write a ``config.json`` node configuration.

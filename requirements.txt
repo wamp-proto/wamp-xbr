@@ -1,4 +1,6 @@
-# currently (2018/11), we need populus master because of https://github.com/ethereum/populus/pull/474
-git+https://github.com/ethereum/populus.git@master#egg=populus
-web3>=4.8.1
+pygments-lexer-solidity>=0.3.1
+sphinx-rtd-theme>=0.4.2
+sphinxcontrib-images>=0.8.0
 sphinxcontrib-soliditydomain>=0.4.0
+sphinxcontrib-spelling>=4.2.0  
+sphinxcontrib-websupport>=1.1.0

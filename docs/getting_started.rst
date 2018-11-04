@@ -76,6 +76,18 @@ The most important command line arguments to Ganache CLI are:
 * ``-a`` or ``--accounts``: Specify the number of accounts to generate at startup.
 * ``-e`` or ``--defaultBalanceEther``: Amount of ether to assign each test account. Default is ``100``.
 
+.. code-block:: console
+
+    ganache_1   | Available Accounts
+    ganache_1   | ==================
+    ganache_1   | (0) 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1 (~1000 ETH)
+    ganache_1   | (1) 0xffcf8fdee72ac11b5c542428b35eef5769c409f0 (~1000 ETH)
+    ganache_1   | (2) 0x22d491bde2303f2f43325b2108d26f1eaba1e32b (~1000 ETH)
+    ganache_1   | (3) 0xe11ba2b4d45eaed5996cd0823791e0c93114882d (~1000 ETH)
+    ganache_1   | (4) 0xd03ea8624c8c5987235048901fb614fdca89b117 (~1000 ETH)
+
+
+
 Ganache implements a personal Ethereum blockchain with the (almost) complete API of a full node.
 
 In particular it implements on the **blockchain read side**:
@@ -100,27 +112,33 @@ MetaMask
 
 .. note::
 
-    Http(s) - Web Server Required: Due to browser security restrictions, we can't communicate with
+    A Web (HTTP(S)) server is required also for local development:
+    due to browser security restrictions, MetaMask can't communicate with
     dapps running on ``file://``. Please use a local server for development.
 
 
 Remix IDE
 ---------
 
+`RemixIDE <https://remix.ethereum.org>`_
+
+
 To to give the remix web application access to a folder from your
 local computer, you can use
-`remixd <https://remix.readthedocs.io/en/latest/tutorial_remixd_filesystem.html>_.
+`remixd <https://remix.readthedocs.io/en/latest/tutorial_remixd_filesystem.html>`_.
 
 Install (globally) by:
 
 .. code-block:: console
 
+    sudo npm install -g remix-ide
     sudo npm install -g remixd
 
 To run:
 
 .. code-block:: console
 
+    remix-ide
     remixd -s ${PWD}/contracts
 
 
