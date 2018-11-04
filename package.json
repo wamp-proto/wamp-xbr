@@ -1,5 +1,5 @@
 {
-  "name": "truffle",
+  "name": "xbr",
   "version": "1.0.0",
   "description": "",
   "main": "truffle.js",
@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "openzeppelin-solidity": "^2.0.0"
   }

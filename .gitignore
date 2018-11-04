@@ -5,3 +5,6 @@ build
 .venv
 docs/_build/
 *.pid
+teststack/ganache/.data/
+key.*
+teststack/crossbar/.xbrdb/

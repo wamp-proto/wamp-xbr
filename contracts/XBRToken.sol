@@ -29,7 +29,7 @@ import 'openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol';
  */
 contract XBRToken is ERC20, ERC20Detailed {
 
-    uint256 public constant INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals()));
+    uint256 public constant INITIAL_SUPPLY = 10**9 * 10**18;
 
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.

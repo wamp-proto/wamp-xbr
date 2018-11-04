@@ -1,22 +1,13 @@
 version: '3'
 services:
   
-    crossbar:
-        image: crossbario/crossbarfx:latest
-        user: "${UID}:${GID}"
-        ports:
-            - "8080:8080"
-        volumes:
-            - "${PWD}/crossbar:/node"
-
     ganache:
         image: trufflesuite/ganache-cli:latest
-        user: "${UID}:${GID}"
         ports:
             - "8545:8545"
         volumes:
             # mount a data location from the host into the container - read-write
-            - "${PWD}/ganache/.data:/ganache:rw"
+            - "${PWD}/teststack/ganache/.data:/ganache:rw"
         command:
             - "--accounts"
             - "5"
@@ -31,3 +22,12 @@ services:
             - "5777"
             - "--db"
             - "/ganache"
+
+    crossbar:
+        image: crossbario/crossbarfx:latest
+        # UID:GID => id -u, id -g
+        user: "1000:1000"
+        ports:
+            - "8080:8080"
+        volumes:
+            - "${PWD}/teststack/crossbar:/node"

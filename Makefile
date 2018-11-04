@@ -1,40 +1,25 @@
-.PHONY: docs clean build
+.PHONY: crossbar docs clean build
+
+CROSSBAR=crossbarfx edge
 
 default:
 	@echo 'Targets: clean compile test'
 
-clean:
+clean: clean_docs
 	-rm -rf ./build
-	-rm -rf docs/_build
+
 
 requirements:
 	pip install -r requirements.txt
 	npm install
 
-# populus does not follow symlinks: https://github.com/ethereum/populus/issues/379
-zeppelin:
-	cp -R openzeppelin-solidity/contracts contracts/zeppelin
 
 build:
-	populus compile contracts/XBRToken.sol
+	truffle compile
 
-test: build
-	#pytest --disable-pytest-warnings tests
-	pytest -p no:warnings 2> /dev/null
-
-
-chain_init:
-	populus chain new horton
-	chains/horton/./init_chain.sh
-
-chain_run:
-	chains/horton/./run_chain.sh
-
-chain_deploy:
-	populus deploy --chain tester --no-wait-for-sync
-
-chain_attach:
-	geth attach chains/horton/chain_data/geth.ipc
+deploy:
+	truffle compile --all
+	truffle migrate --reset
 
 
 docs:
@@ -43,5 +28,26 @@ docs:
 clean_docs:
 	-rm -rf docs/_build
 
-test_docs: docs
-	twistd --nodaemon web --path=docs/_build --listen=tcp:8080
+run_docs: docs
+	twistd --nodaemon web --path=docs/_build --listen=tcp:8090
+
+
+run_ganache:
+	docker-compose up ganache
+
+clean_ganache:
+	-sudo rm -rf ./ganache/.data/*
+
+
+run_crossbar:
+	$(CROSSBAR) start \
+		--cbdir=${PWD}/teststack/crossbar/.crossbar \
+		--loglevel=info
+
+clean_db:
+	rm -f ${PWD}/teststack/crossbar/.testdb/*
+	# rm -f ./teststack/crossbar/.crossbar/key.*
+
+check_db:
+	du -hs teststack/crossbar/.testdb/
+	ls -la teststack/crossbar/.testdb/
