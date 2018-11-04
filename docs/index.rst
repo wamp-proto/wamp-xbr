@@ -7,10 +7,11 @@ Welcome to The XBR Protocol's documentation!
 ============================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-
+    getting_started
+    api
 
 Indices and tables
 ==================

@@ -1,4 +1,4 @@
-.PHONY: docs clean
+.PHONY: docs clean build
 
 default:
 	@echo 'Targets: clean compile test'
@@ -8,17 +8,23 @@ clean:
 	-rm -rf ./build
 	-rm -rf ./.pytest_cache/
 	-rm -rf ./node_modules
+	-rm -rf docs/_build
 
 requirements:
 	pip install -r requirements.txt
 	npm install
 
-compile:
-	populus compile
+# populus does not follow symlinks: https://github.com/ethereum/populus/issues/379
+zeppelin:
+	cp -R openzeppelin-solidity/contracts contracts/zeppelin
 
-test: compile
+build:
+	populus compile contracts/XBRToken.sol
+
+test: build
 	#pytest --disable-pytest-warnings tests
 	pytest -p no:warnings 2> /dev/null
+
 
 chain_init:
 	populus chain new horton
@@ -33,8 +39,12 @@ chain_deploy:
 chain_attach:
 	geth attach chains/horton/chain_data/geth.ipc
 
-docs:
-	npx solidity-docgen . contracts .
 
-test_docs:
-	cd website && yarn start
+docs:
+	cd docs && sphinx-build -b html . _build
+
+clean_docs:
+	-rm -rf docs/_build
+
+test_docs: docs
+	twistd --nodaemon web --path=docs/_build --listen=tcp:8080

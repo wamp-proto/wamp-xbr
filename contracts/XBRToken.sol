@@ -16,18 +16,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.24;
 
-import 'contracts/zeppelin/StandardToken.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol';
 
-contract XBRToken is StandardToken {
-    string public name = 'XBRToken';
-    string public symbol = 'XBR';
-    uint8 public decimals = 19;
-    uint public INITIAL_SUPPLY = 1000000000;
+/**
+ * @title XBRToken
+ * @dev Very simple ERC20 Token example, where all tokens are pre-assigned to the creator.
+ * Note they can later distribute these tokens as they wish using `transfer` and other
+ * `ERC20` functions.
+ */
+contract XBRToken is ERC20, ERC20Detailed {
 
-    function XBRToken() public {
-        totalSupply_ = INITIAL_SUPPLY;
-        balances[msg.sender] = INITIAL_SUPPLY;
+    uint256 public constant INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals()));
+
+    /**
+     * @dev Constructor that gives msg.sender all of existing tokens.
+     */
+    constructor() public ERC20Detailed("XBRToken", "XBR", 18) {
+        _mint(msg.sender, INITIAL_SUPPLY);
     }
 }

@@ -25,11 +25,13 @@ import "./XBRMarket.sol";
 
 
 contract XBRNetwork {
-    address public network_token;
-    address public network_sponsor;
-    address public dns_oracle;
 
-    //
+    address public _network_token;
+
+    address public _network_sponsor;
+
+    address public _dns_oracle;
+
     struct Agent {
         uint32 public_key;
         string descriptor;
@@ -46,46 +48,48 @@ contract XBRNetwork {
     }
     mapping(uint256 => DomainVerification) _domain_verifications;
 
-    function XBRNetwork(address network_token, address network_sponsor, address dns_oracle) public {
+    /// Create a new network.
+    /// @param network_token The token to run this network on.
+    /// @param network_sponsor The network technology sponsor.
+    /// @param dns_oracle The DNS oracle within the network.
+    constructor (address network_token, address network_sponsor, address dns_oracle) public {
         network_token = network_token;
         network_sponsor = network_sponsor;
         dns_oracle = dns_oracle;
     }
 
-    function register_domain(string domain, string descriptor) returns (uint256) {
+    function register_domain(string domain, string descriptor) public returns (uint256) {
     }
 
 
-    function verify_domain(uint256 domain_cookie, uint8 v, bytes32 r, bytes32 s) {
+    function verify_domain(uint256 domain_cookie, uint8 v, bytes32 r, bytes32 s) public {
     }
 
-    function get_domain(string domain) returns (Domain) {
+    function get_domain(string domain) public returns (Domain) {
     }
 
-    // Register an XBR agent in a data market.
-    //
-    // @public_key: The WAMP-cryptosign (Ed25519) public key of the peer
-    // @block_number: The Ethereum block number from which onwards the association
-    //                should be established.
-    // @descriptor: The IPFS object content address of the agent descriptor bundle.
-    //              e.g. `QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq`.
-    //
-    function register_agent(bytes32 public_key, uint block_number, string descriptor) {
+    /// Register an XBR agent in a data market.
+    /// @param public_key The WAMP-cryptosign (Ed25519) public key of the peer
+    /// @param block_number The Ethereum block number from which onwards the association should be established.
+    /// @param descriptor The IPFS object content address of the agent descriptor bundle. e.g. `QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq`.
+    function register_agent(bytes32 public_key, uint block_number, string descriptor) public {
     }
 
-    function get_agent(bytes32 public_key) returns (Agent) {
+    function get_agent(bytes32 public_key) public returns (Agent) {
     }
 
-    function register_market(string domain, string market, string descriptor) {
+    function register_market(string domain, string market, string descriptor) public {
     }
 
-    function get_market(string domain, string market) returns (XBRMarket) {
+    function get_market(string domain, string market) public returns (XBRMarket) {
     }
 
-    function is_signed_by(address signer, bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns (bool) {
+    function is_signed_by(address signer, bytes32 hash, uint8 v, bytes32 r, bytes32 s) private constant returns (bool) {
 
+        /*
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 prefixedHash = keccak256(prefix, hash);
         return ecrecover(prefixedHash, v, r, s) == signer;
+        */
     }
 }
