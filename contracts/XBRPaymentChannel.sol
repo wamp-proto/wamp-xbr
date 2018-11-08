@@ -46,9 +46,13 @@ contract XBRPaymentChannel {
     event Closed();
 
     /**
-     * FIXME
+     * Create a new XBR payment channel for handling microtransactions of XBR tokens.
+     *
+     * @param _market_id The ID of the XBR market this payment channel is associated with.
+     * @param to The receiver of the payments.
+     * @param timeout The payment channel timeout period that begins with the first call to `close()`
      */
-    function XBRPaymentChannel (bytes32 _market_id, address to, uint timeout) public payable {
+    constructor (bytes32 _market_id, address to, uint timeout) public payable {
         market_id = _market_id;
         channel_recipient = to;
         channel_sender = msg.sender;
@@ -57,7 +61,13 @@ contract XBRPaymentChannel {
     }
 
     /**
-     * FIXME
+     * Trigger closing this payment channel. When the first participant has called `close()`
+     * submitting its latest transaction/state, a timeout period begins during which the
+     * other party of the payment channel has to submit its latest transaction/state too.
+     * When both transaction have been submitted, and the submitted transactions/states agree,
+     * the channel immediately closes, and the consumed amount of token in the channel is
+     * transferred to the chanel receipient, and the remaining amount of token is transferred
+     * back to the original sender.
      */
     function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value) public {
 
@@ -92,7 +102,7 @@ contract XBRPaymentChannel {
     }
 
     /**
-     * FIXME
+     * Timeout this state channel.
      */
     function timeout () public {
         if (start_date + channel_timeout > now) {

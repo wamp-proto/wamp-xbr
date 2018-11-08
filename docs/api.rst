@@ -17,7 +17,7 @@ XBR Token
 .. autosolcontract:: XBRToken
     :members:
         INITIAL_SUPPLY,
-        XBRToken
+        constructor
 
 
 XBR Payment Channel
@@ -27,7 +27,7 @@ XBR Payment Channel
     :members:
         Closing,
         Closed,
-        XBRPaymentChannel,
+        constructor,
         close,
         timeout
 
