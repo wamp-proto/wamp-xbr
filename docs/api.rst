@@ -8,6 +8,8 @@ using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <htt
 
 .. contents:: :local:
 
+:sol:contract:`XBRPaymentChannel`
+
 ----------
 
 

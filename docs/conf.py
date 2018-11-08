@@ -8,6 +8,8 @@
 
 import os
 import json
+from sphinx.highlighting import lexers
+from pygments_lexer_solidity import SolidityLexer
 
 try:
     import sphinx_rtd_theme
@@ -153,10 +155,13 @@ html_static_path = ['_static']
 # html_sidebars = {}
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+
+lexers['solidity'] = SolidityLexer()
+
+#pygments_style = 'sphinx'
 #pygments_style = 'monokai'
 #pygments_style = 'native'
 #pygments_style = 'pastie'
-#pygments_style = 'friendly'
+pygments_style = 'friendly'
 
 # -- Extension configuration -------------------------------------------------

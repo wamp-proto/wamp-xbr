@@ -1,8 +1,3 @@
-.. The XBR Protocol documentation master file, created by
-   sphinx-quickstart on Sat Nov  3 16:01:02 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 The XBR Protocol
 ================
 
@@ -20,15 +15,8 @@ that make up the XBR Protocol, and how to build applications that interface to t
     :caption: Contents:
 
     getting_started/index
+    development
     api
-
-.. note::
-
-    The XBR protocol is documented primarily directly
-    within source code using the
-    `Natspec (Ethereum Natural Specification Format) <https://github.com/ethereum/wiki/wiki/Ethereum-Natural-Specification-Format>`_
-    and `Sphinx <http://www.sphinx-doc.org/>`_ is used to generate static HTML
-    from the Solidity source code files.
 
 
 Indices and tables
