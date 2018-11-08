@@ -52,11 +52,26 @@ publish_docs:
 # Ganache test blockchain
 #
 run_ganache:
+	ganache
+
+run_ganache_cli:
 	docker-compose up ganache
 
-clean_ganache:
+clean_ganache_cli:
 	-sudo rm -rf ./ganache/.data/*
 
+
+#
+# Remix (and remixd)
+#
+run_remix:
+	remix-ide
+
+run_remixd:
+	#remixd -s ${PWD}/contracts --remix-ide http://127.0.0.1:8080
+	#remixd -s ${PWD}/contracts --rpc --rpc-port 8545
+	remixd -s ./contracts --remix-ide http://127.0.0.1:8080/#optimize=false&version=soljson-v0.4.25+commit.59dbf8f1.js
+	#remixd -s ./contracts
 
 #
 # CrossbarFX

@@ -18,8 +18,8 @@
 
 pragma solidity ^0.4.24;
 
-import "./XbrMaintained.sol";
-import "./XbrPaymentChannel.sol";
+import "./XBRMaintained.sol";
+import "./XBRPaymentChannel.sol";
 
 
 /**
