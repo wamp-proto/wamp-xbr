@@ -16,25 +16,46 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.24;
+
+import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
+
 
 contract XBRMarket {
 
-    constructor () public {
+    /// Value type for holding XBR Market information.
+    struct Market {
+        address owner;
+        bytes32 terms;
     }
 
-    function contribute(uint campaignID) public payable {
-        Campaign storage c = campaigns[campaignID];
-        // Creates a new temporary memory struct, initialised with the given values
-        // and copies it over to storage.
-        // Note that you can also use Funder(msg.sender, msg.value) to initialise.
-        c.funders[c.numFunders++] = Funder({addr: msg.sender, amount: msg.value});
-        c.amount += msg.value;
+    /// Address of the XBR Network
+    address public network;
+
+    /// Current XBR Markets
+    mapping(bytes32 => Market) public markets;
+
+
+    constructor (address _network) public {
+        network = _network;
+    }
+    
+    function register (bytes32 terms) public {
+
+        // generate new market_id
+        bytes32 market_id = keccak256(abi.encodePacked(msg.sender, blockhash(block.number - 1)));
+
+        // FIXME: gracefully handle multiple market registrations from one user within one block!
+        require(markets[market_id].owner != address(0), "MARKET_ALREADY_EXISTS");
+
+        markets[market_id] = Market(msg.sender, terms);
     }
 
+/*
     function register_api (string domain, string name, string descriptor) public returns (uint256) {
     }
 
     function register_service (bytes32 public_key, string prefix, uint256[] implements, uint256[] provides) public {
     }
+*/    
 }

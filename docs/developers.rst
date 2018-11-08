@@ -1,6 +1,7 @@
 Developer Notes
 ===============
 
+* https://www.maibornwolff.de/blog/zugriffskontrolle-bei-smart-contracts
 * https://openzeppelin.org/api/docs/ownership_rbac_RBAC.html
 * https://ethereum.meta.stackexchange.com/questions/443/blog-simple-storage-patterns-in-solidity
 * https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
