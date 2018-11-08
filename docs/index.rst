@@ -3,8 +3,24 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to The XBR Protocol's documentation!
-============================================
+The XBR Protocol
+================
+
+Welcome to XBR Protocol! Here you find the reference documentation for the Solidity smart contracts
+that make up the XBR Protocol, and how to build applications that interface to those contracts.
+
+.. warning::
+
+    The XBR Protocol should be considered "experimental" at this stage, and the
+    interfaces of the smart contracts will likely undergo some iterations before
+    stabilizing. Use at your own risk, without any warranties whatsoever!
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Contents:
+
+    getting_started/index
+    api
 
 .. note::
 
@@ -14,13 +30,6 @@ Welcome to The XBR Protocol's documentation!
     and `Sphinx <http://www.sphinx-doc.org/>`_ is used to generate static HTML
     from the Solidity source code files.
 
-.. toctree::
-    :maxdepth: 2
-    :caption: Contents:
-
-    getting_started
-    api
-    developers
 
 Indices and tables
 ==================

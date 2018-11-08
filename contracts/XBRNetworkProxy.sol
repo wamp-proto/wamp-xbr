@@ -18,25 +18,12 @@
 
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
-import 'openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol';
+import "./XbrMaintained.sol";
+
 
 /**
- * The XBR Token is a `ERC20` compatible token using (with no modifications)
- * the OpenZeppelin (https://openzeppelin.org/) reference implementation.
+ * @title XBR Network root SC
+ * @author The XBR Project
  */
-contract XBRToken is ERC20, ERC20Detailed {
-
-    /**
-     * The XBR Token has a fixed supply of 1 billion and uses 18 decimal digits.
-     */
-    uint256 public constant INITIAL_SUPPLY = 10**9 * 10**18;
-
-    /**
-     * Constructor that gives msg.sender all of existing tokens.
-     * The XBR Token uses the symbol "XBR" and 18 decimal digits.
-     */
-    constructor() public ERC20Detailed("XBRToken", "XBR", 18) {
-        _mint(msg.sender, INITIAL_SUPPLY);
-    }
+contract XBRNetworkProxy is XBRMaintained {
 }

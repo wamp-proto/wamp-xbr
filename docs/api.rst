@@ -1,3 +1,5 @@
+.. _XBRAPI:
+
 API Reference
 =============
 
@@ -8,32 +10,50 @@ using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <htt
 
 ----------
 
-XBRToken
---------
+
+XBR Token
+---------
 
 .. autosolcontract:: XBRToken
     :members:
+        INITIAL_SUPPLY,
+        XBRToken
 
-XBRNetwork
-----------
+
+XBR Payment Channel
+-------------------
+
+.. autosolcontract:: XBRPaymentChannel
+    :members:
+        Closing,
+        Closed,
+        XBRPaymentChannel,
+        close,
+        timeout
+
+
+XBR Network
+-----------
 
 .. autosolcontract:: XBRNetwork
     :members:
 
-XBRAdminRole
-------------
 
-.. autosolcontract:: XBRAdminRole
+XBR Network Proxy
+-----------------
+
+.. autosolcontract:: XBRNetworkProxy
     :members:
 
-XBRMarket
----------
 
-.. autosolcontract:: XBRMarket
+XBR Maintained
+--------------
+
+.. autosolcontract:: XBRMaintained
     :members:
-
-Write a ``config.json`` node configuration.
-
-Encrypt the file with the node public key and the owner private key.
-
-Concatenate ciphertext and signature and upload to IPFS.
+        MaintainerAdded,
+        MaintainerRemoved,
+        onlyMaintainer,
+        isMaintainer,
+        addMaintainer,
+        renounceMaintainer

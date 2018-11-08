@@ -3,6 +3,8 @@ services:
   
     ganache:
         image: trufflesuite/ganache-cli:latest
+        # UID:GID => id -u, id -g
+        user: "1000:1000"
         ports:
             - "8545:8545"
         volumes:

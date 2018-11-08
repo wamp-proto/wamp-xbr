@@ -1,37 +1,43 @@
-Getting Started
-===============
+.. _GanacheBlockchain:
 
-We build on the following toolset:
+Ganache
+=======
 
-* `Ganache <https://truffleframework.com/ganache>`_
-* `OpenZeppelin Solidity library <https://openzeppelin.org/>`_
-* `MetaMask <https://metamask.io/>`_
+`Ganache <https://truffleframework.com/ganache>`_, one click blockchain:
 
+.. contents:: :local:
 
-Docker
-------
+---------
 
-.. code-block:: console
+Ganache implements a personal (development/test) Ethereum blockchain with the (almost) complete API of a full node.
 
-    #export UID=$(id -u)
-    export GID=$(id -g)
+In particular it implements on the **blockchain read side**:
 
+* ``eth_blockNumber``
+* ``eth_estimateGas``
+* ``eth_gasPrice``
+* ``eth_getBalance``
+* ``eth_getBlockByNumber``
+* ``eth_getTransactionByHash``
+* ``eth_getTransactionReceipt``
+* ``eth_getStorageAt``
+* ``eth_getLogs``
 
-Running Ganache
----------------
+and on the **blockchain write side**, it provides
 
-We will run a local, personal Ethereum blockchain for development using Ganache.
+* ``eth_sendRawTransaction``: used for submitting client pre-signed, raw transactions (to talk to SCs)
 
 Ganache is avaible bundled in two flavors which have different pros/cons:
 
 * `Ganache (GUI) <https://truffleframework.com/ganache>`_
-* `Ganache CLI <https://github.com/trufflesuite/ganache-cli>`
+* `Ganache CLI <https://github.com/trufflesuite/ganache-cli>`_
 
-Ganache GUI
-...........
 
-The former is a full native desktop application with user interface (GUI) and
-builtin blockchain, all bundled as a single-file executable (AppImage based.
+Running Ganache GUI
+-------------------
+
+Ganache GUI is a desktop application with native user interface (GUI) and
+builtin blockchain, all bundled as a single-file executable (AppImage based).
 
 To get it:
 
@@ -43,8 +49,8 @@ To get it:
     sudo cp ./ganache-1.2.2-x86_64.AppImage /usr/local/bin/ganache
 
 
-Ganache CLI
-...........
+Running Ganache CLI
+-------------------
 
 Ganache CLI is part of the Truffle suite of Ethereum development tools, and is the command line version of Ganache.
 
@@ -85,78 +91,3 @@ The most important command line arguments to Ganache CLI are:
     ganache_1   | (2) 0x22d491bde2303f2f43325b2108d26f1eaba1e32b (~1000 ETH)
     ganache_1   | (3) 0xe11ba2b4d45eaed5996cd0823791e0c93114882d (~1000 ETH)
     ganache_1   | (4) 0xd03ea8624c8c5987235048901fb614fdca89b117 (~1000 ETH)
-
-
-
-Ganache implements a personal Ethereum blockchain with the (almost) complete API of a full node.
-
-In particular it implements on the **blockchain read side**:
-
-* ``eth_blockNumber``
-* ``eth_estimateGas``
-* ``eth_gasPrice``
-* ``eth_getBalance``
-* ``eth_getBlockByNumber``
-* ``eth_getTransactionByHash``
-* ``eth_getTransactionReceipt``
-* ``eth_getStorageAt``
-* ``eth_getLogs``
-
-and on the **blockchain write side**, it provides
-
-* ``eth_sendRawTransaction``: used for submitting client pre-signed, raw transactions (to talk to SCs)
-
-
-MetaMask
---------
-
-.. note::
-
-    A Web (HTTP(S)) server is required also for local development:
-    due to browser security restrictions, MetaMask can't communicate with
-    dapps running on ``file://``. Please use a local server for development.
-
-
-Remix IDE
----------
-
-`RemixIDE <https://remix.ethereum.org>`_
-
-
-To to give the remix web application access to a folder from your
-local computer, you can use
-`remixd <https://remix.readthedocs.io/en/latest/tutorial_remixd_filesystem.html>`_.
-
-Install (globally) by:
-
-.. code-block:: console
-
-    sudo npm install -g remix-ide
-    sudo npm install -g remixd
-
-To run:
-
-.. code-block:: console
-
-    remix-ide
-    remixd -s ${PWD}/contracts
-
-
-
-Deploying XBR Smart Contracts
------------------------------
-
-We will build the XBR protocol smart contracts from Solidity sources and deploy to Ganache.
-
-
-Truffle
--------
-
-.. note::
-
-    Truffle comes standard with
-    `npm integration <https://www.truffleframework.com/docs/truffle/getting-started/package-management-via-npm>`_,
-    and is aware of the node_modules directory in your project if it exists. This means you can use and
-    distribute contracts, dapps and Ethereum-enabled libraries via npm, making your code available to others
-    and other's code available to you.
-

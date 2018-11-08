@@ -9,7 +9,7 @@ clean: clean_docs
 	-rm -rf ./build
 
 
-requirements:
+install:
 	pip install -r requirements.txt
 	npm install
 

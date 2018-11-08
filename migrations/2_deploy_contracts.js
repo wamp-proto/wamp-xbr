@@ -1,10 +1,11 @@
-var ConvertLib = artifacts.require("./ConvertLib.sol");
-var MetaCoin = artifacts.require("./MetaCoin.sol");
-var XBRToken = artifacts.require("./XBRToken.sol");
+var XBRToken = artifacts.require("./XbrToken.sol");
+var XBRToken = artifacts.require("./XbrPaymentChannel.sol");
+var XBRNetwork = artifacts.require("./XbrNetwork.sol");
+var XBRNetwork = artifacts.require("./XbrNetworkProxy.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
-  deployer.deploy(XBRToken);
+  deployer.deploy(XbrToken);
+  deployer.deploy(XbrPaymentChannel);
+  deployer.deploy(XbrNetwork);
+  deployer.deploy(XbrNetworkProxy);
 };

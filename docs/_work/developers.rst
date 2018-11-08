@@ -1,6 +1,12 @@
 Developer Notes
 ===============
 
+* Write a ``config.json`` node configuration.
+* Encrypt the file with the node public key and the owner private key.
+* Concatenate ciphertext and signature and upload to IPFS.
+
+-------------
+
 * https://www.maibornwolff.de/blog/zugriffskontrolle-bei-smart-contracts
 * https://openzeppelin.org/api/docs/ownership_rbac_RBAC.html
 * https://ethereum.meta.stackexchange.com/questions/443/blog-simple-storage-patterns-in-solidity
