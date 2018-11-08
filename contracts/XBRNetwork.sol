@@ -129,8 +129,8 @@ contract XBRNetwork is XBRMaintained {
 
         // FIXME: gracefully handle multiple market registrations from one user within one block!
         require(markets[market_id].owner != address(0), "MARKET_ALREADY_EXISTS");
-
-        markets[market_id] = Market(msg.sender, maker, terms);
+        
+        markets[market_id] = Market(msg.sender, maker, terms, new address[](1));
     }
 
     /**
@@ -147,7 +147,7 @@ contract XBRNetwork is XBRMaintained {
      * The procedure returns 
      */
     function open_payment_channel (bytes32 market_id) public payable returns (address payment_channel) {
-        XBRPaymentChannel channel = new XBRPaymentChannel();
+        XBRPaymentChannel channel = new XBRPaymentChannel(market_id, address(0), 60);
         markets[market_id].channels.push(channel);
         return channel;
     }

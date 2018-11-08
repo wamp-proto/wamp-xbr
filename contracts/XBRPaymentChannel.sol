@@ -53,11 +53,19 @@ contract XBRPaymentChannel {
      * @param timeout The payment channel timeout period that begins with the first call to `close()`
      */
     constructor (bytes32 _market_id, address to, uint timeout) public payable {
+
         market_id = _market_id;
         channel_recipient = to;
         channel_sender = msg.sender;
         start_date = now;
         channel_timeout = timeout;
+    }
+
+    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer) internal pure returns (bool) {
+
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
+        return ecrecover(prefixedHash, v, r, s) == expected_signer;
     }
 
     /**
@@ -81,7 +89,7 @@ contract XBRPaymentChannel {
             revert("invalid signature");
         }
 
-        proof = sha3(this, value);
+        proof = keccak256(abi.encodePacked(this, value));
 
         if (proof != h) {
             revert("invalid signature (signature is valid but doesn't match the data provided)");
