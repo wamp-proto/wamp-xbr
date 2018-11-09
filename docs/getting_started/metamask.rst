@@ -103,28 +103,23 @@ Account 5  XBR Data Consumer C1
 Account 6  XBR Data Consumer C2
 =========  ======================
 
-Select **Account 1** (The XBR project) and deploy an instance of
-the ``XBRNetwork`` smart contract (and dependent SCs like ``XBRPaymentChannel``).
+**Account 1** (The XBR project) is used to deploy the XBR Protocol smart contracts.
 
-Select **Account 2** (XBR Market Maker M1) and call smart contract functions:
+**Account 2** (XBR Market Maker M1) will call smart contract functions:
 
 * ``XBRNetwork.register`` to register in the XBR network
 * ``XBRNetwork.open_market`` to open a new market
 
-Select **Account 3** (XBR Data Provider P1) and call smart contract functions:
+**Account 3/4** (XBR Data Provider P1/P2) will call smart contract functions:
 
 * ``XBRNetwork.register`` to register in the XBR network
 * ``XBRNetwork.join_market`` to join a market, depositing an amount of XBR token as a security and for the market maker to open a payment channel with this data provider
 * ``XBRNetwork.request_channel`` to request a payment channel receiving money from the market maker, depositing an amount of XBR token. this returns a new ``XBRPaymentChannel`` SC
 * ``XBRPaymentChannel.close`` to close a payment channel.
 
-Repeat the last step for **Account 4**.
-
-Select **Account 5** (XBR Data Consumer C1) and call smart contract functions:
+Select **Account 5/6** (XBR Data Consumer C1/C2) will call smart contract functions:
 
 * ``XBRNetwork.register`` to register in the XBR network
 * ``XBRNetwork.join_market`` to join a market, depositing an amount of XBR token as a security
 * ``XBRNetwork.open_channel`` to open a payment channel, depositing an amount of XBR token. this returns a new ``XBRPaymentChannel`` SC
 * ``XBRPaymentChannel.close`` to close a payment channel.
-
-Repeat the last step for **Account 6**.
