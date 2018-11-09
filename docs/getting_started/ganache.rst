@@ -32,6 +32,11 @@ Ganache is avaible bundled in two flavors which have different pros/cons:
 * `Ganache (GUI) <https://truffleframework.com/ganache>`_
 * `Ganache CLI <https://github.com/trufflesuite/ganache-cli>`_
 
+.. note::
+
+    Ganache GUI per default listens on ``http://127.0.0.1:7545``,
+    while Ganache CLI will listen on ``http://127.0.0.1:8545``.
+
 
 Running Ganache GUI
 -------------------
@@ -39,7 +44,7 @@ Running Ganache GUI
 Ganache GUI is a desktop application with native user interface (GUI) and
 builtin blockchain, all bundled as a single-file executable (AppImage based).
 
-To get it:
+Ganache GUI is avaible as a single-file executable (AppImage-based). To install:
 
 .. code-block:: console
 
@@ -47,6 +52,17 @@ To get it:
     wget https://github.com/trufflesuite/ganache/releases/download/v1.2.2/ganache-1.2.2-x86_64.AppImage
     chmod +x ganache-1.2.2-x86_64.AppImage
     sudo cp ./ganache-1.2.2-x86_64.AppImage /usr/local/bin/ganache
+
+and start Ganache GUI
+
+.. code-block:: console
+
+    ganache
+
+Ganache per default will listen (blockchain node RPC endpoint) on ``http://127.0.0.1:7545``.
+Here is a screenshot of Ganache GUI with Remix IDE connected:
+
+.. thumbnail:: /_static/screenshots/xbr_payment_channel.png
 
 
 Running Ganache CLI

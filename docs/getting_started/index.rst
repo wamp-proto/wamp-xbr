@@ -7,7 +7,6 @@ We build on the following toolset:
 * `MetaMask <https://metamask.io/>`_, the dApps Ethereum bridge
 * `Truffle <https://truffleframework.com/>`_, the Ethereum development framework
 * `Remix IDE <https://remix.ethereum.org/>`_, the browser based Ethereum IDE
-* `OpenZeppelin Solidity library <https://openzeppelin.org/>`_, the secure smart contract library
 
 
 .. toctree::
@@ -17,5 +16,4 @@ We build on the following toolset:
     ganache
     metamask
     truffle
-    zeppelin
     remixide
