@@ -8,3 +8,4 @@ docs/_build/
 teststack/ganache/.data/
 key.*
 teststack/crossbar/.xbrdb/
+docs/_static/gen/

@@ -1,7 +1,7 @@
 .. _XBRAPI:
 
-XBR API Reference
-=================
+Smart Contracts API
+===================
 
 This is the XBR smart contracts API reference documentation, generated from the Solidity source code
 using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`_.
@@ -14,15 +14,6 @@ using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <htt
 Overview
 --------
 
-- Registrierung im XBR Network
-- Öffnen von XBR Märkten
-- Öffnen von XBR Payment Channels:
-   - XBR Consumer => Market Maker
-   - XBR Market Maker => Provider
-- Schliessen von XBR Payment Channels
-
-
-
 **XBR Data Consumers** call:
 
 1. :sol:func:`XBRNetwork.register` to register in the XBR network
@@ -30,12 +21,16 @@ Overview
 3. :sol:func:`XBRNetwork.open_channel` to open a payment channel, depositing an amount of XBR token. this returns a new :sol:contract:`XBRPaymentChannel` SC
 4. :sol:func:`XBRPaymentChannel.close` to close a payment channel.
 
+.. thumbnail:: /_static/gen/xbr_consumer_interactions.svg
+
+
 **XBR Data Providers** call:
 
 1. :sol:func:`XBRNetwork.register` to register in the XBR network
 2. :sol:func:`XBRNetwork.join_market` to join a market, depositing an amount of XBR token as a security and for the market maker to open a payment channel with this data provider
 3. :sol:func:`XBRNetwork.request_channel` to request a payment channel receiving money from the market maker, depositing an amount of XBR token. this returns a new :sol:contract:`XBRPaymentChannel` SC
 4. :sol:func:`XBRPaymentChannel.close` to close a payment channel.
+
 
 **XBR Market Makers** call:
 

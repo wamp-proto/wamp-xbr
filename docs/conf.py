@@ -37,7 +37,7 @@ RTD_BUILD = os.environ.get('READTHEDOCS', None) == 'True'
 
 # -- Project information -----------------------------------------------------
 
-project = 'XBR Protocol'
+project = 'The XBR Protocol'
 copyright = '2018, Crossbar.io Technologies GmbH'
 author = 'The XBR Project'
 
@@ -125,11 +125,11 @@ else:
 
         # add custom CSS on top of Sphinx RTD standard CSS
         def setup(app):
-            app.add_stylesheet('custom.css')
+            app.add_stylesheet('css/custom.css')
     else:
         html_theme = 'default'
 
-html_logo = '_static/xbr_logo_on_white.png'
+html_logo = '_static/gen/logo_xbr_on_grey.svg'
 full_logo = True
 
 # Theme options are theme-specific and customize the look and feel of a theme

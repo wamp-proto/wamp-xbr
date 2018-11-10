@@ -26,6 +26,32 @@ deploy:
 
 
 #
+# build optimized SVG files from source SVGs
+#
+BUILDDIR = docs/_static/gen
+SCOUR = scour 
+SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
+
+# build "docs/_static/gen/*.svg" optimized SVGs from "docs/_graphics/*.svg" using Scour
+# note: this currently does not recurse into subdirs! place all SVGs flat into source folder
+SOURCEDIR = docs/_static/drawing
+
+SOURCES = $(wildcard $(SOURCEDIR)/*.svg)
+OBJECTS = $(patsubst $(SOURCEDIR)/%.svg, $(BUILDDIR)/%.svg, $(SOURCES))
+
+$(BUILDDIR)_exists:
+	mkdir -p $(BUILDDIR)
+
+build_images: $(BUILDDIR)_exists $(BUILDDIR)/$(OBJECTS)
+
+$(BUILDDIR)/%.svg: $(SOURCEDIR)/%.svg
+	$(SCOUR) $(SCOUR_FLAGS) $< $@
+
+clean_images:
+	-rm -rf docs/_static/gen
+
+
+#
 # XBR Protocol documentation
 #
 docs:

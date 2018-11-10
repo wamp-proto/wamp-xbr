@@ -5,6 +5,22 @@ This is documentation addressing XBR project developers, not XBR application dev
 
 For XBR application developer documentation, please see the other sections of this documentation.
 
+We build on the following toolset:
+
+* `Ganache <https://truffleframework.com/ganache>`_, the personal blockchain
+* `MetaMask <https://metamask.io/>`_, the dApps Ethereum bridge
+* `Truffle <https://truffleframework.com/>`_, the Ethereum development framework
+* `Remix IDE <https://remix.ethereum.org/>`_, the browser based Ethereum IDE
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Contents:
+
+    ganache
+    metamask
+    truffle
+    remixide
 
 Writing documentation
 ---------------------
