@@ -14,6 +14,15 @@ using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <htt
 Overview
 --------
 
+- Registrierung im XBR Network
+- Öffnen von XBR Märkten
+- Öffnen von XBR Payment Channels:
+   - XBR Consumer => Market Maker
+   - XBR Market Maker => Provider
+- Schliessen von XBR Payment Channels
+
+
+
 **XBR Data Consumers** call:
 
 1. :sol:func:`XBRNetwork.register` to register in the XBR network
