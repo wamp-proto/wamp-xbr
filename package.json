@@ -1,22 +1,35 @@
 {
     "name": "xbr",
     "version": "0.5.0",
-    "description": "The XBR protocol Solidity smart contracts",
+    "description": "The XBR Protocol (smart contracts package)",
+    "keywords": [
+        "ethereum",
+        "solidity",
+        "xbr",
+        "crossbar",
+        "autobahn",
+        "wamp",
+        "data-service",
+        "data-monetization"
+    ],
+    "author": "Crossbar.io Technologies GmbH",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/xbr/xbr-protocol.git"
+    },
+    "dependencies": {
+        "openzeppelin-solidity": "^2.0.0"
+    },
+    "devDependencies": {
+        "solhint": "^1.4.0",
+        "truffle": "^4.1.14"
+    },
     "main": "truffle.js",
     "directories": {
         "test": "test"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": ["ethereum", "xbr", "crossbar", "autobahn", "wamp", "data-service", "data-monetization"],
-    "author": "Crossbar.io Technologies GmbH",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/xbr/xbr-protocol.git"
-    },  
-    "dependencies": {
-        "openzeppelin-solidity": "^2.0.0"
     }
 }

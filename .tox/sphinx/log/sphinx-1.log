@@ -1,0 +1,4 @@
+actionid: sphinx
+msg: envreport
+cmdargs: '/home/oberstet/scm/xbr/xbr-protocol/.tox/sphinx/bin/python -m pip freeze'
+

@@ -6,7 +6,8 @@ default:
 	@echo 'Targets: clean compile test'
 
 clean: clean_docs
-	-rm -rf ./build
+	-rm -rf ./build/
+	-rm -rf ./.tox/
 
 
 install:
@@ -55,23 +56,25 @@ clean_images:
 # XBR Protocol documentation
 #
 docs:
-	# cd docs && sphinx-build -nWT -b dummy . _build
 	cd docs && sphinx-build -b html . _build
 
-clean_docs:
-	-rm -rf docs/_build
+check_docs:
+	cd docs && sphinx-build -nWT -b dummy . _build
+
+spellcheck_docs:
+	cd docs && sphinx-build -b spelling -d ./_build/doctrees . ./_build/spelling
 
 run_docs: docs
 	twistd --nodaemon web --path=docs/_build --listen=tcp:8090
-
-spellcheck_docs:
-	sphinx-build -b spelling -d docs/_build/doctrees docs docs/_build/spelling
 
 # build and deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
 #   => https://xbr.network/docs/index.html
 publish_docs:
 	aws s3 cp --recursive --acl public-read docs/_build s3://xbr.foundation/docs
+
+clean_docs:
+	-rm -rf docs/_build
 
 
 #

@@ -1,0 +1,31 @@
+actionid: sphinx
+msg: envreport
+cmdargs: '/home/oberstet/scm/xbr/xbr-protocol/.tox/sphinx/bin/python -m pip freeze'
+
+alabaster==0.7.12
+antlr4-python3-runtime==4.7.1
+Babel==2.6.0
+certifi==2018.10.15
+chardet==3.0.4
+docutils==0.14
+idna==2.7
+imagesize==1.1.0
+Jinja2==2.10
+MarkupSafe==1.1.0
+packaging==18.0
+peewee==3.7.1
+pyenchant==2.0.0
+Pygments==2.2.0
+pygments-lexer-solidity==0.3.1
+pyparsing==2.3.0
+pytz==2018.7
+requests==2.20.1
+six==1.11.0
+snowballstemmer==1.2.1
+Sphinx==1.8.2
+sphinx-rtd-theme==0.4.2
+sphinxcontrib-images==0.8.0
+sphinxcontrib-soliditydomain==0.4.0
+sphinxcontrib-spelling==4.2.0
+sphinxcontrib-websupport==1.1.0
+urllib3==1.24.1

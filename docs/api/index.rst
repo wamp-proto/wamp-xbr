@@ -6,5 +6,5 @@ XBR API
 
     contracts
     market
-    consumer
     provider
+    consumer
