@@ -23,6 +23,8 @@ before_install:
 
 install:
   - pip install -r requirements.txt
+  - npm install -g truffle
+  - npm install -g solhint
 
 script:
   - tox -c tox.ini -e $TOX_ENV
