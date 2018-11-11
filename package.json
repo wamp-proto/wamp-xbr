@@ -1,6 +1,6 @@
 {
     "name": "xbr",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "The XBR Protocol (smart contracts package)",
     "keywords": [
         "ethereum",
@@ -22,8 +22,8 @@
         "openzeppelin-solidity": "^2.0.0"
     },
     "devDependencies": {
-        "solhint": "^1.4.0",
-        "truffle": "^4.1.14"
+        "solhint": ">=1.4.0",
+        "truffle": ">=4.1.14"
     },
     "main": "truffle.js",
     "directories": {
