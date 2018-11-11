@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity 0.4.25;
+pragma solidity 0.4.24;
 
 import "./XBRMaintained.sol";
 import "./XBRPaymentChannel.sol";
@@ -54,7 +54,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public network_organization;
-    
+
     /// Current XBR Network members.
     mapping(address => Member) public members;
 
@@ -63,7 +63,7 @@ contract XBRNetwork is XBRMaintained {
 
     /**
      * Create a new network.
-     * 
+     *
      * @param _network_token The token to run this network on.
      * @param _network_organization The network technology provider and ecoystem sponsor.
      */
@@ -71,14 +71,14 @@ contract XBRNetwork is XBRMaintained {
         network_token = _network_token;
         network_organization = _network_organization;
     }
-    
+
     /**
      * Join the XBR Network. All XBR stakeholders, namely XBR Data Providers,
      * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
      * with the XBR Network on the global blockchain by calling this function.
-     * 
+     *
      * @param eula The file hash (SHA2-256) of the XBR Network EULA documents
-     *             being agreed to and stored as one ZIP file archive on IPFS.    
+     *             being agreed to and stored as one ZIP file archive on IPFS.
      * @param profile Optional public member profile: the file hash (SHA2-256)
      *                of the member profile file stored on a well-known location
      *                (suchas as IPFS).
@@ -88,7 +88,7 @@ contract XBRNetwork is XBRMaintained {
 
         members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
     }
-    
+
     /**
      * Leave the XBR Network.
      */
@@ -101,7 +101,7 @@ contract XBRNetwork is XBRMaintained {
     /**
      * Manually override the member level of a XBR Network member. Being able to do so
      * currently serves two purposes:
-     * 
+     *
      * - having a last resort to handle situation where members violated the EULA
      * - being able to manually patch things in error/bug cases
      */
@@ -128,7 +128,7 @@ contract XBRNetwork is XBRMaintained {
 
         // FIXME: gracefully handle multiple market registrations from one user within one block!
         require(markets[market_id].owner != address(0), "MARKET_ALREADY_EXISTS");
-        
+
         markets[market_id] = Market(msg.sender, maker, terms, new address[](1));
     }
 
@@ -138,12 +138,12 @@ contract XBRNetwork is XBRMaintained {
      * @param market_id The ID of the XBR data market to join.
      * @param actor_type The type of actor under which to join: PROVIDER or CONSUMER.
      */
-    function join_market (bytes32 market_id, ActorType actor_type) public payable {        
+    function join_market (bytes32 market_id, ActorType actor_type) public payable {
     }
 
     /**
      * Open a new payment channel and deposit an amount of XBR token into a market.
-     * The procedure returns 
+     * The procedure returns
      */
     function open_payment_channel (bytes32 market_id) public payable returns (address payment_channel) {
         XBRPaymentChannel channel = new XBRPaymentChannel(market_id, address(0), 60);
@@ -178,6 +178,6 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param market_id The ID of the market to close.
      */
-    function close_market (bytes32 market_id) public {        
+    function close_market (bytes32 market_id) public {
     }
 }

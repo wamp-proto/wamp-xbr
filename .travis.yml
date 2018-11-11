@@ -22,7 +22,7 @@ before_install:
   - export XBR_BUILD_ID="$(date --utc "+%Y%m%d")-$(git rev-parse --short ${TRAVIS_COMMIT})"
 
 install:
-  - snap install solc
+  # - snap install solc
   - pip install -r requirements.txt
   - npm install -g truffle
   - npm install -g solhint
