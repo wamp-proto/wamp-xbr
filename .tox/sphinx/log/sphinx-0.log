@@ -1,9 +1,0 @@
-actionid: sphinx
-msg: getenv
-cmdargs: '/home/oberstet/cpy370_1/bin/python -m virtualenv --python /home/oberstet/cpy370_1/bin/python sphinx'
-
-Already using interpreter /home/oberstet/cpy370_1/bin/python
-Using base prefix '/home/oberstet/cpy370'
-New python executable in /home/oberstet/scm/xbr/xbr-protocol/.tox/sphinx/bin/python
-Installing setuptools, pip, wheel...
-done.
