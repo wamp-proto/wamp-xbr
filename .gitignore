@@ -9,3 +9,4 @@ teststack/ganache/.data/
 key.*
 teststack/crossbar/.xbrdb/
 docs/_static/gen/
+.tox
