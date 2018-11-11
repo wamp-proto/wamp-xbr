@@ -17,8 +17,12 @@ var session = null;
 
 async function test () {
     let a = await web3.eth.getAccounts();
-    let acct = a[0];
-    console.log('account:', acct);
+    if (a && a.length > 0) {
+        let acct = a[0];
+        console.log('account:', acct);
+    } else {
+        console.log('no accounts!');
+    }
 }
 
 
@@ -26,8 +30,12 @@ connection.onopen = async function (new_session, details) {
     console.log("Connected", details);
     session = new_session;
 
-    console.log('web3 version:', web3.version);
-    await test();
+    if (web3) {
+        console.log('web3 version:', web3.version);
+        await test();
+    } else {
+        console.log('skipping tests! no web3 available');
+    }
 
     /*
     web3.eth.getAccounts().then(

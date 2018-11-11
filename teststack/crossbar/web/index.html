@@ -1,11 +1,49 @@
+<!DOCTYPE html>
 <html>
-   <meta charset="UTF-8">
-   <body>
-      <h1>XBR Network</h1>
-      <p>Interacting with the XBR network from JavaScript and browser applications</p>
-      <script>AUTOBAHN_DEBUG = false;</script>
-      <script src="/autobahn/autobahn.min.js"></script>
-      <script src="/blockchain.js"></script>
-      <script src="/comms.js"></script>
-   </body>
+    <meta charset="UTF-8">
+    <head>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+            h2 {
+                margin-top: 2em;
+                color: #038;
+            }
+            h3 {
+                margin-top: 1.3em;
+                color: #06c;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>XBR Network</h1>
+        <p>Interacting with the XBR network from JavaScript and browser applications</p>
+        <script>AUTOBAHN_DEBUG = false;</script>
+        <script src="/autobahn/autobahn.min.js"></script>
+        <script src="/blockchain.js"></script>
+        <script src="/comms.js"></script>
+
+        <h2>Market Maker</h2>
+
+        <h3>Register</h3>
+        <p>
+            Register a XBR Market Maker in the XBR Network:
+            <table>
+                <tr>
+                    <td>Maker Address</td>
+                    <td><input type="text" id="maker_reg_address" name="maker_reg_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                </tr>
+                <tr>
+                    <td>EULA (required)</td>
+                    <td><input type="text" id="maker_reg_eula" name="maker_reg_eula" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                </tr>
+                <tr>
+                    <td>Member Profile (optional)</td>
+                    <td><input type="text" id="maker_reg_profile" name="maker_reg_profile" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                </tr>
+            </table>
+            <button onclick="register_maker()">Register Maker</button>
+        </p>
+    </body>
 </html>
