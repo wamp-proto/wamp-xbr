@@ -53,3 +53,16 @@ So referencing a Solidity contract, function or event works like this in Sphinx:
     :sol:func:`XBRNetwork.open_market`
 
     :sol:event:`XBRPaymentChannel.Closing`
+
+Code Style
+----------
+
+visibility levels (public, private, external, internal)
+https://github.com/melonproject/oyente
+
+https://medium.com/@ProtoFire_io/solhint-an-advanced-linter-for-ethereums-solidity-c6b155aced7b
+https://protofire.github.io/solhint/
+https://github.com/protofire/solhint
+
+
+// solhint-disable-line

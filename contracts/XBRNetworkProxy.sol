@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.24;
+pragma solidity 0.4.25;
 
 import "./XBRMaintained.sol";
 
@@ -26,4 +26,10 @@ import "./XBRMaintained.sol";
  * @author The XBR Project
  */
 contract XBRNetworkProxy is XBRMaintained {
+    
+    address internal _networkContract;
+
+    function setNetworkContract (address networkContract) public onlyMaintainer {
+        _networkContract = networkContract;
+    }
 }

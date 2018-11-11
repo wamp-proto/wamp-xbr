@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.24;
+pragma solidity 0.4.25;
 
 
 /**
@@ -30,7 +30,7 @@ contract XBRPaymentChannel {
     address public channel_recipient;
     uint public start_date;
     uint public channel_timeout;
-    mapping (bytes32 => address) signatures;
+    mapping (bytes32 => address) public signatures;
 
     /**
      * Event emitted when payment channel is closing (that is, one of the two state channel
@@ -57,15 +57,8 @@ contract XBRPaymentChannel {
         market_id = _market_id;
         channel_recipient = to;
         channel_sender = msg.sender;
-        start_date = now;
+        start_date = now; // solhint-disable-line
         channel_timeout = timeout;
-    }
-
-    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer) internal pure returns (bool) {
-
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
-        return ecrecover(prefixedHash, v, r, s) == expected_signer;
     }
 
     /**
@@ -98,10 +91,9 @@ contract XBRPaymentChannel {
         if (signatures[proof] == 0) {
             signatures[proof] = signer;
             emit Closing();
-        }
-        else if (signatures[proof] != signer) {
+        } else if (signatures[proof] != signer) {
             // channel completed, both signatures provided
-            if (!channel_recipient.send(value)) {
+            if (!channel_recipient.send(value)) { // solhint-disable-line
                 revert("transaction failed on the very last meter");
             }
             selfdestruct(channel_sender);
@@ -113,9 +105,17 @@ contract XBRPaymentChannel {
      * Timeout this state channel.
      */
     function timeout () public {
-        if (start_date + channel_timeout > now) {
+        if (start_date + channel_timeout > now) { // solhint-disable-line
             revert("channel timeout");
         }
         selfdestruct(channel_sender);
+    }
+
+    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s,
+        address expected_signer) internal pure returns (bool) {
+
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
+        return ecrecover(prefixedHash, v, r, s) == expected_signer;
     }
 }

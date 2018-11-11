@@ -21,6 +21,9 @@ install:
 build:
 	truffle compile
 
+lint:
+	solhint "contracts/**/*.sol"
+
 deploy:
 	truffle compile --all
 	truffle migrate --reset
@@ -99,8 +102,10 @@ run_remix:
 run_remixd:
 	#remixd -s ${PWD}/contracts --remix-ide http://127.0.0.1:8080
 	#remixd -s ${PWD}/contracts --rpc --rpc-port 8545
-	remixd -s ./contracts --remix-ide http://127.0.0.1:8080/#optimize=false&version=soljson-v0.4.25+commit.59dbf8f1.js
+	#remixd -s ./contracts --remix-ide http://127.0.0.1:8080/#optimize=true&version=soljson-v0.4.25+commit.59dbf8f1.js
+	remixd -s ./contracts --remix-ide http://127.0.0.1:8080/
 	#remixd -s ./contracts
+
 
 #
 # CrossbarFX

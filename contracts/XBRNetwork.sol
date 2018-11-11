@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.24;
+pragma solidity 0.4.25;
 
 import "./XBRMaintained.sol";
 import "./XBRPaymentChannel.sol";
@@ -67,8 +67,7 @@ contract XBRNetwork is XBRMaintained {
      * @param _network_token The token to run this network on.
      * @param _network_organization The network technology provider and ecoystem sponsor.
      */
-    constructor (address _network_token,
-                 address _network_organization) public {
+    constructor (address _network_token, address _network_organization) public {
         network_token = _network_token;
         network_organization = _network_organization;
     }

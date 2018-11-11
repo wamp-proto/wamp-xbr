@@ -1,0 +1,15 @@
+{
+    "extends": "default",
+    "rules": {
+        "indent": ["error", 4],
+        "quotes": ["error", "double"],
+        "max-line-length": ["error", 120],
+        "compiler-fixed": "error",
+
+        "var-name-mixedcase": false,
+        "func-param-name-mixedcase": false,
+        "func-name-mixedcase": false,
+        "no-unused-vars": false,
+        "no-empty-blocks": false
+    }
+}
