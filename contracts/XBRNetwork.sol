@@ -32,11 +32,6 @@ contract XBRNetwork is XBRMaintained {
     /// XBR Network membership levels
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
-    /// XBR Market Actor types
-    enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
-    
-    event MemberCreated (bytes32 eula, bytes32 profile, MemberLevel level);
-
     /// Value type for holding XBR Network membership information.
     struct Member {
         bytes32 eula;
@@ -44,28 +39,45 @@ contract XBRNetwork is XBRMaintained {
         MemberLevel level;
     }
 
+    event MemberCreated (bytes32 eula, bytes32 profile, MemberLevel level);
+
+    /// XBR Market Actor types
+    enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
+    
+    struct Actor {
+        ActorType actorType;
+    }
+    
+    event ActorJoined ();
+
     /// Value type for holding XBR Market information.
     struct Market {
         uint32 sequence;
         address owner;
         address maker;
         bytes32 terms;
+        uint providerSecurity;
+        uint consumerSecurity;
         address[] channels;
+        mapping(address => Actor) actors;
     }
 
     uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    address public network_token;
+    address private network_token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address public network_organization;
+    address private network_organization;
 
     /// Current XBR Network members.
-    mapping(address => Member) public members;
+    mapping(address => Member) private members;
 
     /// Current XBR Markets ("market repository")
-    mapping(bytes32 => Market) public markets;
+    mapping(bytes32 => Market) private markets;
+    
+    /// Index: maker address => market ID
+    mapping(address => bytes32) private marketByMaker;
 
     /**
      * Create a new network.
@@ -119,7 +131,7 @@ contract XBRNetwork is XBRMaintained {
      * - having a last resort to handle situation where members violated the EULA
      * - being able to manually patch things in error/bug cases
      */
-    function set_member_level (address member, MemberLevel level) public onlyMaintainer {
+    function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
         // only network admins are allowed to override member level
         //require(network_admins.has(msg.sender), "DOES_NOT_HAVE_NETWORK_ADMIN_ROLE");
 
@@ -132,35 +144,71 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param maker The address of the XBR market maker that will run this market.
      * @param terms The XBR market terms set by the market owner.
-     * @param provider_security The amount of XBR tokens a XBR provider joining the market must deposit.
-     * @param consumer_security The amount of XBR tokens a XBR consumer joining the market must deposit.
+     * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
+     * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
      */
-    function open_market (address maker, bytes32 terms, uint64 provider_security, uint64 consumer_security) public {
+    function openMarket (bytes32 marketId, address maker, bytes32 terms, uint providerSecurity,
+        uint consumerSecurity) public {
 
         // generate new market_id
-        bytes32 marketId = keccak256(abi.encodePacked(marketSeq, msg.sender, blockhash(block.number)));
+        // bytes32 marketId = keccak256(abi.encodePacked(marketSeq, msg.sender, blockhash(block.number)));
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
+        require(marketByMaker[maker] == bytes32(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
-        markets[marketId] = Market(marketSeq, msg.sender, maker, terms, new address[](1));
+        markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
+            consumerSecurity, new address[](0));
+
+        marketByMaker[maker] = marketId;
+
         marketSeq = marketSeq + 1;
+    }
+    
+    function getMarketByMaker (address maker) public view returns (bytes32) {
+        return marketByMaker[maker];
+    }
+    
+    function getMarketOwner (bytes32 marketId) public view returns (address) {
+        return markets[marketId].owner;
+    }
+
+    function getMarketMaker (bytes32 marketId) public view returns (address) {
+        return markets[marketId].maker;
+    }
+
+    function getMarketTerms (bytes32 marketId) public view returns (bytes32) {
+        return markets[marketId].terms;
+    }
+
+    function getMarketProviderSecurity (bytes32 marketId) public view returns (uint) {
+        return markets[marketId].providerSecurity;
+    }
+
+    function getMarketConsumerSecurity (bytes32 marketId) public view returns (uint) {
+        return markets[marketId].consumerSecurity;
     }
 
     /**
      * Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
      *
-     * @param market_id The ID of the XBR data market to join.
-     * @param actor_type The type of actor under which to join: PROVIDER or CONSUMER.
+     * @param marketId The ID of the XBR data market to join.
+     * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
      */
-    function join_market (bytes32 market_id, ActorType actor_type) public payable {
+    function joinMarket (bytes32 marketId, ActorType actorType) public payable {
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
+        require(uint8(actorType) == uint8(ActorType.MAKER) ||
+            uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
+        
+        markets[marketId].actors[msg.sender] = Actor(actorType);
     }
 
     /**
      * Open a new payment channel and deposit an amount of XBR token into a market.
      * The procedure returns
      */
-    function open_payment_channel (bytes32 market_id) public payable returns (address payment_channel) {
-        XBRPaymentChannel channel = new XBRPaymentChannel(market_id, address(0), 60);
-        markets[market_id].channels.push(channel);
+    function openPaymentChannel (bytes32 marketId) public payable returns (address paymentChannel) {
+        XBRPaymentChannel channel = new XBRPaymentChannel(marketId, address(0), 60);
+        markets[marketId].channels.push(channel);
         return channel;
     }
 
@@ -174,23 +222,23 @@ contract XBRNetwork is XBRMaintained {
      * for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
      * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
      */
-    function request_paying_channel (bytes32 market_id, uint256 amount) public returns (bytes32 channel_request_id) {
+    function requestPayingChannel (bytes32 marketId, uint256 amount) public returns (bytes32 channelRequestId) {
     }
 
     /**
      * As a market actor (participant) currently member of a market, leave that market.
      * A market can only be left when all payment channels of the sender are closed (or expired).
      *
-     * @param market_id The ID of the market to leave.
+     * @param marketId The ID of the market to leave.
      */
-    function leave_market (bytes32 market_id) public {
+    function leaveMarket (bytes32 marketId) public {
     }
 
     /**
      * Close a market. A closed market will not accept new memberships.
      *
-     * @param market_id The ID of the market to close.
+     * @param marketId The ID of the market to close.
      */
-    function close_market (bytes32 market_id) public {
+    function closeMarket (bytes32 marketId) public {
     }
 }

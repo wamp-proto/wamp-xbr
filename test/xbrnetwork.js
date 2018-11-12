@@ -4,7 +4,8 @@ contract('XBRNetwork', accounts => {
 
     const owner = accounts[0];
     const alice = accounts[1];
-    const bob = accounts[2];
+    const alice_maker1 = accounts[2];
+    const bob = accounts[3];
 
     it('owner account should be initially registered', async () => {
         const network = await XBRNetwork.deployed();
@@ -35,5 +36,27 @@ contract('XBRNetwork', accounts => {
         const level = await network.getMemberLevel(alice);
 
         assert.equal(level.toNumber(), 1, "wrong member level");
+    });
+
+    it('should create new market', async () => {
+        const network = await XBRNetwork.deployed();
+
+        if (false) {
+            const eula = "0x0000000000000000000000000000000000000000000000000000000000000000";
+            const profile = "0x0000000000000000000000000000000000000000";
+
+            await network.register(eula, profile, {from: alice});
+        }
+
+        const marketId = web3.sha3("MyMarket1");
+        const maker = alice_maker1;
+        const terms = "0x0000000000000000000000000000000000000000000000000000000000000000";
+        const providerSecurity = 10;
+        const consumerSecurity = 10;
+
+        await network.openMarket(marketId, maker, terms, providerSecurity, consumerSecurity, {from: alice});
+
+        // assert.equal(level.toNumber(), 1, "wrong member level");
+        const actorType = 2;
     });
 });

@@ -66,3 +66,18 @@ https://github.com/protofire/solhint
 
 
 // solhint-disable-line
+
+
+Transactions and Calls
+----------------------
+
+With non-constant function vote, you can only get the transaction hash back immediately because the transaction may never get mined. Or it could take several blocks as indicated by "Waiting for transaction to be mined..."
+
+Return values can be used by other contracts, but web3.js can only use events.
+
+the return value could be helpful so that other contracts
+
+https://ethereum.stackexchange.com/a/770
+https://ethereum.stackexchange.com/a/3293
+https://ethereum.stackexchange.com/q/765/42
+https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events
