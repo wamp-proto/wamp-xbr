@@ -24,26 +24,65 @@
         <script src="/blockchain.js"></script>
         <script src="/comms.js"></script>
 
-        <h2>Market Maker</h2>
+        <h2>Network Membership</h2>
 
         <h3>Register</h3>
         <p>
-            Register a XBR Market Maker in the XBR Network:
+            Register an address as a member in the XBR Network:
             <table>
                 <tr>
-                    <td>Maker Address</td>
-                    <td><input type="text" id="maker_reg_address" name="maker_reg_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                    <td>New member address</td>
+                    <td><input type="text" id="new_member_address" name="new_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
                 </tr>
                 <tr>
                     <td>EULA (required)</td>
-                    <td><input type="text" id="maker_reg_eula" name="maker_reg_eula" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                    <td><input type="text" id="new_member_eula" name="new_member_eula" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
                 </tr>
                 <tr>
-                    <td>Member Profile (optional)</td>
-                    <td><input type="text" id="maker_reg_profile" name="maker_reg_profile" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                    <td>Member profile (optional)</td>
+                    <td><input type="text" id="new_member_profile" name="new_member_profile" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
                 </tr>
             </table>
-            <button onclick="register_maker()">Register Maker</button>
+            <button onclick="test_register();">Register</button>
         </p>
+
+        <h3>Get Member</h3>
+        <p>
+            Check if address is registered in the XBR Network and return registration information:
+            <table>
+                <tr>
+                    <td>Member address</td>
+                    <td><input type="text" id="get_member_address" name="get_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                </tr>
+            </table>
+            <button onclick="test_get_member();">Get Member</button>
+        </p>
+
+        <h2>Markets</h2>
+
+        <h3>Open Market</h3>
+        <p>
+            Open a new XBR Market.
+            <table>
+                <tr>
+                    <td>Market maker address</td>
+                    <td><input type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                </tr>
+                <tr>
+                    <td>Market terms</td>
+                    <td><input type="text" id="new_market_terms" name="new_market_terms" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                </tr>
+                <tr>
+                    <td>Provider security</td>
+                    <td><input type="number" id="new_market_provider_security" name="new_market_provider_security" size="20" maxlength="20" value="0"></td>
+                </tr>
+                <tr>
+                    <td>Consumer security</td>
+                    <td><input type="number" id="new_market_consumer_security" name="new_market_consumer_security" size="20" maxlength="20" value="0"></td>
+                </tr>
+            </table>
+            <button onclick="test_register();">Register</button>
+        </p>
+
     </body>
 </html>

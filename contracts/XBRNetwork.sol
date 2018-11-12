@@ -32,7 +32,7 @@ contract XBRNetwork is XBRMaintained {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// XBR Market Actor types
-    enum ActorType { NULL, MAKER, PROVIDER, CONSUMER }
+    enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
 
     /// Value type for holding XBR Network membership information.
     struct Member {
@@ -70,6 +70,8 @@ contract XBRNetwork is XBRMaintained {
     constructor (address _network_token, address _network_organization) public {
         network_token = _network_token;
         network_organization = _network_organization;
+        
+        members[msg.sender] = Member('', '', MemberLevel.VERIFIED);
     }
 
     /**
