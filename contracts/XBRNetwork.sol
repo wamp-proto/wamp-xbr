@@ -157,7 +157,7 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
             consumerSecurity, new address[](0));
-
+            
         marketByMaker[maker] = marketId;
 
         marketSeq = marketSeq + 1;
@@ -200,6 +200,10 @@ contract XBRNetwork is XBRMaintained {
             uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
         
         markets[marketId].actors[msg.sender] = Actor(actorType);
+    }
+    
+    function getMarketActorType (bytes32 marketId, address actor) public view returns (ActorType) {
+        return markets[marketId].actors[actor].actorType;
     }
 
     /**

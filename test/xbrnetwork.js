@@ -3,9 +3,15 @@ const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 contract('XBRNetwork', accounts => {
 
     const owner = accounts[0];
+
     const alice = accounts[1];
-    const alice_maker1 = accounts[2];
-    const bob = accounts[3];
+    const bob = accounts[2];
+    const charlie = accounts[3];
+    const donald = accounts[4];
+    const edith = accounts[5];
+    const frank = accounts[6];
+
+    const alice_maker1 = accounts[7];
 
     it('owner account should be initially registered', async () => {
         const network = await XBRNetwork.deployed();
@@ -21,7 +27,7 @@ contract('XBRNetwork', accounts => {
         var level = await network.getMemberLevel(alice);
         assert.equal(level.toNumber(), 0, "wrong member level");
 
-        var level = await network.getMemberLevel(bob);
+        level = await network.getMemberLevel(bob);
         assert.equal(level.toNumber(), 0, "wrong member level");
     });
 
@@ -32,9 +38,15 @@ contract('XBRNetwork', accounts => {
         const profile = "0x0000000000000000000000000000000000000000";
 
         await network.register(eula, profile, {from: alice});
+        var level = await network.getMemberLevel(alice);
+        assert.equal(level.toNumber(), 1, "wrong member level");
 
-        const level = await network.getMemberLevel(alice);
+        await network.register(eula, profile, {from: bob});
+        var level = await network.getMemberLevel(bob);
+        assert.equal(level.toNumber(), 1, "wrong member level");
 
+        await network.register(eula, profile, {from: charlie});
+        level = await network.getMemberLevel(charlie);
         assert.equal(level.toNumber(), 1, "wrong member level");
     });
 
@@ -55,8 +67,17 @@ contract('XBRNetwork', accounts => {
         const consumerSecurity = 10;
 
         await network.openMarket(marketId, maker, terms, providerSecurity, consumerSecurity, {from: alice});
+    });
 
-        // assert.equal(level.toNumber(), 1, "wrong member level");
-        const actorType = 2;
+    it('should join existing market', async () => {
+        const network = await XBRNetwork.deployed();
+
+        const marketId = web3.sha3("MyMarket1");
+
+        var actorType = 3; // PROVIDER
+        await network.joinMarket(marketId, actorType, {from: bob});
+
+        actorType = 4; // CONSUMER
+        await network.joinMarket(marketId, actorType, {from: charlie});
     });
 });

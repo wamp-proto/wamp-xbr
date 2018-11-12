@@ -1,6 +1,6 @@
 version: '3'
 services:
-  
+
     ganache:
         image: trufflesuite/ganache-cli:latest
         # UID:GID => id -u, id -g
@@ -12,7 +12,7 @@ services:
             - "${PWD}/teststack/ganache/.data:/ganache:rw"
         command:
             - "--accounts"
-            - "5"
+            - "10"
             - "--defaultBalanceEther"
             - "1000"
             - "--deterministic"
