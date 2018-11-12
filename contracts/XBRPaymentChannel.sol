@@ -111,8 +111,8 @@ contract XBRPaymentChannel {
         selfdestruct(channel_sender);
     }
 
-    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer)
-        internal pure returns (bool) {
+    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer) internal pure returns (bool)
+    {
 
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));

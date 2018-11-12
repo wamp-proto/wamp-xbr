@@ -1,4 +1,4 @@
-.PHONY: crossbar docs clean build
+.PHONY: crossbar docs clean build test
 
 CROSSBAR=crossbarfx edge
 
