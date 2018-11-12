@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.4.24;
+//pragma experimental ABIEncoderV2;
 
 import "./XBRMaintained.sol";
 import "./XBRPaymentChannel.sol";
@@ -33,6 +34,8 @@ contract XBRNetwork is XBRMaintained {
 
     /// XBR Market Actor types
     enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
+    
+    event MemberCreated (bytes32 eula, bytes32 profile, MemberLevel level);
 
     /// Value type for holding XBR Network membership information.
     struct Member {
@@ -43,11 +46,14 @@ contract XBRNetwork is XBRMaintained {
 
     /// Value type for holding XBR Market information.
     struct Market {
+        uint32 sequence;
         address owner;
         address maker;
         bytes32 terms;
         address[] channels;
     }
+
+    uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     address public network_token;
@@ -70,8 +76,8 @@ contract XBRNetwork is XBRMaintained {
     constructor (address _network_token, address _network_organization) public {
         network_token = _network_token;
         network_organization = _network_organization;
-        
-        members[msg.sender] = Member('', '', MemberLevel.VERIFIED);
+
+        members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
     }
 
     /**
@@ -89,6 +95,8 @@ contract XBRNetwork is XBRMaintained {
         require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_EXISTS");
 
         members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
+
+        emit MemberCreated(eula, profile, MemberLevel.ACTIVE);
     }
 
     /**
@@ -98,6 +106,10 @@ contract XBRNetwork is XBRMaintained {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
         members[msg.sender].level = MemberLevel.RETIRED;
+    }
+
+    function getMemberLevel (address member) public view returns (MemberLevel) {
+        return members[member].level;
     }
 
     /**
@@ -126,12 +138,11 @@ contract XBRNetwork is XBRMaintained {
     function open_market (address maker, bytes32 terms, uint64 provider_security, uint64 consumer_security) public {
 
         // generate new market_id
-        bytes32 market_id = keccak256(abi.encodePacked(msg.sender, blockhash(block.number - 1)));
+        bytes32 marketId = keccak256(abi.encodePacked(marketSeq, msg.sender, blockhash(block.number)));
+        require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
 
-        // FIXME: gracefully handle multiple market registrations from one user within one block!
-        require(markets[market_id].owner != address(0), "MARKET_ALREADY_EXISTS");
-
-        markets[market_id] = Market(msg.sender, maker, terms, new address[](1));
+        markets[marketId] = Market(marketSeq, msg.sender, maker, terms, new address[](1));
+        marketSeq = marketSeq + 1;
     }
 
     /**

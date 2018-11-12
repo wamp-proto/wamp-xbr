@@ -19,9 +19,14 @@ module.exports = {
   // use with: truffle migrate --network development
   networks: {
     development: {
-      host: "localhost",
-      port: 7545,
-      network_id: "5777"
+        host: "localhost",
+        port: 7545,
+        network_id: "*"
+      },
+      ganache: {
+        host: "localhost",
+        port: 8545,
+        network_id: "*"
+      }
     }
-  }
 };

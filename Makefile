@@ -20,20 +20,25 @@ install:
 #
 build:
 	truffle compile
+	cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
 
 lint:
 	solhint "contracts/**/*.sol"
 
 deploy:
 	truffle compile --all
-	truffle migrate --reset
+	truffle migrate --reset --network ganache
+	cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
+
+test:
+	truffle test --network ganache
 
 
 #
 # build optimized SVG files from source SVGs
 #
 BUILDDIR = docs/_static/gen
-SCOUR = scour 
+SCOUR = scour
 SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
 
 # build "docs/_static/gen/*.svg" optimized SVGs from "docs/_graphics/*.svg" using Scour

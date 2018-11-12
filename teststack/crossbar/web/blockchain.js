@@ -1,6 +1,6 @@
 window.web3 = null;
 
-const xbr_network_addr = '0xc7fecec2657edf7c4af1f38198bd725457ac35ab';
+const xbr_network_addr = '0xa57b8a5584442b467b4689f1144d269d096a3daf';
 
 var xbr = {};
 
@@ -149,7 +149,9 @@ function test_open_market () {
     console.log('test_open_market(new_market_maker_address=' + new_market_maker_address + ', new_market_terms=' + new_market_terms + ', new_market_provider_security=' + new_market_provider_security + ', new_market_consumer_security=' + new_market_consumer_security + ')');
 
     // address maker, bytes32 terms, uint64 provider_security, uint64 consumer_security
-    xbr.network.members.call(new_market_maker_address, new_market_terms, new_market_provider_security, new_market_consumer_security, function (error, result) {
-        console.log('RESULT:', result);
-    });
+    xbr.network.open_market(new_market_maker_address, new_market_terms,
+        new_market_provider_security, new_market_consumer_security,
+        function (error, result) {
+            console.log('RESULT:', result);
+        });
 }
