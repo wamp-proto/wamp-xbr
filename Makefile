@@ -110,7 +110,8 @@ run_ganache_cli:
 	docker-compose up ganache
 
 clean_ganache_cli:
-	-sudo rm -rf ./ganache/.data/*
+	-rm -rf ./teststack/ganache/.data
+	mkdir -p ./teststack/ganache/.data
 
 
 #

@@ -61,6 +61,10 @@ async function setup_test () {
     document.getElementById('new_member_address').value = '' + account;
     document.getElementById('get_member_address').value = '' + account;
     document.getElementById('get_market_actor_address').value = '' + account;
+    document.getElementById('get_market_owner').value = '' + account;
+    document.getElementById('join_market_owner').value = '' + account;
+    document.getElementById('get_market_actor_market_owner').value = '' + account;
+    document.getElementById('open_channel_market_owner').value = '' + account;
 
     // run one test
     await test_get_member();
@@ -132,8 +136,9 @@ async function test_get_market () {
     const decimals = parseInt('' + await xbr.xbrToken.decimals())
 
     var name = document.getElementById('get_market_name').value;
+    var owner = document.getElementById('get_market_owner').value;
 
-    var marketId = web3.sha3(account, name);
+    var marketId = web3.sha3(owner, name);
 
     console.log('test_get_market(marketId=' + marketId + ')');
 
@@ -156,7 +161,9 @@ async function test_join_market () {
     const account = web3.eth.accounts[0];
 
     var name = document.getElementById('join_market_name').value;
-    var marketId = web3.sha3(account, name);
+    var owner = document.getElementById('join_market_owner').value;
+
+    var marketId = web3.sha3(owner, name);
 
     var actorType = 0;
     if (document.getElementById('join_market_actor_type_provider').checked) {
@@ -180,7 +187,9 @@ async function test_get_market_actor_type () {
     const account = web3.eth.accounts[0];
 
     var name = document.getElementById('get_market_actor_market_name').value;
-    var marketId = web3.sha3(account, name);
+    var owner = document.getElementById('get_market_actor_market_owner').value;
+
+    var marketId = web3.sha3(owner, name);
 
     var actor = document.getElementById('get_market_actor_address').value;
 
@@ -199,13 +208,21 @@ async function test_open_payment_channel () {
     const account = web3.eth.accounts[0];
 
     var name = document.getElementById('open_channel_market_name').value;
-    var marketId = web3.sha3(account, name);
+    var owner = document.getElementById('open_channel_market_owner').value;
+
+    var marketId = web3.sha3(owner, name);
 
     var consumer = document.getElementById('open_channel_consumer_address').value;
 
     const decimals = parseInt('' + await xbr.xbrToken.decimals())
     var amount = document.getElementById('open_channel_amount').value;
     amount = amount * (10 ** decimals);
+
+    const success = await xbr.xbrToken.approve(xbr.xbrNetwork.address, amount, {from: account});
+
+    if (!success) {
+        throw 'transfer was not approved';
+    }
 
     var watch = {
         tx: null

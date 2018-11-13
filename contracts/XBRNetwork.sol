@@ -17,8 +17,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.4.24;
-//pragma experimental ABIEncoderV2;
 
+import "./XBRToken.sol";
 import "./XBRMaintained.sol";
 import "./XBRPaymentChannel.sol";
 
@@ -229,6 +229,11 @@ contract XBRNetwork is XBRMaintained {
 
         // bytes32 marketId, address sender, address delegate, address recipient, uint256 amount, uint32 timeout
         XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
+
+        XBRToken token = XBRToken(network_token);
+        bool success = token.transferFrom(msg.sender, channel, amount);
+        require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
+
         markets[marketId].channels.push(channel);
 
         emit PaymentChannelCreated(channel, marketId);
