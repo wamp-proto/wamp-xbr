@@ -50,6 +50,15 @@ contract XBRNetwork is XBRMaintained {
 
     event ActorJoined ();
 
+    struct PayingChannelRequest {
+        bytes32 marketId;
+        address sender;
+        address delegate;
+        address recipient;
+        uint256 amount;
+        uint32 timeout;
+    }
+
     /// Value type for holding XBR Market information.
     struct Market {
         uint32 sequence;
@@ -59,9 +68,10 @@ contract XBRNetwork is XBRMaintained {
         uint providerSecurity;
         uint consumerSecurity;
         address[] channels;
+        mapping(bytes32 => PayingChannelRequest) channelRequests;
         mapping(address => Actor) actors;
     }
-
+    
     uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
@@ -78,7 +88,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Index: maker address => market ID
     mapping(address => bytes32) private marketByMaker;
-
+    
     /**
      * Create a new network.
      *
@@ -210,8 +220,11 @@ contract XBRNetwork is XBRMaintained {
      * Open a new payment channel and deposit an amount of XBR token into a market.
      * The procedure returns
      */
-    function openPaymentChannel (bytes32 marketId) public payable returns (address paymentChannel) {
-        XBRPaymentChannel channel = new XBRPaymentChannel(marketId, address(0), 60);
+    function openPaymentChannel (bytes32 marketId, address consumer, uint256 amount) public returns
+        (address paymentChannel) {
+        
+        // bytes32 marketId, address sender, address delegate, address recipient, uint256 amount, uint32 timeout
+        XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
         markets[marketId].channels.push(channel);
         return channel;
     }
@@ -226,7 +239,15 @@ contract XBRNetwork is XBRMaintained {
      * for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
      * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
      */
-    function requestPayingChannel (bytes32 marketId, uint256 amount) public returns (bytes32 channelRequestId) {
+    function requestPayingChannel (bytes32 payingChannelRequestId, bytes32 marketId, address provider,
+        uint256 amount) public {
+
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        require(markets[marketId].channelRequests[payingChannelRequestId].sender == address(0),
+            "PAYING_CHANNEL_REQUEST_ALREADY_EXISTS");
+
+        markets[marketId].channelRequests[payingChannelRequestId] =
+            PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
     }
 
     /**
@@ -235,7 +256,8 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param marketId The ID of the market to leave.
      */
-    function leaveMarket (bytes32 marketId) public {
+    function leaveMarket (bytes32 marketId) public pure { // solhint-disable-line
+        // FIXME
     }
 
     /**
@@ -243,6 +265,7 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param marketId The ID of the market to close.
      */
-    function closeMarket (bytes32 marketId) public {
+    function closeMarket (bytes32 marketId) public pure { // solhint-disable-line
+        // FIXME
     }
 }
