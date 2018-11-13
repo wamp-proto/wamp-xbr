@@ -105,11 +105,16 @@ async function test_register () {
 async function test_open_market () {
     const account = web3.eth.accounts[0];
 
+    const decimals = parseInt('' + await xbr.xbrToken.decimals())
+
     var name = document.getElementById('new_market_name').value;
     var maker = document.getElementById('new_market_maker_address').value;
     var terms = document.getElementById('new_market_terms').value;
     var providerSecurity = document.getElementById('new_market_provider_security').value;
     var consumerSecurity = document.getElementById('new_market_consumer_security').value;
+
+    providerSecurity = providerSecurity * (10 ** decimals);
+    consumerSecurity = consumerSecurity * (10 ** decimals);
 
     var marketId = web3.sha3(account, name);
 
@@ -123,6 +128,8 @@ async function test_open_market () {
 async function test_get_market () {
     const account = web3.eth.accounts[0];
 
+    const decimals = parseInt('' + await xbr.xbrToken.decimals())
+
     var name = document.getElementById('get_market_name').value;
 
     var marketId = web3.sha3(account, name);
@@ -131,7 +138,14 @@ async function test_get_market () {
 
     owner = await xbr.xbrNetwork.getMarketOwner(marketId);
     maker = await xbr.xbrNetwork.getMarketMaker(marketId);
+    providerSecurity = await xbr.xbrNetwork.getMarketProviderSecurity(marketId);
+    consumerSecurity = await xbr.xbrNetwork.getMarketConsumerSecurity(marketId);
+
+    providerSecurity = providerSecurity / (10 ** decimals);
+    consumerSecurity = consumerSecurity / (10 ** decimals);
 
     console.log('market ' + marketId + ' owner:', owner);
     console.log('market ' + marketId + ' maker:', maker);
+    console.log('market ' + marketId + ' providerSecurity:', providerSecurity);
+    console.log('market ' + marketId + ' consumerSecurity:', consumerSecurity);
 }
