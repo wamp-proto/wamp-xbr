@@ -14,12 +14,18 @@
                 margin-top: 1.3em;
                 color: #06c;
             }
+            .address {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 13px;
+                color: #008800;
+            }
+
+            td {
+                padding: 0.6em;
+            }
         </style>
     </head>
     <body>
-        <h1>XBR Network</h1>
-        <p>Interacting with the XBR network from JavaScript and browser applications</p>
-        <script>AUTOBAHN_DEBUG = false;</script>
         <script src="/xbr.js"></script>
         <!--
             <script src="/xbr.js"></script>
@@ -28,7 +34,19 @@
         -->
         <script src="/main.js"></script>
 
-        <button onclick="unlock();">Login to XBR</button>
+        <h1>XBR Network</h1>
+        <p>Interacting with the XBR network from JavaScript and browser applications</p>
+        <table>
+            <tr>
+                <td>XBRToken:</td><td class="address" id="xbr_token_address"></td>
+            </tr>
+            <tr>
+                <td>XBRNetwork:</td><td class="address" id="xbr_network_address"></td>
+            </tr>
+            <tr>
+                <td>This account:</td><td class="address" id="account"></td>
+            </tr>
+        </table>
 
         <h2>Network Membership</h2>
 
@@ -38,7 +56,7 @@
             <table>
                 <tr>
                     <td>New member address</td>
-                    <td><input type="text" id="new_member_address" name="new_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                    <td><input class="address" type="text" id="new_member_address" name="new_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
                 </tr>
                 <tr>
                     <td>EULA (required)</td>
@@ -58,7 +76,7 @@
             <table>
                 <tr>
                     <td>Member address</td>
-                    <td><input type="text" id="get_member_address" name="get_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                    <td><input class="address" type="text" id="get_member_address" name="get_member_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
                 </tr>
             </table>
             <button onclick="test_get_member();">Get Member</button>
@@ -72,7 +90,7 @@
             <table>
                 <tr>
                     <td>Market maker address</td>
-                    <td><input type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0xd03ea8624c8c5987235048901fb614fdca89b117" disabled="disabled"></td>
+                    <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0xd03ea8624c8c5987235048901fb614fdca89b117" disabled="disabled"></td>
                 </tr>
                 <tr>
                     <td>Market terms</td>
