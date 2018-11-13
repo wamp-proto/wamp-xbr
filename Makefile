@@ -40,7 +40,7 @@ build: compile browserify
 	./node_modules/google-closure-compiler/cli.js -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
 	gzip -c -k -9 build/xbr.min.js > build/xbr.min.jgz
 
-publish: build
+publish:
 	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
 
 deploy:
