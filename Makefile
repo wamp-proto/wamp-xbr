@@ -21,12 +21,15 @@ BROWSERIFY=browserify
 #
 # XBR Protocol smart contracts
 #
-build:
-	truffle compile
-	cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
-
 lint:
 	solhint "contracts/**/*.sol"
+
+compile:
+	truffle compile --all
+	#cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
+
+build: compile
+	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
 
 deploy:
 	truffle compile --all
@@ -35,12 +38,6 @@ deploy:
 
 test:
 	truffle test --network ganache
-
-build_browser:
-	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
-	#$(BROWSERIFY) ./standalone.js --ignore-missing --standalone xbr -o ./build/xbr.js
-	ls -la ./build/xbr.js
-
 
 
 #
