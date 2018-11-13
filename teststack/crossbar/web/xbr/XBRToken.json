@@ -293,14 +293,14 @@
     "absolutePath": "/home/oberstet/scm/xbr/xbr-protocol/contracts/XBRToken.sol",
     "exportedSymbols": {
       "XBRToken": [
-        693
+        918
       ]
     },
-    "id": 694,
+    "id": 919,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 662,
+        "id": 887,
         "literals": [
           "solidity",
           "^",
@@ -313,10 +313,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
-        "id": 663,
+        "id": 888,
         "nodeType": "ImportDirective",
-        "scope": 694,
-        "sourceUnit": 1360,
+        "scope": 919,
+        "sourceUnit": 1585,
         "src": "831:63:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -324,10 +324,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
-        "id": 664,
+        "id": 889,
         "nodeType": "ImportDirective",
-        "scope": 694,
-        "sourceUnit": 1418,
+        "scope": 919,
+        "sourceUnit": 1643,
         "src": "895:71:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -338,17 +338,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 665,
+              "id": 890,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 1359,
+              "referencedDeclaration": 1584,
               "src": "1149:5:5",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$1359",
+                "typeIdentifier": "t_contract$_ERC20_$1584",
                 "typeString": "contract ERC20"
               }
             },
-            "id": 666,
+            "id": 891,
             "nodeType": "InheritanceSpecifier",
             "src": "1149:5:5"
           },
@@ -356,45 +356,45 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 667,
+              "id": 892,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 1417,
+              "referencedDeclaration": 1642,
               "src": "1156:13:5",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$1417",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$1642",
                 "typeString": "contract ERC20Detailed"
               }
             },
-            "id": 668,
+            "id": 893,
             "nodeType": "InheritanceSpecifier",
             "src": "1156:13:5"
           }
         ],
         "contractDependencies": [
-          1359,
-          1417,
-          1486
+          1584,
+          1642,
+          1711
         ],
         "contractKind": "contract",
         "documentation": "The XBR Token is a `ERC20` compatible token using (with no modifications)\nthe OpenZeppelin (https://openzeppelin.org/) reference implementation.",
         "fullyImplemented": true,
-        "id": 693,
+        "id": 918,
         "linearizedBaseContracts": [
-          693,
-          1417,
-          1359,
-          1486
+          918,
+          1642,
+          1584,
+          1711
         ],
         "name": "XBRToken",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": true,
-            "id": 677,
+            "id": 902,
             "name": "INITIAL_SUPPLY",
             "nodeType": "VariableDeclaration",
-            "scope": 693,
+            "scope": 918,
             "src": "1274:55:5",
             "stateVariable": true,
             "storageLocation": "default",
@@ -403,7 +403,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 669,
+              "id": 894,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1274:7:5",
@@ -418,7 +418,7 @@
                 "typeIdentifier": "t_rational_1000000000000000000000000000_by_1",
                 "typeString": "int_const 1000000000000000000000000000"
               },
-              "id": 676,
+              "id": 901,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -429,7 +429,7 @@
                   "typeIdentifier": "t_rational_1000000000_by_1",
                   "typeString": "int_const 1000000000"
                 },
-                "id": 672,
+                "id": 897,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": true,
@@ -437,7 +437,7 @@
                 "leftExpression": {
                   "argumentTypes": null,
                   "hexValue": "3130",
-                  "id": 670,
+                  "id": 895,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -457,7 +457,7 @@
                 "rightExpression": {
                   "argumentTypes": null,
                   "hexValue": "39",
-                  "id": 671,
+                  "id": 896,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -486,7 +486,7 @@
                   "typeIdentifier": "t_rational_1000000000000000000_by_1",
                   "typeString": "int_const 1000000000000000000"
                 },
-                "id": 675,
+                "id": 900,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": true,
@@ -494,7 +494,7 @@
                 "leftExpression": {
                   "argumentTypes": null,
                   "hexValue": "3130",
-                  "id": 673,
+                  "id": 898,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -514,7 +514,7 @@
                 "rightExpression": {
                   "argumentTypes": null,
                   "hexValue": "3138",
-                  "id": 674,
+                  "id": 899,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -545,7 +545,7 @@
           },
           {
             "body": {
-              "id": 691,
+              "id": 916,
               "nodeType": "Block",
               "src": "1541:50:5",
               "statements": [
@@ -557,18 +557,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 686,
+                          "id": 911,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 1501,
+                          "referencedDeclaration": 1726,
                           "src": "1557:3:5",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 687,
+                        "id": 912,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -584,11 +584,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 688,
+                        "id": 913,
                         "name": "INITIAL_SUPPLY",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 677,
+                        "referencedDeclaration": 902,
                         "src": "1569:14:5",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -607,18 +607,18 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 685,
+                      "id": 910,
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1269,
+                      "referencedDeclaration": 1494,
                       "src": "1551:5:5",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 689,
+                    "id": 914,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -632,14 +632,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 690,
+                  "id": 915,
                   "nodeType": "ExpressionStatement",
                   "src": "1551:33:5"
                 }
               ]
             },
             "documentation": "Constructor that gives msg.sender all of existing tokens.\nThe XBR Token uses the symbol \"XBR\" and 18 decimal digits.",
-            "id": 692,
+            "id": 917,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -649,7 +649,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "584252546f6b656e",
-                    "id": 680,
+                    "id": 905,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -667,7 +667,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "584252",
-                    "id": 681,
+                    "id": 906,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -685,7 +685,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "3138",
-                    "id": 682,
+                    "id": 907,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -701,17 +701,17 @@
                     "value": "18"
                   }
                 ],
-                "id": 683,
+                "id": 908,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 679,
+                  "id": 904,
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 1417,
+                  "referencedDeclaration": 1642,
                   "src": "1504:13:5",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$1417_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$1642_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -722,26 +722,26 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 678,
+              "id": 903,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1494:2:5"
             },
             "payable": false,
             "returnParameters": {
-              "id": 684,
+              "id": 909,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1541:0:5"
             },
-            "scope": 693,
+            "scope": 918,
             "src": "1483:108:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 694,
+        "scope": 919,
         "src": "1128:465:5"
       }
     ],
@@ -751,14 +751,14 @@
     "absolutePath": "/home/oberstet/scm/xbr/xbr-protocol/contracts/XBRToken.sol",
     "exportedSymbols": {
       "XBRToken": [
-        693
+        918
       ]
     },
-    "id": 694,
+    "id": 919,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 662,
+        "id": 887,
         "literals": [
           "solidity",
           "^",
@@ -771,10 +771,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
-        "id": 663,
+        "id": 888,
         "nodeType": "ImportDirective",
-        "scope": 694,
-        "sourceUnit": 1360,
+        "scope": 919,
+        "sourceUnit": 1585,
         "src": "831:63:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -782,10 +782,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
-        "id": 664,
+        "id": 889,
         "nodeType": "ImportDirective",
-        "scope": 694,
-        "sourceUnit": 1418,
+        "scope": 919,
+        "sourceUnit": 1643,
         "src": "895:71:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -796,17 +796,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 665,
+              "id": 890,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 1359,
+              "referencedDeclaration": 1584,
               "src": "1149:5:5",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$1359",
+                "typeIdentifier": "t_contract$_ERC20_$1584",
                 "typeString": "contract ERC20"
               }
             },
-            "id": 666,
+            "id": 891,
             "nodeType": "InheritanceSpecifier",
             "src": "1149:5:5"
           },
@@ -814,45 +814,45 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 667,
+              "id": 892,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 1417,
+              "referencedDeclaration": 1642,
               "src": "1156:13:5",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$1417",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$1642",
                 "typeString": "contract ERC20Detailed"
               }
             },
-            "id": 668,
+            "id": 893,
             "nodeType": "InheritanceSpecifier",
             "src": "1156:13:5"
           }
         ],
         "contractDependencies": [
-          1359,
-          1417,
-          1486
+          1584,
+          1642,
+          1711
         ],
         "contractKind": "contract",
         "documentation": "The XBR Token is a `ERC20` compatible token using (with no modifications)\nthe OpenZeppelin (https://openzeppelin.org/) reference implementation.",
         "fullyImplemented": true,
-        "id": 693,
+        "id": 918,
         "linearizedBaseContracts": [
-          693,
-          1417,
-          1359,
-          1486
+          918,
+          1642,
+          1584,
+          1711
         ],
         "name": "XBRToken",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": true,
-            "id": 677,
+            "id": 902,
             "name": "INITIAL_SUPPLY",
             "nodeType": "VariableDeclaration",
-            "scope": 693,
+            "scope": 918,
             "src": "1274:55:5",
             "stateVariable": true,
             "storageLocation": "default",
@@ -861,7 +861,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 669,
+              "id": 894,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1274:7:5",
@@ -876,7 +876,7 @@
                 "typeIdentifier": "t_rational_1000000000000000000000000000_by_1",
                 "typeString": "int_const 1000000000000000000000000000"
               },
-              "id": 676,
+              "id": 901,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -887,7 +887,7 @@
                   "typeIdentifier": "t_rational_1000000000_by_1",
                   "typeString": "int_const 1000000000"
                 },
-                "id": 672,
+                "id": 897,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": true,
@@ -895,7 +895,7 @@
                 "leftExpression": {
                   "argumentTypes": null,
                   "hexValue": "3130",
-                  "id": 670,
+                  "id": 895,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -915,7 +915,7 @@
                 "rightExpression": {
                   "argumentTypes": null,
                   "hexValue": "39",
-                  "id": 671,
+                  "id": 896,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -944,7 +944,7 @@
                   "typeIdentifier": "t_rational_1000000000000000000_by_1",
                   "typeString": "int_const 1000000000000000000"
                 },
-                "id": 675,
+                "id": 900,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": true,
@@ -952,7 +952,7 @@
                 "leftExpression": {
                   "argumentTypes": null,
                   "hexValue": "3130",
-                  "id": 673,
+                  "id": 898,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -972,7 +972,7 @@
                 "rightExpression": {
                   "argumentTypes": null,
                   "hexValue": "3138",
-                  "id": 674,
+                  "id": 899,
                   "isConstant": false,
                   "isLValue": false,
                   "isPure": true,
@@ -1003,7 +1003,7 @@
           },
           {
             "body": {
-              "id": 691,
+              "id": 916,
               "nodeType": "Block",
               "src": "1541:50:5",
               "statements": [
@@ -1015,18 +1015,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 686,
+                          "id": 911,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 1501,
+                          "referencedDeclaration": 1726,
                           "src": "1557:3:5",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 687,
+                        "id": 912,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1042,11 +1042,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 688,
+                        "id": 913,
                         "name": "INITIAL_SUPPLY",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 677,
+                        "referencedDeclaration": 902,
                         "src": "1569:14:5",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1065,18 +1065,18 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 685,
+                      "id": 910,
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1269,
+                      "referencedDeclaration": 1494,
                       "src": "1551:5:5",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 689,
+                    "id": 914,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1090,14 +1090,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 690,
+                  "id": 915,
                   "nodeType": "ExpressionStatement",
                   "src": "1551:33:5"
                 }
               ]
             },
             "documentation": "Constructor that gives msg.sender all of existing tokens.\nThe XBR Token uses the symbol \"XBR\" and 18 decimal digits.",
-            "id": 692,
+            "id": 917,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -1107,7 +1107,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "584252546f6b656e",
-                    "id": 680,
+                    "id": 905,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1125,7 +1125,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "584252",
-                    "id": 681,
+                    "id": 906,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1143,7 +1143,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "3138",
-                    "id": 682,
+                    "id": 907,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1159,17 +1159,17 @@
                     "value": "18"
                   }
                 ],
-                "id": 683,
+                "id": 908,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 679,
+                  "id": 904,
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 1417,
+                  "referencedDeclaration": 1642,
                   "src": "1504:13:5",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$1417_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$1642_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -1180,26 +1180,26 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 678,
+              "id": 903,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1494:2:5"
             },
             "payable": false,
             "returnParameters": {
-              "id": 684,
+              "id": 909,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1541:0:5"
             },
-            "scope": 693,
+            "scope": 918,
             "src": "1483:108:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 694,
+        "scope": 919,
         "src": "1128:465:5"
       }
     ],
@@ -1213,10 +1213,10 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x2612af3a521c2df9eaf28422ca335b04adf3ac66",
-      "transactionHash": "0xaacb763e7588fcf32f249d14ab282f38ab915bf2f27183f65c3b2e6337a4a7ea"
+      "address": "0x7b83908271437c08eac9afba56d7080b8d94038c",
+      "transactionHash": "0x12fb3d45872579141d21dd15664dc76aaeb40503319a473309c029a69b9622b2"
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-11-12T06:44:14.260Z"
+  "updatedAt": "2018-11-13T07:26:45.434Z"
 }

@@ -43,11 +43,11 @@ contract XBRNetwork is XBRMaintained {
 
     /// XBR Market Actor types
     enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
-    
+
     struct Actor {
         ActorType actorType;
     }
-    
+
     event ActorJoined ();
 
     /// Value type for holding XBR Market information.
@@ -65,17 +65,17 @@ contract XBRNetwork is XBRMaintained {
     uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    address private network_token;
+    address public network_token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address private network_organization;
+    address public network_organization;
 
     /// Current XBR Network members.
     mapping(address => Member) private members;
 
     /// Current XBR Markets ("market repository")
     mapping(bytes32 => Market) private markets;
-    
+
     /// Index: maker address => market ID
     mapping(address => bytes32) private marketByMaker;
 
@@ -157,16 +157,16 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
             consumerSecurity, new address[](0));
-            
+
         marketByMaker[maker] = marketId;
 
         marketSeq = marketSeq + 1;
     }
-    
+
     function getMarketByMaker (address maker) public view returns (bytes32) {
         return marketByMaker[maker];
     }
-    
+
     function getMarketOwner (bytes32 marketId) public view returns (address) {
         return markets[marketId].owner;
     }
@@ -198,10 +198,10 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
         require(uint8(actorType) == uint8(ActorType.MAKER) ||
             uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
-        
+
         markets[marketId].actors[msg.sender] = Actor(actorType);
     }
-    
+
     function getMarketActorType (bytes32 marketId, address actor) public view returns (ActorType) {
         return markets[marketId].actors[actor].actorType;
     }

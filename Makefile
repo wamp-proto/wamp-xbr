@@ -15,6 +15,9 @@ install:
 	npm install
 
 
+#BROWSERIFY=./node_modules/browserify/bin/cmd.js
+BROWSERIFY=browserify
+
 #
 # XBR Protocol smart contracts
 #
@@ -32,6 +35,12 @@ deploy:
 
 test:
 	truffle test --network ganache
+
+build_browser:
+	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
+	#$(BROWSERIFY) ./standalone.js --ignore-missing --standalone xbr -o ./build/xbr.js
+	ls -la ./build/xbr.js
+
 
 
 #

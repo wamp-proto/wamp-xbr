@@ -8,7 +8,7 @@ if (document.location.origin == "file://") {
                document.location.host + "/ws";
 }
 
-var connection = new autobahn.Connection({
+var connection = new xbr.autobahn.Connection({
    url: wsuri,
    realm: "realm1"
 });

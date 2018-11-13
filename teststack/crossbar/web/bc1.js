@@ -1,8 +1,4 @@
-window.web3 = null;
-
-const xbr_network_addr = '0xa57b8a5584442b467b4689f1144d269d096a3daf';
-
-var xbr = {};
+const xbr_network_addr = '0x3cc7b9a386410858b412b00b13264654f68364ed';
 
 // ES6-based deferred factory
 //
@@ -34,12 +30,21 @@ function get_contract_json (filename) {
 }
 
 
-function account_access_granted (account) {
+async function account_access_granted (account) {
     console.log('user granted access to account: ' + account);
 
     document.getElementById('new_member_address').value = '' + account;
     document.getElementById('get_member_address').value = '' + account;
 
+
+    XBRNetwork.setProvider(window.web3.currentProvider);
+    let c = XBRNetwork.at(xbr_network_addr);
+    console.log(c);
+
+    const level = await c.getMemberLevel('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
+    console.log('level=' + level);
+
+    /*
     get_contract_json('xbr/XBRNetwork.json').then(function (data) {
         xbr.network = web3.eth.contract(data['abi']).at(xbr_network_addr);
 
@@ -55,6 +60,7 @@ function account_access_granted (account) {
             });
         });
     });
+    */
 }
 
 
@@ -122,17 +128,14 @@ function test_register () {
 }
 
 
-function test_get_member () {
+function test_get_member2 () {
     var get_member_address = document.getElementById('get_member_address').value;
 
     console.log('test_get_member(get_member_address=' + get_member_address + ')');
 
-    xbr.network.members.call(get_member_address, function (error, result) {
-        var eula = result[0];
-        var profile = result[1];
-        var status = result[2];
-        if (status > 0) {
-            console.log('account is already a registered member: status=' + status + ', profile=' + profile + ', eula=' + eula);
+    xbr.network.getMemberLevel.call(get_member_address, function (error, level) {
+        if (level > 0) {
+            console.log('account is already a registered member: level=' + level);
         } else {
             console.log('account is currently not a member');
         }
@@ -140,17 +143,32 @@ function test_get_member () {
 }
 
 
+async function test_get_member () {
+    var get_member_address = document.getElementById('get_member_address').value;
+
+    console.log('test_get_member(get_member_address=' + get_member_address + ')');
+
+    const level = await xbr.network.getMemberLevel(get_member_address);
+    if (level > 0) {
+        console.log('account is already a registered member: level=' + level);
+    } else {
+        console.log('account is currently not a member');
+    }
+}
+
+
 function test_open_market () {
-    var new_market_maker_address = document.getElementById('new_market_maker_address').value;
-    var new_market_terms = document.getElementById('new_market_terms').value;
-    var new_market_provider_security = document.getElementById('new_market_provider_security').value;
-    var new_market_consumer_security = document.getElementById('new_market_consumer_security').value;
+    var marketId = web3.sha3('MyMarket1');
+    var maker = document.getElementById('new_market_maker_address').value;
+    var terms = document.getElementById('new_market_terms').value;
+    var providerSecurity = document.getElementById('new_market_provider_security').value;
+    var consumerSecurity = document.getElementById('new_market_consumer_security').value;
 
-    console.log('test_open_market(new_market_maker_address=' + new_market_maker_address + ', new_market_terms=' + new_market_terms + ', new_market_provider_security=' + new_market_provider_security + ', new_market_consumer_security=' + new_market_consumer_security + ')');
+    console.log('test_open_market(marketId=' + marketId + ', maker=' + maker + ', terms=' + terms + ', providerSecurity=' + providerSecurity + ', consumerSecurity=' + consumerSecurity + ')');
 
-    // address maker, bytes32 terms, uint64 provider_security, uint64 consumer_security
-    xbr.network.open_market(new_market_maker_address, new_market_terms,
-        new_market_provider_security, new_market_consumer_security,
+    // bytes32 marketId, address maker, bytes32 terms, uint providerSecurity, uint consumerSecurity
+
+    xbr.network.open_market(marketId, maker, terms, providerSecurity, consumerSecurity,
         function (error, result) {
             console.log('RESULT:', result);
         });
