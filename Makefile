@@ -46,7 +46,6 @@ publish: build
 deploy:
 	truffle compile --all
 	truffle migrate --reset --network ganache
-	cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
 
 test:
 	truffle test --network ganache

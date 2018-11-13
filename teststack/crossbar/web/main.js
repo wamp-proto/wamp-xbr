@@ -89,7 +89,6 @@ async function test_get_member () {
 
 
 async function test_register () {
-    // primary account used for testing
     const account = web3.eth.accounts[0];
 
     const new_member_address = document.getElementById('new_member_address').value;
@@ -104,17 +103,35 @@ async function test_register () {
 
 
 async function test_open_market () {
-    // primary account used for testing
     const account = web3.eth.accounts[0];
 
-    var marketId = web3.sha3('MyMarket1');
+    var name = document.getElementById('new_market_name').value;
     var maker = document.getElementById('new_market_maker_address').value;
     var terms = document.getElementById('new_market_terms').value;
     var providerSecurity = document.getElementById('new_market_provider_security').value;
     var consumerSecurity = document.getElementById('new_market_consumer_security').value;
 
+    var marketId = web3.sha3(account, name);
+
     console.log('test_open_market(marketId=' + marketId + ', maker=' + maker + ', terms=' + terms + ', providerSecurity=' + providerSecurity + ', consumerSecurity=' + consumerSecurity + ')');
 
     // bytes32 marketId, address maker, bytes32 terms, uint providerSecurity, uint consumerSecurity
     await xbr.xbrNetwork.openMarket(marketId, maker, terms, providerSecurity, consumerSecurity, {from: account});
+}
+
+
+async function test_get_market () {
+    const account = web3.eth.accounts[0];
+
+    var name = document.getElementById('get_market_name').value;
+
+    var marketId = web3.sha3(account, name);
+
+    console.log('test_get_market(marketId=' + marketId + ')');
+
+    owner = await xbr.xbrNetwork.getMarketOwner(marketId);
+    maker = await xbr.xbrNetwork.getMarketMaker(marketId);
+
+    console.log('market ' + marketId + ' owner:', owner);
+    console.log('market ' + marketId + ' maker:', maker);
 }

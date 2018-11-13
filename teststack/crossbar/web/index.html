@@ -89,6 +89,10 @@
             Open a new XBR Market.
             <table>
                 <tr>
+                    <td>Market name</td>
+                    <td><input type="text" id="new_market_name" name="new_market_name" size="12" maxlength="12" value="Market1"></td>
+                </tr>
+                <tr>
                     <td>Market maker address</td>
                     <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0xd03ea8624c8c5987235048901fb614fdca89b117" disabled="disabled"></td>
                 </tr>
@@ -106,6 +110,18 @@
                 </tr>
             </table>
             <button onclick="test_open_market();">Open Market</button>
+        </p>
+
+        <h3>Get Market</h3>
+        <p>
+            Get info on existing market.
+            <table>
+                <tr>
+                    <td>Market name</td>
+                    <td><input type="text" id="get_market_name" name="get_market_name" size="12" maxlength="12" value="Market1"></td>
+                </tr>
+            </table>
+            <button onclick="test_get_market();">Get Market</button>
         </p>
 
     </body>
