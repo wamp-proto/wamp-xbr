@@ -49,6 +49,10 @@ contract XBRNetwork is XBRMaintained {
     }
 
     event ActorJoined ();
+    
+    event PaymentChannelCreated (address channel, bytes32 marketId);
+    
+    event PayingChannelRequestCreated (bytes32 payingChannelRequestId, bytes32 marketId);
 
     struct PayingChannelRequest {
         bytes32 marketId;
@@ -226,6 +230,9 @@ contract XBRNetwork is XBRMaintained {
         // bytes32 marketId, address sender, address delegate, address recipient, uint256 amount, uint32 timeout
         XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
         markets[marketId].channels.push(channel);
+        
+        emit PaymentChannelCreated(channel, marketId);
+
         return channel;
     }
 
@@ -248,6 +255,8 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId].channelRequests[payingChannelRequestId] =
             PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
+            
+        emit PayingChannelRequestCreated(payingChannelRequestId, marketId);
     }
 
     /**
@@ -256,7 +265,8 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param marketId The ID of the market to leave.
      */
-    function leaveMarket (bytes32 marketId) public pure { // solhint-disable-line
+    function leaveMarket (bytes32 marketId) public view {
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         // FIXME
     }
 
@@ -265,7 +275,8 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param marketId The ID of the market to close.
      */
-    function closeMarket (bytes32 marketId) public pure { // solhint-disable-line
+    function closeMarket (bytes32 marketId) public view {
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         // FIXME
     }
 }

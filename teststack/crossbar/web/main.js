@@ -26,8 +26,8 @@ async function unlock () {
         xbr.setProvider(window.web3.currentProvider);
         console.log('library versions: web3="' + web3.version.api + '", xbr="' + xbr.version + '"');
 
-        // now start main from the first account ..
-        await main(web3.eth.accounts[0]);
+        // now start testing from the accounts ..
+        await test();
 
     } else {
         // no MetaMask (or other modern Ethereum integrated browser) .. redirect
@@ -38,12 +38,26 @@ async function unlock () {
     }
 }
 
+
 // main app: this runs with the 1st MetaMask account (given the user has granted access)
-async function main (account) {
+async function test () {
+    // primary account used for testing
+    const account = web3.eth.accounts[0];
     console.log('starting main from account ' + account);
 
+    // set main account as default in form elements
+    document.getElementById('new_member_address').value = '' + account;
+    document.getElementById('get_member_address').value = '' + account;
+
+    await test_get_member();
+}
+
+
+async function test_get_member () {
+    var get_member_address = document.getElementById('get_member_address').value;
+
     // ask for current balance in XBR
-    var balance = await xbr.xbrToken.balanceOf(account);
+    var balance = await xbr.xbrToken.balanceOf(get_member_address);
     if (balance > 0) {
         balance = balance / 10**18;
         console.log('account holds ' + balance + ' XBR');
@@ -52,10 +66,24 @@ async function main (account) {
     }
 
     // ask for XBR network membership level
-    const level = await xbr.xbrNetwork.getMemberLevel(account);
+    const level = await xbr.xbrNetwork.getMemberLevel(get_member_address);
     if (level > 0) {
         console.log('account is already member in the XBR network (level=' + level + ')');
     } else {
         console.log('account is not yet member in the XBR network');
     }
+}
+
+
+async function test_register () {
+    // primary account used for testing
+    const account = web3.eth.accounts[0];
+
+    const new_member_address = document.getElementById('new_member_address').value;
+    const new_member_eula = document.getElementById('new_member_eula').value;
+    const new_member_profile = document.getElementById('new_member_profile').value;
+
+    console.log('test_register(new_member_address=' + new_member_address + ', new_member_eula=' + new_member_eula + ', new_member_profile=' + new_member_profile + ')');
+
+    await xbr.xbrNetwork.register(new_member_eula, new_member_profile, {from: account});
 }
