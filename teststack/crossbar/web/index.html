@@ -21,10 +21,12 @@
         <p>Interacting with the XBR network from JavaScript and browser applications</p>
         <script>AUTOBAHN_DEBUG = false;</script>
         <script src="/xbr.js"></script>
-        <script src="/bc3.js"></script>
         <!--
-        <script src="/comms.js"></script>
+            <script src="/xbr.js"></script>
+            <script src="https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/xbr.min.js"></script>
+            <script src="https://xbr.network/lib/xbr.min.js"></script>
         -->
+        <script src="/main.js"></script>
 
         <button onclick="unlock();">Login to XBR</button>
 
@@ -85,7 +87,7 @@
                     <td><input type="number" id="new_market_consumer_security" name="new_market_consumer_security" size="20" maxlength="20" value="10"></td>
                 </tr>
             </table>
-            <button onclick="test_register();">Register</button>
+            <button onclick="test_open_market();">Open Market</button>
         </p>
 
     </body>

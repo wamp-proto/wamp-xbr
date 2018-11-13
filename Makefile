@@ -1,6 +1,15 @@
 .PHONY: crossbar docs clean build test
 
-CROSSBAR=crossbarfx edge
+CROSSBAR = crossbarfx edge
+
+#BROWSERIFY = ./node_modules/browserify/bin/cmd.js
+BROWSERIFY = browserify
+
+SCOUR = scour
+SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
+
+GCLOSURE = ./node_modules/google-closure-compiler/cli.js
+
 
 default:
 	@echo 'Targets: clean compile test'
@@ -15,9 +24,6 @@ install:
 	npm install
 
 
-#BROWSERIFY=./node_modules/browserify/bin/cmd.js
-BROWSERIFY=browserify
-
 #
 # XBR Protocol smart contracts
 #
@@ -26,10 +32,16 @@ lint:
 
 compile:
 	truffle compile --all
-	#cp ./build/contracts/*.json ./teststack/crossbar/web/xbr/
 
-build: compile
+browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
+
+build: compile browserify
+	./node_modules/google-closure-compiler/cli.js -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
+	gzip -c -k -9 build/xbr.min.js > build/xbr.min.jgz
+
+publish: build
+	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
 
 deploy:
 	truffle compile --all
@@ -44,8 +56,6 @@ test:
 # build optimized SVG files from source SVGs
 #
 BUILDDIR = docs/_static/gen
-SCOUR = scour
-SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
 
 # build "docs/_static/gen/*.svg" optimized SVGs from "docs/_graphics/*.svg" using Scour
 # note: this currently does not recurse into subdirs! place all SVGs flat into source folder
@@ -105,17 +115,10 @@ clean_ganache_cli:
 
 
 #
-# Remix (and remixd)
+# Remix (and remixd as part (!) of RemixIDE when it is installed)
 #
 run_remix:
 	remix-ide
-
-run_remixd:
-	#remixd -s ${PWD}/contracts --remix-ide http://127.0.0.1:8080
-	#remixd -s ${PWD}/contracts --rpc --rpc-port 8545
-	#remixd -s ./contracts --remix-ide http://127.0.0.1:8080/#optimize=true&version=soljson-v0.4.25+commit.59dbf8f1.js
-	remixd -s ./contracts --remix-ide http://127.0.0.1:8080/
-	#remixd -s ./contracts
 
 
 #

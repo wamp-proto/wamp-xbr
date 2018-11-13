@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+//  XBR Open Data Markets - https://xbr.network
+//
+//  JavaScript client library for the XBR Network.
+//
+//  Copyright (C) Crossbar.io Technologies GmbH and contributors
+//
+//  Licensed under the Apache 2.0 License:
+//  https://opensource.org/licenses/Apache-2.0
+//
+///////////////////////////////////////////////////////////////////////////////
+
 // entry point: asks user to grant access to MetaMask ..
 async function unlock () {
 
@@ -30,8 +43,9 @@ async function main (account) {
     console.log('starting main from account ' + account);
 
     // ask for current balance in XBR
-    const balance = await xbr.xbrToken.balanceOf(account);
+    var balance = await xbr.xbrToken.balanceOf(account);
     if (balance > 0) {
+        balance = balance / 10**18;
         console.log('account holds ' + balance + ' XBR');
     } else {
         console.log('account does not hold XBR currently');
