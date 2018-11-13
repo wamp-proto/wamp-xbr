@@ -49,9 +49,9 @@ contract XBRNetwork is XBRMaintained {
     }
 
     event ActorJoined ();
-    
+
     event PaymentChannelCreated (address channel, bytes32 marketId);
-    
+
     event PayingChannelRequestCreated (bytes32 payingChannelRequestId, bytes32 marketId);
 
     struct PayingChannelRequest {
@@ -75,7 +75,7 @@ contract XBRNetwork is XBRMaintained {
         mapping(bytes32 => PayingChannelRequest) channelRequests;
         mapping(address => Actor) actors;
     }
-    
+
     uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
@@ -92,7 +92,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Index: maker address => market ID
     mapping(address => bytes32) private marketByMaker;
-    
+
     /**
      * Create a new network.
      *
@@ -207,7 +207,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the XBR data market to join.
      * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
      */
-    function joinMarket (bytes32 marketId, ActorType actorType) public payable {
+    function joinMarket (bytes32 marketId, ActorType actorType) public {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
         require(uint8(actorType) == uint8(ActorType.MAKER) ||
@@ -226,11 +226,11 @@ contract XBRNetwork is XBRMaintained {
      */
     function openPaymentChannel (bytes32 marketId, address consumer, uint256 amount) public returns
         (address paymentChannel) {
-        
+
         // bytes32 marketId, address sender, address delegate, address recipient, uint256 amount, uint32 timeout
         XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
         markets[marketId].channels.push(channel);
-        
+
         emit PaymentChannelCreated(channel, marketId);
 
         return channel;
@@ -255,7 +255,7 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId].channelRequests[payingChannelRequestId] =
             PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
-            
+
         emit PayingChannelRequestCreated(payingChannelRequestId, marketId);
     }
 

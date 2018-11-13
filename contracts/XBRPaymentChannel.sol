@@ -25,13 +25,37 @@ pragma solidity ^0.4.24;
  */
 contract XBRPaymentChannel {
 
+    /// The XBR Market ID this channel is operating payments for.
     bytes32 private _marketId;
+
+    /// The sender of the payments in this channel. Either a XBR Consumer or XBR Market Maker (delegate).
     address private _sender;
+
+    /**
+     * The delegate working for the sender, and using this channel to pay for data keys.
+     * Eg a XBR Consumer (delegate) or XBR Provider (delegate).
+     */
     address private _delegate;
+
+    /// Recipient of the payments in this channel. Either a XBR Market Maker (delegate) or a XBR Provider.
     address private _recipient;
+
+    /// Amount of XBR held in the channel.
     uint256 private _amount;
-    uint256 private _started;
-    uint32 private _timeout;
+
+    /// Block number when the channel was created.
+    uint256 private _openedAt;
+
+    /// Block number when the channel was closed (finally, after the timeout).
+    uint256 private _closedAt;
+
+    /**
+     * Timeout with which the channel will be closed (the grace period during which the
+     * channel will wait for participants to submit their last signed transaction).
+     */
+    uint32 private _channelTimeout;
+
+    /// Signatures of the channel participants (when channel is closing).
     mapping (bytes32 => address) private _signatures;
 
     /**
@@ -56,19 +80,77 @@ contract XBRPaymentChannel {
      *     in the name of the original sender.
      * @param recipient The receiver (onchain) of the payments.
      * @param amount The amount of XBR held in the channel.
-     * @param timeout The payment channel timeout period that begins with the first call to `close()`
+     * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
      */
     constructor (bytes32 marketId, address sender, address delegate, address recipient, uint256 amount,
-        uint32 timeout) public {
+        uint32 channelTimeout) public {
 
         _marketId = marketId;
         _sender = sender;
         _delegate = delegate;
         _recipient = recipient;
         _amount = amount;
-        _timeout = timeout;
+        _channelTimeout = channelTimeout;
 
-        _started = now; // solhint-disable-line
+        _openedAt = block.number; // solhint-disable-line
+    }
+
+    /**
+     * The XBR Market ID this channel is operating payments for.
+     */
+    function marketId () public view returns (bytes32) {
+        return _marketId;
+    }
+
+    /**
+     * The sender of the payments in this channel. Either a XBR Consumer or XBR Market Maker (delegate).
+     */
+    function sender () public view returns (address) {
+        return _sender;
+    }
+
+    /**
+     * The delegate working for the sender, and using this channel to pay for data keys. Eg a
+     * XBR Consumer (delegate) or XBR Provider (delegate).
+     */
+    function delegate () public view returns (address) {
+        return _delegate;
+    }
+
+    /**
+     * Recipient of the payments in this channel. Either a XBR Market Maker (delegate) or a XBR Provider.
+     */
+    function recipient () public view returns (address) {
+        return _recipient;
+    }
+
+    /**
+     * Amount of XBR held in the channel.
+     */
+    function amount () public view returns (uint256) {
+        return _amount;
+    }
+
+    /**
+     * Block number when the channel was created.
+     */
+    function openedAt () public view returns (uint256) {
+        return _openedAt;
+    }
+
+    /**
+     * Block number when the channel was closed (finally, after the timeout).
+     */
+    function closedAt () public view returns (uint256) {
+        return _closedAt;
+    }
+
+    /**
+     * Timeout with which the channel will be closed (the grace period during which the
+     * channel will wait for participants to submit their last signed transaction).
+     */
+    function channelTimeout () public view returns (uint32) {
+        return _channelTimeout;
     }
 
     /**
@@ -103,6 +185,7 @@ contract XBRPaymentChannel {
             emit Closing();
         } else if (_signatures[proof] != signer) {
             // channel completed, both _signatures provided
+            _closedAt = block.number;
             if (!_recipient.send(value)) { // solhint-disable-line
                 revert("transaction failed on the very last meter");
             }
@@ -115,10 +198,12 @@ contract XBRPaymentChannel {
      * Timeout this state channel.
      */
     function timeout () public {
-        if (_started + _timeout > now) { // solhint-disable-line
+        if (_openedAt + _channelTimeout > now) { // solhint-disable-line
             revert("channel timeout");
         }
+        _closedAt = block.number;
         selfdestruct(_sender);
+        emit Closed();
     }
 
     function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer) internal pure returns (bool)

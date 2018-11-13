@@ -94,19 +94,19 @@
                 </tr>
                 <tr>
                     <td>Market maker address</td>
-                    <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0xd03ea8624c8c5987235048901fb614fdca89b117" disabled="disabled"></td>
+                    <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000"></td>
                 </tr>
                 <tr>
                     <td>Market terms</td>
-                    <td><input type="text" id="new_market_terms" name="new_market_terms" size="66" maxlength="66" value="0x66b09be5fee50fad8702998b93ef888d5187c1d9dead57753b92004039e1041b"></td>
+                    <td><input type="text" id="new_market_terms" name="new_market_terms" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
                 </tr>
                 <tr>
-                    <td>Provider security</td>
-                    <td><input type="number" id="new_market_provider_security" name="new_market_provider_security" size="20" maxlength="20" value="10"></td>
+                    <td>Provider security (XBR)</td>
+                    <td><input type="number" id="new_market_provider_security" name="new_market_provider_security" size="12" maxlength="12" value="100"></td>
                 </tr>
                 <tr>
-                    <td>Consumer security</td>
-                    <td><input type="number" id="new_market_consumer_security" name="new_market_consumer_security" size="20" maxlength="20" value="10"></td>
+                    <td>Consumer security (XBR)</td>
+                    <td><input type="number" id="new_market_consumer_security" name="new_market_consumer_security" size="12" maxlength="12" value="100"></td>
                 </tr>
             </table>
             <button onclick="test_open_market();">Open Market</button>
@@ -124,5 +124,70 @@
             <button onclick="test_get_market();">Get Market</button>
         </p>
 
+        <h3>Join Market</h3>
+        <p>
+            Join a market.
+            <table>
+                <tr>
+                    <td>Market name</td>
+                    <td><input type="text" id="join_market_name" name="join_market_name" size="12" maxlength="12" value="Market1"></td>
+                </tr>
+                <tr>
+                    <td>Actor Type</td>
+                    <td>
+                        <input type="radio" id="join_market_actor_type_provider" name="join_market_actor_type" checked>XBR Data Provider
+                        <input type="radio" id="join_market_actor_type_consumer" name="join_market_actor_type">XBR Data Consumer
+                    </td>
+                </tr>
+            </table>
+            <button onclick="test_join_market();">Join Market</button>
+        </p>
+
+        <h3>Get Market Actor Type</h3>
+        <p>
+            Get info on actor within market.
+            <table>
+                <tr>
+                    <td>Actor address</td>
+                    <td><input class="address" type="text" id="get_market_actor_address" name="get_market_actor_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000" disabled="disabled"></td>
+                </tr>
+                <tr>
+                    <td>Market name</td>
+                    <td><input type="text" id="get_market_actor_market_name" name="get_market_actor_market_name" size="12" maxlength="12" value="Market1"></td>
+                </tr>
+            </table>
+            <button onclick="test_get_market_actor_type();">Get Market Actor</button>
+        </p>
+
+        <h2>Payment Channels</h2>
+
+        <h3>Open Payment Channel</h3>
+        <div>
+            <p>
+            Open a new XBR payment channel that can be used by the offchain senders'
+            delegate to pay for microtransactions (buying data keys).
+            There are 3 parties involved: the sender (opening the channel), the recipient (which will be
+            the market maker in the market), and the consumer (offchain delegate).
+            The channel can also be closed (at any time) by both the sender (opening the channel) and
+            the recipient - but not the offchain delegate.
+            </p>
+            <table>
+                <tr>
+                    <td>Market name</td>
+                    <td><input type="text" id="open_channel_market_name" name="open_channel_market_name" size="12" maxlength="12" value="Market1"></td>
+                </tr>
+                <tr>
+                    <td>Consumer delegate address</td>
+                    <td><input class="address" type="text" id="open_channel_consumer_address" name="open_channel_consumer_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000"></td>
+                </tr>
+                <tr>
+                    <td>Amount (XBR)</td>
+                    <td><input type="number" id="open_channel_amount" name="open_channel_amount" size="12" maxlength="12" value="0"></td>
+                </tr>
+            </table>
+            <button onclick="test_open_payment_channel();">Open Payment Channel</button>
+        </div>
+
     </body>
 </html>
+<div>

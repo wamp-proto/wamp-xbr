@@ -60,6 +60,7 @@ async function setup_test () {
     // set main account as default in form elements
     document.getElementById('new_member_address').value = '' + account;
     document.getElementById('get_member_address').value = '' + account;
+    document.getElementById('get_market_actor_address').value = '' + account;
 
     // run one test
     await test_get_member();
@@ -148,4 +149,96 @@ async function test_get_market () {
     console.log('market ' + marketId + ' maker:', maker);
     console.log('market ' + marketId + ' providerSecurity:', providerSecurity);
     console.log('market ' + marketId + ' consumerSecurity:', consumerSecurity);
+}
+
+
+async function test_join_market () {
+    const account = web3.eth.accounts[0];
+
+    var name = document.getElementById('join_market_name').value;
+    var marketId = web3.sha3(account, name);
+
+    var actorType = 0;
+    if (document.getElementById('join_market_actor_type_provider').checked) {
+        actorType = 3;
+    }
+    else if (document.getElementById('join_market_actor_type_consumer').checked) {
+        actorType = 4;
+    }
+    else {
+        assert(false);
+    }
+
+    console.log('test_join_market(marketId=' + marketId + ', actorType=' + actorType + ')');
+
+    // bytes32 marketId, ActorType actorType
+    await xbr.xbrNetwork.joinMarket(marketId, actorType, {from: account});
+}
+
+
+async function test_get_market_actor_type () {
+    const account = web3.eth.accounts[0];
+
+    var name = document.getElementById('get_market_actor_market_name').value;
+    var marketId = web3.sha3(account, name);
+
+    var actor = document.getElementById('get_market_actor_address').value;
+
+    // bytes32 marketId, address actor
+    const actorType = await xbr.xbrNetwork.getMarketActorType(marketId, actor);
+
+    if (actorType > 0) {
+        console.log('account is actor of type=' + actorType + ' in this market');
+    } else {
+        console.log('account is not an actor in this market');
+    }
+}
+
+
+async function test_open_payment_channel () {
+    const account = web3.eth.accounts[0];
+
+    var name = document.getElementById('open_channel_market_name').value;
+    var marketId = web3.sha3(account, name);
+
+    var consumer = document.getElementById('open_channel_consumer_address').value;
+
+    const decimals = parseInt('' + await xbr.xbrToken.decimals())
+    var amount = document.getElementById('open_channel_amount').value;
+    amount = amount * (10 ** decimals);
+
+    var watch = {
+        tx: null
+    }
+
+    const options = {};
+    xbr.xbrNetwork.PaymentChannelCreated(options, function (error, event)
+        {
+            console.log('PaymentChannelCreated', event);
+            if (event) {
+                if (watch.tx && event.transactionHash == watch.tx) {
+                    console.log('new payment channel created: marketId=' + event.args.marketId + ', channel=' + event.args.channel + '');
+                }
+            }
+            else {
+                console.error(error);
+            }
+        }
+    );
+
+    console.log('test_open_payment_channel(marketId=' + marketId + ', consumer=' + consumer + ', amount=' + amount + ')');
+
+    // bytes32 marketId, address consumer, uint256 amount
+    const tx = await xbr.xbrNetwork.openPaymentChannel(marketId, consumer, amount, {from: account});
+
+    console.log(tx);
+
+    watch.tx = tx.tx;
+
+    console.log('transaction completed: tx=' + tx.tx + ', gasUsed=' + tx.receipt.gasUsed);
+}
+
+
+async function test_request_paying_channel () {
+
 }
