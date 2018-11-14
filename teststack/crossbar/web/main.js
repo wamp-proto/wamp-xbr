@@ -121,7 +121,7 @@ async function test_open_market () {
     providerSecurity = providerSecurity * (10 ** decimals);
     consumerSecurity = consumerSecurity * (10 ** decimals);
 
-    var marketId = web3.sha3(account, name);
+    var marketId = web3.sha3((account, name));
 
     console.log('test_open_market(marketId=' + marketId + ', maker=' + maker + ', terms=' + terms + ', providerSecurity=' + providerSecurity + ', consumerSecurity=' + consumerSecurity + ')');
 
@@ -138,7 +138,7 @@ async function test_get_market () {
     var name = document.getElementById('get_market_name').value;
     var owner = document.getElementById('get_market_owner').value;
 
-    var marketId = web3.sha3(owner, name);
+    var marketId = web3.sha3((owner, name));
 
     console.log('test_get_market(marketId=' + marketId + ')');
 
@@ -163,7 +163,7 @@ async function test_join_market () {
     var name = document.getElementById('join_market_name').value;
     var owner = document.getElementById('join_market_owner').value;
 
-    var marketId = web3.sha3(owner, name);
+    var marketId = web3.sha3((owner, name));
 
     var actorType = 0;
     if (document.getElementById('join_market_actor_type_provider').checked) {
@@ -189,7 +189,7 @@ async function test_get_market_actor_type () {
     var name = document.getElementById('get_market_actor_market_name').value;
     var owner = document.getElementById('get_market_actor_market_owner').value;
 
-    var marketId = web3.sha3(owner, name);
+    var marketId = web3.sha3((owner, name));
 
     var actor = document.getElementById('get_market_actor_address').value;
 
@@ -210,7 +210,7 @@ async function test_open_payment_channel () {
     var name = document.getElementById('open_channel_market_name').value;
     var owner = document.getElementById('open_channel_market_owner').value;
 
-    var marketId = web3.sha3(owner, name);
+    var marketId = web3.sha3((owner, name));
 
     var consumer = document.getElementById('open_channel_consumer_address').value;
 

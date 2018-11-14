@@ -33,6 +33,13 @@ lint:
 compile:
 	truffle compile --all
 
+test:
+	truffle test --network ganache
+
+deploy:
+	truffle compile --all
+	truffle migrate --reset --network ganache
+
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
 
@@ -43,12 +50,6 @@ build: compile browserify
 publish:
 	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
 
-deploy:
-	truffle compile --all
-	truffle migrate --reset --network ganache
-
-test:
-	truffle test --network ganache
 
 
 #

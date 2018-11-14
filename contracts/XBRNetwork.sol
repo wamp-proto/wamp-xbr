@@ -72,8 +72,9 @@ contract XBRNetwork is XBRMaintained {
         uint providerSecurity;
         uint consumerSecurity;
         address[] channels;
-        mapping(bytes32 => PayingChannelRequest) channelRequests;
+        address[] actorAddresses;
         mapping(address => Actor) actors;
+        mapping(bytes32 => PayingChannelRequest) channelRequests;
     }
 
     uint32 private marketSeq = 1;
@@ -170,7 +171,7 @@ contract XBRNetwork is XBRMaintained {
         require(marketByMaker[maker] == bytes32(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
         markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
-            consumerSecurity, new address[](0));
+            consumerSecurity, new address[](0), new address[](0));
 
         marketByMaker[maker] = marketId;
 
@@ -214,6 +215,11 @@ contract XBRNetwork is XBRMaintained {
             uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
 
         markets[marketId].actors[msg.sender] = Actor(actorType);
+        markets[marketId].actorAddresses.push(msg.sender);
+    }
+
+    function getAllMarketActors(bytes32 marketId) public view returns (address[]) {
+        return markets[marketId].actorAddresses;
     }
 
     function getMarketActorType (bytes32 marketId, address actor) public view returns (ActorType) {
@@ -239,6 +245,10 @@ contract XBRNetwork is XBRMaintained {
         emit PaymentChannelCreated(channel, marketId);
 
         return channel;
+    }
+
+    function getAllMarketPaymentChannels(bytes32 marketId) public view returns (address[]) {
+        return markets[marketId].channels;
     }
 
     /**

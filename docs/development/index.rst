@@ -1,9 +1,12 @@
 Project Development
 ===================
 
-This is documentation addressing XBR project developers, not XBR application developers.
+.. contents:: :local:
 
-For XBR application developer documentation, please see the other sections of this documentation.
+.. note::
+
+    This is documentation addressing XBR project developers, not XBR application developers.
+    For XBR application developer documentation, please see the other sections of this documentation.
 
 We build on the following toolset:
 
@@ -21,6 +24,47 @@ We build on the following toolset:
     metamask
     truffle
     remixide
+
+
+Build, Test and Deploy
+----------------------
+
+To syntax-check and lint the Solidity sources:
+
+.. code-block:: console
+
+    make lint
+
+To build the XBR smart contracts and ABI files (``./build/contracts/*.json``) from the Solidity sources:
+
+.. code-block:: console
+
+    make compile
+
+To run the unit tests on the XBR smart contracts (against the configured local ``ganache`` test blockchain)::
+
+.. code-block:: console
+
+    make test
+
+To compile and deploy the XBR smart contracts (to the configured local ``ganache`` test blockchain):
+
+.. code-block:: console
+
+    make deploy
+
+To build the XBR client libraries for JavaScript and Python:
+
+.. code-block:: console
+
+    make build
+
+To publish the XBR client libraries to:
+
+* `XBR Client library for JavaScript <https://xbr.network/lib/xbr.min.js>`_
+* `XBR Client library for Python <https://pypi.org/project/xbr/>`_
+
+
 
 Writing documentation
 ---------------------
