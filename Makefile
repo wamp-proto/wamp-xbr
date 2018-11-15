@@ -51,6 +51,12 @@ publish:
 	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
 
 
+publish_ipfs_eula:
+	cd ipfs && zip -r - xbr-eula | ipfs add
+
+publish_ipfs_members:
+	cd ipfs/members && ipfs add *.rdf
+
 
 #
 # build optimized SVG files from source SVGs

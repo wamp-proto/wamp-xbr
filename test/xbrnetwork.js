@@ -47,7 +47,7 @@ contract('XBRNetwork', accounts => {
     it('should create new member, and with the correct member level', async () => {
         const network = await XBRNetwork.deployed();
 
-        const eula = "0x0000000000000000000000000000000000000000000000000000000000000000";
+        const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         const profile = "0x0000000000000000000000000000000000000000";
 
         await network.register(eula, profile, {from: alice});
@@ -67,7 +67,7 @@ contract('XBRNetwork', accounts => {
         const network = await XBRNetwork.deployed();
 
         if (false) {
-            const eula = "0x0000000000000000000000000000000000000000000000000000000000000000";
+            const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
             const profile = "0x0000000000000000000000000000000000000000";
 
             await network.register(eula, profile, {from: alice});

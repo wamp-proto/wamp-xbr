@@ -24,6 +24,7 @@ We build on the following toolset:
     metamask
     truffle
     remixide
+    ipfs
 
 
 Build, Test and Deploy

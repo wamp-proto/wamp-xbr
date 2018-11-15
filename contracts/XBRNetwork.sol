@@ -34,26 +34,32 @@ contract XBRNetwork is XBRMaintained {
 
     /// Value type for holding XBR Network membership information.
     struct Member {
-        bytes32 eula;
-        bytes32 profile;
+        string eula;
+        string profile;
         MemberLevel level;
     }
 
-    event MemberCreated (bytes32 eula, bytes32 profile, MemberLevel level);
+    /// Event emitted when a new member joined the XBR Network.
+    event MemberCreated (string eula, string profile, MemberLevel level);
 
     /// XBR Market Actor types
     enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
 
+    /// Value type for holding XBR Market Actors information.
     struct Actor {
         ActorType actorType;
     }
 
-    event ActorJoined ();
+    /// Event emitted when a new actor joined a XBR Market.
+    event ActorJoined (ActorType actorType);
 
+    /// Event emitted when a new payment channel was created in a XBR Market.
     event PaymentChannelCreated (address channel, bytes32 marketId);
 
+    /// Event emitted when a new request for a paying channel was created in a XBR Market.
     event PayingChannelRequestCreated (bytes32 payingChannelRequestId, bytes32 marketId);
 
+    /// Value type for holding paying channel request information. FIXME: make this event-based (to save gas).
     struct PayingChannelRequest {
         bytes32 marketId;
         address sender;
@@ -77,6 +83,7 @@ contract XBRNetwork is XBRMaintained {
         mapping(bytes32 => PayingChannelRequest) channelRequests;
     }
 
+    /// Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
     uint32 private marketSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
@@ -112,14 +119,14 @@ contract XBRNetwork is XBRMaintained {
      * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
      * with the XBR Network on the global blockchain by calling this function.
      *
-     * @param eula The file hash (SHA2-256) of the XBR Network EULA documents
-     *             being agreed to and stored as one ZIP file archive on IPFS.
-     * @param profile Optional public member profile: the file hash (SHA2-256)
-     *                of the member profile file stored on a well-known location
-     *                (suchas as IPFS).
+     * @param eula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+     *             Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
+     * @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
-    function register (bytes32 eula, bytes32 profile) public {
+    function register (string eula, string profile) public {
         require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_EXISTS");
+        require(keccak256(abi.encode(eula)) ==
+                keccak256(abi.encode("QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81")), "INVALID_EULA");
 
         members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
 
@@ -135,6 +142,11 @@ contract XBRNetwork is XBRMaintained {
         members[msg.sender].level = MemberLevel.RETIRED;
     }
 
+    /**
+     * Returns XBR Network membership level given an address.
+     * 
+     * @param member The address to lookup the XBR Network membership level for.
+     */
     function getMemberLevel (address member) public view returns (MemberLevel) {
         return members[member].level;
     }
@@ -247,6 +259,11 @@ contract XBRNetwork is XBRMaintained {
         return channel;
     }
 
+    /**
+     * Lookup all payment channels for a XBR Market.
+     * 
+     * @param marketId The XBR Market to get payment channels for.
+     */
     function getAllMarketPaymentChannels(bytes32 marketId) public view returns (address[]) {
         return markets[marketId].channels;
     }
