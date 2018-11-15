@@ -74,9 +74,10 @@ contract XBRNetwork is XBRMaintained {
         uint32 sequence;
         address owner;
         address maker;
-        bytes32 terms;
-        uint providerSecurity;
-        uint consumerSecurity;
+        string terms;
+        uint256 providerSecurity;
+        uint256 consumerSecurity;
+        uint256 marketFee;
         address[] channels;
         address[] actorAddresses;
         mapping(address => Actor) actors;
@@ -169,21 +170,29 @@ contract XBRNetwork is XBRMaintained {
      * Register a new XBR market. The sender of the transaction must be XBR network member
      * and automatically becomes owner of the new market.
      *
-     * @param maker The address of the XBR market maker that will run this market.
-     * @param terms The XBR market terms set by the market owner.
+     * @param marketId The ID of the market to register. Must be unique (not yet existing).
+     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
+     * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
+     *              to a ZIP archive file with market documents.
      * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
      * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
+     * @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
+     *                  the revenue of the XBR Provider that receives XBR Token paid for transactions.
+     *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
+     *                  a fraction of the total supply of XBR tokens.
      */
-    function openMarket (bytes32 marketId, address maker, bytes32 terms, uint providerSecurity,
-        uint consumerSecurity) public {
+    function createMarket (bytes32 marketId, address maker, string terms, uint256 providerSecurity,
+        uint256 consumerSecurity, uint256 marketFee) public {
 
-        // generate new market_id
-        // bytes32 marketId = keccak256(abi.encodePacked(marketSeq, msg.sender, blockhash(block.number)));
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(marketByMaker[maker] == bytes32(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+        require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
-            consumerSecurity, new address[](0), new address[](0));
+            consumerSecurity, marketFee, new address[](0), new address[](0));
+
+        markets[marketId].actors[maker] = Actor(ActorType.MAKER);
+        markets[marketId].actorAddresses.push(maker);
 
         marketByMaker[maker] = marketId;
 
@@ -202,16 +211,56 @@ contract XBRNetwork is XBRMaintained {
         return markets[marketId].maker;
     }
 
-    function getMarketTerms (bytes32 marketId) public view returns (bytes32) {
+    function getMarketTerms (bytes32 marketId) public view returns (string) {
         return markets[marketId].terms;
     }
 
-    function getMarketProviderSecurity (bytes32 marketId) public view returns (uint) {
+    function getMarketProviderSecurity (bytes32 marketId) public view returns (uint256) {
         return markets[marketId].providerSecurity;
     }
 
-    function getMarketConsumerSecurity (bytes32 marketId) public view returns (uint) {
+    function getMarketConsumerSecurity (bytes32 marketId) public view returns (uint256) {
         return markets[marketId].consumerSecurity;
+    }
+
+    function getMarketFee (bytes32 marketId) public view returns (uint256) {
+        return markets[marketId].marketFee;
+    }
+
+    function updateMarket(bytes32 marketId, address maker, string terms, uint256 providerSecurity,
+        uint256 consumerSecurity, uint256 marketFee) public {
+
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
+        require(marketByMaker[maker] == bytes32(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+        require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
+
+        if (maker != markets[marketId].maker) {
+            markets[marketId].maker = maker;
+        }
+        if (keccak256(abi.encode(terms)) != keccak256(abi.encode(markets[marketId].terms))) {
+            markets[marketId].terms = terms;
+        }
+        if (providerSecurity != markets[marketId].providerSecurity) {
+            markets[marketId].providerSecurity = providerSecurity;
+        }
+        if (consumerSecurity != markets[marketId].consumerSecurity) {
+            markets[marketId].consumerSecurity = consumerSecurity;
+        }
+        if (marketFee != markets[marketId].marketFee) {
+            markets[marketId].marketFee = marketFee;
+        }
+    }
+
+    /**
+     * Close a market. A closed market will not accept new memberships.
+     *
+     * @param marketId The ID of the market to close.
+     */
+    function closeMarket (bytes32 marketId) public view {
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
+        // FIXME
     }
 
     /**
@@ -236,6 +285,17 @@ contract XBRNetwork is XBRMaintained {
 
     function getMarketActorType (bytes32 marketId, address actor) public view returns (ActorType) {
         return markets[marketId].actors[actor].actorType;
+    }
+
+    /**
+     * As a market actor (participant) currently member of a market, leave that market.
+     * A market can only be left when all payment channels of the sender are closed (or expired).
+     *
+     * @param marketId The ID of the market to leave.
+     */
+    function leaveMarket (bytes32 marketId) public view {
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        // FIXME
     }
 
     /**
@@ -289,26 +349,5 @@ contract XBRNetwork is XBRMaintained {
             PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
 
         emit PayingChannelRequestCreated(payingChannelRequestId, marketId);
-    }
-
-    /**
-     * As a market actor (participant) currently member of a market, leave that market.
-     * A market can only be left when all payment channels of the sender are closed (or expired).
-     *
-     * @param marketId The ID of the market to leave.
-     */
-    function leaveMarket (bytes32 marketId) public view {
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        // FIXME
-    }
-
-    /**
-     * Close a market. A closed market will not accept new memberships.
-     *
-     * @param marketId The ID of the market to close.
-     */
-    function closeMarket (bytes32 marketId) public view {
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        // FIXME
     }
 }

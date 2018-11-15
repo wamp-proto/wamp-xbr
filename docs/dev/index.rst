@@ -42,7 +42,7 @@ To build the XBR smart contracts and ABI files (``./build/contracts/*.json``) fr
 
     make compile
 
-To run the unit tests on the XBR smart contracts (against the configured local ``ganache`` test blockchain)::
+To run the unit tests on the XBR smart contracts (against the configured local ``ganache`` test blockchain):
 
 .. code-block:: console
 

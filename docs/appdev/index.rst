@@ -12,11 +12,11 @@ Python that bundles everything you need for a browser or NodeJS application.
 
 --------
 
-Background
-----------
+Requirements
+------------
 
-Blockchain Networks
-...................
+Blockchain Network
+..................
 
 An Ethereum network consists of one or more nodes speaking the Ethereum protocol, and interconnected.
 To connect to a specific Ethereum network, one can connect to any node already in the network using
@@ -77,6 +77,7 @@ Here is a list of Ethereum networks known (see `here <https://ethereum.stackexch
 * ``77``: Sokol, the public POA Network testnet
 * ``99``: Core, the public POA Network main network
 * ``100``: xDai, the public MakerDAO/POA Network main network
+* ``5777``: **network ID used for XBR testing on private networks**
 * ``401697``: Tobalaba, the public Energy Web Foundation testnet
 * ``7762959``: Musicoin, the music blockchain
 * ``61717561``: Aquachain, ASIC resistant chain
@@ -88,18 +89,6 @@ Web3 Client Library
 
 web3.js is a collection of libraries which allow you to interact with a local
 or remote ethereum node, using a HTTP or IPC connection.
-
-Typically, a Dapp using XBR will have the following call structure when
-submitting a transaction to the blockchain:
-
-1. **User** ``---(click)--->``
-2. **Your app (JavaScript in browser)** ``---(call)--->``
-3. **xbr.js / web3.js (injected)** ``---(call)--->``
-4. **MetaMask** ``---(user dialog)--->``
-5. **User** ``---(click)--->``
-6. **MetaMask** ``---(http)--->``
-7. **Infura** ``---(native etherum protocol)--->``
-8. **Ethereum Mainnet** (the set of worldwide public nodes)
 
 **JavaScript**
 
@@ -116,18 +105,58 @@ The documentation for Web3 (JavaScript) <v1.0 and v1.0+ can be found here:
 * `web3 0.x.x <https://github.com/ethereum/wiki/wiki/JavaScript-API>`_: this is what the MetaMask injected Web3 provides
 * `web3.js 1.0 <https://web3js.readthedocs.io/en/1.0/index.html>`_: this is the latest standalone Web3 (eg usable for NodeJS)
 
+Typically, a Dapp written in JavaScript using XBR and MetaMask will have the
+following call structure when submitting a transaction to the blockchain:
+
+1. **User** ``---(click)--->``
+2. **Your app (JavaScript in browser)** ``---(call)--->``
+3. **xbr.js / web3.js (injected)** ``---(call)--->``
+4. **MetaMask** ``---(user dialog)--->``
+5. **User** ``---(click)--->``
+6. **MetaMask** ``---(http)--->``
+7. **Infura** ``---(native etherum protocol)--->``
+8. **Ethereum Mainnet** (the set of worldwide public nodes)
+
 **Python**
 
-For Python, there ia `Web3.py <https://web3py.readthedocs.io/en/stable/>`_ which closely follows the JavaScript Web3 <v1.0 API.
+For Python, there is `Web3.py <https://web3py.readthedocs.io/en/stable/>`_ which closely follows the JavaScript Web3 <v1.0 API.
 
-Unfortunately, Web3.py is a synchronous, blocking library. It uses `requests <http://docs.python-requests.org/en/master/>`_
-under the hood for talking to HTTP endpoints of blockchain nodes, so all blockchain interactions via Web3.py need
-to be run on a background worker threadpool.
+To install:
 
-.. note::
+.. code-block:: console
 
+    pip install web3
+
+.. tip::
+
+    Unfortunately, Web3.py is a synchronous, blocking library. It uses `requests <http://docs.python-requests.org/en/master/>`_
+    under the hood for talking to HTTP endpoints of blockchain nodes, so all blockchain interactions via Web3.py need
+    to be run on a background worker threadpool.
     Web3.py plans to introduce an async/await friendly API into web3 with version 5.
     See `here <https://github.com/ethereum/web3.py/issues/1055>`__
+
+
+XBR Client Library
+..................
+
+The XBR Protocol - at its core - is made of the XBR smart contracts, and the
+primary artifacts built are the contract ABI files (in ``./build/contracts/*.json``).
+
+Technically, these files are all you need to interact and talk to the XBR
+smart contracts.
+
+However, doing it that way (using the raw ABI files and presumably some generic
+Ethereum library) is cumbersome and errorprone to maintain.
+
+Therefore, we create wrapper libraries for XBR, currently for Python and JavaScript,
+that make interaction with XBR contract super easy.
+
+The libraries are available here:
+
+* `XBR client library for Python <https://pypi.org/project/xbr/>`__
+* `XBR client library for JavaScript <https://xbr.network/lib/xbr.min.js>`__
+
+The use of the XBR client library is explained in the following sections.
 
 
 Core Services
