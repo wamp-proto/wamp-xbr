@@ -17,6 +17,7 @@ setup(
     long_description=docstr,
     license='Apache 2.0 License',
     author='Crossbar.io Technologies GmbH',
+    author_email='support@crossbario.com',
     url='https://xbr.network',
     platforms='Any',
     install_requires=[
@@ -26,7 +27,7 @@ setup(
     packages=[
         'xbr',
     ],
-    # package_data={'autobahn.asyncio': ['test/*']},
+    package_data={'xbr': ['./xbr/contracts/*.json']},
 
     # this flag will make files from MANIFEST.in go into _source_ distributions only
     include_package_data=True,

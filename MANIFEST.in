@@ -1,2 +1,2 @@
 include LICENSE
-include ./build/contracts/*.json
+recursive-include xbr/contracts *.json

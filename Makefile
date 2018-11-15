@@ -10,6 +10,9 @@ SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-
 
 GCLOSURE = ./node_modules/google-closure-compiler/cli.js
 
+XBR_DEBUG_TOKEN_ADDR = 0x67b5656d60a809915323bf2c40a8bef15a152e3e
+XBR_DEBUG_NETWORK_ADDR = 0x2612af3a521c2df9eaf28422ca335b04adf3ac66
+
 
 default:
 	@echo 'Targets: clean compile test'
@@ -60,6 +63,24 @@ publish_ipfs_members:
 
 build_python:
 	python setup.py sdist bdist_wheel --universal
+	ls -la ./dist
+
+install_python:
+	pip install -e .
+
+test_python:
+	XBR_DEBUG_TOKEN_ADDR=$(XBR_DEBUG_TOKEN_ADDR) \
+	XBR_DEBUG_NETWORK_ADDR=$(XBR_DEBUG_NETWORK_ADDR) \
+		python teststack/test_client1.py
+
+	XBR_DEBUG_TOKEN_ADDR=$(XBR_DEBUG_TOKEN_ADDR) \
+	XBR_DEBUG_NETWORK_ADDR=$(XBR_DEBUG_NETWORK_ADDR) \
+		python teststack/test_client2.py
+
+
+clean_python:
+	-rm -rf ./dist/
+	-rm -rf ./xbr.egg-info/
 
 publish_python:	build_python
 	twine upload dist/*
