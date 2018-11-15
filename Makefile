@@ -26,6 +26,8 @@ install:
 	pip install -r requirements.txt
 	npm install
 
+build: compile docs build_js build_python
+
 
 #
 # XBR Protocol smart contracts
@@ -46,7 +48,7 @@ deploy:
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
 
-build_js: compile browserify
+build_js: browserify
 	./node_modules/google-closure-compiler/cli.js -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
 	gzip -c -k -9 build/xbr.min.js > build/xbr.min.jgz
 

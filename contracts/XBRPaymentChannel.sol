@@ -26,7 +26,7 @@ pragma solidity ^0.4.24;
 contract XBRPaymentChannel {
 
     /// The XBR Market ID this channel is operating payments for.
-    bytes32 private _marketId;
+    bytes16 private _marketId;
 
     /// The sender of the payments in this channel. Either a XBR Consumer or XBR Market Maker (delegate).
     address private _sender;
@@ -82,7 +82,7 @@ contract XBRPaymentChannel {
      * @param amount The amount of XBR held in the channel.
      * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (bytes32 marketId, address sender, address delegate, address recipient, uint256 amount,
+    constructor (bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
         uint32 channelTimeout) public {
 
         _marketId = marketId;
@@ -98,7 +98,7 @@ contract XBRPaymentChannel {
     /**
      * The XBR Market ID this channel is operating payments for.
      */
-    function marketId () public view returns (bytes32) {
+    function marketId () public view returns (bytes16) {
         return _marketId;
     }
 
@@ -206,9 +206,8 @@ contract XBRPaymentChannel {
         emit Closed();
     }
 
-    function _verify (bytes32 hash, uint8 v, bytes32 r, bytes32 s, address expected_signer) internal pure returns (bool)
+    function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expected_signer) internal pure returns (bool)
     {
-
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
         return ecrecover(prefixedHash, v, r, s) == expected_signer;

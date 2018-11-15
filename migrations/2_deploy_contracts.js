@@ -17,9 +17,10 @@ var XBRNetwork = artifacts.require("./XBRNetwork.sol");
 // var XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
 
 // https://truffleframework.com/docs/truffle/getting-started/running-migrations#deployer
-module.exports = function(deployer) {
+module.exports = function (deployer, network, accounts) {
 
-    let organization = "0x0000000000000000000000000000000000000000";
+    // const organization = "0x0000000000000000000000000000000000000000";
+    const organization = accounts[0];
 
     // Deploy XBRToken, then deploy XBRNetwork, passing in XBRToken's newly deployed address
     deployer.deploy(XBRToken).then(function() {
