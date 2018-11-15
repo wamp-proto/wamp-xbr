@@ -43,11 +43,11 @@ deploy:
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
 
-build: compile browserify
+build_js: compile browserify
 	./node_modules/google-closure-compiler/cli.js -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
 	gzip -c -k -9 build/xbr.min.js > build/xbr.min.jgz
 
-publish:
+publish_js: build_js
 	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
 
 
@@ -61,7 +61,6 @@ publish_ipfs_members:
 build_python:
 	python setup.py sdist bdist_wheel --universal
 
-# publish to PyPI
 publish_python:	build_python
 	twine upload dist/*
 

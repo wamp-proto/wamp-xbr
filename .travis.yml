@@ -23,7 +23,7 @@ before_install:
 
 install:
   # - snap install solc
-  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - npm install -g truffle
   - npm install -g solhint
 
