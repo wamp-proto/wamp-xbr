@@ -10,3 +10,5 @@ key.*
 teststack/crossbar/.xbrdb/
 docs/_static/gen/
 .tox
+*.egg-info/
+dist/

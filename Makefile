@@ -58,6 +58,14 @@ publish_ipfs_members:
 	cd ipfs/members && ipfs add *.rdf
 
 
+build_python:
+	python setup.py sdist bdist_wheel --universal
+
+# publish to PyPI
+publish_python:	build_python
+	twine upload dist/*
+
+
 #
 # build optimized SVG files from source SVGs
 #

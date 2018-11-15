@@ -130,11 +130,11 @@ to be run on a background worker threadpool.
     See `here <https://github.com/ethereum/web3.py/issues/1055>`__
 
 
-Basic Operations
-----------------
+Core Services
+-------------
 
-Connecting to XBR
-.................
+Connecting to the Network
+.........................
 
 To use XBR Lib, add a reference to the latest development version we host:
 
@@ -230,8 +230,8 @@ Congratulations! You are now connected to the XBR Network.
 ----------
 
 
-Register in the Network
-.......................
+Registering in the Network
+..........................
 
 All stakeholders or participants in XBR, that is XBR Market Owners, XBR Data Providers and
 XBR Data Consumers must be registered in the XBR Network first.
@@ -371,24 +371,24 @@ To check for the membership level of an address, you can use :sol:func:`XBRNetwo
 --------
 
 
-Open a Market
-.............
+Registering Markets
+...................
 
-Join a Market
-.............
+Joining Markets
+...............
 
-Open Payment Channels
-.....................
+Opening Payment Channels
+........................
 
-Request Paying Channels
-.......................
+Requesting Paying Channels
+..........................
 
-Close Payment Channels
-......................
+Closing Payment Channels
+........................
 
 
-Other
------
+Other functions and services
+----------------------------
 
 Cryptographic Hashing
 .....................

@@ -22,8 +22,9 @@ code on GitHub `here <https://github.com/xbr/xbr-protocol>`_.
     :caption: Contents:
 
     intro
+    appdev/index
     api/index
-    development/index
+    dev/index
     impressum
 
 
