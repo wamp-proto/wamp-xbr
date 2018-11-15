@@ -41,19 +41,25 @@ contract XBRNetwork is XBRMaintained {
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
 
+    /// Event emitted when a new market was created.
+    event MarketCreated (uint32 marketSeq, address owner, address maker, string terms,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+        
+    /// Event emitted when a market was closed.
+    event MarketClosed ();
+
     /// Event emitted when a new actor joined a XBR Market.
     event ActorJoined (ActorType actorType);
+    
+    /// Event emitted when an actor has left a XBR Market.
+    event ActorLeft ();
 
     /// Event emitted when a new payment channel was created in a XBR Market.
     event PaymentChannelCreated (address channel, bytes16 marketId);
 
     /// Event emitted when a new request for a paying channel was created in a XBR Market.
     event PayingChannelRequestCreated (bytes16 payingChannelRequestId, bytes16 marketId);
-
-    /// Event emitted when a new market was created.
-    event MarketCreated (uint32 marketSeq, address owner, address maker, string terms,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
-
+    
     /// Value type for holding XBR Network membership information.
     struct Member {
         string eula;
