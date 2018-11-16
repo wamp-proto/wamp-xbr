@@ -484,10 +484,14 @@ Joining Markets
 XBR Provider that want to offer or XBR Consumer that wants to use data services
 in a XBR Market first need to join the respective XBR Market.
 
-A given actor (address) can only be joined on a XBR Market under one role:
+A given actor (address) can only be joined on a given XBR Market only once,
+under one role of these roles:
 
 * ``XBRNetwork.ActorType.CONSUMER``
 * ``XBRNetwork.ActorType.PROVIDER``
+
+The actor may join more than one XBR Market (under the same or different roles),
+but on one given XBR Market, it can only act as either a XBR Consumer or Provider.
 
 .. note::
 
@@ -516,6 +520,85 @@ To join a XBR Market in JavaScript:
 
 Opening Payment Channels
 ........................
+
+After a XBR Consumer has joined a XBR Market, it needs to open a payment channel
+to allow a delegate to spend XBR tokens to buy data services.
+The buying of data services happens in microtransactions in real-time and off-chain.
+The XBR token to be spent offchain by the XBR Consumer delegate will be consumed
+from the payment channel opened previously.
+The payment channel is always *from* a XBR Consumer *to* a XBR Market, or
+*from* a XBR Market *to* a XBR Provider.
+Both parties in a payment channel can request to close the channel at any
+time (see below, "Closing Payment Channels").
+
+Opening a payment channel involves two blockchain transactions:
+
+1. approve the transfer of XBR token from the user to the ``XBRNetwork`` smart contract
+2. call ``XBRNetwork.openPaymentChannel``, which will create a new ``XBRPaymentChannel``
+   smart contract instance, transfering the tokens to this SC instance as new owner
+   and return the payment channel contract instance
+
+The returned new smart contract instance of ``XBRPaymentChannel`` can be
+directly received and further operated on when calling from Solidity,
+but not JavaScript.
+In JavaScript, blockchain *transactions* always only return the **transaction receipt**,
+*not* the result of the called smart contract function.
+To receive the address of the dynamically created new smart contract instance
+of ``XBRPaymentChannel``, we instead subscribe to receive blockchain events published
+by ``XBRNetwork``.
+
+**Open a payment channel in JavaScript**
+
+To open a payment channel in JavaScript, approve the token transfer, call into
+``XBRNetwork``, and subscribe to the ``PaymentChannelCreated`` event:
+
+.. code-block:: javascript
+
+    async function main (account) {
+
+        // derive (deterministically) an ID for our market
+        const marketId = web3.sha3('MyMarket1').substring(0, 34);
+
+        const success = await xbr.xbrToken.approve(xbr.xbrNetwork.address, amount, {from: account});
+
+        if (!success) {
+            throw 'transfer was not approved';
+        }
+
+        var watch = {
+            tx: null
+        }
+
+        const options = {};
+        xbr.xbrNetwork.PaymentChannelCreated(options, function (error, event)
+            {
+                console.log('PaymentChannelCreated', event);
+                if (event) {
+                    if (watch.tx && event.transactionHash == watch.tx) {
+                        console.log('new payment channel created: marketId=' + event.args.marketId + ', channel=' + event.args.channel + '');
+                    }
+                }
+                else {
+                    console.error(error);
+                }
+            }
+        );
+
+        console.log('test_open_payment_channel(marketId=' + marketId + ', consumer=' + consumer + ', amount=' + amount + ')');
+
+        // bytes32 marketId, address consumer, uint256 amount
+        const tx = await xbr.xbrNetwork.openPaymentChannel(marketId, consumer, amount, {from: account});
+
+        console.log(tx);
+
+        watch.tx = tx.tx;
+
+        console.log('transaction completed: tx=' + tx.tx + ', gasUsed=' + tx.receipt.gasUsed);
+
+    }
+
+
+
 
 Requesting Paying Channels
 ..........................

@@ -34,6 +34,9 @@ contract XBRNetwork is XBRMaintained {
 
     /// XBR Market Actor types
     enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
+    
+    /// XBR Carrier Node types
+    enum NodeType { NULL, MASTER, CORE, EDGE }
 
     /// Event emitted when a new member joined the XBR Network.
     event MemberCreated (string eula, string profile, MemberLevel level);
@@ -45,6 +48,10 @@ contract XBRNetwork is XBRMaintained {
     event MarketCreated (uint32 marketSeq, address owner, string terms, string meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
         
+    /// Event emitted when a market was updated.
+    event MarketUpdated (uint32 marketSeq, address owner, string terms, string meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+
     /// Event emitted when a market was closed.
     event MarketClosed ();
 
@@ -79,7 +86,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Value type for holding XBR Market information.
     struct Market {
-        uint32 sequence;
+        uint32 marketSeq;
         address owner;
         string terms;
         string meta;
@@ -97,9 +104,48 @@ contract XBRNetwork is XBRMaintained {
     struct Actor {
         ActorType actorType;
     }
+    
+    /// Value type for holding XBR Domain information.
+    struct Domain {
+        /// Domain sequence.
+        uint32 domainSeq;
+        
+        /// Domain owner.
+        address owner;
+        
+        /// Domain signing key (Ed25519 public key).
+        bytes32 key;
+        
+        /// Optional domain terms on IPFS.
+        string terms;
+        
+        /// Optional domain metadata on IPFS.
+        string meta;
+        
+        /// Nodes within the domain.
+        bytes32[] nodeKeys;
+        
+        /// Nodes within the domain.
+        mapping(bytes32 => Node) nodes;
+    }
+    
+    /// Value type for holding XBR Domain Nodes information.
+    struct Node {
+        /// Type of node.
+        NodeType nodeType;
+        
+        /// Node key (Ed25519 public key).
+        bytes32 key;
+        
+        /// Optional (encrypted) node configuration on IPFS.
+        string config;
+    }
 
-    /// Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
+    // Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
     uint32 private marketSeq = 1;
+
+    // Created domains are sequence numbered using this counter (to allow deterministic collison-free IDs for domains)
+    uint32 private domainSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     address public network_token;
@@ -110,11 +156,17 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Network members.
     mapping(address => Member) private members;
 
-    /// Current XBR Markets ("market repository")
+    /// Current XBR Markets ("market directory")
     mapping(bytes16 => Market) private markets;
 
     /// Index: maker address => market ID
     mapping(address => bytes16) private marketByMaker;
+    
+    /// Current XBR Domains ("domain directory")
+    mapping(bytes16 => Domain) private domains;
+
+    /// Index: node public key => domain ID
+    mapping(bytes32 => bytes16) private domainByNode;
 
     /**
      * Create a new network.
@@ -275,34 +327,67 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * Update market information, like market terms, metadata or maker address.
      *
+     * @param marketId The ID of the market to update.
+     * @param terms When terms should be updated, provide a string of non-zero length with
+     *              an IPFS Multihash pointing to the new ZIP file with market terms.
+     * @param meta When metadata should be updated, provide a string of non-zero length with
+     *             an IPFS Multihash pointing to the new RDF/Turtle file with market metadata.
+     * @param maker When maker should be updated, provide a non-zero address.
+     * @param providerSecurity Provider security to set that will apply for new members (providers) joining
+     *                         the market. It will NOT apply to current market members.
+     * @param consumerSecurity Consumer security to set that will apply for new members (consumers) joining
+     *                         the market. It will NOT apply to current market members.
+     * @param marketFee New market fee to set. The new market fee will apply to all new payment channels
+     *                  opened. It will NOT apply to already opened (or closed) payment channels.
      */
     function updateMarket(bytes16 marketId, string terms, string meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
+            
+        Market storage market = markets[marketId];
 
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
+        require(market.owner != address(0), "NO_SUCH_MARKET");
+        require(market.owner == msg.sender, "NOT_AUTHORIZED");
         require(marketByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
         require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        
+        bool wasChanged = false;
 
-        if (maker != markets[marketId].maker) {
+        // for these knobs, only update when non-zero values provided
+        if (maker != address(0) && maker != market.maker) {
             markets[marketId].maker = maker;
+            wasChanged = true;
         }
-        if (keccak256(abi.encode(terms)) != keccak256(abi.encode(markets[marketId].terms))) {
+        if (bytes(terms).length > 0 && keccak256(abi.encode(terms)) != keccak256(abi.encode(market.terms))) {
             markets[marketId].terms = terms;
+            wasChanged = true;
         }
-        if (keccak256(abi.encode(meta)) != keccak256(abi.encode(markets[marketId].meta))) {
+        if (bytes(meta).length > 0 && keccak256(abi.encode(meta)) != keccak256(abi.encode(market.meta))) {
             markets[marketId].meta = meta;
+            wasChanged = true;
         }
-        if (providerSecurity != markets[marketId].providerSecurity) {
+
+        // for these knobs, we allow updating to zero value
+        if (providerSecurity != market.providerSecurity) {
             markets[marketId].providerSecurity = providerSecurity;
+            wasChanged = true;
         }
-        if (consumerSecurity != markets[marketId].consumerSecurity) {
+        if (consumerSecurity != market.consumerSecurity) {
             markets[marketId].consumerSecurity = consumerSecurity;
+            wasChanged = true;
         }
-        if (marketFee != markets[marketId].marketFee) {
+        if (marketFee != market.marketFee) {
             markets[marketId].marketFee = marketFee;
+            wasChanged = true;
         }
+        
+        if (wasChanged) {
+            emit MarketUpdated(market.marketSeq, market.owner, market.terms, market.meta, market.maker,
+                    market.providerSecurity, market.consumerSecurity, market.marketFee);
+        }
+        
+        return wasChanged;
     }
 
     /**
