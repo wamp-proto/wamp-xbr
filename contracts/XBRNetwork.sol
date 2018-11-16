@@ -42,7 +42,7 @@ contract XBRNetwork is XBRMaintained {
     event MemberRetired (address member);
 
     /// Event emitted when a new market was created.
-    event MarketCreated (uint32 marketSeq, address owner, address maker, string terms,
+    event MarketCreated (uint32 marketSeq, address owner, string terms, string meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
         
     /// Event emitted when a market was closed.
@@ -81,8 +81,9 @@ contract XBRNetwork is XBRMaintained {
     struct Market {
         uint32 sequence;
         address owner;
-        address maker;
         string terms;
+        string meta;
+        address maker;
         uint256 providerSecurity;
         uint256 consumerSecurity;
         uint256 marketFee;
@@ -181,13 +182,15 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     * Register a new XBR market. The sender of the transaction must be XBR network member
+     * Create a new XBR market. The sender of the transaction must be XBR network member
      * and automatically becomes owner of the new market.
      *
      * @param marketId The ID of the market to register. Must be unique (not yet existing).
-     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
      * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
      *              to a ZIP archive file with market documents.
+     * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
+     *             to a RDF/Turtle file with market metadata.
+     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
      * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
      * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
      * @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
@@ -195,14 +198,14 @@ contract XBRNetwork is XBRMaintained {
      *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
      *                  a fraction of the total supply of XBR tokens.
      */
-    function createMarket (bytes16 marketId, address maker, string terms, uint256 providerSecurity,
+    function createMarket (bytes16 marketId, string terms, string meta, address maker, uint256 providerSecurity,
         uint256 consumerSecurity, uint256 marketFee) public {
 
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(marketByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
         require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
-        markets[marketId] = Market(marketSeq, msg.sender, maker, terms, providerSecurity,
+        markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
 
         markets[marketId].actors[maker] = Actor(ActorType.MAKER);
@@ -212,7 +215,7 @@ contract XBRNetwork is XBRMaintained {
 
         marketSeq = marketSeq + 1;
 
-        emit MarketCreated(marketSeq, msg.sender, maker, terms, providerSecurity, consumerSecurity, marketFee);
+        emit MarketCreated(marketSeq, msg.sender, terms, meta, maker, providerSecurity, consumerSecurity, marketFee);
     }
 
     /**
@@ -232,15 +235,22 @@ contract XBRNetwork is XBRMaintained {
     /**
      *
      */
-    function getMarketMaker (bytes16 marketId) public view returns (address) {
-        return markets[marketId].maker;
+    function getMarketTerms (bytes16 marketId) public view returns (string) {
+        return markets[marketId].terms;
     }
 
     /**
      *
      */
-    function getMarketTerms (bytes16 marketId) public view returns (string) {
-        return markets[marketId].terms;
+    function getMarketMeta (bytes16 marketId) public view returns (string) {
+        return markets[marketId].meta;
+    }
+
+    /**
+     *
+     */
+    function getMarketMaker (bytes16 marketId) public view returns (address) {
+        return markets[marketId].maker;
     }
 
     /**
@@ -267,8 +277,8 @@ contract XBRNetwork is XBRMaintained {
     /**
      *
      */
-    function updateMarket(bytes16 marketId, address maker, string terms, uint256 providerSecurity,
-        uint256 consumerSecurity, uint256 marketFee) public {
+    function updateMarket(bytes16 marketId, string terms, string meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
@@ -280,6 +290,9 @@ contract XBRNetwork is XBRMaintained {
         }
         if (keccak256(abi.encode(terms)) != keccak256(abi.encode(markets[marketId].terms))) {
             markets[marketId].terms = terms;
+        }
+        if (keccak256(abi.encode(meta)) != keccak256(abi.encode(markets[marketId].meta))) {
+            markets[marketId].meta = meta;
         }
         if (providerSecurity != markets[marketId].providerSecurity) {
             markets[marketId].providerSecurity = providerSecurity;

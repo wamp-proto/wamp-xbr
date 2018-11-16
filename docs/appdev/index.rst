@@ -291,14 +291,49 @@ Here is how to get the XBR EULA file and unzip the documents:
     inflating: xbr-eula/XBR-EULA.txt
     inflating: xbr-eula/COPYRIGHT.txt
 
-**Profile**
+**Member Profile**
 
 When registering on the XBR Network, a user (stakeholder) can have another
 IPFS Multihash stored that points to a member profile file.
 If provided, the file must be a `RDF/Turtle <https://www.w3.org/TR/turtle/>`__ file
 with `FOAF <https://en.wikipedia.org/wiki/FOAF_(ontology)>`__ data.
 
-Here is an example:
+.. note::
+
+    .. figure:: /_static/img/Rdf_logo.svg
+        :align: left
+        :width: 60px
+        :alt: RDF
+        :figclass: align-left
+
+    The `Resource Description Framework (RDF) <https://en.wikipedia.org/wiki/Resource_Description_Framework>`__
+    is a family of World Wide Web Consortium (W3C) specifications originally designed as a metadata data model.
+    RDF represents information using semantic triples, which comprise a subject, predicate,
+    and object. Each item in the triple is expressed as a Web URI.
+
+    .. figure:: /_static/img/rfd_triple.png
+        :align: center
+        :width: 100%
+        :alt: RDF Triple
+        :figclass: rdftriple
+
+    `Terse RDF Triple Language (Turtle) <https://en.wikipedia.org/wiki/Turtle_(syntax)>`__
+    is a syntax and file format for expressing data in the Resource Description Framework (RDF)
+    data model.
+
+    .. figure:: /_static/img/FoafLogo.svg
+        :align: left
+        :width: 60px
+        :alt: FOAF
+        :figclass: align-left
+
+    `FOAF (an acronym of friend of a friend) <https://en.wikipedia.org/wiki/FOAF_(ontology)>`__
+    is a machine-readable ontology describing persons,
+    their activities and their relations to other people and objects. Anyone can use FOAF to
+    describe themselves. FOAF allows groups of people to describe social networks without
+    the need for a centralised database.
+
+Here is an example FOAF member profile:
 
 .. code-block:: console
 
@@ -328,6 +363,8 @@ Here is an example:
 
     Instead of writing FOAF manually, `FOAF-a-Matic <http://www.ldodds.com/foaf/foaf-a-matic.html>`__
     is a browser-based JavaScript FOAF generator that allow to quickly create FOAF.
+    If you want to process FOAF (and RDF in general) in Python, we recommend
+    `rdflib <https://rdflib.readthedocs.io/en/stable/>`__
 
 Upload your FOAF profile file to IPFS:
 
@@ -340,15 +377,10 @@ Upload your FOAF profile file to IPFS:
 The multihash ``QmdeJDNEimpjWPsHCVTDCowQSK9j1tpoW9eW3mjhrTw6wu`` returned is what you
 provide to ``XBRNetwork.register`` (see below).
 
-.. note::
-
-    If you want to process FOAF (and RDF in general) in Python, we recommend
-    `rdflib <https://rdflib.readthedocs.io/en/stable/>`__
-
-Given EULA and Profile, here is how to register in the XBR Network in
+Given EULA and Member Profile, here is how to register in the XBR Network in
 Python and JavaScript.
 
-**Python**
+**Registering in Python**
 
 .. code-block:: python
 
@@ -358,7 +390,7 @@ Python and JavaScript.
 
         xbr.xbrNetwork.functions.register(eula, profile).transact({'from': account, 'gas': 1000000})
 
-**JavaScript**
+**Registering in JavaScript**
 
 .. code-block:: javascript
 
@@ -371,7 +403,7 @@ Python and JavaScript.
 
 To check for the membership level of an address, you can use :sol:func:`XBRNetwork.getMemberLevel`.
 
-**Python**
+**Check Membership in Python**
 
 .. code-block:: python
 
@@ -383,7 +415,7 @@ To check for the membership level of an address, you can use :sol:func:`XBRNetwo
         else:
             print('account is not yet member in the XBR network')
 
-**JavaScript**
+**Check Membership in JavaScript**
 
 .. code-block:: javascript
 
@@ -397,14 +429,90 @@ To check for the membership level of an address, you can use :sol:func:`XBRNetwo
         }
     }
 
+Using the XBR ABI files, you can interact with the XBR smart contracts and eg register in the network
+from within other programming languages.
+
 --------
 
 
-Registering Markets
-...................
+Creating Markets
+................
+
+After registering in the XBR Network, stakeholders that want to run their own
+data markets will first need to create a XBR Market.
+
+
+**Create a market in JavaScript**
+
+.. code-block:: javascript
+
+    async function main (account) {
+
+        // marketId (like all IDs in XBR) is a 128 bit (16 bytes) unique value
+        // here, we derive a deterministic ID from a name. other approaches to
+        // get an ID are fine too - as long as the ID is unique
+        const marketId = web3.sha3('MyMarket1').substring(0, 34);
+
+        // every market has exactly one delegate working as a market maker delegate
+        // the market maker maintains the real-time offchain balances, mediates
+        // the actual data market transactions and talks to the blockchain
+        const maker = '0x...';
+
+        // optionally, provide an IPFS link to a ZIP file with market terms/documents
+        const terms = '';
+
+        // optionally, provide an IPFS link to a RDF/Turtle file with market metadata
+        const meta = '';
+
+        // both XBR Consumers and Providers must deposit 100 XBR into the
+        // market as a security guarantee when joining
+        const providerSecurity = 100 * 10**18;
+        const consumerSecurity = 100 * 10**18;
+
+        // the market owner takes 5% market fee
+        const marketFee = 0.05 * 10**9 * 10**18
+
+        // now actually create the market. the sender will become market owner.
+        await xbr.xbrNetwork.openMarket(marketId, terms, meta, maker,
+            providerSecurity, consumerSecurity, marketFee, {from: account});
+    }
+
 
 Joining Markets
 ...............
+
+XBR Provider that want to offer or XBR Consumer that wants to use data services
+in a XBR Market first need to join the respective XBR Market.
+
+A given actor (address) can only be joined on a XBR Market under one role:
+
+* ``XBRNetwork.ActorType.CONSUMER``
+* ``XBRNetwork.ActorType.PROVIDER``
+
+.. note::
+
+    The XBR Market owner is automatically joined under role ``XBRNetwork.ActorType.MARKET``
+    when the market is created.
+
+**Join a market in JavaScript**
+
+To join a XBR Market in JavaScript:
+
+.. code-block:: javascript
+
+    async function main (account) {
+
+        // derive (deterministically) an ID for our market
+        const marketId = web3.sha3('MyMarket1').substring(0, 34);
+
+        // join under role XBR Consumer
+        const actorType = xbr.ActorType.CONSUMER;
+        // const actorType = xbr.ActorType.PROVIDER;
+
+        // join the market
+        await xbr.xbrNetwork.joinMarket(marketId, xbr.ActorType.CONSUMER, {from: account});
+    }
+
 
 Opening Payment Channels
 ........................

@@ -18,6 +18,9 @@ https://github.com/ipfs/js-ipfs/issues/1205
 
 
 
+https://github.com/ipfs/js-ipfs/tree/master/examples/browser-browserify
+
+
 .. code-block:: console
 
     # sha2-256 0x12 - sha2-256("multihash")

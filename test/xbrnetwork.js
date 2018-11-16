@@ -73,22 +73,23 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice});
         }
 
-        const marketId = web3.sha3("MyMarket1");
+        const marketId = web3.sha3("MyMarket1").substring(0, 34);
         const maker = alice_maker1;
-        const terms = "0x00000000000000000000000000000000";
+        const terms = "";
+        const meta = "";
         const providerSecurity = 10;
         const consumerSecurity = 10;
 
         // 5% market fee
         const marketFee = 0.05 * 10**9 * 10**18
 
-        await network.createMarket(marketId, maker, terms, providerSecurity, consumerSecurity, marketFee, {from: alice});
+        await network.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice});
     });
 
     it('should join existing market', async () => {
         const network = await XBRNetwork.deployed();
 
-        const marketId = web3.sha3("MyMarket1");
+        const marketId = web3.sha3("MyMarket1").substring(0, 34);
 
         var actorType = 3; // PROVIDER
         await network.joinMarket(marketId, actorType, {from: bob});
