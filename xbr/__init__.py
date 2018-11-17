@@ -6,21 +6,20 @@ from xbr._abi import XBR_DEBUG_NETWORK_ADDR, XBR_NETWORK_ABI
 
 version = __version__
 
-token = None
-network = None
+xbrToken = None
+xbrNetwork = None
 
 
-def initialize(_w3):
-    global token
-    global network
-    token = _w3.eth.contract(address=XBR_DEBUG_TOKEN_ADDR, abi=XBR_TOKEN_ABI)
-    network = _w3.eth.contract(address=XBR_DEBUG_NETWORK_ADDR, abi=XBR_NETWORK_ABI)
-    # print('xbr initialized!', token, network)
+def setProvider(_w3):
+    global xbrToken
+    global xbrNetwork
+    xbrToken = _w3.eth.contract(address=XBR_DEBUG_TOKEN_ADDR, abi=XBR_TOKEN_ABI)
+    xbrNetwork = _w3.eth.contract(address=XBR_DEBUG_NETWORK_ADDR, abi=XBR_NETWORK_ABI)
 
 
 __all__ = (
     'version',
-    'initialize',
-    'token',
-    'network',
+    'setProvider',
+    'xbrToken',
+    'xbrNetwork',
 )

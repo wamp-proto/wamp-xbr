@@ -1,27 +1,32 @@
-from pprint import pprint
-
+import sys
 import web3
 import xbr
+
+
+def main (account):
+    print('using account address {}'.format(account))
+
+    balance_eth = w3.eth.getBalance(account)
+    balance_xbr = xbr.xbrToken.functions.balanceOf(account).call()
+
+    print('current balances: {} ETH, {} XBR'.format(balance_eth, balance_xbr))
 
 
 if __name__ == '__main__':
     print('using web3.py v{}'.format(web3.__version__))
 
-    if True:
-        from web3.auto import w3
-    else:
-        provider = web3.Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 5})
-        w3 = web3.Web3(provider)
+    # using automatic provider detection:
+    from web3.auto import w3
 
-    if w3.isConnected():
+    # check we are connected, and check network ID
+    if not w3.isConnected():
+        print('could not connect to Web3/Ethereum')
+        sys.exit(1)
+    else:
         print('connected to network {}'.format(w3.version.network))
 
-    xbr.initialize(w3)
+    # set new provider on XBR library
+    xbr.setProvider(w3)
 
-    account = w3.eth.accounts[0]
-    print('using account address {}'.format(account))
-
-    balance_eth = w3.eth.getBalance(account)
-    balance_xbr = xbr.token.functions.balanceOf(account).call()
-
-    print('current balances: {} ETH, {} XBR'.format(balance_eth, balance_xbr))
+    # now enter main ..
+    main(w3.eth.accounts[0])

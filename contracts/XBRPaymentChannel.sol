@@ -24,6 +24,10 @@ pragma solidity ^0.4.24;
  * or the XBR Market Maker and a XBR data provider.
  */
 contract XBRPaymentChannel {
+    
+    enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
+    
+    ChannelState private state;
 
     /// The XBR Market ID this channel is operating payments for.
     bytes16 private _marketId;
@@ -62,14 +66,14 @@ contract XBRPaymentChannel {
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
      */
-    event Closing();
+    event Closing(bytes16 indexed marketId, address signer, uint256 amount, uint256 timeoutAt);
 
     /**
      * Event emitted when payment channel has finally closed, which happens after both state
      * channel participants have called close(), agreeing on last state, or after the timeout
      * at latest - in case the 2nd participant doesn't react within timeout)
      */
-    event Closed();
+    event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
 
     /**
      * Create a new XBR payment channel for handling microtransactions of XBR tokens.
@@ -162,7 +166,7 @@ contract XBRPaymentChannel {
      * transferred to the chanel receipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value) public {
+    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public {
 
         address signer;
         bytes32 proof;
@@ -174,7 +178,7 @@ contract XBRPaymentChannel {
             revert("invalid signature");
         }
 
-        proof = keccak256(abi.encodePacked(this, value));
+        proof = keccak256(abi.encodePacked(this, sequence, value));
 
         if (proof != h) {
             revert("invalid signature (signature is valid but doesn't match the data provided)");
@@ -182,15 +186,22 @@ contract XBRPaymentChannel {
 
         if (_signatures[proof] == 0) {
             _signatures[proof] = signer;
-            emit Closing();
+
+            // event Closing(bytes16 indexed marketId, address signer, uint256 amount, uint256 timeoutAt);
+            emit Closing(_marketId, signer, value, block.number + _channelTimeout);
+
         } else if (_signatures[proof] != signer) {
             // channel completed, both _signatures provided
             _closedAt = block.number;
             if (!_recipient.send(value)) { // solhint-disable-line
                 revert("transaction failed on the very last meter");
             }
+            
+            // refund back anything left to the original opener of the payment channel
             selfdestruct(_sender);
-            emit Closed();
+            
+            // event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
+            emit Closed(_marketId, signer, value, _closedAt);
         }
     }
 
@@ -198,12 +209,15 @@ contract XBRPaymentChannel {
      * Timeout this state channel.
      */
     function timeout () public {
+        require(_closedAt == 0, "CHANNEL_ALREADY_CLOSED");
+        // require(_signatures[proof] != 0, "CHANNEL_NOT_YET_SIGNED");
+
         if (_openedAt + _channelTimeout > now) { // solhint-disable-line
             revert("channel timeout");
         }
         _closedAt = block.number;
         selfdestruct(_sender);
-        emit Closed();
+        //emit Closed();
     }
 
     function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expected_signer) internal pure returns (bool)
