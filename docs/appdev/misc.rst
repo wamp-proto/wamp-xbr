@@ -21,3 +21,11 @@ For Python, Web3.py provides similar `functionality <https://web3py.readthedocs.
     >>> import web3
     >>> web3.Web3.sha3('hello'.encode('utf8'))
     HexBytes('0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8')
+
+
+Local Private Keys
+------------------
+
+
+Receiving Blockchain Events
+---------------------------

@@ -7,10 +7,9 @@ def main(account):
     level = xbr.xbrNetwork.functions.getMemberLevel(account).call()
     if not level:
         eula = 'QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81'
-        #profile = 'QmdeJDNEimpjWPsHCVTDCowQSK9j1tpoW9eW3mjhrTw6wu'
-        profile = ''
+        profile = 'QmdeJDNEimpjWPsHCVTDCowQSK9j1tpoW9eW3mjhrTw6wu'
 
-        xbr.xbrNetwork.functions.register(eula, profile).transact({'from': account, 'gas': 1000000})
+        xbr.xbrNetwork.functions.register(eula, profile).transact({'from': account, 'gas': 200000})
         print('new member {} registered'.format(account))
     else:
         print('{} is already a member (Level {})'.format(account, level))

@@ -29,7 +29,7 @@ import "./XBRPaymentChannel.sol";
  */
 contract XBRNetwork is XBRMaintained {
 
-    ////////// enums
+    // //////// enums
 
     /// XBR Network membership levels
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
@@ -40,7 +40,7 @@ contract XBRNetwork is XBRMaintained {
     /// XBR Carrier Node types
     enum NodeType { NULL, MASTER, CORE, EDGE }
 
-    ////////// container types
+    // //////// container types
 
     /// Container type for holding XBR Network membership information.
     struct Member {
@@ -70,22 +70,13 @@ contract XBRNetwork is XBRMaintained {
         string meta;
 
         /// Nodes within the domain.
-        bytes32[] nodeKeys;
-
-        /// Node IDs within mapping "nodes"
-        bytes16[] nodeIds;
-
-        /// Nodes within the domain.
-        mapping(bytes16 => Node) nodes;
-    }
-
-    struct NodeKey {
-        bytes16 marketId;
-        bytes16 nodeId;
+        bytes16[] nodes;
     }
 
     /// Container type for holding XBR Domain Nodes information.
     struct Node {
+        bytes16 domain;
+
         /// Type of node.
         NodeType nodeType;
 
@@ -109,7 +100,6 @@ contract XBRNetwork is XBRMaintained {
         address[] channels;
         address[] actorAddresses;
         mapping(address => Actor) actors;
-        mapping(bytes16 => PayingChannelRequest) channelRequests;
     }
 
     /// Container type for holding XBR Market Actors information.
@@ -127,7 +117,7 @@ contract XBRNetwork is XBRMaintained {
         uint32 timeout;
     }
 
-    ////////// events for MEMBERS
+    // //////// events for MEMBERS
 
     /// Event emitted when a new member joined the XBR Network.
     event MemberCreated (address indexed member, string eula, string profile, MemberLevel level);
@@ -135,7 +125,7 @@ contract XBRNetwork is XBRMaintained {
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
 
-    ////////// events for DOMAINS
+    // //////// events for DOMAINS
 
     /// Event emitted when a new domain was created.
     event DomainCreated (bytes16 domainId, uint32 domainSeq, address owner,
@@ -157,7 +147,7 @@ contract XBRNetwork is XBRMaintained {
     /// Event emitted when a node was released from a domain.
     event NodeReleased (bytes16 domainId, bytes16 nodeId);
 
-    ////////// events for MARKETS
+    // //////// events for MARKETS
 
     /// Event emitted when a new market was created.
     event MarketCreated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta,
@@ -182,7 +172,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Event emitted when a new request for a paying channel was created in a market.
     event PayingChannelRequestCreated (bytes16 marketId, address sender, address delegate,
-        address receiver, bytes16 payingChannelRequestId);
+        address receiver, uint256 amount, uint32 timeout);
 
     // Note: closing event of payment channels are emitted from XBRPaymentChannel (not from here)
 
@@ -193,10 +183,10 @@ contract XBRNetwork is XBRMaintained {
     uint32 private domainSeq = 1;
 
     /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    address public network_token;
+    address public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address public network_organization;
+    address public organization;
 
     /// Current XBR Network members ("member directory").
     mapping(address => Member) private members;
@@ -204,24 +194,27 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Domains ("domain directory")
     mapping(bytes16 => Domain) private domains;
 
+    /// Current XBR Nodes ("node directory");
+    mapping(bytes16 => Node) private nodes;
+
+    /// Index: node public key => (market ID, node ID)
+    mapping(bytes32 => bytes16) private nodesByKey;
+
     /// Current XBR Markets ("market directory")
     mapping(bytes16 => Market) private markets;
 
-    /// Index: node public key => (market ID, node ID)
-    mapping(bytes32 => NodeKey) private nodeByKey;
-
     /// Index: maker address => market ID
-    mapping(address => bytes16) private marketByMaker;
+    mapping(address => bytes16) private marketsByMaker;
 
     /**
      * Create a new network.
      *
-     * @param _network_token The token to run this network on.
-     * @param _network_organization The network technology provider and ecoystem sponsor.
+     * @param token_ The token to run this network on.
+     * @param organization_ The network technology provider and ecoystem sponsor.
      */
-    constructor (address _network_token, address _network_organization) public {
-        network_token = _network_token;
-        network_organization = _network_organization;
+    constructor (address token_, address organization_) public {
+        token = token_;
+        organization = organization_;
 
         members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
     }
@@ -310,8 +303,7 @@ contract XBRNetwork is XBRMaintained {
 
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
-        domains[domainId] = Domain(domainSeq, msg.sender, domainKey, license, terms, meta,
-                                        new bytes32[](0), new bytes16[](0));
+        domains[domainId] = Domain(domainSeq, msg.sender, domainKey, license, terms, meta, new bytes16[](0));
 
         domainSeq = domainSeq + 1;
 
@@ -323,13 +315,13 @@ contract XBRNetwork is XBRMaintained {
      */
     function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        require(nodeByKey[nodeKey].marketId == bytes16(0), "DUPLICATE_NODE_KEY");
+        require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
 
-        require(uint8(domains[domainId].nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
+        require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
         require(uint8(nodeType) == uint8(NodeType.MASTER) || uint8(nodeType) == uint8(NodeType.EDGE));
 
-        domains[domainId].nodes[nodeId] = Node(nodeType, nodeKey, config);
-        domains[domainId].nodeIds.push(nodeId);
+        nodes[nodeId] = Node(domainId, nodeType, nodeKey, config);
+        domains[domainId].nodes.push(nodeId);
     }
 
     /**
@@ -352,9 +344,14 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string terms, string meta, address maker, uint256 providerSecurity,
         uint256 consumerSecurity, uint256 marketFee) public {
 
+        XBRToken _token = XBRToken(token);
+        
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
-        require(marketByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
-        require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        require(maker != address(0), "INVALID_MAKER");
+        require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+        require(providerSecurity >= 0 && providerSecurity <= _token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+        require(consumerSecurity >= 0 && consumerSecurity <= _token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+        require(marketFee >= 0 && marketFee < (_token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
@@ -362,7 +359,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].actors[maker] = Actor(ActorType.MAKER);
         markets[marketId].actorAddresses.push(maker);
 
-        marketByMaker[maker] = marketId;
+        marketsByMaker[maker] = marketId;
 
         marketSeq = marketSeq + 1;
 
@@ -374,7 +371,7 @@ contract XBRNetwork is XBRMaintained {
      *
      */
     function getMarketByMaker (address maker) public view returns (bytes16) {
-        return marketByMaker[maker];
+        return marketsByMaker[maker];
     }
 
     /**
@@ -449,7 +446,7 @@ contract XBRNetwork is XBRMaintained {
 
         require(market.owner != address(0), "NO_SUCH_MARKET");
         require(market.owner == msg.sender, "NOT_AUTHORIZED");
-        require(marketByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+        require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
         require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         bool wasChanged = false;
@@ -554,8 +551,8 @@ contract XBRNetwork is XBRMaintained {
         // bytes16 marketId, address sender, address delegate, address recipient, uint256 amount, uint32 timeout
         XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
 
-        XBRToken token = XBRToken(network_token);
-        bool success = token.transferFrom(msg.sender, channel, amount);
+        XBRToken _token = XBRToken(token);
+        bool success = _token.transferFrom(msg.sender, channel, amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         markets[marketId].channels.push(channel);
@@ -585,18 +582,12 @@ contract XBRNetwork is XBRMaintained {
      * for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
      * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
      */
-    function requestPayingChannel (bytes16 payingChannelRequestId, bytes16 marketId, address provider,
-        uint256 amount) public {
+    function requestPayingChannel (bytes16 marketId, address provider, uint256 amount) public {
 
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
-        require(markets[marketId].channelRequests[payingChannelRequestId].sender == address(0),
-            "PAYING_CHANNEL_REQUEST_ALREADY_EXISTS");
 
-        markets[marketId].channelRequests[payingChannelRequestId] =
-            PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
-
-        emit PayingChannelRequestCreated(marketId, markets[marketId].maker, provider,
-                                            msg.sender, payingChannelRequestId);
+        // bytes16 marketId, address sender, address delegate, address receiver, uint256 amount, uint32 timeout);
+        emit PayingChannelRequestCreated(marketId, markets[marketId].maker, provider, msg.sender, amount, 10);
     }
 }

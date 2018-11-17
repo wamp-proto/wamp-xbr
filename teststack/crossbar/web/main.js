@@ -87,11 +87,8 @@ async function test_get_member () {
     const level = await xbr.xbrNetwork.getMemberLevel(get_member_address);
     if (level > 0) {
         console.log('account is already member in the XBR network (level=' + level + ')');
-        eula = null;
-        profile = null;
-        // eula = await xbr.xbrNetwork.getMemberEula(get_member_address);
-
-        profile = await xbr.xbrNetwork.getMemberProfile(get_member_address);
+        const eula = await xbr.xbrNetwork.getMemberEula(get_member_address);
+        const profile = await xbr.xbrNetwork.getMemberProfile(get_member_address);
         console.log('eula:', eula);
         console.log('profile:', profile);
     } else {
@@ -114,32 +111,36 @@ async function test_register () {
 }
 
 
-async function test_open_market () {
+async function test_create_market () {
     const account = web3.eth.accounts[0];
 
     const decimals = parseInt('' + await xbr.xbrToken.decimals())
 
     var name = document.getElementById('new_market_name').value;
-    var maker = document.getElementById('new_market_maker_address').value;
     var terms = document.getElementById('new_market_terms').value;
+    var meta = document.getElementById('new_market_meta').value;
+    var maker = document.getElementById('new_market_maker_address').value;
     var providerSecurity = document.getElementById('new_market_provider_security').value;
     var consumerSecurity = document.getElementById('new_market_consumer_security').value;
+    var marketFee = document.getElementById('new_market_fee').value;
 
     providerSecurity = providerSecurity * (10 ** decimals);
     consumerSecurity = consumerSecurity * (10 ** decimals);
+    marketFee = marketFee * (10 ** decimals);
 
     var marketId = web3.sha3((account, name));
 
-    console.log('test_open_market(marketId=' + marketId + ', maker=' + maker + ', terms=' + terms + ', providerSecurity=' + providerSecurity + ', consumerSecurity=' + consumerSecurity + ')');
+    console.log('test_create_market(marketId=' + marketId + ', maker=' + maker + ', terms=' + terms + ', providerSecurity=' + providerSecurity + ', consumerSecurity=' + consumerSecurity + ', marketFee=' + marketFee + ')');
 
     // bytes32 marketId, address maker, bytes32 terms, uint providerSecurity, uint consumerSecurity
-    await xbr.xbrNetwork.openMarket(marketId, maker, terms, providerSecurity, consumerSecurity, {from: account});
+    await xbr.xbrNetwork.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: account});
 }
 
 
 async function test_get_market () {
     const account = web3.eth.accounts[0];
 
+    const totalSupply = parseInt('' + await xbr.xbrToken.totalSupply())
     const decimals = parseInt('' + await xbr.xbrToken.decimals())
 
     var name = document.getElementById('get_market_name').value;
@@ -150,17 +151,20 @@ async function test_get_market () {
     console.log('test_get_market(marketId=' + marketId + ')');
 
     owner = await xbr.xbrNetwork.getMarketOwner(marketId);
-    maker = await xbr.xbrNetwork.getMarketMaker(marketId);
-    providerSecurity = await xbr.xbrNetwork.getMarketProviderSecurity(marketId);
-    consumerSecurity = await xbr.xbrNetwork.getMarketConsumerSecurity(marketId);
+    var maker = await xbr.xbrNetwork.getMarketMaker(marketId);
+    var providerSecurity = await xbr.xbrNetwork.getMarketProviderSecurity(marketId);
+    var consumerSecurity = await xbr.xbrNetwork.getMarketConsumerSecurity(marketId);
+    var marketFee = await xbr.xbrNetwork.getMarketFee(marketId);
 
     providerSecurity = providerSecurity / (10 ** decimals);
     consumerSecurity = consumerSecurity / (10 ** decimals);
+    marketFee = (marketFee / 100.) * totalSupply;
 
     console.log('market ' + marketId + ' owner:', owner);
     console.log('market ' + marketId + ' maker:', maker);
     console.log('market ' + marketId + ' providerSecurity:', providerSecurity);
     console.log('market ' + marketId + ' consumerSecurity:', consumerSecurity);
+    console.log('market ' + marketId + ' marketFee:', marketFee);
 }
 
 

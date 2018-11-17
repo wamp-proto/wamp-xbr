@@ -220,10 +220,10 @@ contract XBRPaymentChannel {
         //emit Closed();
     }
 
-    function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expected_signer) internal pure returns (bool)
+    function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expectedSigner) internal pure returns (bool)
     {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
-        return ecrecover(prefixedHash, v, r, s) == expected_signer;
+        return ecrecover(prefixedHash, v, r, s) == expectedSigner;
     }
 }

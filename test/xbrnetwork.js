@@ -75,10 +75,13 @@ contract('XBRNetwork', accounts => {
 
         const marketId = web3.sha3("MyMarket1").substring(0, 34);
         const maker = alice_maker1;
+
         const terms = "";
         const meta = "";
-        const providerSecurity = 10;
-        const consumerSecurity = 10;
+
+        // 100 XBR security
+        const providerSecurity = 100 * 10**18;
+        const consumerSecurity = 100 * 10**18;
 
         // 5% market fee
         const marketFee = 0.05 * 10**9 * 10**18

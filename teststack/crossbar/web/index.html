@@ -27,8 +27,8 @@
     </head>
     <body>
         <script>
-            XBR_DEBUG_TOKEN_ADDR = '0xcfeb869f69431e42cdb54a4f4f105c19c080a601';
-            XBR_DEBUG_NETWORK_ADDR = '0x254dffcd3277c0b1660f6d42efbb754edababc2b';
+            XBR_DEBUG_TOKEN_ADDR = '0xec5d4f247af81a843612eb1371cbcfa88b762119';
+            XBR_DEBUG_NETWORK_ADDR = '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e';
         </script>
         <script src="/xbr.js"></script>
         <!--
@@ -88,21 +88,25 @@
 
         <h2>Markets</h2>
 
-        <h3>Open Market</h3>
+        <h3>Create Market</h3>
         <p>
-            Open a new XBR Market.
+            Create a new XBR Market.
             <table>
                 <tr>
                     <td>Market name</td>
                     <td><input type="text" id="new_market_name" name="new_market_name" size="12" maxlength="12" value="Market1"></td>
                 </tr>
                 <tr>
-                    <td>Market maker address</td>
-                    <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000"></td>
+                    <td>Market terms</td>
+                    <td><input type="text" id="new_market_terms" name="new_market_terms" size="66" maxlength="66" value=""></td>
                 </tr>
                 <tr>
-                    <td>Market terms</td>
-                    <td><input type="text" id="new_market_terms" name="new_market_terms" size="66" maxlength="66" value="0x0000000000000000000000000000000000000000000000000000000000000000"></td>
+                    <td>Market meta</td>
+                    <td><input type="text" id="new_market_meta" name="new_market_meta" size="66" maxlength="66" value=""></td>
+                </tr>
+                <tr>
+                    <td>Market maker address</td>
+                    <td><input class="address" type="text" id="new_market_maker_address" name="new_market_maker_address" size="42" maxlength="42" value="0x0000000000000000000000000000000000000000"></td>
                 </tr>
                 <tr>
                     <td>Provider security (XBR)</td>
@@ -112,8 +116,12 @@
                     <td>Consumer security (XBR)</td>
                     <td><input type="number" id="new_market_consumer_security" name="new_market_consumer_security" size="12" maxlength="12" value="100"></td>
                 </tr>
+                <tr>
+                    <td>Market Fee (%)</td>
+                    <td><input type="number" id="new_market_fee" name="new_market_fee" size="8" maxlength="8" value="5"></td>
+                </tr>
             </table>
-            <button onclick="test_open_market();">Open Market</button>
+            <button onclick="test_create_market();">Open Market</button>
         </p>
 
         <h3>Get Market</h3>
