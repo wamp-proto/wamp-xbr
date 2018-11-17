@@ -5,8 +5,8 @@ Connect from JavaScript
 -----------------------
 
 Here is the boilerplate and a minimal starter example that connects to the
-XBR Network from JavaScript in a browser with MetaMask using Web3.py,
-and checks the ETH and XBR balances:
+XBR Network from **JavaScript** in a browser with **MetaMask** using **Web3.js**,
+and checks the ETH and XBR balances of the primary account:
 
 .. code-block:: javascript
 
@@ -84,7 +84,8 @@ Connect from Python
 -------------------
 
 Here is the boilerplate and a minimal starter example that connects to the
-XBR Network from Python using Web3.py, and checks the ETH and XBR balances:
+XBR Network from **Python** using **Web3.py**, and checks the ETH and XBR balances
+of the primary account:
 
 .. code-block:: python
 

@@ -87,6 +87,13 @@ async function test_get_member () {
     const level = await xbr.xbrNetwork.getMemberLevel(get_member_address);
     if (level > 0) {
         console.log('account is already member in the XBR network (level=' + level + ')');
+        eula = null;
+        profile = null;
+        // eula = await xbr.xbrNetwork.getMemberEula(get_member_address);
+
+        profile = await xbr.xbrNetwork.getMemberProfile(get_member_address);
+        console.log('eula:', eula);
+        console.log('profile:', profile);
     } else {
         console.log('account is not yet member in the XBR network');
     }
