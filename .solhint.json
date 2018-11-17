@@ -5,7 +5,7 @@
         "quotes": ["error", "double"],
         "max-line-length": ["error", 120],
         "compiler-fixed": false,
-
+        "code-complexity": false,
         "var-name-mixedcase": false,
         "func-param-name-mixedcase": false,
         "func-name-mixedcase": false,
