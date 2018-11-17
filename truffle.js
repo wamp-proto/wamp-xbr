@@ -13,20 +13,28 @@
  */
 
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
+    // See <http://truffleframework.com/docs/advanced/configuration>
+    // to customize your Truffle configuration!
 
-  // use with: truffle migrate --network development
-  networks: {
-    development: {
-        host: "localhost",
-        port: 7545,
-        network_id: "*"
-      },
-      ganache: {
-        host: "localhost",
-        port: 8545,
-        network_id: "*"
-      }
+    // use with: truffle migrate --network development
+    networks: {
+        development: {
+            host: "localhost",
+            port: 7545,
+            network_id: "*"
+        },
+        ganache: {
+            host: "localhost",
+            port: 8545,
+            network_id: "*",
+            gas: 4698712,
+            gasPrice: 20000000000
+        }
+    },
+    solc: {
+        optimizer: {
+            enabled: true,
+            runs: 200
+        }
     }
 };

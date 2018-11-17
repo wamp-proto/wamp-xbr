@@ -4,6 +4,7 @@
         "indent": ["error", 4],
         "quotes": ["error", "double"],
         "max-line-length": ["error", 120],
+        "separate-by-one-line-in-contract": false,
         "compiler-fixed": false,
         "code-complexity": false,
         "var-name-mixedcase": false,

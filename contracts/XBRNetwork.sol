@@ -39,61 +39,6 @@ contract XBRNetwork is XBRMaintained {
 
     /// XBR Carrier Node types
     enum NodeType { NULL, MASTER, CORE, EDGE }
-    
-    ////////// events for MEMBERS
-
-    /// Event emitted when a new member joined the XBR Network.
-    event MemberCreated (string eula, string profile, MemberLevel level);
-
-    /// Event emitted when a member leaves the XBR Network.
-    event MemberRetired (address member);
-
-    ////////// events for DOMAINS
-
-    /// Event emitted when a new domain was created.
-    event DomainCreated (bytes16 indexed domainId, uint32 domainSeq, address owner, bytes32 domainKey, string license, string terms, string meta);
-    
-    /// Event emitted when a domain was updated.
-    event DomainUpdated (bytes16 indexed domainId, uint32 domainSeq, address owner, bytes32 domainKey, string license, string terms, string meta);
-    
-    /// Event emitted when a domain was closed.
-    event DomainClosed (bytes16 indexed domainId);
-    
-    /// Event emitted when a new node was paired with the domain.
-    event NodePaired (bytes16 indexed domainId, bytes16 indexed nodeId, bytes32 nodeKey, string config);
-    
-    /// Event emitted when a node was updated.
-    event NodeUpdated (bytes16 indexed domainId, bytes16 indexed nodeId, bytes32 nodeKey, string config);
-
-    /// Event emitted when a node was released from a domain.
-    event NodeReleased (bytes16 indexed domainId, bytes16 indexed nodeId);
-
-    ////////// events for MARKETS
-
-    /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
-
-    /// Event emitted when a market was updated.
-    event MarketUpdated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
-
-    /// Event emitted when a market was closed.
-    event MarketClosed (bytes16 marketId);
-
-    /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 marketId, address actor, ActorType actorType);
-
-    /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 marketId, address actor);
-
-    /// Event emitted when a new payment channel was created in a market.
-    event PaymentChannelCreated (bytes16 marketId, address sender, address delegate, address receiver, address channel);
-
-    /// Event emitted when a new request for a paying channel was created in a market.
-    event PayingChannelRequestCreated (bytes16 marketId, address sender, address delegate, address receiver, bytes16 payingChannelRequestId);
-
-    // Note: closing event of payment channels are emitted from XBRPaymentChannel (not from here)
 
     ////////// container types
 
@@ -127,8 +72,16 @@ contract XBRNetwork is XBRMaintained {
         /// Nodes within the domain.
         bytes32[] nodeKeys;
 
+        /// Node IDs within mapping "nodes"
+        bytes16[] nodeIds;
+
         /// Nodes within the domain.
-        mapping(bytes32 => Node) nodes;
+        mapping(bytes16 => Node) nodes;
+    }
+
+    struct NodeKey {
+        bytes16 marketId;
+        bytes16 nodeId;
     }
 
     /// Container type for holding XBR Domain Nodes information.
@@ -174,6 +127,65 @@ contract XBRNetwork is XBRMaintained {
         uint32 timeout;
     }
 
+    ////////// events for MEMBERS
+
+    /// Event emitted when a new member joined the XBR Network.
+    event MemberCreated (address indexed member, string eula, string profile, MemberLevel level);
+
+    /// Event emitted when a member leaves the XBR Network.
+    event MemberRetired (address member);
+
+    ////////// events for DOMAINS
+
+    /// Event emitted when a new domain was created.
+    event DomainCreated (bytes16 domainId, uint32 domainSeq, address owner,
+        bytes32 domainKey, string license, string terms, string meta);
+
+    /// Event emitted when a domain was updated.
+    event DomainUpdated (bytes16 domainId, uint32 domainSeq, address owner,
+        bytes32 domainKey, string license, string terms, string meta);
+
+    /// Event emitted when a domain was closed.
+    event DomainClosed (bytes16 domainId);
+
+    /// Event emitted when a new node was paired with the domain.
+    event NodePaired (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+
+    /// Event emitted when a node was updated.
+    event NodeUpdated (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+
+    /// Event emitted when a node was released from a domain.
+    event NodeReleased (bytes16 domainId, bytes16 nodeId);
+
+    ////////// events for MARKETS
+
+    /// Event emitted when a new market was created.
+    event MarketCreated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta,
+        address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+
+    /// Event emitted when a market was updated.
+    event MarketUpdated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta,
+        address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+
+    /// Event emitted when a market was closed.
+    event MarketClosed (bytes16 marketId);
+
+    /// Event emitted when a new actor joined a market.
+    event ActorJoined (bytes16 marketId, address actor, ActorType actorType);
+
+    /// Event emitted when an actor has left a market.
+    event ActorLeft (bytes16 marketId, address actor);
+
+    /// Event emitted when a new payment channel was created in a market.
+    event PaymentChannelCreated (bytes16 marketId, address sender, address delegate,
+        address receiver, address channel);
+
+    /// Event emitted when a new request for a paying channel was created in a market.
+    event PayingChannelRequestCreated (bytes16 marketId, address sender, address delegate,
+        address receiver, bytes16 payingChannelRequestId);
+
+    // Note: closing event of payment channels are emitted from XBRPaymentChannel (not from here)
+
     // Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -186,20 +198,20 @@ contract XBRNetwork is XBRMaintained {
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public network_organization;
 
-    /// Current XBR Network members.
+    /// Current XBR Network members ("member directory").
     mapping(address => Member) private members;
-
-    /// Current XBR Markets ("market directory")
-    mapping(bytes16 => Market) private markets;
-
-    /// Index: maker address => market ID
-    mapping(address => bytes16) private marketByMaker;
 
     /// Current XBR Domains ("domain directory")
     mapping(bytes16 => Domain) private domains;
 
-    /// Index: node public key => domain ID
-    mapping(bytes32 => bytes16) private domainByNode;
+    /// Current XBR Markets ("market directory")
+    mapping(bytes16 => Market) private markets;
+
+    /// Index: node public key => (market ID, node ID)
+    mapping(bytes32 => NodeKey) private nodeByKey;
+
+    /// Index: maker address => market ID
+    mapping(address => bytes16) private marketByMaker;
 
     /**
      * Create a new network.
@@ -230,7 +242,7 @@ contract XBRNetwork is XBRMaintained {
 
         members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
 
-        emit MemberCreated(eula, profile, MemberLevel.ACTIVE);
+        emit MemberCreated(msg.sender, eula, profile, MemberLevel.ACTIVE);
     }
 
     /**
@@ -287,7 +299,7 @@ contract XBRNetwork is XBRMaintained {
     /**
      *  Create a new XBR domain. Then sender ot the transaction must be XBR network member
      *  and automatically becomes owner of the new domain.
-     * 
+     *
      *  @param domainId The ID of the domain to create. Must be unique (not yet existing).
      *  @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
      *  @param license The license for the software stack running the domain. IPFS Multihash
@@ -298,7 +310,8 @@ contract XBRNetwork is XBRMaintained {
 
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
-        domains[domainId] = Domain(domainSeq, msg.sender, domainKey, license, terms, meta, new bytes32[](0));
+        domains[domainId] = Domain(domainSeq, msg.sender, domainKey, license, terms, meta,
+                                        new bytes32[](0), new bytes16[](0));
 
         domainSeq = domainSeq + 1;
 
@@ -306,9 +319,17 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     * 
+     *
      */
-    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, string config) {
+    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
+        require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
+        require(nodeByKey[nodeKey].marketId == bytes16(0), "DUPLICATE_NODE_KEY");
+
+        require(uint8(domains[domainId].nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
+        require(uint8(nodeType) == uint8(NodeType.MASTER) || uint8(nodeType) == uint8(NodeType.EDGE));
+
+        domains[domainId].nodes[nodeId] = Node(nodeType, nodeKey, config);
+        domains[domainId].nodeIds.push(nodeId);
     }
 
     /**
@@ -345,7 +366,8 @@ contract XBRNetwork is XBRMaintained {
 
         marketSeq = marketSeq + 1;
 
-        emit MarketCreated(marketId, marketSeq, msg.sender, terms, meta, maker, providerSecurity, consumerSecurity, marketFee);
+        emit MarketCreated(marketId, marketSeq, msg.sender, terms, meta, maker,
+                                providerSecurity, consumerSecurity, marketFee);
     }
 
     /**
@@ -574,6 +596,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].channelRequests[payingChannelRequestId] =
             PayingChannelRequest(marketId, msg.sender, provider, address(0), amount, 60);
 
-        emit PayingChannelRequestCreated(marketId, markets[marketId].maker, provider, msg.sender, payingChannelRequestId);
+        emit PayingChannelRequestCreated(marketId, markets[marketId].maker, provider,
+                                            msg.sender, payingChannelRequestId);
     }
 }

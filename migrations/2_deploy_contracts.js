@@ -24,7 +24,7 @@ module.exports = function (deployer, network, accounts) {
 
     // Deploy XBRToken, then deploy XBRNetwork, passing in XBRToken's newly deployed address
     deployer.deploy(XBRToken).then(function() {
-        return deployer.deploy(XBRNetwork, XBRToken.address, organization);
+        return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: 8000000});
     });
 
     // deployer.deploy(XBRPaymentChannel);
