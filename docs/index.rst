@@ -24,6 +24,7 @@ code on GitHub `here <https://github.com/xbr/xbr-protocol>`_.
     dev/index
     project/index
     api/index
+    faq
     legal
 
 
