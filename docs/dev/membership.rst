@@ -1,6 +1,10 @@
 Network Membership
 ==================
 
+.. contents:: :local:
+
+----------
+
 Register in the Network
 -----------------------
 

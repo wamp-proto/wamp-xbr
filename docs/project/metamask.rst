@@ -123,3 +123,19 @@ Select **Account 5/6** (XBR Data Consumer C1/C2) will call smart contract functi
 * ``XBRNetwork.join_market`` to join a market, depositing an amount of XBR token as a security
 * ``XBRNetwork.open_channel`` to open a payment channel, depositing an amount of XBR token. this returns a new ``XBRPaymentChannel`` SC
 * ``XBRPaymentChannel.close`` to close a payment channel.
+
+
+Call Structure and Control Flow
+-------------------------------
+
+Typically, a Dapp written in JavaScript using XBR and MetaMask will have the
+following call structure when submitting a transaction to the blockchain:
+
+1. **User** ``---(click)--->``
+2. **Your app (JavaScript in browser)** ``---(call)--->``
+3. **xbr.js / web3.js (injected)** ``---(call)--->``
+4. **MetaMask** ``---(user dialog)--->``
+5. **User** ``---(click)--->``
+6. **MetaMask** ``---(http)--->``
+7. **Infura** ``---(native etherum protocol)--->``
+8. **Ethereum Mainnet** (the set of worldwide public nodes)

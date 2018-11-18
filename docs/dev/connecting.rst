@@ -1,6 +1,10 @@
 Connecting to the Network
 =========================
 
+.. contents:: :local:
+
+----------
+
 Connect from JavaScript
 -----------------------
 

@@ -21,11 +21,10 @@ code on GitHub `here <https://github.com/xbr/xbr-protocol>`_.
     :maxdepth: 2
     :caption: Contents:
 
-    intro
-    appdev/index
-    api/index
     dev/index
-    impressum
+    project/index
+    api/index
+    legal
 
 
 Indices and tables

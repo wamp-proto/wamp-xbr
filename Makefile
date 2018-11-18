@@ -23,8 +23,9 @@ clean: clean_docs
 
 
 install:
-	pip install -r requirements.txt
 	npm install
+	pip install -r requirements-dev.txt
+	pip install -e .
 
 build: compile docs build_js build_python
 

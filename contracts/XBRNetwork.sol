@@ -35,7 +35,7 @@ contract XBRNetwork is XBRMaintained {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// XBR Market Actor types
-    enum ActorType { NULL, NETWORK, MAKER, PROVIDER, CONSUMER }
+    enum ActorType { NULL, NETWORK, MARKET, PROVIDER, CONSUMER }
 
     /// XBR Carrier Node types
     enum NodeType { NULL, MASTER, CORE, EDGE }
@@ -356,7 +356,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
 
-        markets[marketId].actors[maker] = Actor(ActorType.MAKER);
+        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET);
         markets[marketId].actorAddresses.push(maker);
 
         marketsByMaker[maker] = marketId;
@@ -507,7 +507,7 @@ contract XBRNetwork is XBRMaintained {
     function joinMarket (bytes16 marketId, ActorType actorType) public {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
-        require(uint8(actorType) == uint8(ActorType.MAKER) ||
+        require(uint8(actorType) == uint8(ActorType.MARKET) ||
             uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
 
         markets[marketId].actors[msg.sender] = Actor(actorType);

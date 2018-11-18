@@ -151,6 +151,8 @@ async function test_get_market () {
     console.log('test_get_market(marketId=' + marketId + ')');
 
     owner = await xbr.xbrNetwork.getMarketOwner(marketId);
+    var terms = await xbr.xbrNetwork.getMarketTerms(marketId);
+    var meta = await xbr.xbrNetwork.getMarketMeta(marketId);
     var maker = await xbr.xbrNetwork.getMarketMaker(marketId);
     var providerSecurity = await xbr.xbrNetwork.getMarketProviderSecurity(marketId);
     var consumerSecurity = await xbr.xbrNetwork.getMarketConsumerSecurity(marketId);
@@ -158,9 +160,11 @@ async function test_get_market () {
 
     providerSecurity = providerSecurity / (10 ** decimals);
     consumerSecurity = consumerSecurity / (10 ** decimals);
-    marketFee = (marketFee / 100.) * totalSupply;
+    marketFee = marketFee / totalSupply;
 
     console.log('market ' + marketId + ' owner:', owner);
+    console.log('market ' + marketId + ' terms:', terms);
+    console.log('market ' + marketId + ' meta:', meta);
     console.log('market ' + marketId + ' maker:', maker);
     console.log('market ' + marketId + ' providerSecurity:', providerSecurity);
     console.log('market ' + marketId + ' consumerSecurity:', consumerSecurity);
@@ -176,12 +180,12 @@ async function test_join_market () {
 
     var marketId = web3.sha3((owner, name));
 
-    var actorType = 0;
+    var actorType = xbr.ActorType.NONE;
     if (document.getElementById('join_market_actor_type_provider').checked) {
-        actorType = 3;
+        actorType = xbr.ActorType.PROVIDER;
     }
     else if (document.getElementById('join_market_actor_type_consumer').checked) {
-        actorType = 4;
+        actorType = xbr.ActorType.CONSUMER;
     }
     else {
         assert(false);
@@ -207,8 +211,20 @@ async function test_get_market_actor_type () {
     // bytes32 marketId, address actor
     const actorType = await xbr.xbrNetwork.getMarketActorType(marketId, actor);
 
-    if (actorType > 0) {
-        console.log('account is actor of type=' + actorType + ' in this market');
+    if (actorType) {
+        if (actorType == xbr.ActorType.CONSUMER) {
+            console.log('account is CONSUMER actor in this market');
+        } else if (actorType == xbr.ActorType.PROVIDER) {
+            console.log('account is PROVIDER actor in this market');
+        } else if (actorType == xbr.ActorType.MAKER) {
+            console.log('account is MARKET actor in this market');
+        } else if (actorType == xbr.ActorType.NETWORK) {
+            console.log('account is NETWORK actor in this market');
+        } else if (actorType == xbr.ActorType.NONE) {
+            //throw 'should never arrive here!';
+        } else {
+            console.log('unexpected actor type:', actorType);
+        }
     } else {
         console.log('account is not an actor in this market');
     }

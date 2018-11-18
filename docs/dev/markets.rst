@@ -1,6 +1,10 @@
 Markets
 =======
 
+.. contents:: :local:
+
+----------
+
 Creating Markets
 ----------------
 
@@ -39,7 +43,7 @@ JavaScript
         const marketFee = 0.05 * 10**9 * 10**18
 
         // now actually create the market. the sender will become market owner.
-        await xbr.xbrNetwork.openMarket(marketId, terms, meta, maker,
+        await xbr.xbrNetwork.createMarket(marketId, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, {from: account});
     }
 

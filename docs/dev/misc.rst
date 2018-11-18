@@ -1,6 +1,10 @@
 Other functions and services
 ============================
 
+.. contents:: :local:
+
+----------
+
 Cryptographic Hashing
 ---------------------
 

@@ -1,6 +1,10 @@
 Payment Channels
 ================
 
+.. contents:: :local:
+
+----------
+
 Opening Payment Channels
 ------------------------
 
