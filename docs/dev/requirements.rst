@@ -94,6 +94,11 @@ The documentation for Web3 (JavaScript) can be found here:
     which is at version <1.0.
 
 
+Metamask with Web3.js 1.0.0 AND the old Web3.js
+https://guillaumeduveau.com/en/blockchain/ethereum/metamask-web3
+
+
+
 Web3 for Python
 ...............
 

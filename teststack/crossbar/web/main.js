@@ -11,6 +11,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+var metamask_account = null;
+var metamask_network = null;
+
 
 // demo app entry point
 window.addEventListener('load', function () {
@@ -22,19 +25,19 @@ window.addEventListener('load', function () {
 // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
 async function unlock_metamask () {
     if (window.ethereum) {
-        // if we have MetaMask, ask user for access
+            // if we have MetaMask, ask user for access
         await ethereum.enable();
 
         // instantiate Web3 from MetaMask as provider
-        window.web3 = new Web3(ethereum);
+        //window.web3 = new Web3(window.ethereum);
+        window.web3 = new Web3(window.ethereum);
         console.log('ok, user granted access to MetaMask accounts');
+
+        web3.currentProvider.publicConfigStore.on('update', on_metamask_changed);
 
         // set new provider on XBR library
         xbr.setProvider(window.web3.currentProvider);
-        console.log('library versions: web3="' + web3.version.api + '", xbr="' + xbr.version + '"');
-
-        // now setup testing from the accounts ..
-        await setup_test();
+        console.log('library versions: web3="' + window.web3.version.api + '", xbr="' + xbr.version + '"');
 
     } else {
         // no MetaMask (or other modern Ethereum integrated browser) .. redirect
@@ -46,11 +49,21 @@ async function unlock_metamask () {
 }
 
 
+function on_metamask_changed (changed) {
+    if (metamask_account != changed.selectedAddress || metamask_network != changed.networkVersion) {
+        metamask_account = changed.selectedAddress;
+        metamask_network = changed.networkVersion;
+        console.log('user switched account to ' + metamask_account + ' on network ' + changed.networkVersion);
+
+        // now setup testing from the accounts ..
+        setup_test(metamask_account);
+    }
+}
+
+
 // setup test
-async function setup_test () {
-    // primary account used for testing
-    const account = web3.eth.accounts[0];
-    console.log('testing with primary account ' + account);
+async function setup_test (account) {
+    console.log('setup testing for account ' + account);
 
     // display addresses of XBR smart contract instances
     document.getElementById('account').innerHTML = '' + account;
@@ -65,9 +78,6 @@ async function setup_test () {
     document.getElementById('join_market_owner').value = '' + account;
     document.getElementById('get_market_actor_market_owner').value = '' + account;
     document.getElementById('open_channel_market_owner').value = '' + account;
-
-    // run one test
-    await test_get_member();
 }
 
 
@@ -211,7 +221,7 @@ async function test_get_market_actor_type () {
     // bytes32 marketId, address actor
     const actorType = await xbr.xbrNetwork.getMarketActorType(marketId, actor);
 
-    if (actorType) {
+    if (actorType > 0) {
         if (actorType == xbr.ActorType.CONSUMER) {
             console.log('account is CONSUMER actor in this market');
         } else if (actorType == xbr.ActorType.PROVIDER) {
@@ -220,8 +230,6 @@ async function test_get_market_actor_type () {
             console.log('account is MARKET actor in this market');
         } else if (actorType == xbr.ActorType.NETWORK) {
             console.log('account is NETWORK actor in this market');
-        } else if (actorType == xbr.ActorType.NONE) {
-            //throw 'should never arrive here!';
         } else {
             console.log('unexpected actor type:', actorType);
         }
