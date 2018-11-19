@@ -306,6 +306,11 @@ async function test_get_payment_channel () {
 }
 
 
+async function test_close_payment_channel () {
+    // https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethsign
+}
+
+
 async function test_request_paying_channel () {
 
 }
