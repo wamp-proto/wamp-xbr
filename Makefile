@@ -18,7 +18,9 @@ default:
 	@echo 'Targets: clean compile test'
 
 clean: clean_docs
+	-rm -rf ./dist/
 	-rm -rf ./build/
+	-rm -rf ./*.egg-info/
 	-rm -rf ./.tox/
 
 

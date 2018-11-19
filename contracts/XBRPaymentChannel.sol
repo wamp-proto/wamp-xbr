@@ -18,8 +18,12 @@
 
 pragma solidity ^0.4.24;
 
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
-import "zeppelin-solidity/contracts/ECRecovery.sol";
+
+// https://openzeppelin.org/api/docs/math_SafeMath.html
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+// https://openzeppelin.org/api/docs/cryptography_ECDSA.html
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 
 /**
@@ -27,13 +31,17 @@ import "zeppelin-solidity/contracts/ECRecovery.sol";
  * or the XBR Market Maker and a XBR data provider.
  */
 contract XBRPaymentChannel {
+
+    // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
     
-    // Add recover method for bytes32 using ECRecovery lib from OpenZeppelin
-    using ECRecovery for bytes32;
+    // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
+    using ECDSA for bytes32;
 
+    /// Payment channel states.
     enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
     
+    /// Current payment channel state.
     ChannelState private state;
 
     /// The XBR Market ID this channel is operating payments for.

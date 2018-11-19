@@ -18,6 +18,9 @@
 
 pragma solidity ^0.4.24;
 
+// https://openzeppelin.org/api/docs/math_SafeMath.html
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "./XBRToken.sol";
 import "./XBRMaintained.sol";
 import "./XBRPaymentChannel.sol";
@@ -28,6 +31,9 @@ import "./XBRPaymentChannel.sol";
  * @author The XBR Project
  */
 contract XBRNetwork is XBRMaintained {
+
+    // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
+    using SafeMath for uint256;
 
     // //////// enums
 
