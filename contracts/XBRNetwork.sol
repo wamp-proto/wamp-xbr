@@ -317,6 +317,41 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * 
+     */
+    function getDomainOwner(bytes16 domainId) public view returns (address) {
+        return domains[domainId].owner;
+    }
+
+    /**
+     * 
+     */
+    function getDomainKey(bytes16 domainId) public view returns (bytes32) {
+        return domains[domainId].domainKey;
+    }
+
+    /**
+     * 
+     */
+    function getDomainLicense(bytes16 domainId) public view returns (string) {
+        return domains[domainId].license;
+    }
+
+    /**
+     * 
+     */
+    function getDomainTerms(bytes16 domainId) public view returns (string) {
+        return domains[domainId].terms;
+    }
+
+    /**
+     * 
+     */
+    function getDomainMeta(bytes16 domainId) public view returns (string) {
+        return domains[domainId].meta;
+    }
+
+    /**
      *
      */
     function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
@@ -327,7 +362,43 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(nodeType) == uint8(NodeType.MASTER) || uint8(nodeType) == uint8(NodeType.EDGE));
 
         nodes[nodeId] = Node(domainId, nodeType, nodeKey, config);
+        nodesByKey[nodeKey] = nodeId;
         domains[domainId].nodes.push(nodeId);
+    }
+    
+    /**
+     * 
+     */
+    function getNodeByKey(bytes32 nodeKey) public view returns (bytes16) {
+        return nodesByKey[nodeKey];
+    }
+    
+    /**
+     * 
+     */
+    function getNodeDomain(bytes16 nodeId) public view returns (bytes16) {
+        return nodes[nodeId].domain;
+    }
+    
+    /**
+     * 
+     */
+    function getNodeType(bytes16 nodeId) public view returns (NodeType) {
+        return nodes[nodeId].nodeType;
+    }
+
+    /**
+     * 
+     */
+    function getNodeKey(bytes16 nodeId) public view returns (bytes32) {
+        return nodes[nodeId].key;
+    }
+
+    /**
+     * 
+     */
+    function getNodeConfig(bytes16 nodeId) public view returns (string) {
+        return nodes[nodeId].config;
     }
 
     /**

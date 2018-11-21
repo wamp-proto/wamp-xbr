@@ -10,8 +10,8 @@ SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-
 
 GCLOSURE = ./node_modules/google-closure-compiler/cli.js
 
-XBR_DEBUG_TOKEN_ADDR = 0x67b5656d60a809915323bf2c40a8bef15a152e3e
-XBR_DEBUG_NETWORK_ADDR = 0x2612af3a521c2df9eaf28422ca335b04adf3ac66
+#XBR_DEBUG_TOKEN_ADDR = 0x67b5656d60a809915323bf2c40a8bef15a152e3e
+#XBR_DEBUG_NETWORK_ADDR = 0x2612af3a521c2df9eaf28422ca335b04adf3ac66
 
 
 default:
@@ -30,6 +30,8 @@ install:
 	pip install -e .
 
 build: compile docs build_js build_python
+
+publish: publish_docs publish_js publish_python
 
 
 #

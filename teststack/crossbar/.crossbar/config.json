@@ -114,18 +114,16 @@
                     "inherit": true
                 }
             },
-            "blockchain": {
-                "type": "ethereum",
-                "network": "ropsten",
-                "gateway": {
-                    "type": "infura",
-                    "key": "00000000000000000000000000000000",
-                    "secret": "00000000000000000000000000000000"
-                }
-            },
             "makers": [
                 {
                     "id": "maker1",
+                    "blockchain": {
+                        "type": "ethereum",
+                        "gateway": {
+                            "type": "http",
+                            "url": "http://127.0.0.1:8545"
+                        }
+                    },
                     "connection": {
                         "realm": "realm1",
                         "transport": {
@@ -134,7 +132,6 @@
                                 "type": "unix",
                                 "path": "xbrmm.sock"
                             },
-                            "url": "rs://localhost",
                             "serializer": "cbor"
                         }
                     }

@@ -77,3 +77,15 @@ What are the gas costs for XBR operations?
 ------------------------------------------
 
 Estimated gas costs for XBR Network operations:
+
+
+How to resolve the MetaMask error "tx doesn't have the correct nonce"?
+----------------------------------------------------------------------
+
+From `here <https://ethereum.stackexchange.com/questions/30921/tx-doesnt-have-the-correct-nonce-metamask>`_:
+
+"If you're running a test blockchain that you've shut down and restarted from a blank state with MetaMask
+connected to it, you can get MetaMask confused, because it caches some information about the network it
+is currently connected to, including completed transactions, which it uses to derive the correct nonce.
+
+You can clear this cache by selecting a different network in MetaMask or reinstall MetaMask."

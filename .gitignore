@@ -13,3 +13,4 @@ docs/_static/gen/
 *.egg-info/
 dist/
 *.pid
+.idea

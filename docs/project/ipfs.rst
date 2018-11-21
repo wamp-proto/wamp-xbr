@@ -21,6 +21,31 @@ https://github.com/ipfs/js-ipfs/issues/1205
 https://github.com/ipfs/js-ipfs/tree/master/examples/browser-browserify
 
 
+Using curl to interact with IPFS
+--------------------------------
+
+Store a file on IPFS via Infura as gateway, and using ``curl``:
+
+.. code-block:: console
+
+    oberstet@thinkpad-x1:~/scm/xbr/xbr-protocol$ curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+    >     -X POST \
+    >     -H "Content-Type: multipart/form-data" \
+    >     -F file=@"teststack/crossbar/.crossbar/config.json"
+    {"Name":"config.json","Hash":"QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa","Size":"5225"}
+
+Retrieve a file from IPFS via Infura as gateway, and using ``curl``:
+
+.. code-block:: console
+
+    oberstet@thinkpad-x1:~/scm/xbr/xbr-protocol$ curl "https://ipfs.infura.io:5001/api/v0/get?arg=QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa&archive=true" --output -
+    QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa0000644000000000000000000001213613375254641017070 0ustar0000000000000000{
+        "$schema": "https://raw.githubusercontent.com/crossbario/crossbar/master/crossbar.json",
+        "version": 2,
+        "controller": {
+    ...
+
+
 .. code-block:: console
 
     # sha2-256 0x12 - sha2-256("multihash")
