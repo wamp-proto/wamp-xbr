@@ -18,11 +18,13 @@ module.exports = {
 
     // use with: truffle migrate --network development
     networks: {
+        /*
         development: {
             host: "localhost",
             port: 7545,
             network_id: "*"
         },
+        */
 
         ganache: {
             host: "localhost",
@@ -35,16 +37,16 @@ module.exports = {
             //gas: 4698712,
             //gasPrice: 20000000000
         },
-/*
+
+        // https://www.npmjs.com/package/solidity-coverage#network-configuration
         // https://github.com/sc-forks/solidity-coverage#network-configuration
         coverage: {
             host: "localhost",
             network_id: "*",
-            port: 8545,         // <-- If you change this, also set the port option in .solcover.js.
-            //gas: 0xfffffffffff, // <-- Use this high gas value
-            //gasPrice: 0x01      // <-- Use this low gas price
-        }
-*/
+            port: 9545,         // <-- If you change this, also set the port option in .solcover.js.
+            gas: 0xfffffffffff, // <-- Use this high gas value
+            gasPrice: 0x01      // <-- Use this low gas price
+        },
     },
 
     solc: {

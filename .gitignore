@@ -14,3 +14,4 @@ docs/_static/gen/
 dist/
 *.pid
 .idea
+*.log

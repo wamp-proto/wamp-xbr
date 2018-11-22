@@ -22,8 +22,8 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 contract('XBRNetwork', accounts => {
 
     //const gasLimit = 6721975;
-    //const gasLimit = 0xfffffffffff;
-    const gasLimit = 100000000;
+    const gasLimit = 0xfffffffffff;
+    //const gasLimit = 100000000;
 
     // deployed instance of XBRNetwork
     var network;
