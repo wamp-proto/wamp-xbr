@@ -93,7 +93,7 @@ contract('XBRNetwork', accounts => {
     });
     */
 
-    it('should create new market', async () => {
+    it('XBRNetwork.createMarket() : should create new market', async () => {
 
         if (false) {
             const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
@@ -118,7 +118,7 @@ contract('XBRNetwork', accounts => {
         await network.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice});
     });
 
-    it('should join existing market', async () => {
+    it('XBRNetwork.joinMarket() : should join existing market', async () => {
 
         const marketId = web3.sha3("MyMarket1").substring(0, 34);
 

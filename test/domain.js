@@ -76,7 +76,7 @@ contract('XBRNetwork', accounts => {
     });
     */
 
-    it('creating a domain by non-member should throw', async () => {
+    it('XBRNetwork.createDomain() : creating a domain by non-member should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
@@ -88,7 +88,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('should create new domain, with correct attributes, and firing correct event', async () => {
+    it('XBRNetwork.createDomain() : should create new domain, with correct attributes, and firing correct event', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         await network.register(eula, "", {from: alice});
@@ -139,7 +139,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(_meta, meta, "wrong domain meta");
     });
 
-    it('creating a duplicate domain should throw', async () => {
+    it('XBRNetwork.createDomain() : creating a duplicate domain should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
@@ -151,7 +151,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('pairing a node to non-existing domain should throw', async () => {
+    it('XBRNetwork.pairNode() : pairing a node to non-existing domain should throw', async () => {
 
         const domainId = "0x88888888888888888888888888888888";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
@@ -167,7 +167,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('pairing a node with invalid node type should throw', async () => {
+    it('XBRNetwork.pairNode() : pairing a node with invalid node type should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
@@ -183,7 +183,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('should pair node, store correct attributes, and fire event', async () => {
+    it('XBRNetwork.pairNode() : should pair node, store correct attributes, and fire event', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
@@ -217,7 +217,7 @@ contract('XBRNetwork', accounts => {
         assert(events_ok, "event(s) we expected not emitted");
     });
 
-    it('pairing a node twice should throw', async () => {
+    it('XBRNetwork.pairNode() : pairing a node twice should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
@@ -233,7 +233,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('pairing nodes with same nodeKey should throw', async () => {
+    it('XBRNetwork.pairNode() : pairing nodes with same nodeKey should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0xfa13540c112507feef74e49cab223df4";
@@ -249,7 +249,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('releasing a non-existant/unpaired node should throw', async () => {
+    it('XBRNetwork.releaseNode() : releasing a non-existant/unpaired node should throw', async () => {
 
         const nodeId = "0x88888888888888888888888888888888";
 
@@ -261,7 +261,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('releasing a node from an account that is not domain owner should throw', async () => {
+    it('XBRNetwork.releaseNode() : releasing a node from an account that is not domain owner should throw', async () => {
 
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
 
@@ -273,7 +273,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('closing a domain should set domain status and fire correct event', async () => {
+    it('XBRNetwork.closeDomain() : closing a domain should set domain status and fire correct event', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 

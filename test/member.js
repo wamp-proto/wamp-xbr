@@ -93,26 +93,26 @@ contract('XBRNetwork', accounts => {
     });
     */
 
-    it('network organization should be the owner', async () => {
+    it('XBRNetwork() : network organization should be the owner', async () => {
         const _organization = await network.organization();
 
         assert.equal(_organization, owner, "network organization was initialized correctly");
     });
 
-    it('token should be the network token', async () => {
+    it('XBRNetwork() : token should be the network token', async () => {
         const _token = await network.token();
 
         assert.equal(_token, token.address, "network token was initialized correctly");
     });
 
-    it('owner account should be initially registered', async () => {
+    it('XBRNetwork() : owner account should be initially registered', async () => {
 
         const level = await network.getMemberLevel(owner);
 
         assert.equal(level.toNumber(), MemberLevel_VERIFIED, "wrong member level");
     });
 
-    it('non-owner accounts should be initially unregistered', async () => {
+    it('XBRNetwork() : non-owner accounts should be initially unregistered', async () => {
         //const network = await XBRNetwork.deployed();
 
         var level;
@@ -136,7 +136,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
     });
 
-    it('registering a member with wrong EULA should throw', async () => {
+    it('XBRNetwork.register() : registering a member with wrong EULA should throw', async () => {
 
         const eula = "invalid";
         const profile = "";
@@ -149,7 +149,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('should create new member with the correct attributes stored, and firing correct event', async () => {
+    it('XBRNetwork.register() : should create new member with the correct attributes stored, and firing correct event', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
@@ -184,7 +184,7 @@ contract('XBRNetwork', accounts => {
         assert(events_ok, "event(s) we expected not emitted");
     });
 
-    it('registering a member twice should throw', async () => {
+    it('XBRNetwork.register() : registering a member twice should throw', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         const profile = "";
@@ -197,7 +197,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('retiring a member should fire the correct event and store the correct member level', async () => {
+    it('XBRNetwork.unregister() : retiring a member should fire the correct event and store the correct member level', async () => {
 
         const filter = {};
         const event = network.MemberRetired(filter);
