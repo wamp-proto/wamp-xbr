@@ -18,6 +18,12 @@
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
+/*
+web3.eth.getBlock("latest", false, (error, result) => {
+    console.log(result.gasLimit)
+    // => 8000029
+});
+*/
 
 contract('XBRNetwork', accounts => {
 
