@@ -1,0 +1,177 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+//  XBR Open Data Markets - https://xbr.network
+//
+//  JavaScript client library for the XBR Network.
+//
+//  Copyright (C) Crossbar.io Technologies GmbH and contributors
+//
+//  Licensed under the Apache 2.0 License:
+//  https://opensource.org/licenses/Apache-2.0
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// https://truffleframework.com/docs/truffle/testing/writing-tests-in-javascript
+
+// let reward = web3.toWei(1, 'ether');
+
+const XBRNetwork = artifacts.require("./XBRNetwork.sol");
+const XBRToken = artifacts.require("./XBRToken.sol");
+
+
+contract('XBRNetwork', accounts => {
+
+    // deployed instance of XBRNetwork
+    var network;
+
+    // deployed instance of XBRNetwork
+    var token;
+
+    // enum DomainStatus { NULL, ACTIVE, CLOSED }
+    const DomainStatus_NULL = 0;
+    const DomainStatus_ACTIVE = 1;
+    const DomainStatus_CLOSED = 2;
+
+    // enum NodeType { NULL, MASTER, CORE, EDGE }
+    const NodeType_NULL = 0;
+    const NodeType_MASTER = 1;
+    const NodeType_CORE = 2;
+    const NodeType_EDGE = 3;
+
+    //
+    // test accounts setup
+    //
+
+    // the XBR Project
+    const owner = accounts[0];
+
+    // 2 test XBR market owners
+    const alice = accounts[1];
+    const alice_market_maker1 = accounts[2];
+
+    const bob = accounts[3];
+    const bob_market_maker1 = accounts[4];
+
+    // 2 test XBR data providers
+    const charlie = accounts[5];
+    const charlie_provider_delegate1 = accounts[6];
+
+    const donald = accounts[7];
+    const donald_provider_delegate1 = accounts[8];
+
+    // 2 test XBR data consumers
+    const edith = accounts[9];
+    const edith_provider_delegate1 = accounts[10];
+
+    const frank = accounts[11];
+    const frank_provider_delegate1 = accounts[12];
+
+    beforeEach('setup contract for each test', async function () {
+        network = await XBRNetwork.deployed();
+        token = await XBRToken.deployed();
+    });
+
+    /*
+    afterEach(function (done) {
+    });
+    */
+/*
+    it('creating a domain by non-member should throw', async () => {
+
+        const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+
+        try {
+            await network.createDomain(domainId, "", "", "", "", {from: alice});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/NOT_A_MEMBER/.test(error), "wrong error message");
+        }
+    });
+*/
+    it('should create new domain, with correct attributes, and firing correct event', async () => {
+
+        const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
+        await network.register(eula, "", {from: alice});
+
+        const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+        const domainKey = "0xfeb083ce587a4ea72681d7db776452b05aaf58dc778534a6938313e4c85912f0";
+        const license = "";
+        const terms = "";
+        const meta = "";
+
+        const filter = {};
+        const event = network.DomainCreated(filter);
+
+        event.watch((err, result) => {
+
+            // bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner, bytes32 domainKey, string license, string terms, string meta
+
+            assert.equal(result.args.domainId, domainId, "wrong domainId in event");
+            assert.equal(result.args.domainSeq, 1, "wrong domainSeq in event");
+            assert.equal(result.args.status, DomainStatus_ACTIVE, "wrong status in event");
+            assert.equal(result.args.owner, alice, "wrong owner in event");
+            assert.equal(result.args.domainKey, domainKey, "wrong domainKey in event");
+            assert.equal(result.args.license, license, "wrong license in event");
+            assert.equal(result.args.terms, terms, "wrong terms in event");
+            assert.equal(result.args.meta, meta, "wrong meta in event");
+
+            event.stopWatching()
+        });
+
+        await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice});
+
+        const _status = await network.getDomainStatus(domainId);
+        assert.equal(_status, DomainStatus_ACTIVE, "wrong domain status");
+
+        const _owner = await network.getDomainOwner(domainId);
+        assert.equal(_owner, alice, "wrong domain owner");
+
+        const _domainKey = await network.getDomainKey(domainId);
+        assert.equal(_domainKey, domainKey, "wrong domain domainKey");
+
+        const _license = await network.getDomainLicense(domainId);
+        assert.equal(_license, license, "wrong domain license");
+
+        const _terms = await network.getDomainTerms(domainId);
+        assert.equal(_terms, terms, "wrong domain termas");
+
+        const _meta = await network.getDomainMeta(domainId);
+        assert.equal(_meta, meta, "wrong domain meta");
+    });
+
+    it('creating a duplicate domain should throw', async () => {
+
+        const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+
+        try {
+            await network.createDomain(domainId, "", "", "", "", {from: alice});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
+        }
+    });
+/*
+    it('closing a domain should set domain status and fire correct event', async () => {
+
+        const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+
+        const filter = {};
+        const event = network.DomainClosed(filter);
+
+        event.watch((err, result) => {
+
+            // bytes16 domainId, DomainStatus status
+
+            assert.equal(result.args.domainId, domainId, "wrong domainId in event");
+            assert.equal(result.args.status, DomainStatus_CLOSED, "wrong status in event");
+
+            event.stopWatching()
+        });
+
+        await network.closeDomain(domainId, {from: alice});
+
+        const _status = await network.getDomainStatus(domainId);
+        assert.equal(_status, DomainStatus_CLOSED, "wrong domain status");
+    });
+*/
+});

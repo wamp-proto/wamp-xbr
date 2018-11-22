@@ -140,15 +140,15 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for DOMAINS
 
     /// Event emitted when a new domain was created.
-    event DomainCreated (bytes16 domainId, uint32 domainSeq, DomainStatus domainStatus, address owner,
+    event DomainCreated (bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was updated.
-    event DomainUpdated (bytes16 domainId, uint32 domainSeq, DomainStatus domainStatus, address owner,
+    event DomainUpdated (bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was closed.
-    event DomainClosed (bytes16 domainId, DomainStatus domainStatus);
+    event DomainClosed (bytes16 domainId, DomainStatus status);
 
     /// Event emitted when a new node was paired with the domain.
     event NodePaired (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
@@ -318,9 +318,11 @@ contract XBRNetwork is XBRMaintained {
 
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
-        domains[domainId] = Domain(domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey, license, terms, meta, new bytes16[](0));
+        domains[domainId] = Domain(domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
+                                    license, terms, meta, new bytes16[](0));
 
-        emit DomainCreated(domainId, domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey, license, terms, meta);
+        emit DomainCreated(domainId, domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
+                            license, terms, meta);
 
         domainSeq = domainSeq + 1;
     }
