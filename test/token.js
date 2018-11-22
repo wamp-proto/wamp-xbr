@@ -14,6 +14,11 @@
 var XBRToken = artifacts.require("./XBRToken.sol");
 
 contract('XBRToken', function (accounts) {
+
+    //const gasLimit = 6721975;
+    //const gasLimit = 0xfffffffffff;
+    const gasLimit = 100000000;
+
     XBR_TOTAL_SUPPLY = 10**9 * 10**18;
 
     it("XBRToken() : should have produced the right initial supply of XBRToken", function () {

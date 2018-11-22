@@ -1,4 +1,4 @@
-.PHONY: crossbar docs clean build test
+.PHONY: crossbar coverage docs clean build test
 
 CROSSBAR = crossbarfx edge
 
@@ -22,6 +22,11 @@ clean: clean_docs
 	-rm -rf ./build/
 	-rm -rf ./*.egg-info/
 	-rm -rf ./.tox/
+	-rm -rf ./coverage
+	-rm -rf ./coverageEnv
+	-rm -f ./coverage.json
+	-rm -f ./npm-debug.log
+	-rm -f ./scTopics
 
 
 install:
@@ -45,6 +50,10 @@ compile:
 
 test:
 	truffle test --network ganache
+
+coverage:
+	#./node_modules/.bin/solidity-coverage
+	npm run coverage
 
 deploy:
 	truffle compile --all

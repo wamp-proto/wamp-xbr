@@ -21,6 +21,10 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 
 contract('XBRNetwork', accounts => {
 
+    //const gasLimit = 6721975;
+    //const gasLimit = 0xfffffffffff;
+    const gasLimit = 100000000;
+
     // deployed instance of XBRNetwork
     var network;
 
@@ -142,7 +146,7 @@ contract('XBRNetwork', accounts => {
         const profile = "";
 
         try {
-            await network.register(eula, profile, {from: alice});
+            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/INVALID_EULA/.test(error), "wrong error message");
@@ -170,7 +174,7 @@ contract('XBRNetwork', accounts => {
             event.stopWatching()
         });
 
-        await network.register(eula, profile, {from: alice});
+        await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
         assert.equal(_level.toNumber(), MemberLevel_ACTIVE, "wrong member level");
@@ -190,7 +194,7 @@ contract('XBRNetwork', accounts => {
         const profile = "";
 
         try {
-            await network.register(eula, profile, {from: alice});
+            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message");
@@ -212,7 +216,7 @@ contract('XBRNetwork', accounts => {
             event.stopWatching()
         });
 
-        await network.unregister({from: alice});
+        await network.unregister({from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
         assert.equal(_level.toNumber(), MemberLevel_RETIRED, "wrong member level");

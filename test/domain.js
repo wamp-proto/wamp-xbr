@@ -21,6 +21,10 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 
 contract('XBRNetwork', accounts => {
 
+    //const gasLimit = 6721975;
+    //const gasLimit = 0xfffffffffff;
+    const gasLimit = 100000000;
+
     // deployed instance of XBRNetwork
     var network;
 
@@ -81,7 +85,7 @@ contract('XBRNetwork', accounts => {
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
         try {
-            await network.createDomain(domainId, "", "", "", "", {from: alice});
+            await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/NOT_A_MEMBER/.test(error), "wrong error message");
@@ -91,7 +95,7 @@ contract('XBRNetwork', accounts => {
     it('XBRNetwork.createDomain() : should create new domain, with correct attributes, and firing correct event', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
-        await network.register(eula, "", {from: alice});
+        await network.register(eula, "", {from: alice, gasLimit: gasLimit});
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const domainKey = "0xfeb083ce587a4ea72681d7db776452b05aaf58dc778534a6938313e4c85912f0";
@@ -118,7 +122,7 @@ contract('XBRNetwork', accounts => {
             event.stopWatching()
         });
 
-        await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice});
+        await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_ACTIVE, "wrong domain status");
@@ -144,7 +148,7 @@ contract('XBRNetwork', accounts => {
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
         try {
-            await network.createDomain(domainId, "", "", "", "", {from: alice});
+            await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
@@ -160,7 +164,7 @@ contract('XBRNetwork', accounts => {
         const config = "";
 
         try {
-            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice});
+            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
@@ -176,7 +180,7 @@ contract('XBRNetwork', accounts => {
         const config = "";
 
         try {
-            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice});
+            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/INVALID_NODE_TYPE/.test(error), "wrong error message");
@@ -209,7 +213,7 @@ contract('XBRNetwork', accounts => {
         });
 
         // bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config
-        await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice});
+        await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
 
         _nodeId = await network.getNodeByKey(nodeKey);
         assert.equal(_nodeId, nodeId, "cannot find node by key");
@@ -226,7 +230,7 @@ contract('XBRNetwork', accounts => {
         const config = "";
 
         try {
-            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice});
+            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/NODE_ALREADY_PAIRED/.test(error), "wrong error message");
@@ -242,7 +246,7 @@ contract('XBRNetwork', accounts => {
         const config = "";
 
         try {
-            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice});
+            await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
@@ -254,7 +258,7 @@ contract('XBRNetwork', accounts => {
         const nodeId = "0x88888888888888888888888888888888";
 
         try {
-            await network.releaseNode(nodeId, {from: alice});
+            await network.releaseNode(nodeId, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/NO_SUCH_NODE/.test(error), "wrong error message");
@@ -266,7 +270,7 @@ contract('XBRNetwork', accounts => {
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
 
         try {
-            await network.releaseNode(nodeId, {from: bob});
+            await network.releaseNode(nodeId, {from: bob, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
@@ -290,7 +294,7 @@ contract('XBRNetwork', accounts => {
             event.stopWatching()
         });
 
-        await network.closeDomain(domainId, {from: alice});
+        await network.closeDomain(domainId, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_CLOSED, "wrong domain status");

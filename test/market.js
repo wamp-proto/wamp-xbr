@@ -21,6 +21,10 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 
 contract('XBRNetwork', accounts => {
 
+    //const gasLimit = 6721975;
+    //const gasLimit = 0xfffffffffff;
+    const gasLimit = 100000000;
+
     // deployed instance of XBRNetwork
     var network;
 
@@ -99,7 +103,7 @@ contract('XBRNetwork', accounts => {
             const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
             const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
-            await network.register(eula, profile, {from: alice});
+            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
         }
 
         const marketId = web3.sha3("MyMarket1").substring(0, 34);
@@ -115,7 +119,7 @@ contract('XBRNetwork', accounts => {
         // 5% market fee
         const marketFee = 0.05 * 10**9 * 10**18
 
-        await network.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice});
+        await network.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice, gasLimit: gasLimit});
     });
 
     it('XBRNetwork.joinMarket() : should join existing market', async () => {
@@ -123,9 +127,9 @@ contract('XBRNetwork', accounts => {
         const marketId = web3.sha3("MyMarket1").substring(0, 34);
 
         var actorType = 3; // PROVIDER
-        await network.joinMarket(marketId, actorType, {from: bob});
+        await network.joinMarket(marketId, actorType, {from: bob, gasLimit: gasLimit});
 
         actorType = 4; // CONSUMER
-        await network.joinMarket(marketId, actorType, {from: charlie});
+        await network.joinMarket(marketId, actorType, {from: charlie, gasLimit: gasLimit});
     });
 });

@@ -25,15 +25,18 @@
     "web3": "^1.0.0-beta.36"
   },
   "devDependencies": {
+    "browserify": ">=16.2.3",
+    "coveralls": "^3.0.2",
     "google-closure-compiler": ">=20181028.0.1",
     "nodeunit": ">=0.11.3",
-    "browserify": ">=16.2.3",
     "solhint": ">=1.4.0",
+    "solidity-coverage": "^0.5.11",
     "truffle": ">=4.1.14"
   },
   "main": "index.js",
   "scripts": {
-    "test": "nodeunit test/test.js"
+    "test": "truffle test --network ganache",
+    "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "directories": {
     "test": "test"
