@@ -386,14 +386,17 @@ contract XBRNetwork is XBRMaintained {
      */
     function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
-
+        require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
         require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
-        require(uint8(nodeType) == uint8(NodeType.MASTER) || uint8(nodeType) == uint8(NodeType.EDGE));
+        require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
+        require(uint8(nodeType) == uint8(NodeType.MASTER) ||
+                uint8(nodeType) == uint8(NodeType.EDGE), "INVALID_NODE_TYPE");
 
         nodes[nodeId] = Node(domainId, nodeType, nodeKey, config);
         nodesByKey[nodeKey] = nodeId;
         domains[domainId].nodes.push(nodeId);
+
+        emit NodePaired(domainId, nodeId, nodeKey, config);
     }
 
     /**
