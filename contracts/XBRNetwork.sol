@@ -43,6 +43,9 @@ contract XBRNetwork is XBRMaintained {
     /// XBR Market Actor types
     enum ActorType { NULL, NETWORK, MARKET, PROVIDER, CONSUMER }
 
+    /// XBR Domain status values
+    enum DomainStatus { NULL, ACTIVE, CLOSED }
+
     /// XBR Carrier Node types
     enum NodeType { NULL, MASTER, CORE, EDGE }
 
@@ -59,6 +62,9 @@ contract XBRNetwork is XBRMaintained {
     struct Domain {
         /// Domain sequence.
         uint32 domainSeq;
+
+        /// Domain status
+        DomainStatus status;
 
         /// Domain owner.
         address owner;
@@ -134,15 +140,15 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for DOMAINS
 
     /// Event emitted when a new domain was created.
-    event DomainCreated (bytes16 domainId, uint32 domainSeq, address owner,
+    event DomainCreated (bytes16 domainId, uint32 domainSeq, DomainStatus domainStatus, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was updated.
-    event DomainUpdated (bytes16 domainId, uint32 domainSeq, address owner,
+    event DomainUpdated (bytes16 domainId, uint32 domainSeq, DomainStatus domainStatus, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was closed.
-    event DomainClosed (bytes16 domainId);
+    event DomainClosed (bytes16 domainId, DomainStatus domainStatus);
 
     /// Event emitted when a new node was paired with the domain.
     event NodePaired (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
@@ -307,45 +313,67 @@ contract XBRNetwork is XBRMaintained {
     function createDomain (bytes16 domainId, bytes32 domainKey, string license,
         string terms, string meta) public {
 
+        require(members[msg.sender].level == MemberLevel.ACTIVE ||
+                members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
+
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
-        domains[domainId] = Domain(domainSeq, msg.sender, domainKey, license, terms, meta, new bytes16[](0));
+        domains[domainId] = Domain(domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey, license, terms, meta, new bytes16[](0));
+
+        emit DomainCreated(domainId, domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey, license, terms, meta);
 
         domainSeq = domainSeq + 1;
+    }
 
-        emit DomainCreated(domainId, domainSeq, msg.sender, domainKey, license, terms, meta);
+    function closeDomain (bytes16 domainId) public {
+        require(members[msg.sender].level == MemberLevel.ACTIVE ||
+                members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
+        require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
+        require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
+        require(domains[domainId].status == DomainStatus.ACTIVE, "DOMAIN_NOT_ACTIVE");
+
+        domains[domainId].status = DomainStatus.CLOSED;
+
+        emit DomainClosed(domainId, DomainStatus.CLOSED);
     }
 
     /**
-     * 
+     *
+     */
+    function getDomainStatus(bytes16 domainId) public view returns (DomainStatus) {
+        return domains[domainId].status;
+    }
+
+    /**
+     *
      */
     function getDomainOwner(bytes16 domainId) public view returns (address) {
         return domains[domainId].owner;
     }
 
     /**
-     * 
+     *
      */
     function getDomainKey(bytes16 domainId) public view returns (bytes32) {
         return domains[domainId].domainKey;
     }
 
     /**
-     * 
+     *
      */
     function getDomainLicense(bytes16 domainId) public view returns (string) {
         return domains[domainId].license;
     }
 
     /**
-     * 
+     *
      */
     function getDomainTerms(bytes16 domainId) public view returns (string) {
         return domains[domainId].terms;
     }
 
     /**
-     * 
+     *
      */
     function getDomainMeta(bytes16 domainId) public view returns (string) {
         return domains[domainId].meta;
@@ -365,37 +393,37 @@ contract XBRNetwork is XBRMaintained {
         nodesByKey[nodeKey] = nodeId;
         domains[domainId].nodes.push(nodeId);
     }
-    
+
     /**
-     * 
+     *
      */
     function getNodeByKey(bytes32 nodeKey) public view returns (bytes16) {
         return nodesByKey[nodeKey];
     }
-    
+
     /**
-     * 
+     *
      */
     function getNodeDomain(bytes16 nodeId) public view returns (bytes16) {
         return nodes[nodeId].domain;
     }
-    
+
     /**
-     * 
+     *
      */
     function getNodeType(bytes16 nodeId) public view returns (NodeType) {
         return nodes[nodeId].nodeType;
     }
 
     /**
-     * 
+     *
      */
     function getNodeKey(bytes16 nodeId) public view returns (bytes32) {
         return nodes[nodeId].key;
     }
 
     /**
-     * 
+     *
      */
     function getNodeConfig(bytes16 nodeId) public view returns (string) {
         return nodes[nodeId].config;
@@ -422,7 +450,7 @@ contract XBRNetwork is XBRMaintained {
         uint256 consumerSecurity, uint256 marketFee) public {
 
         XBRToken _token = XBRToken(token);
-        
+
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(maker != address(0), "INVALID_MAKER");
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
