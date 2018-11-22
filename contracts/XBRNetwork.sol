@@ -241,7 +241,7 @@ contract XBRNetwork is XBRMaintained {
      * @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
     function register (string eula, string profile) public {
-        require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_EXISTS");
+        require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
         require(keccak256(abi.encode(eula)) ==
                 keccak256(abi.encode("QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81")), "INVALID_EULA");
 
@@ -255,6 +255,8 @@ contract XBRNetwork is XBRMaintained {
      */
     function unregister () public {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        
+        // FIXME: check that the member has no active objects associated anymore
 
         members[msg.sender].level = MemberLevel.RETIRED;
 
@@ -333,6 +335,8 @@ contract XBRNetwork is XBRMaintained {
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
         require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
         require(domains[domainId].status == DomainStatus.ACTIVE, "DOMAIN_NOT_ACTIVE");
+        
+        // FIXME: check that the domain has no active objects associated anymore
 
         domains[domainId].status = DomainStatus.CLOSED;
 
@@ -397,6 +401,26 @@ contract XBRNetwork is XBRMaintained {
         domains[domainId].nodes.push(nodeId);
 
         emit NodePaired(domainId, nodeId, nodeKey, config);
+    }
+    
+    /**
+     *
+     */
+    function releaseNode (bytes16 nodeId) public {
+        require(uint8(nodes[nodeId].nodeType) != 0, "NO_SUCH_NODE");
+        require(domains[nodes[nodeId].domain].owner == msg.sender, "NOT_AUTHORIZED");
+        
+        bytes16 domainId = nodes[nodeId].domain;
+        bytes32 nodeKey = nodes[nodeId].key;
+
+        nodes[nodeId].domain = bytes16(0);
+        nodes[nodeId].nodeType = NodeType.NULL;
+        nodes[nodeId].key = bytes32(0);
+        nodes[nodeId].config = "";
+        
+        nodesByKey[nodeKey] = bytes16(0);
+        
+        emit NodeReleased(domainId, nodeId);
     }
 
     /**

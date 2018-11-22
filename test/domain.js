@@ -236,7 +236,7 @@ contract('XBRNetwork', accounts => {
     it('pairing nodes with same nodeKey should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
-        const nodeId = "fa13540c112507feef74e49cab223df4";
+        const nodeId = "0xfa13540c112507feef74e49cab223df4";
         const nodeType = NodeType_EDGE;
         const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "";
@@ -246,6 +246,30 @@ contract('XBRNetwork', accounts => {
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
+        }
+    });
+
+    it('releasing a non-existant/unpaired node should throw', async () => {
+
+        const nodeId = "0x88888888888888888888888888888888";
+
+        try {
+            await network.releaseNode(nodeId, {from: alice});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/NO_SUCH_NODE/.test(error), "wrong error message");
+        }
+    });
+
+    it('releasing a node from an account that is not domain owner should throw', async () => {
+
+        const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
+
+        try {
+            await network.releaseNode(nodeId, {from: bob});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
         }
     });
 
