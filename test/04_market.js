@@ -20,9 +20,6 @@ const utils = require("./utils.js");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
-console.log('library versions: web3="' + web3.version);
-
-
 
 contract('XBRNetwork', accounts => {
 
@@ -154,6 +151,9 @@ contract('XBRNetwork', accounts => {
         // XBR market to join
         const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
 
+        // remember XBR token balance of network contract before joining market
+        const _balance_network_before = await token.balanceOf(network.address);
+
         // transfer 1000 XBR to provider
         await token.transfer(provider, 1000 * 10**18, {from: owner, gasLimit: gasLimit});
 
@@ -167,6 +167,20 @@ contract('XBRNetwork', accounts => {
         await utils.await_event(event, watcher);
 
         assert(events_ok, "event(s) we expected not emitted");
+
+        const _actorType = await network.getMarketActorType(marketId, provider);
+        assert.equal(_actorType.toNumber(), ActorType_PROVIDER, "wrong actorType " + _actorType);
+
+        const _security = await network.getMarketActorSecurity(marketId, provider);
+        assert.equal(_security, providerSecurity, "wrong providerSecurity " + _security);
+
+        const _balance_actor = await token.balanceOf(provider);
+        assert.equal(_balance_actor.valueOf(), 900 * 10**18, "market security wasn't transferred _from_ provider");
+
+        // check that the network contract as gotten the security
+        const _balance_network_after = await token.balanceOf(network.address);
+        assert.equal(_balance_network_after.valueOf() - _balance_network_before.valueOf(),
+                     providerSecurity, "market security wasn't transferred _to_ network contract");
     });
 
     it('XBRNetwork.joinMarket() : consumer should join existing market', async () => {
@@ -183,7 +197,7 @@ contract('XBRNetwork', accounts => {
                 assert.equal(result.args.marketId, marketId, "wrong marketId in event");
                 assert.equal(result.args.actor, consumer, "wrong consumer address in event");
                 assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
-                assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
+                assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
 
                 events_ok = true;
                 event.stopWatching()
@@ -191,16 +205,19 @@ contract('XBRNetwork', accounts => {
         }
 
         // 100 XBR security
-        const providerSecurity = 100 * 10**18;
+        const consumerSecurity = 100 * 10**18;
 
         // XBR market to join
         const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+
+        // remember XBR token balance of network contract before joining market
+        const _balance_network_before = await token.balanceOf(network.address);
 
         // transfer 1000 XBR to consumer
         await token.transfer(consumer, 1000 * 10**18, {from: owner, gasLimit: gasLimit});
 
         // approve transfer of tokens to join market
-        await token.approve(network.address, providerSecurity, {from: consumer, gasLimit: gasLimit});
+        await token.approve(network.address, consumerSecurity, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer joins market
         await network.joinMarket(marketId, ActorType_CONSUMER, {from: consumer, gasLimit: gasLimit});
@@ -209,6 +226,20 @@ contract('XBRNetwork', accounts => {
         await utils.await_event(event, watcher);
 
         assert(events_ok, "event(s) we expected not emitted");
+
+        const _actorType = await network.getMarketActorType(marketId, consumer);
+        assert.equal(_actorType.toNumber(), ActorType_CONSUMER, "wrong actorType " + _actorType);
+
+        const _security = await network.getMarketActorSecurity(marketId, consumer);
+        assert.equal(_security, consumerSecurity, "wrong consumerSecurity " + _security);
+
+        const _balance_actor = await token.balanceOf(consumer);
+        assert.equal(_balance_actor.valueOf(), 900 * 10**18, "market security wasn't transferred _from_ consumer");
+
+        // check that the network contract as gotten the security
+        const _balance_network_after = await token.balanceOf(network.address);
+        assert.equal(_balance_network_after.valueOf() - _balance_network_before.valueOf(),
+                     consumerSecurity, "market security wasn't transferred _to_ network contract");
     });
 
 });

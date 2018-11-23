@@ -732,12 +732,12 @@ contract XBRNetwork is XBRMaintained {
             security = 0;
         }
 
-        //XBRToken _token = XBRToken(token);
-        //bool success = _token.transferFrom(msg.sender, this, security);
-        //require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        XBRToken _token = XBRToken(token);
+        bool success = _token.transferFrom(msg.sender, this, security);
+        require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
 
-        //markets[marketId].actors[msg.sender] = Actor(actorType, security);
-        //markets[marketId].actorAddresses.push(msg.sender);
+        markets[marketId].actors[msg.sender] = Actor(actorType, security);
+        markets[marketId].actorAddresses.push(msg.sender);
         
         // bytes16 marketId, address actor, ActorType actorType, uint256 security
         emit ActorJoined(marketId, msg.sender, actorType, security);
@@ -751,7 +751,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the market to lookup actors.
      * @return  List of addresses of market actors in the market.
      */
-    function getAllMarketActors(bytes16 marketId) public view returns (address[]) {
+    function getAllMarketActors (bytes16 marketId) public view returns (address[]) {
         return markets[marketId].actorAddresses;
     }
 
@@ -764,6 +764,17 @@ contract XBRNetwork is XBRMaintained {
      */
     function getMarketActorType (bytes16 marketId, address actor) public view returns (ActorType) {
         return markets[marketId].actors[actor].actorType;
+    }
+
+    /**
+     * Returns the current security deposit of an actor within a market.
+     *
+     * @param marketId The ID of the market to lookup actor type.
+     * @param actor The address of the actor to lookup.
+     * @return The security deposit of the actor in the given market.
+     */
+    function getMarketActorSecurity (bytes16 marketId, address actor) public view returns (uint256) {
+        return markets[marketId].actors[actor].security;
     }
 
     /**

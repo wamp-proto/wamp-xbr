@@ -13,6 +13,9 @@
 
 var XBRToken = artifacts.require("./XBRToken.sol");
 
+console.log('Using Web3 version: ' + web3.version);
+
+
 contract('XBRToken', function (accounts) {
 
     //const gasLimit = 6721975;
