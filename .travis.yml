@@ -27,14 +27,17 @@ before_install:
 install:
   # - snap install solc
   - pip install -r requirements-dev.txt
+  - npm install -g ganache-cli
   - npm install -g truffle
   - npm install -g solhint
 
-before_script:
-  #- docker-compose up -d ganache
-  - docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 --db /ganache
+#before_script:
+#  #- docker-compose up -d ganache
+#  - docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 --db /ganache
 
 script:
+  - ganache-cli --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 > /dev/null &
+  - sleep 5
   - tox -c tox.ini -e $TOX_ENV
 
 # https://blog.travis-ci.com/2017-09-12-build-stages-order-and-conditions
