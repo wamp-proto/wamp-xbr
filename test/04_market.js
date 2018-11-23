@@ -11,9 +11,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// https://truffleframework.com/docs/truffle/testing/writing-tests-in-javascript
-
-// let reward = web3.toWei(1, 'ether');
 const web3 = require("web3");
 const utils = require("./utils.js");
 
@@ -240,6 +237,52 @@ contract('XBRNetwork', accounts => {
         const _balance_network_after = await token.balanceOf(network.address);
         assert.equal(_balance_network_after.valueOf() - _balance_network_before.valueOf(),
                      consumerSecurity, "market security wasn't transferred _to_ network contract");
+    });
+
+    it('XBRNetwork.openPaymentChannel() : consumer should open payment channel', async () => {
+
+        // openPaymentChannel (bytes16 marketId, address consumer, uint256 amount)
+
+        // the XBR consumer we use here
+        const market = alice;
+        const consumer = charlie;
+        const delegate = charlie_provider_delegate1;
+
+        // XBR market to join
+        const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+
+        // setup event watching
+        var events_ok = false;
+        let event = network.PaymentChannelCreated({});
+        let watcher = async function (err, result) {
+
+            if (result.event == 'PaymentChannelCreated') {
+
+                // bytes16 marketId, address sender, address delegate, address receiver, address channel
+                assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+                assert.equal(result.args.sender, consumer, "wrong sender address in event");
+                //assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
+                assert.equal(result.args.receiver, market, "wrong receiver address in event");
+                //assert.equal(result.args.channel, consumerSecurity, "wrong consumerSecurity in event");
+
+                events_ok = true;
+                event.stopWatching()
+            }
+        }
+
+        // 50 XBR security
+        const amount = 50 * 10**18;
+
+        // approve transfer of tokens to open payment channel
+        await token.approve(network.address, amount, {from: consumer, gasLimit: gasLimit});
+
+        // XBR consumer opens a payment channel in the market
+        await network.openPaymentChannel(marketId, consumer, amount, {from: consumer, gasLimit: gasLimit});
+
+        // we expect PaymentChannelCreated event to be fired
+        await utils.await_event(event, watcher);
+
+        assert(events_ok, "event(s) we expected not emitted");
     });
 
 });

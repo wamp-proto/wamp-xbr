@@ -11,9 +11,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// https://truffleframework.com/docs/truffle/testing/writing-tests-in-javascript
-
-// let reward = web3.toWei(1, 'ether');
+const web3 = require("web3");
+const utils = require("./utils.js");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");

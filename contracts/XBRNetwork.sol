@@ -809,7 +809,7 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId].channels.push(channel);
 
-        // bytes16 marketId, address sender, address delegate, address receiver, address channel);
+        // bytes16 marketId, address sender, address delegate, address receiver, address channel
         emit PaymentChannelCreated(marketId, msg.sender, consumer, markets[marketId].owner, channel);
 
         return channel;
