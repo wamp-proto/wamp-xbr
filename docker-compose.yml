@@ -5,8 +5,9 @@ services:
         image: trufflesuite/ganache-cli:latest
         # UID:GID => id -u, id -g
         user: "1000:1000"
-        ports:
-            - "8545:8545"
+        network_mode: host
+        #ports:
+        #    - "8545:8545"
         volumes:
             # mount a data location from the host into the container - read-write
             - "${PWD}/teststack/ganache/.data:/ganache:rw"
