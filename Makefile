@@ -184,7 +184,8 @@ run_crossbar_version:
 	$(CROSSBAR) version
 
 run_crossbar_docker:
-	docker-compose up --force-recreate --no-deps --build crossbar
+	docker pull crossbario/crossbarfx:latest
+	docker-compose up --force-recreate crossbar
 
 clean_db:
 	rm -f ${PWD}/teststack/crossbar/.testdb/*
