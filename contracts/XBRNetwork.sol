@@ -255,7 +255,7 @@ contract XBRNetwork is XBRMaintained {
      */
     function unregister () public {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-        
+
         // FIXME: check that the member has no active objects associated anymore
 
         members[msg.sender].level = MemberLevel.RETIRED;
@@ -267,6 +267,7 @@ contract XBRNetwork is XBRMaintained {
      * Returns XBR Network member level given an address.
      *
      * @param member The address to lookup the XBR Network member level for.
+     * @return The current member level of the member.
      */
     function getMemberLevel (address member) public view returns (MemberLevel) {
         return members[member].level;
@@ -276,6 +277,7 @@ contract XBRNetwork is XBRMaintained {
      * Returns XBR Network member EULA given an address.
      *
      * @param member The address to lookup the XBR Network member EULA for.
+     * @return IPFS Multihash pointing to XBR Network EULA file on IPFS.
      */
     function getMemberEula (address member) public view returns (string) {
         return members[member].eula;
@@ -285,6 +287,7 @@ contract XBRNetwork is XBRMaintained {
      * Returns XBR Network member profile given an address.
      *
      * @param member The address to lookup the XBR Network member profile for.
+     * @return IPFS Multihash pointing to member profile file on IPFS.
      */
     function getMemberProfile (address member) public view returns (string) {
         return members[member].profile;
@@ -296,6 +299,9 @@ contract XBRNetwork is XBRMaintained {
      *
      * - having a last resort to handle situation where members violated the EULA
      * - being able to manually patch things in error/bug cases
+     *
+     * @param member The address of the XBR network member to override member level.
+     * @param level The member level to set the member to.
      */
     function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
@@ -307,7 +313,7 @@ contract XBRNetwork is XBRMaintained {
      *  Create a new XBR domain. Then sender ot the transaction must be XBR network member
      *  and automatically becomes owner of the new domain.
      *
-     *  @param domainId The ID of the domain to create. Must be unique (not yet existing).
+     *  @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
      *  @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
      *  @param license The license for the software stack running the domain. IPFS Multihash
      *                 pointing to a JSON/YAML file signed by the project release key.
@@ -329,13 +335,19 @@ contract XBRNetwork is XBRMaintained {
         domainSeq = domainSeq + 1;
     }
 
+    /**
+     * Close an existing XBR domain. The sender must be owner of the domain, and the domain
+     * must not have any nodes paired (anymore).
+     *
+     * @param domainId The ID of the domain to close.
+     */
     function closeDomain (bytes16 domainId) public {
         require(members[msg.sender].level == MemberLevel.ACTIVE ||
                 members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
         require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
         require(domains[domainId].status == DomainStatus.ACTIVE, "DOMAIN_NOT_ACTIVE");
-        
+
         // FIXME: check that the domain has no active objects associated anymore
 
         domains[domainId].status = DomainStatus.CLOSED;
@@ -344,49 +356,73 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * Returns domain status.
      *
+     * @param domainId The ID of the domain to lookup status.
+     * @return The current status of the domain.
      */
     function getDomainStatus(bytes16 domainId) public view returns (DomainStatus) {
         return domains[domainId].status;
     }
 
     /**
+     * Returns domain owner.
      *
+     * @param domainId The ID of the domain to lookup owner.
+     * @return The address of the owner of the domain.
      */
     function getDomainOwner(bytes16 domainId) public view returns (address) {
         return domains[domainId].owner;
     }
 
     /**
+     * Returns domain (signing) key.
      *
+     * @param domainId The ID of the domain to lookup key.
+     * @return The Ed25519 public signing key for the domain.
      */
     function getDomainKey(bytes16 domainId) public view returns (bytes32) {
         return domains[domainId].domainKey;
     }
 
     /**
+     * Returns domain license.
      *
+     * @param domainId The ID of the domain to lookup license.
+     * @return IPFS Multihash pointer to domain license file on IPFS.
      */
     function getDomainLicense(bytes16 domainId) public view returns (string) {
         return domains[domainId].license;
     }
 
     /**
+     * Returns domain terms.
      *
+     * @param domainId The ID of the domain to lookup terms.
+     * @return IPFS Multihash pointer to domain terms on IPFS.
      */
     function getDomainTerms(bytes16 domainId) public view returns (string) {
         return domains[domainId].terms;
     }
 
     /**
+     * Returns domain meta data.
      *
+     * @param domainId The ID of the domain to lookup meta data.
+     * @return IPFS Multihash pointer to domain metadata file on IPFS.
      */
     function getDomainMeta(bytes16 domainId) public view returns (string) {
         return domains[domainId].meta;
     }
 
     /**
+     * Pair a node with an existing XBR Domain. The sender must be owner of the domain.
      *
+     * @param nodeId The ID of the node to pair. Must be globally unique (not yet existing).
+     * @param domainId The ID of the domain to pair the node with.
+     * @param nodeType The type of node to pair the node under.
+     * @param nodeKey The Ed25519 public node key.
+     * @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
      */
     function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
@@ -402,14 +438,16 @@ contract XBRNetwork is XBRMaintained {
 
         emit NodePaired(domainId, nodeId, nodeKey, config);
     }
-    
+
     /**
+     * Release a node currently paired with an XBR domain. The sender must be owner of the domain.
      *
+     * @param nodeId The ID of the node to release.
      */
     function releaseNode (bytes16 nodeId) public {
         require(uint8(nodes[nodeId].nodeType) != 0, "NO_SUCH_NODE");
         require(domains[nodes[nodeId].domain].owner == msg.sender, "NOT_AUTHORIZED");
-        
+
         bytes16 domainId = nodes[nodeId].domain;
         bytes32 nodeKey = nodes[nodeId].key;
 
@@ -417,42 +455,57 @@ contract XBRNetwork is XBRMaintained {
         nodes[nodeId].nodeType = NodeType.NULL;
         nodes[nodeId].key = bytes32(0);
         nodes[nodeId].config = "";
-        
+
         nodesByKey[nodeKey] = bytes16(0);
-        
+
         emit NodeReleased(domainId, nodeId);
     }
 
     /**
+     * Lookup node ID by node public key.
      *
+     * @param nodeKey The node public key to lookup
+     * @return The Ed25519 public key of the node.
      */
     function getNodeByKey(bytes32 nodeKey) public view returns (bytes16) {
         return nodesByKey[nodeKey];
     }
 
     /**
+     * Returns domain for a node.
      *
+     * @param nodeId The ID of the node to lookup the domain for.
+     * @return The domain the node is currently paired with.
      */
     function getNodeDomain(bytes16 nodeId) public view returns (bytes16) {
         return nodes[nodeId].domain;
     }
 
     /**
+     * Returns node type for a node.
      *
+     * @param nodeId The ID of the node to lookup the node type for.
+     * @return The node type.
      */
     function getNodeType(bytes16 nodeId) public view returns (NodeType) {
         return nodes[nodeId].nodeType;
     }
 
     /**
+     * Returns node public key for a node.
      *
+     * @param nodeId The ID of the node to lookup the node public key for.
+     * @return The node public key.
      */
     function getNodeKey(bytes16 nodeId) public view returns (bytes32) {
         return nodes[nodeId].key;
     }
 
     /**
+     * Returns config for a node.
      *
+     * @param nodeId The ID of the node to lookup the config for.
+     * @return IPFS Multihash pointer to node config.
      */
     function getNodeConfig(bytes16 nodeId) public view returns (string) {
         return nodes[nodeId].config;
@@ -502,56 +555,80 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * Lookup market ID by market maker address.
      *
+     * @param maker The market maker address to lookup market for
+     * @return ID of the market maker.
      */
     function getMarketByMaker (address maker) public view returns (bytes16) {
         return marketsByMaker[maker];
     }
 
     /**
+     * Returns owner for a market.
      *
+     * @param marketId The ID of the market to lookup owner for.
+     * @return Address of the owner of the market.
      */
     function getMarketOwner (bytes16 marketId) public view returns (address) {
         return markets[marketId].owner;
     }
 
     /**
+     * Returns terms for a market.
      *
+     * @param marketId The ID of the market to lookup terms for.
+     * @return IPFS Multihash pointer to market terms.
      */
     function getMarketTerms (bytes16 marketId) public view returns (string) {
         return markets[marketId].terms;
     }
 
     /**
+     * Returns metadata for a market.
      *
+     * @param marketId The ID of the market to lookup metadata for.
+     * @return IPFS Multihash pointer to market metadata.
      */
     function getMarketMeta (bytes16 marketId) public view returns (string) {
         return markets[marketId].meta;
     }
 
     /**
+     * Returns market maker for a market.
      *
+     * @param marketId The ID of the market to lookup the market maker address for.
+     * @return The address of the (offchain) market maker delegate responsible for this market.
      */
     function getMarketMaker (bytes16 marketId) public view returns (address) {
         return markets[marketId].maker;
     }
 
     /**
+     * Returns provider security for a market.
      *
+     * @param marketId The ID of the market to lookup provider security for.
+     * @return The provider security defined in the market.
      */
     function getMarketProviderSecurity (bytes16 marketId) public view returns (uint256) {
         return markets[marketId].providerSecurity;
     }
 
     /**
+     * Returns consumer security for a market.
      *
+     * @param marketId The ID of the market to lookup consumer security for.
+     * @return The consumer security defined in the market.
      */
     function getMarketConsumerSecurity (bytes16 marketId) public view returns (uint256) {
         return markets[marketId].consumerSecurity;
     }
 
     /**
+     * Returns market fee for a market.
      *
+     * @param marketId The ID of the market to lookup market fee for.
+     * @return The fee defined in the market.
      */
     function getMarketFee (bytes16 marketId) public view returns (uint256) {
         return markets[marketId].marketFee;
@@ -572,6 +649,7 @@ contract XBRNetwork is XBRMaintained {
      *                         the market. It will NOT apply to current market members.
      * @param marketFee New market fee to set. The new market fee will apply to all new payment channels
      *                  opened. It will NOT apply to already opened (or closed) payment channels.
+     * @return Flag indicating weather the market information was actually updated or left unchanged.
      */
     function updateMarket(bytes16 marketId, string terms, string meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
@@ -649,14 +727,21 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * Returns all actors in a given market.
      *
+     * @param marketId The ID of the market to lookup actors.
+     * @return  List of addresses of market actors in the market.
      */
     function getAllMarketActors(bytes16 marketId) public view returns (address[]) {
         return markets[marketId].actorAddresses;
     }
 
     /**
+     * Returns the type of an actor within a market.
      *
+     * @param marketId The ID of the market to lookup actor type.
+     * @param actor The address of the actor to lookup.
+     * @return The type under which the actor is joined in the market.
      */
     function getMarketActorType (bytes16 marketId, address actor) public view returns (ActorType) {
         return markets[marketId].actors[actor].actorType;
@@ -675,7 +760,10 @@ contract XBRNetwork is XBRMaintained {
 
     /**
      * Open a new payment channel and deposit an amount of XBR token into a market.
-     * The procedure returns
+     *
+     * @param marketId The ID of the market to open a payment channel within.
+     * @param consumer The address of the (offchain) consumer delegate allowed to consumer the channel.
+     * @param amount Amount of XBR Token to deposit into the payment channel.
      */
     function openPaymentChannel (bytes16 marketId, address consumer, uint256 amount) public returns
         (address paymentChannel) {
@@ -701,6 +789,7 @@ contract XBRNetwork is XBRMaintained {
      * Lookup all payment channels for a XBR Market.
      *
      * @param marketId The XBR Market to get payment channels for.
+     * @return List of contract addresses of payment channels in the market.
      */
     function getAllMarketPaymentChannels(bytes16 marketId) public view returns (address[]) {
         return markets[marketId].channels;
@@ -715,6 +804,8 @@ contract XBRNetwork is XBRMaintained {
      * When a request to open a payment channel is recognized by the market maker, it will check the provider
      * for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
      * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
+     *
+     * @param marketId The ID of the market to request a paying channel within.
      */
     function requestPayingChannel (bytes16 marketId, address provider, uint256 amount) public {
 
