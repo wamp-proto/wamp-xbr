@@ -180,6 +180,12 @@ run_crossbar:
 		--cbdir=${PWD}/teststack/crossbar/.crossbar \
 		--loglevel=info
 
+run_crossbar_version:
+	$(CROSSBAR) version
+
+run_crossbar_docker:
+	docker-compose up --force-recreate --no-deps --build crossbar
+
 clean_db:
 	rm -f ${PWD}/teststack/crossbar/.testdb/*
 	# rm -f ./teststack/crossbar/.crossbar/key.*

@@ -31,10 +31,13 @@ services:
             - "/ganache"
 
     crossbar:
+        depends_on:
+          - ganache
         image: crossbario/crossbarfx:latest
         # UID:GID => id -u, id -g
         user: "1000:1000"
-        ports:
-            - "8080:8080"
+        network_mode: host
+        #ports:
+        #    - "8080:8080"
         volumes:
             - "${PWD}/teststack/crossbar:/node"
