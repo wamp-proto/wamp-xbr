@@ -117,6 +117,7 @@ contract XBRNetwork is XBRMaintained {
     /// Container type for holding XBR Market Actors information.
     struct Actor {
         ActorType actorType;
+        uint256 security;
     }
 
     /// Container type for holding paying channel request information. FIXME: make this event-based (to save gas).
@@ -173,7 +174,7 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 marketId, address actor, ActorType actorType);
+    event ActorJoined (bytes16 marketId, address actor, ActorType actorType, uint256 security);
 
     /// Event emitted when an actor has left a market.
     event ActorLeft (bytes16 marketId, address actor);
@@ -543,7 +544,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
 
-        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET);
+        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0);
         markets[marketId].actorAddresses.push(maker);
 
         marketsByMaker[maker] = marketId;
@@ -716,14 +717,32 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the XBR data market to join.
      * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
      */
-    function joinMarket (bytes16 marketId, ActorType actorType) public {
+    function joinMarket (bytes16 marketId, ActorType actorType) public returns (uint256) {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
         require(uint8(actorType) == uint8(ActorType.MARKET) ||
             uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
 
-        markets[marketId].actors[msg.sender] = Actor(actorType);
-        markets[marketId].actorAddresses.push(msg.sender);
+        uint256 security;
+        if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+            security = markets[marketId].providerSecurity;
+        } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
+            security = markets[marketId].consumerSecurity;
+        } else {
+            security = 0;
+        }
+
+        //XBRToken _token = XBRToken(token);
+        //bool success = _token.transferFrom(msg.sender, this, security);
+        //require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+
+        //markets[marketId].actors[msg.sender] = Actor(actorType, security);
+        //markets[marketId].actorAddresses.push(msg.sender);
+        
+        // bytes16 marketId, address actor, ActorType actorType, uint256 security
+        emit ActorJoined(marketId, msg.sender, actorType, security);
+        
+        return security;
     }
 
     /**

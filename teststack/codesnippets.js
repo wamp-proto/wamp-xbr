@@ -15,7 +15,7 @@
 
 // let reward = web3.toWei(1, 'ether');
 const web3 = require("web3");
-const utils = require("./utils.js");
+const helpers = require("./helpers.js");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
@@ -133,11 +133,20 @@ contract('XBRNetwork', accounts => {
         const provider = bob;
 
         // setup event watching
+        console.log('library versions: web3="' + web3.version);
+        //const currentBlock = await web3.eth.getBlockNumber();
+        const currentBlock = 0;
         var events_ok = false;
-        let event = network.ActorJoined({});
-        let watcher = async function (err, result) {
+        const filter = {};
 
-            if (result.event == 'ActorJoined') {
+        let event = network.ActorJoined(filter);
+
+        let watcher = async function (err, result) {
+            console.log('XXXXX', result);
+
+            if (true || result.event == 'ActorJoined') {
+                // bytes16 marketId, address actor, ActorType actorType, uint256 security
+
                 assert.equal(result.args.marketId, marketId, "wrong marketId in event");
                 assert.equal(result.args.actor, provider, "wrong provider address in event");
                 assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
@@ -145,9 +154,37 @@ contract('XBRNetwork', accounts => {
 
                 events_ok = true;
                 event.stopWatching()
+                console.log('event watching stopped');
             }
         }
 
+
+/*
+        network.once('ActorJoined', {
+            filter: filter,
+            fromBlock: currentBlock
+        }, function(error, event){ console.log(event); });
+*/
+/*
+        network.events.ActorJoined(
+            {
+                filter: filter,
+                fromBlock: currentBlock
+            },
+            function (error, event) {
+                console.log(event);
+            }
+        )
+        .on('data', function (event) {
+            // same results as the optional callback above
+            console.log ('event::on_data', event);
+        })
+        .on('changed', function (event) {
+            // remove event from local database
+            console.log ('event::on_changed', event);
+        })
+        .on('error', console.error);
+*/
         // 100 XBR security
         const providerSecurity = 100 * 10**18;
 
@@ -155,60 +192,89 @@ contract('XBRNetwork', accounts => {
         const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
 
         // transfer 1000 XBR to provider
-        await token.transfer(provider, 1000 * 10**18, {from: owner, gasLimit: gasLimit});
-
-        // approve transfer of tokens to join market
-        await token.approve(network.address, providerSecurity, {from: provider, gasLimit: gasLimit});
+        const txn1 = await token.transfer(provider, 1000 * 10**18, {from: owner, gasLimit: gasLimit});
+        console.log('1111', txn1);
+        await helpers.mine_tx(txn1.tx);
 
         // XBR provider joins market
-        await network.joinMarket(marketId, ActorType_PROVIDER, {from: provider, gasLimit: gasLimit});
+        const txn2 = await token.approve(network.address, providerSecurity, {from: provider, gasLimit: gasLimit});
+        console.log('2222', txn2);
+        await helpers.mine_tx(txn2.tx);
 
-        // we expect ActorJoined event to be fired
-        await utils.await_event(event, watcher);
+        const txn3 = await network.joinMarket(marketId, ActorType_PROVIDER, {from: provider, gasLimit: gasLimit});
+        console.log('3333', txn3);
+        await helpers.mine_tx(txn3.tx);
 
-        assert(events_ok, "event(s) we expected not emitted");
-    });
+        await awaitEvent(event, watcher);
 
-    it('XBRNetwork.joinMarket() : consumer should join existing market', async () => {
+        //assert.equal(txn_result, providerSecurity, "wrong effective security returned");
 
-        // the XBR consumer we use here
-        const consumer = charlie;
+        const provider_level = await network.getMemberLevel(provider);
+        assert.equal(provider_level.toNumber(), 0, "wrong provider member level");
+        //assert.equal(provider_level.toNumber(), MemberLevel_ACTIVE, "wrong provider member level");
+/*
+        const event = network.ActorJoined(filter, {fromBlock: 0, toBlock: 'latest'}, function (err, result) {
+            console.log('XXXXX', result);
 
-        // setup event watching
-        var events_ok = false;
-        let event = network.ActorJoined({});
-        let watcher = async function (err, result) {
+            if (true || result.event == 'ActorJoined') {
+                // bytes16 marketId, address actor, ActorType actorType, uint256 security
 
-            if (result.event == 'ActorJoined') {
                 assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-                assert.equal(result.args.actor, consumer, "wrong consumer address in event");
-                assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
+                assert.equal(result.args.actor, provider, "wrong provider address in event");
+                assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
                 assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
                 events_ok = true;
                 event.stopWatching()
+                console.log('event watching stopped');
             }
+
+        });
+*/
+/*
+        const event = network.ActorJoined(filter, {fromBlock: 0, toBlock: 'latest'});
+
+        event.watch((err, result) => {
+
+            console.log('XXXXX', result);
+
+            if (true || result.event == 'ActorJoined') {
+                // bytes16 marketId, address actor, ActorType actorType, uint256 security
+
+                assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+                assert.equal(result.args.actor, provider, "wrong provider address in event");
+                assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
+                assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
+
+                events_ok = true;
+                event.stopWatching()
+                console.log('event watching stopped');
+            }
+        });
+*/
+        //assert(events_ok, "event(s) we expected not emitted");
+    });
+
+    it('XBRNetwork.joinMarket() : consumer should join existing market', async () => {
+
+        const consumer = charlie;
+
+        // transfer 1000 XBR to consumer
+        if (!await token.transfer(consumer, 1000 * 10**18, {from: owner, gasLimit: gasLimit})) {
+            throw 'consumer security transfer failed';
         }
 
         // 100 XBR security
-        const providerSecurity = 100 * 10**18;
+        const consumerSecurity = 100 * 10**18;
 
         // XBR market to join
         const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
 
-        // transfer 1000 XBR to consumer
-        await token.transfer(consumer, 1000 * 10**18, {from: owner, gasLimit: gasLimit});
-
-        // approve transfer of tokens to join market
-        await token.approve(network.address, providerSecurity, {from: consumer, gasLimit: gasLimit});
-
         // XBR consumer joins market
+        if (!await token.approve(network.address, consumerSecurity, {from: consumer, gasLimit: gasLimit})) {
+            throw 'consumer security transfer approval failed';
+        }
         await network.joinMarket(marketId, ActorType_CONSUMER, {from: consumer, gasLimit: gasLimit});
-
-        // we expect ActorJoined event to be fired
-        await utils.await_event(event, watcher);
-
-        assert(events_ok, "event(s) we expected not emitted");
     });
 
 });
