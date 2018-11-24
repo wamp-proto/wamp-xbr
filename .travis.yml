@@ -76,6 +76,12 @@ matrix:
       env: TOX_ENV=truffle-test
 
     - python: "3.7"
+      env: TOX_ENV=xbr-js
+
+    - python: "3.7"
+      env: TOX_ENV=xbr-python
+
+    - python: "3.7"
       env: TOX_ENV=sphinx
 
     # https://docs.travis-ci.com/user/build-stages/matrix-expansion/
