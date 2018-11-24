@@ -57,7 +57,7 @@ aws s3 cp --recursive --acl public-read ${HOME}/xbr-docs s3://${AWS_S3_BUCKET_NA
 aws s3 cp --recursive --acl public-read ${HOME}/xbr-js s3://${AWS_S3_BUCKET_NAME}/lib/js/
 
 # deploy latest XBR Lib for Python:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/
-#   => https://xbr.network/lib/python/
+#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/xbr/
+#   => https://xbr.network/lib/python/xbr/
 # tox -c tox.ini -e xbr-python
-aws s3 cp --recursive --acl public-read ${HOME}/xbr-python s3://${AWS_S3_BUCKET_NAME}/lib/python/
+aws s3 cp --recursive --acl public-read ${HOME}/xbr-python s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
