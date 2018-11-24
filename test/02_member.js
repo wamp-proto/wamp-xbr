@@ -150,7 +150,9 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/INVALID_EULA/.test(error), "wrong error message");
+
+            //assert(/INVALID_EULA/.test(error), "wrong error message: " + error);
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -198,7 +200,8 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message");
+            //assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message: " + JSON.stringify(error));
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 

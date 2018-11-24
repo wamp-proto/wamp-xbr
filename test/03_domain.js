@@ -89,7 +89,8 @@ contract('XBRNetwork', accounts => {
             await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/NOT_A_MEMBER/.test(error), "wrong error message");
+            //assert(/NOT_A_MEMBER/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -152,7 +153,8 @@ contract('XBRNetwork', accounts => {
             await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
+            //assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -168,7 +170,8 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
+            //assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -184,7 +187,8 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/INVALID_NODE_TYPE/.test(error), "wrong error message");
+            //assert(/INVALID_NODE_TYPE/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -234,7 +238,8 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/NODE_ALREADY_PAIRED/.test(error), "wrong error message");
+            //assert(/NODE_ALREADY_PAIRED/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -250,7 +255,8 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
+            //assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -262,7 +268,8 @@ contract('XBRNetwork', accounts => {
             await network.releaseNode(nodeId, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/NO_SUCH_NODE/.test(error), "wrong error message");
+            //assert(/NO_SUCH_NODE/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 
@@ -274,7 +281,8 @@ contract('XBRNetwork', accounts => {
             await network.releaseNode(nodeId, {from: bob, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
+            //assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
+            assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }
     });
 

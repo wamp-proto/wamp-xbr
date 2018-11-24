@@ -66,8 +66,6 @@ test:
 
 coverage:
 	solidity-coverage
-	#./node_modules/.bin/solidity-coverage
-	#npm run coverage
 
 deploy:
 	truffle compile --all

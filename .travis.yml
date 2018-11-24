@@ -106,6 +106,10 @@ matrix:
       #
       # https://docs.travis-ci.com/user/build-stages/#Data-persistence-between-stages-and-jobs
 
+  allow_failures:
+    - python: "3.7"
+      env: TOX_ENV=coverage
+
 # CI notifications
 notifications:
   # IRC: chat messages on #crossbar-ci @ freenode
