@@ -52,7 +52,7 @@ contract XBRPaymentChannel {
 
     /**
      * The delegate working for the sender, and using this channel to pay for data keys.
-     * Eg a XBR Consumer (delegate) or XBR Provider (delegate).
+     * E.g. a XBR Consumer (delegate) or XBR Provider (delegate).
      */
     address private _delegate;
 
@@ -86,7 +86,7 @@ contract XBRPaymentChannel {
     /**
      * Event emitted when payment channel has finally closed, which happens after both state
      * channel participants have called close(), agreeing on last state, or after the timeout
-     * at latest - in case the 2nd participant doesn't react within timeout)
+     * at latest - in case the second participant doesn't react within timeout)
      */
     event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
 
@@ -129,7 +129,7 @@ contract XBRPaymentChannel {
     }
 
     /**
-     * The delegate working for the sender, and using this channel to pay for data keys. Eg a
+     * The delegate working for the sender, and using this channel to pay for data keys. E.g. a
      * XBR Consumer (delegate) or XBR Provider (delegate).
      */
     function delegate () public view returns (address) {

@@ -56,7 +56,7 @@ Once connected to a network, the node can be asked for the Ethereum network ID (
 
 Here is a list of Ethereum networks known (see `here <https://ethereum.stackexchange.com/a/17101>`__):
 
-* ``0``: Olympic, Ethereum public pre-release testnet
+* ``0``: Olympic, Ethereum public preview release testnet
 * ``1``: Frontier, Homestead, Metropolis, **the Ethereum public main network**
 * ``1``: Classic, the public Ethereum Classic main network, chain ID 61
 * ``1``: Expanse, an alternative Ethereum implementation, chain ID 2
@@ -83,7 +83,7 @@ Web3 for JavaScript
 The documentation for Web3 (JavaScript) can be found here:
 
 * `web3 v0.x <https://github.com/ethereum/wiki/wiki/JavaScript-API>`_: this is what the MetaMask injected Web3 provides
-* `web3.js v1.0+ <https://web3js.readthedocs.io/en/1.0/index.html>`_: this is the latest standalone Web3 (eg usable for NodeJS)
+* `web3.js v1.0+ <https://web3js.readthedocs.io/en/1.0/index.html>`_: this is the latest standalone Web3 (e.g. usable for NodeJS)
 
 .. note::
 
@@ -94,7 +94,7 @@ The documentation for Web3 (JavaScript) can be found here:
     which is at version <1.0.
 
 
-Metamask with Web3.js 1.0.0 AND the old Web3.js
+Metamask with ``Web3.js 1.0.0`` AND the old ``Web3.js``
 https://guillaumeduveau.com/en/blockchain/ethereum/metamask-web3
 
 
@@ -114,10 +114,10 @@ To install:
 
 .. tip::
 
-    Unfortunately, Web3.py is a synchronous, blocking library. It uses `requests <http://docs.python-requests.org/en/master/>`_
-    under the hood for talking to HTTP endpoints of blockchain nodes, so all blockchain interactions via Web3.py need
+    Unfortunately, ``Web3.py`` is a synchronous, blocking library. It uses `requests <http://docs.python-requests.org/en/master/>`_
+    under the hood for talking to HTTP endpoints of blockchain nodes, so all blockchain interactions via ``Web3.py`` need
     to be run on a background worker threadpool.
-    Web3.py plans to introduce an async/await friendly API into web3 with version 5.
+    ``Web3.py`` plans to introduce an async/await friendly API into web3 with version 5.
     See `here <https://github.com/ethereum/web3.py/issues/1055>`__
 
 

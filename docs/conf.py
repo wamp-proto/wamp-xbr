@@ -61,6 +61,8 @@ release = version
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+
+    # https://solidity-domain-for-sphinx.readthedocs.io/en/latest/index.html
     'sphinxcontrib.soliditydomain',
 
     # Usage: .. thumbnail:: picture.png

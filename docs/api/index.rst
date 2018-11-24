@@ -24,6 +24,15 @@ XBR Network
 
 .. autosolcontract:: XBRNetwork
     :members:
+    :exclude-members:
+        marketSeq
+        domainSeq
+        members
+        domains
+        nodes
+        nodesByKey
+        markets
+        marketsByMaker
 
 
 XBR Payment Channel

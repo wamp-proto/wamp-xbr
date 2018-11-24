@@ -185,5 +185,5 @@ Query Member in JavaScript
         }
     }
 
-Using the XBR ABI files, you can interact with the XBR smart contracts and eg register in the network
+Using the XBR ABI files, you can interact with the XBR smart contracts and e.g. register in the network
 from within other programming languages.

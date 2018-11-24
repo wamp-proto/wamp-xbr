@@ -144,7 +144,7 @@ Congratulations! You are now connected to the XBR Network.
 .. tip::
 
     Instead of relying on autodetecting the Web3 provider, one can also configure
-    a provider explicitly, which allows to fine tune eg request timeouts:
+    a provider explicitly, which allows to fine tune e.g. request timeouts:
 
     .. code-block:: python
 

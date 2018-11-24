@@ -148,7 +148,7 @@ check_docs:
 	cd docs && sphinx-build -nWT -b dummy . _build
 
 spellcheck_docs:
-	cd docs && sphinx-build -b spelling -d ./_build/doctrees . ./_build/spelling
+	cd docs && sphinx-build -nWT -b spelling -d ./_build/doctrees . ./_build/spelling
 
 run_docs: docs
 	twistd --nodaemon web --path=docs/_build --listen=tcp:8090

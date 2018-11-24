@@ -34,7 +34,7 @@ contract XBRToken is ERC20, ERC20Detailed {
     uint256 public constant INITIAL_SUPPLY = 10**9 * 10**18;
 
     /**
-     * Constructor that gives msg.sender all of existing tokens.
+     * Constructor that gives ``msg.sender`` all of existing tokens.
      * The XBR Token uses the symbol "XBR" and 18 decimal digits.
      */
     constructor() public ERC20Detailed("XBRToken", "XBR", 18) {

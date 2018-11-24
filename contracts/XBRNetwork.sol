@@ -311,7 +311,7 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     *  Create a new XBR domain. Then sender ot the transaction must be XBR network member
+     *  Create a new XBR domain. Then sender to the transaction must be XBR network member
      *  and automatically becomes owner of the new domain.
      *
      *  @param domainId The ID of the domain to create. Must be globally unique (not yet existing).

@@ -3,7 +3,7 @@ IPFS
 
 `IPFS <https://ipfs.io/>`__ is ..
 
-sha2-256
+``sha2-256``
 
 https://multiformats.io/multihash/
 

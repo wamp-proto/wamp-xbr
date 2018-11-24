@@ -25,7 +25,7 @@ In particular it implements on the **blockchain read side**:
 
 and on the **blockchain write side**, it provides
 
-* ``eth_sendRawTransaction``: used for submitting client pre-signed, raw transactions (to talk to SCs)
+* ``eth_sendRawTransaction``: used for submitting client presigned, raw transactions (to talk to SCs)
 
 Ganache is available bundled in two flavors which have different pros/cons:
 
@@ -90,11 +90,11 @@ To pass in command line parameters to Ganache CLI use this syntax:
 The most important command line arguments to Ganache CLI are:
 
 * ``-p`` or ``--port``: Port number to listen on. Defaults to ``8545``.
-* ``-h`` or ``--host`` or ``--hostname``: Hostname to listen on. Defaults to ``127.0.0.1`` (defaults to ``0.0.0.0`` for Docker instances of ganache-cli).
-* ``--db``: Specify a path to a directory to save the chain database. If a database already exists, ganache-cli will initialize that chain instead of creating a new one.
-* ``-d`` or ``--deterministic``: Generate deterministic addresses based on a pre-defined mnemonic.
+* ``-h`` or ``--host`` or ``--hostname``: Hostname to listen on. Defaults to ``127.0.0.1`` (defaults to ``0.0.0.0`` for Docker instances of ``ganache-cli``).
+* ``--db``: Specify a path to a directory to save the chain database. If a database already exists, ``ganache-cli`` will initialize that chain instead of creating a new one.
+* ``-d`` or ``--deterministic``: Generate deterministic addresses based on a predefined mnemonic.
 * ``-m`` or ``--mnemonic``: Use a **bip39 mnemonic phrase** for generating a PRNG seed, which is in turn used for hierarchical deterministic (HD) account generation.
-* ``-i`` or ``--networkId``: Specify the network id ganache-cli will use to identify itself (defaults to the current time or the network id of the forked blockchain if configured)
+* ``-i`` or ``--networkId``: Specify the network id ``ganache-cli`` will use to identify itself (defaults to the current time or the network id of the forked blockchain if configured)
 * ``-a`` or ``--accounts``: Specify the number of accounts to generate at startup.
 * ``-e`` or ``--defaultBalanceEther``: Amount of ether to assign each test account. Default is ``100``.
 

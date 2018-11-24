@@ -118,7 +118,7 @@ Transactions and Calls
 
 With non-constant function vote, you can only get the transaction hash back immediately because the transaction may never get mined. Or it could take several blocks as indicated by "Waiting for transaction to be mined..."
 
-Return values can be used by other contracts, but web3.js can only use events.
+Return values can be used by other contracts, but ``Web3.js`` can only use events.
 
 the return value could be helpful so that other contracts
 
