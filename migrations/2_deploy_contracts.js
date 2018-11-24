@@ -19,12 +19,24 @@ var XBRNetwork = artifacts.require("./XBRNetwork.sol");
 // https://truffleframework.com/docs/truffle/getting-started/running-migrations#deployer
 module.exports = function (deployer, network, accounts) {
 
+    gas = 0;
+
+    if (network === 'coverage') {
+        gas = 0xfffffffffff;
+        console.log('gas set to ' + gas + ' on network ' + network);
+    } else if (network === 'ganache') {
+        gas = 6721975;
+        console.log('gas set to ' + gas + ' on network ' + network);
+    } else {
+        throw 'FIXME: determine required gas (on network ' + network + ')';
+    }
+
     // const organization = "0x0000000000000000000000000000000000000000";
     const organization = accounts[0];
 
     // Deploy XBRToken, then deploy XBRNetwork, passing in XBRToken's newly deployed address
-    deployer.deploy(XBRToken).then(function() {
-        return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: 8000000});
+    deployer.deploy(XBRToken, {gas: gas}).then(function() {
+        return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas});
     });
 
     // deployer.deploy(XBRPaymentChannel);

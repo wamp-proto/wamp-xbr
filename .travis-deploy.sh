@@ -47,17 +47,19 @@ aws s3 ls ${AWS_S3_BUCKET_NAME}
 # deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
 #   => https://xbr.network/docs/index.html
-# tox -c tox.ini -e sphinx
+tox -c tox.ini -e sphinx
 aws s3 cp --recursive --acl public-read ${HOME}/xbr-docs s3://${AWS_S3_BUCKET_NAME}/docs
 
 # deploy latest XBR Lib for JS:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/js/
 #   => https://xbr.network/lib/js/
-# tox -c tox.ini -e xbr-js
+tox -c tox.ini -e xbr-js
 aws s3 cp --recursive --acl public-read ${HOME}/xbr-js s3://${AWS_S3_BUCKET_NAME}/lib/js/
 
 # deploy latest XBR Lib for Python:
+# https://www.python.org/dev/peps/pep-0503/
+# https://packaging.python.org/guides/hosting-your-own-index/
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/xbr/
 #   => https://xbr.network/lib/python/xbr/
-# tox -c tox.ini -e xbr-python
+tox -c tox.ini -e xbr-python
 aws s3 cp --recursive --acl public-read ${HOME}/xbr-python s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/

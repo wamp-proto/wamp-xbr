@@ -65,8 +65,9 @@ test:
 	truffle test --network ganache
 
 coverage:
+	solidity-coverage
 	#./node_modules/.bin/solidity-coverage
-	npm run coverage
+	#npm run coverage
 
 deploy:
 	truffle compile --all

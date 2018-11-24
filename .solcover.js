@@ -1,12 +1,13 @@
 // https://github.com/sc-forks/solidity-coverage#options
+// https://ethereum.stackexchange.com/a/47938/17806
 
 module.exports = {
-    norpc: false,
-    port: 8555,
-    //testCommand: "truffle test --network coverage",
-    testrpcOptions: '--port 8555 --gasLimit 0xfffffffffff --gasPrice 1 --accounts 15',
-    //testrpcOptions: '-p 8555 -l 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF -g 0x1',
     dir: '.',
-    copyPackages: ['openzeppelin-solidity'],
-    skipFiles: ['Migrations.sol','XBRMaintained.sol', 'XBRNetwork.sol', 'XBRNetworkProxy.sol', 'XBRPaymentChannel.sol']
+    port: 8555,
+    copyPackages: [
+        'openzeppelin-solidity'
+    ],
+    skipFiles: [
+        'contracts/Migrations.sol',
+    ]
 };

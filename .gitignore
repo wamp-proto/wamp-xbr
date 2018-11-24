@@ -15,3 +15,5 @@ dist/
 *.pid
 .idea
 *.log
+coverage.json
+coverage

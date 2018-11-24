@@ -29,7 +29,7 @@
   "main": "index.js",
   "scripts": {
     "test": "truffle test --network ganache",
-    "coverage": "./node_modules/.bin/solidity-coverage"
+    "coverage": "solidity-coverage"
   },
   "directories": {
     "test": "test"

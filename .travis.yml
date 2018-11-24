@@ -67,13 +67,16 @@ matrix:
 
   include:
     - python: "3.7"
-      env: TOX_ENV=solhint
-
-    - python: "3.7"
       env: TOX_ENV=truffle-build
 
     - python: "3.7"
       env: TOX_ENV=truffle-test
+
+    - python: "3.7"
+      env: TOX_ENV=solhint
+
+    - python: "3.7"
+      env: TOX_ENV=coverage
 
     - python: "3.7"
       env: TOX_ENV=xbr-js
