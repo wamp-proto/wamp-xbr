@@ -90,7 +90,7 @@ contract('XBRNetwork', accounts => {
             assert(/NOT_A_MEMBER/.test(error), "wrong error message");
         }
     });
-
+/*
     it('XBRNetwork.createDomain() : should create new domain, with correct attributes, and firing correct event', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
@@ -298,5 +298,5 @@ contract('XBRNetwork', accounts => {
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_CLOSED, "wrong domain status");
     });
-
+*/
 });
