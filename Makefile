@@ -30,7 +30,11 @@ clean: clean_docs
 
 
 requirements:
-	sudo apt install -y nodejs nodejs-dev npm node-buffer
+	sudo apt install -y nodejs nodejs-dev
+	sudo npm install -g node-buffer
+	sudo npm install -g browserify
+	sudo npm install -g ganache-cli
+	sudo npm install -g truffle
 
 install:
 	npm install

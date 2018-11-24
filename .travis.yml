@@ -20,7 +20,6 @@ addons:
       - nodejs
       - nodejs-dev
       - npm
-      - node-buffer
 
 before_install:
   - export PATH=$PATH:$HOME/.local/bin
@@ -28,8 +27,12 @@ before_install:
   # build ID (eg, "20180513-28114a1")
   - export XBR_BUILD_ID="$(date --utc "+%Y%m%d")-$(git rev-parse --short ${TRAVIS_COMMIT})"
 
+  - npm install -g node-buffer
+  - npm install -g browserify
+  - npm install -g ganache-cli
+  - npm install -g truffle
+
 install:
-  # - snap install solc
   - npm install
   - pip install -r requirements-dev.txt
   - pip install -e .
