@@ -12,6 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 const web3 = require("web3");
+console.log('Using Web3 version: ' + JSON.stringify(web3.version));
+
 const utils = require("./utils.js");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");

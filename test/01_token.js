@@ -11,9 +11,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-var XBRToken = artifacts.require("./XBRToken.sol");
-
+const web3 = require("web3");
 console.log('Using Web3 version: ' + JSON.stringify(web3.version));
+
+var XBRToken = artifacts.require("./XBRToken.sol");
 
 
 contract('XBRToken', function (accounts) {

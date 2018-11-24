@@ -12,6 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 const web3 = require("web3");
+console.log('Using Web3 version: ' + JSON.stringify(web3.version));
+
 const utils = require("./utils.js");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
@@ -90,7 +92,7 @@ contract('XBRNetwork', accounts => {
             assert(/NOT_A_MEMBER/.test(error), "wrong error message");
         }
     });
-/*
+
     it('XBRNetwork.createDomain() : should create new domain, with correct attributes, and firing correct event', async () => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
@@ -142,6 +144,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(_meta, meta, "wrong domain meta");
     });
 
+/*
     it('XBRNetwork.createDomain() : creating a duplicate domain should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
