@@ -29,6 +29,8 @@ before_install:
 
   - npm install -g node-buffer
   - npm install -g browserify
+  - npm install -g coveralls
+  - npm install -g nodeunit
 
   # https://github.com/trufflesuite/ganache-cli/issues/593
   - npm install -g ganache-cli@v6.1.8
@@ -36,6 +38,8 @@ before_install:
   - ganache-cli --version
 
   - npm install -g truffle
+  - npm install -g solhint
+  - npm install -g solidity-coverage
 
 install:
   - npm install

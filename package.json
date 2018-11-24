@@ -25,10 +25,6 @@
     "web3": "^1.0.0-beta.36"
   },
   "devDependencies": {
-    "coveralls": ">=3.0.2",
-    "nodeunit": ">=0.11.3",
-    "solhint": ">=1.4.0",
-    "solidity-coverage": ">=0.5.11"
   },
   "main": "index.js",
   "scripts": {

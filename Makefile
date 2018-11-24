@@ -33,9 +33,13 @@ requirements:
 	sudo apt install -y nodejs nodejs-dev
 	sudo npm install -g node-buffer
 	sudo npm install -g browserify
+	sudo npm install -g coveralls
+	sudo npm install -g nodeunit
 	# https://github.com/trufflesuite/ganache-cli/issues/593
 	sudo npm install -g ganache-cli@v6.1.8
 	sudo npm install -g truffle
+	sudo npm install -g solhint
+	sudo npm install -g solidity-coverage
 
 install:
 	npm install
