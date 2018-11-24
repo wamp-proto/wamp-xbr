@@ -29,6 +29,9 @@ clean: clean_docs
 	-rm -f ./scTopics
 
 
+requirements:
+	sudo apt install -y nodejs nodejs-dev npm node-buffer
+
 install:
 	npm install
 	pip install -r requirements-dev.txt
