@@ -2,7 +2,9 @@ version: '3'
 services:
 
     ganache:
-        image: trufflesuite/ganache-cli:latest
+        # https://github.com/trufflesuite/ganache-cli/issues/593
+        #image: trufflesuite/ganache-cli:latest
+        image: trufflesuite/ganache-cli:v6.1.8
         # UID:GID => id -u, id -g
         user: "1000:1000"
         network_mode: host

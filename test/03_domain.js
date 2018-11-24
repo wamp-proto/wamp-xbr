@@ -144,7 +144,6 @@ contract('XBRNetwork', accounts => {
         assert.equal(_meta, meta, "wrong domain meta");
     });
 
-/*
     it('XBRNetwork.createDomain() : creating a duplicate domain should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
@@ -301,5 +300,5 @@ contract('XBRNetwork', accounts => {
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_CLOSED, "wrong domain status");
     });
-*/
+
 });

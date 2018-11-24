@@ -33,7 +33,8 @@ requirements:
 	sudo apt install -y nodejs nodejs-dev
 	sudo npm install -g node-buffer
 	sudo npm install -g browserify
-	sudo npm install -g ganache-cli
+	# https://github.com/trufflesuite/ganache-cli/issues/593
+	sudo npm install -g ganache-cli@v6.1.8
 	sudo npm install -g truffle
 
 install:
@@ -165,7 +166,10 @@ run_ganache:
 	ganache
 
 run_ganache_cli:
-	docker-compose up ganache
+	# docker pull trufflesuite/ganache-cli:latest
+	# https://github.com/trufflesuite/ganache-cli/issues/593
+	docker pull trufflesuite/ganache-cli:v6.1.8
+	docker-compose up --force-recreate ganache
 
 clean_ganache_cli:
 	-rm -rf ./teststack/ganache/.data

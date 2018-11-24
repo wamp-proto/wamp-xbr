@@ -29,7 +29,12 @@ before_install:
 
   - npm install -g node-buffer
   - npm install -g browserify
-  - npm install -g ganache-cli
+
+  # https://github.com/trufflesuite/ganache-cli/issues/593
+  - npm install -g ganache-cli@v6.1.8
+  - which ganache-cli
+  - ganache-cli --version
+
   - npm install -g truffle
 
 install:
@@ -41,7 +46,7 @@ before_script:
   - ganache-cli --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 > /dev/null &
   - sleep 5
   #- docker-compose up -d ganache
-  #- docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 --db /ganache
+  #- docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:v6.1.8 --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 --db /ganache
 
 script:
   - tox -c tox.ini -e $TOX_ENV
