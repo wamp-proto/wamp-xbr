@@ -27,6 +27,7 @@ before_install:
   # build ID (eg, "20180513-28114a1")
   - export XBR_BUILD_ID="$(date --utc "+%Y%m%d")-$(git rev-parse --short ${TRAVIS_COMMIT})"
 
+  - npm install -g google-closure-compiler
   - npm install -g node-buffer
   - npm install -g browserify
   - npm install -g coveralls

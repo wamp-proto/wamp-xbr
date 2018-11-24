@@ -31,6 +31,7 @@ clean: clean_docs
 
 requirements:
 	sudo apt install -y nodejs nodejs-dev
+	sudo npm install -g google-closure-compiler
 	sudo npm install -g node-buffer
 	sudo npm install -g browserify
 	sudo npm install -g coveralls
@@ -75,8 +76,8 @@ browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
 
 build_js: browserify
-	./node_modules/google-closure-compiler/cli.js -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
-	gzip -c -k -9 build/xbr.min.js > build/xbr.min.jgz
+	google-closure-compiler -W QUIET --js ./build/xbr.js --js_output_file ./build/xbr.min.js
+	gzip -c -k -9 ./build/xbr.min.js > build/xbr.min.jgz
 
 publish_js: build_js
 	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib

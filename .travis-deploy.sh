@@ -4,7 +4,6 @@
 
 export AWS_DEFAULT_REGION=eu-central-1
 export AWS_S3_BUCKET_NAME=xbr.foundation
-export AWS_S3_BUCKET_PATH=docs
 # AWS_ACCESS_KEY_ID         : must be set in Travis CI build context
 # AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context
 
@@ -45,8 +44,14 @@ aws --version
 aws s3 ls ${AWS_S3_BUCKET_NAME}
 
 
-# build and deploy latest docs:
+# deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
 #   => https://xbr.network/docs/index.html
-tox -c tox.ini -e sphinx
-aws s3 cp --recursive --acl public-read ${HOME}/xbr-docs s3://${AWS_S3_BUCKET_NAME}/${AWS_S3_BUCKET_PATH}
+# tox -c tox.ini -e sphinx
+aws s3 cp --recursive --acl public-read ${HOME}/xbr-docs s3://${AWS_S3_BUCKET_NAME}/docs
+
+# deploy latest XBR Lib for JS:
+#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/
+#   => https://xbr.network/lib/
+# tox -c tox.ini -e xbr-js
+aws s3 cp --recursive --acl public-read ${HOME}/xbr-js s3://${AWS_S3_BUCKET_NAME}/lib
