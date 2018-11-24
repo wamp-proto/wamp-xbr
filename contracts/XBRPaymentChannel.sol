@@ -34,13 +34,13 @@ contract XBRPaymentChannel {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
-    
+
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
     /// Payment channel states.
     enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
-    
+
     /// Current payment channel state.
     ChannelState private state;
 
@@ -178,7 +178,7 @@ contract XBRPaymentChannel {
      * other party of the payment channel has to submit its latest transaction/state too.
      * When both transaction have been submitted, and the submitted transactions/states agree,
      * the channel immediately closes, and the consumed amount of token in the channel is
-     * transferred to the chanel receipient, and the remaining amount of token is transferred
+     * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
     function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public {
@@ -211,10 +211,10 @@ contract XBRPaymentChannel {
             if (!_recipient.send(value)) { // solhint-disable-line
                 revert("transaction failed on the very last meter");
             }
-            
+
             // refund back anything left to the original opener of the payment channel
             selfdestruct(_sender);
-            
+
             // event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
             emit Closed(_marketId, signer, value, _closedAt);
         }

@@ -79,7 +79,7 @@ with `FOAF <https://en.wikipedia.org/wiki/FOAF_(ontology)>`__ data.
     is a machine-readable ontology describing persons,
     their activities and their relations to other people and objects. Anyone can use FOAF to
     describe themselves. FOAF allows groups of people to describe social networks without
-    the need for a centralised database.
+    the need for a centralized database.
 
 Here is an example FOAF member profile:
 

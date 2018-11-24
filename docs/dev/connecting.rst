@@ -68,7 +68,7 @@ we ask for the current XBR balance of the user account, and the XBR Network memb
         }
     }
 
-You can download the complete exmaple page with above code
+You can download the complete example page with above code
 :download:`from here </_static/html/xbr_app1.html>`.
 
 When opening this Web page (remember, it needs to served from a Web server,

@@ -223,7 +223,7 @@ contract XBRNetwork is XBRMaintained {
      * Create a new network.
      *
      * @param token_ The token to run this network on.
-     * @param organization_ The network technology provider and ecoystem sponsor.
+     * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
         token = token_;
@@ -738,10 +738,10 @@ contract XBRNetwork is XBRMaintained {
 
         markets[marketId].actors[msg.sender] = Actor(actorType, security);
         markets[marketId].actorAddresses.push(msg.sender);
-        
+
         // bytes16 marketId, address actor, ActorType actorType, uint256 security
         emit ActorJoined(marketId, msg.sender, actorType, security);
-        
+
         return security;
     }
 
@@ -832,7 +832,7 @@ contract XBRNetwork is XBRMaintained {
      * microtransactions, and offchain. The creation of the payment channel is asynchronously: the market maker
      * is watching the global blockchain filtering for events relevant to the market managed by the maker.
      * When a request to open a payment channel is recognized by the market maker, it will check the provider
-     * for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
+     * for sufficient security deposit covering the requested amount, and if all is fine, create a new payment
      * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
      *
      * @param marketId The ID of the market to request a paying channel within.

@@ -27,10 +27,10 @@ and on the **blockchain write side**, it provides
 
 * ``eth_sendRawTransaction``: used for submitting client pre-signed, raw transactions (to talk to SCs)
 
-Ganache is avaible bundled in two flavors which have different pros/cons:
+Ganache is available bundled in two flavors which have different pros/cons:
 
-* `Ganache (GUI) <https://truffleframework.com/ganache>`_
-* `Ganache CLI <https://github.com/trufflesuite/ganache-cli>`_
+* `Ganache (GUI) <https://truffleframework.com/ganache>`__
+* `Ganache CLI <https://github.com/trufflesuite/ganache-cli>`__
 
 .. note::
 
@@ -44,7 +44,7 @@ Running Ganache GUI
 Ganache GUI is a desktop application with native user interface (GUI) and
 builtin blockchain, all bundled as a single-file executable (AppImage based).
 
-Ganache GUI is avaible as a single-file executable (AppImage-based). To install:
+Ganache GUI is available as a single-file executable (AppImage-based). To install:
 
 .. code-block:: console
 
@@ -73,7 +73,7 @@ Ganache CLI is part of the Truffle suite of Ethereum development tools, and is t
 .. note::
 
     Ganache CLI is the TestRPC successor. Truffle has taken TestRPC under its wing and made it part
-    of the Truffle suite of tools.    
+    of the Truffle suite of tools.
 
 To run Ganache CLI using Docker:
 

@@ -20,8 +20,8 @@ Mainnet and Ropsten
 https://quiknode.io/
 
 Yes, by avoiding queues to public/shared nodes, especially those which form during a crowdsale,
-your tx has a higher chance of success. QuikNodes are on high-speed Internet connections,
-always online, and always synced, so your tx is broadcast to the Ethereum network
+your transaction has a higher chance of success. QuikNodes are on high-speed Internet connections,
+always online, and always synced, so your transaction is broadcast to the Ethereum network
 as quickly as possible.
 
 Over 1000 total QNodes launched (Q3 2018)
@@ -40,7 +40,7 @@ the GNU LGPL v3."
 
 Here are minimum requirements for a full (geth) node on the Ropsten testnet:
 
-* Minimum: 4GB RAM, 50GB disk (eg AWS EC2 ``t3.medium``)
+* Minimum: 4GB RAM, 50GB disk (e.g. AWS EC2 ``t3.medium``)
 * Full sync: 4 hours
 
 
@@ -54,7 +54,7 @@ Here are minimum requirements for a full (geth) node on the Ropsten testnet:
 Why run an own (public) Ethereum node?
 --------------------------------------
 
-By avoiding queues to public/shared nodes (eg during a crowdsale)
+By avoiding queues to public/shared nodes (e.g. during a crowdsale)
 transactions submitted via your node (presumably allowed only from your app)
 have a higher chance of being mined quickly, and finalized with success.
 
@@ -62,7 +62,7 @@ Your own node can have a redundant high-speed Internet connection,
 always online, and is always synced, so your transaction is broadcast to the
 Ethereum public network as quickly as possible.
 
-Event monitors - When creating customised block explorers and monitors, these need
+Event monitors - When creating customized block explorers and monitors, these need
 access to the complete transaction logs including events. Infura does not seem to
 provide wholesale event monitoring (via WebSocket). Quiknodes does support that,
 as does of course an own (geth) node.
@@ -79,8 +79,8 @@ What are the gas costs for XBR operations?
 Estimated gas costs for XBR Network operations:
 
 
-How to resolve the MetaMask error "tx doesn't have the correct nonce"?
-----------------------------------------------------------------------
+How to resolve the MetaMask error ``"tx doesn't have the correct nonce"``?
+--------------------------------------------------------------------------
 
 From `here <https://ethereum.stackexchange.com/questions/30921/tx-doesnt-have-the-correct-nonce-metamask>`_:
 

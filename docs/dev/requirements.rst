@@ -58,7 +58,7 @@ Here is a list of Ethereum networks known (see `here <https://ethereum.stackexch
 
 * ``0``: Olympic, Ethereum public pre-release testnet
 * ``1``: Frontier, Homestead, Metropolis, **the Ethereum public main network**
-* ``1``: Classic, the (un)forked public Ethereum Classic main network, chain ID 61
+* ``1``: Classic, the public Ethereum Classic main network, chain ID 61
 * ``1``: Expanse, an alternative Ethereum implementation, chain ID 2
 * ``2``: Morden, the public Ethereum testnet, now Ethereum Classic testnet
 * ``3``: **Ropsten, the public cross-client Ethereum testnet**
@@ -131,7 +131,7 @@ Technically, these files are all you need to interact and talk to the XBR
 smart contracts.
 
 However, doing it that way (using the raw ABI files and presumably some generic
-Ethereum library) is cumbersome and errorprone to maintain.
+Ethereum library) is cumbersome and error prone to maintain.
 
 Therefore, we create wrapper libraries for XBR, currently for Python and JavaScript,
 that make interaction with XBR contract super easy.

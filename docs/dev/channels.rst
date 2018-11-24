@@ -22,7 +22,7 @@ Opening a payment channel involves two blockchain transactions:
 
 1. approve the transfer of XBR token from the user to the ``XBRNetwork`` smart contract
 2. call ``XBRNetwork.openPaymentChannel``, which will create a new ``XBRPaymentChannel``
-   smart contract instance, transfering the tokens to this SC instance as new owner
+   smart contract instance, transferring the tokens to this SC instance as new owner
    and return the payment channel contract instance
 
 The returned new smart contract instance of ``XBRPaymentChannel`` can be
@@ -110,7 +110,7 @@ The market maker will open a payment (state) channel to allow the market maker b
 microtransactions, and offchain. The creation of the payment channel is asynchronously: the market maker
 is watching the global blockchain filtering for events relevant to the market managed by the maker.
 When a request to open a payment channel is recognized by the market maker, it will check the provider
-for sufficient security despoit covering the requested amount, and if all is fine, create a new payment
+for sufficient security despite covering the requested amount, and if all is fine, create a new payment
 channel and store the contract address for the channel request ID, so the data provider can retrieve it.
 
 Request a paying channel in JavaScript
