@@ -24,3 +24,4 @@ def _load_json(contract_name):
 
 XBR_TOKEN_ABI = _load_json('XBRToken')['abi']
 XBR_NETWORK_ABI = _load_json('XBRNetwork')['abi']
+XBR_PAYMENT_CHANNEL_ABI = _load_json('XBRPaymentChannel')['abi']

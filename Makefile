@@ -170,9 +170,9 @@ run_ganache:
 	ganache
 
 run_ganache_cli:
-	# docker pull trufflesuite/ganache-cli:latest
 	# https://github.com/trufflesuite/ganache-cli/issues/593
 	docker pull trufflesuite/ganache-cli:v6.1.8
+	#docker pull trufflesuite/ganache-cli:latest
 	docker-compose up --force-recreate ganache
 
 clean_ganache_cli:

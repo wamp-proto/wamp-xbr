@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from xbr._version import __version__
 from xbr._abi import XBR_DEBUG_TOKEN_ADDR, XBR_TOKEN_ABI
 from xbr._abi import XBR_DEBUG_NETWORK_ADDR, XBR_NETWORK_ABI
+from xbr._abi import XBR_PAYMENT_CHANNEL_ABI
 
 
 version = __version__
@@ -73,4 +74,7 @@ __all__ = (
     'MemberLevel',
     'ActorType',
     'NodeType',
+    'XBR_TOKEN_ABI',
+    'XBR_NETWORK_ABI',
+    'XBR_PAYMENT_CHANNEL_ABI',
 )

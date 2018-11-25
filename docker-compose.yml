@@ -19,7 +19,7 @@ services:
             - "15"
             - "--defaultBalanceEther"
             - "1000"
-            - "--deterministic"
+            # - "--deterministic"
             - "--mnemonic"
             - "myth like bonus scare over problem client lizard pioneer submit female collect"
             - "--gasLimit"
