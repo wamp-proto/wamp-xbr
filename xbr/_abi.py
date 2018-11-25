@@ -1,5 +1,6 @@
 import os
 import json
+import pkg_resources
 
 import web3
 
@@ -18,7 +19,8 @@ else:
 
 
 def _load_json(contract_name):
-    fn = os.path.join(os.path.dirname(__file__), '../build/contracts/{}.json'.format(contract_name))
+    fn = pkg_resources.resource_filename('xbr', 'contracts/{}.json'.format(contract_name))
+    # fn = os.path.join(os.path.dirname(__file__), '../build/contracts/{}.json'.format(contract_name))
     with open(fn) as f:
         data = json.loads(f.read())
     return data
