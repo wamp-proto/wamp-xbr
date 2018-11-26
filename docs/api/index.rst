@@ -10,6 +10,24 @@ using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <htt
 
 ----------
 
+Using the ABI files
+-------------------
+
+Python
+......
+
+.. code-block:: python
+
+    import json
+    import pkg_resources
+    from pprint import pprint
+
+    with open(pkg_resources.resource_filename('xbr', 'contracts/XBRToken.json')) as f:
+        data = json.loads(f.read())
+        abi = data['abi']
+        pprint(abi)
+
+
 XBR Token
 ---------
 

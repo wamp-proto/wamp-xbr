@@ -5,6 +5,11 @@ import pkg_resources
 import web3
 
 
+XBR_TOKEN_FN = pkg_resources.resource_filename('xbr', 'contracts/XBRToken.json')
+XBR_NETWORK_FN = pkg_resources.resource_filename('xbr', 'contracts/XBRNetwork.json')
+XBR_PAYMENT_CHANNEL_FN = pkg_resources.resource_filename('xbr', 'contracts/XBRPaymentChannel.json')
+
+
 if 'XBR_DEBUG_TOKEN_ADDR' in os.environ:
     XBR_DEBUG_TOKEN_ADDR = web3.Web3.toChecksumAddress(os.environ['XBR_DEBUG_TOKEN_ADDR'])
 else:
