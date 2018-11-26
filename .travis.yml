@@ -56,6 +56,9 @@ before_script:
 script:
   - tox -c tox.ini -e $TOX_ENV
 
+after_script:
+  - codecov
+
 # https://blog.travis-ci.com/2017-09-12-build-stages-order-and-conditions
 stages:
   - test
