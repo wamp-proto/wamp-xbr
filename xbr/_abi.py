@@ -2,7 +2,13 @@ import os
 import json
 import pkg_resources
 
+os.environ['ETH_HASH_BACKEND'] = 'pycryptodome'
+
+from eth_hash.backends.pycryptodome import keccak256  # noqa
 import web3
+
+
+print('Using eth_hash backend {}'.format(keccak256))
 
 
 XBR_TOKEN_FN = pkg_resources.resource_filename('xbr', 'contracts/XBRToken.json')
