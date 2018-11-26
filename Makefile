@@ -99,7 +99,7 @@ publish_ipfs_members:
 	cd ipfs/members && ipfs add *.rdf
 
 
-build_python:
+build_python: compile
 	python setup.py sdist bdist_wheel --universal
 	ls -la ./dist
 

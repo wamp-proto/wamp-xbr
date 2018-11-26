@@ -7,7 +7,7 @@ with open('xbr/_version.py') as f:
     exec(f.read())  # defines __version__
 
 # read package long description
-with open('README.md') as f:
+with open('README.rst') as f:
     docstr = f.read()
 
 setup(
