@@ -48,7 +48,7 @@ install:
   - pip install -e .
 
 before_script:
-  - ganache-cli --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 > /dev/null &
+  - ganache-cli --accounts 15 --defaultBalanceEther 1000 --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 > /dev/null &
   - sleep 5
   #- docker-compose up -d ganache
   #- docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:v6.1.8 --accounts 15 --defaultBalanceEther 1000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 8545 --networkId 5777 --db /ganache

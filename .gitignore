@@ -17,3 +17,6 @@ dist/
 *.log
 coverage.json
 coverage
+allFiredEvents
+coverageEnv
+scTopics
