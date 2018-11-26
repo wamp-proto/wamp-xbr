@@ -43,18 +43,17 @@ which aws
 aws --version
 aws s3 ls ${AWS_S3_BUCKET_NAME}
 
-
-# deploy latest docs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
-#   => https://xbr.network/docs/index.html
-tox -c tox.ini -e sphinx
-aws s3 cp --recursive --acl public-read ${HOME}/xbr-docs s3://${AWS_S3_BUCKET_NAME}/docs
+# deploy latest XBR Lib ABIs:
+#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/
+#   => https://xbr.network/lib/abi/
+tox -c tox.ini -e truffle-build
+aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/
 
 # deploy latest XBR Lib for JS:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/js/
 #   => https://xbr.network/lib/js/
 tox -c tox.ini -e xbr-js
-aws s3 cp --recursive --acl public-read ${HOME}/xbr-js s3://${AWS_S3_BUCKET_NAME}/lib/js/
+aws s3 cp --acl public-read ./build/xbr.js ./build/xbr.min.js ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/js/
 
 # deploy latest XBR Lib for Python:
 # https://www.python.org/dev/peps/pep-0503/
@@ -62,4 +61,10 @@ aws s3 cp --recursive --acl public-read ${HOME}/xbr-js s3://${AWS_S3_BUCKET_NAME
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/xbr/
 #   => https://xbr.network/lib/python/xbr/
 tox -c tox.ini -e xbr-python
-aws s3 cp --recursive --acl public-read ${HOME}/xbr-python s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
+aws s3 cp --recursive --acl public-read ./dist s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
+
+# deploy latest docs:
+#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
+#   => https://xbr.network/docs/index.html
+tox -c tox.ini -e sphinx
+aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
