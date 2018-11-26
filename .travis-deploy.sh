@@ -53,7 +53,9 @@ aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/js/
 #   => https://xbr.network/lib/js/
 tox -c tox.ini -e xbr-js
-aws s3 cp --acl public-read ./build/xbr.js ./build/xbr.min.js ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/js/
+aws s3 cp --acl public-read ./build/xbr.js      s3://${AWS_S3_BUCKET_NAME}/lib/js/
+aws s3 cp --acl public-read ./build/xbr.min.js  s3://${AWS_S3_BUCKET_NAME}/lib/js/
+aws s3 cp --acl public-read ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/js/
 
 # deploy latest XBR Lib for Python:
 # https://www.python.org/dev/peps/pep-0503/

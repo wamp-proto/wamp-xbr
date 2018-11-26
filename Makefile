@@ -13,6 +13,9 @@ GCLOSURE = ./node_modules/google-closure-compiler/cli.js
 #XBR_DEBUG_TOKEN_ADDR = 0x67b5656d60a809915323bf2c40a8bef15a152e3e
 #XBR_DEBUG_NETWORK_ADDR = 0x2612af3a521c2df9eaf28422ca335b04adf3ac66
 
+AWS_DEFAULT_REGION = eu-central-1
+AWS_S3_BUCKET_NAME = xbr.foundation
+
 
 default:
 	@echo 'Targets: clean compile test'
@@ -79,8 +82,15 @@ build_js: browserify
 	gzip -c -k -9 ./build/xbr.min.js > build/xbr.min.jgz
 
 publish_js: build_js
-	aws s3 cp --recursive --acl public-read ./build s3://xbr.foundation/lib
+	aws s3 cp --acl public-read ./build/xbr.js      s3://$(AWS_S3_BUCKET_NAME)/lib/js/
+	aws s3 cp --acl public-read ./build/xbr.min.js  s3://$(AWS_S3_BUCKET_NAME)/lib/js/
+	aws s3 cp --acl public-read ./build/xbr.min.jgz s3://$(AWS_S3_BUCKET_NAME)/lib/js/
 
+build_npm:
+	@echo "XBR Lib for NodeJS does not require a build step"
+
+publish_npm:
+	npm publish --access public
 
 publish_ipfs_eula:
 	cd ipfs && zip -r - xbr-eula | ipfs add
@@ -112,6 +122,7 @@ clean_python:
 
 publish_python:	build_python
 	twine upload dist/*
+	# aws s3 cp --recursive --acl public-read ./dist s3://$(AWS_S3_BUCKET_NAME)/lib/python/xbr/
 
 
 #
@@ -157,7 +168,7 @@ run_docs: docs
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
 #   => https://xbr.network/docs/index.html
 publish_docs:
-	aws s3 cp --recursive --acl public-read docs/_build s3://xbr.foundation/docs
+	aws s3 cp --recursive --acl public-read ./docs/_build s3://$(AWS_S3_BUCKET_NAME)/docs
 
 clean_docs:
 	-rm -rf docs/_build
