@@ -33,7 +33,7 @@ clean: clean_docs
 
 
 requirements:
-	sudo apt install -y nodejs nodejs-dev
+	sudo apt install -y nodejs nodejs-dev npm
 	sudo npm install -g google-closure-compiler
 	sudo npm install -g node-buffer
 	sudo npm install -g browserify
@@ -214,9 +214,20 @@ run_crossbar_docker:
 	docker-compose up --force-recreate crossbar
 
 clean_db:
-	rm -f ${PWD}/teststack/crossbar/.testdb/*
+	-rm -rf ${PWD}/teststack/crossbar/.xbrdb
+	-rm -rf ${PWD}/teststack/crossbar/.xbrdb-transactions
+	# rm -f ${PWD}/teststack/crossbar/.testdb/*
 	# rm -f ./teststack/crossbar/.crossbar/key.*
 
 check_db:
 	du -hs teststack/crossbar/.testdb/
 	ls -la teststack/crossbar/.testdb/
+
+
+run_jupyter:
+	docker-compose up --force-recreate jupyter
+
+run_jupyter_host:
+	jupyter notebook \
+		--config=${PWD}/teststack/jupyter/.jupyter/jupyter_notebook_config.py \
+		--notebook-dir=${PWD}/teststack/jupyter/notebooks

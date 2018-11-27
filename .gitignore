@@ -20,3 +20,5 @@ coverage
 allFiredEvents
 coverageEnv
 scTopics
+.xbrdb-transactions
+.ipynb_checkpoints

@@ -11,6 +11,34 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+////////////////////
+
+// the XBR Project
+window.addr_owner = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
+
+// 2 test XBR market owners
+window.addr_alice = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0';
+window.addr_alice_market_maker1 = '0x22d491bde2303f2f43325b2108d26f1eaba1e32b';
+
+window.addr_bob = '0xe11ba2b4d45eaed5996cd0823791e0c93114882d';
+window.addr_bob_market_maker1 = '0xd03ea8624c8c5987235048901fb614fdca89b117';
+
+// 2 test XBR data providers
+window.addr_charlie = '0x95ced938f7991cd0dfcb48f0a06a40fa1af46ebc';
+window.addr_charlie_provider_delegate1 = '0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9';
+
+window.addr_donald = '0x28a8746e75304c0780e011bed21c72cd78cd535e';
+window.addr_donald_provider_delegate1 = '0xaca94ef8bd5ffee41947b4585a84bda5a3d3da6e';
+
+// 2 test XBR data consumers
+window.addr_edith = '0x1df62f291b2e969fb0849d99d9ce41e2f137006e'
+window.addr_edith_provider_delegate1 = '0x610bb1573d1046fcb8a70bbbd395754cd57c2b60';
+
+window.addr_frank = '0x855fa758c77d68a04990e992aa4dcdef899f654a';
+window.addr_frank_provider_delegate1 = '0xfa2435eacf10ca62ae6787ba2fb044f8733ee843';
+
+////////////////////
+
 var metamask_account = null;
 var metamask_network = null;
 
@@ -78,6 +106,7 @@ async function setup_test (account) {
     document.getElementById('join_market_owner').value = '' + account;
     document.getElementById('get_market_actor_market_owner').value = '' + account;
     document.getElementById('open_channel_market_owner').value = '' + account;
+    document.getElementById('new_market_maker_address').value = '' + account;
 }
 
 
