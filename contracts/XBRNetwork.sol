@@ -141,50 +141,50 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for DOMAINS
 
     /// Event emitted when a new domain was created.
-    event DomainCreated (bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner,
+    event DomainCreated (bytes16 indexed domainId, uint32 domainSeq, DomainStatus status, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was updated.
-    event DomainUpdated (bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner,
+    event DomainUpdated (bytes16 indexed domainId, uint32 domainSeq, DomainStatus status, address owner,
         bytes32 domainKey, string license, string terms, string meta);
 
     /// Event emitted when a domain was closed.
-    event DomainClosed (bytes16 domainId, DomainStatus status);
+    event DomainClosed (bytes16 indexed domainId, DomainStatus status);
 
     /// Event emitted when a new node was paired with the domain.
-    event NodePaired (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
 
     /// Event emitted when a node was updated.
-    event NodeUpdated (bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
 
     /// Event emitted when a node was released from a domain.
-    event NodeReleased (bytes16 domainId, bytes16 nodeId);
+    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId);
 
     // //////// events for MARKETS
 
     /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta,
+    event MarketCreated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
         address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was updated.
-    event MarketUpdated (bytes16 marketId, uint32 marketSeq, address owner, string terms, string meta,
+    event MarketUpdated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
         address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was closed.
-    event MarketClosed (bytes16 marketId);
+    event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 marketId, address actor, ActorType actorType, uint256 security);
+    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint256 security);
 
     /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 marketId, address actor);
+    event ActorLeft (bytes16 indexed marketId, address actor);
 
     /// Event emitted when a new payment channel was created in a market.
-    event PaymentChannelCreated (bytes16 marketId, address sender, address delegate,
+    event PaymentChannelCreated (bytes16 indexed marketId, address sender, address delegate,
         address receiver, address channel);
 
     /// Event emitted when a new request for a paying channel was created in a market.
-    event PayingChannelRequestCreated (bytes16 marketId, address sender, address delegate,
+    event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address delegate,
         address receiver, uint256 amount, uint32 timeout);
 
     // Note: closing event of payment channels are emitted from XBRPaymentChannel (not from here)

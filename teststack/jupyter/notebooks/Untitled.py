@@ -30,7 +30,7 @@ print(schema.token_transfers)
 from binascii import b2a_hex
 
 with db.begin() as txn:
-    for token_transfer in schema.token_transfers.select(txn, return_values=True, return_keys=False, limit=5):
+    for token_transfer in schema.token_transfers.select(txn, return_values=True, return_keys=False, limit=20):
         print(b2a_hex(token_transfer.from_address), b2a_hex(token_transfer.to_address))
 
 
