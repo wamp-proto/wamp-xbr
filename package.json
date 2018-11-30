@@ -1,6 +1,6 @@
 {
   "name": "xbr",
-  "version": "18.11.3",
+  "version": "18.11.3.post5",
   "description": "The XBR Protocol (smart contracts package)",
   "keywords": [
     "ethereum",
