@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from xbr._version import __version__
 from xbr._abi import XBR_TOKEN_ABI, XBR_NETWORK_ABI, XBR_PAYMENT_CHANNEL_ABI
 from xbr._abi import XBR_DEBUG_TOKEN_ADDR, XBR_DEBUG_NETWORK_ADDR
+from xbr._buyer import SimpleBuyer
+from xbr._seller import SimpleSeller
 
 
 version = __version__
@@ -76,4 +78,6 @@ __all__ = (
     'XBR_TOKEN_ABI',
     'XBR_NETWORK_ABI',
     'XBR_PAYMENT_CHANNEL_ABI',
+    'SimpleBuyer',
+    'SimpleSeller',
 )
