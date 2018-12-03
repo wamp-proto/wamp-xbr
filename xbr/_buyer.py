@@ -21,6 +21,7 @@ import cbor2
 import nacl.secret
 import nacl.utils
 import nacl.exceptions
+import nacl.public
 
 import txaio
 from autobahn.twisted.util import sleep
@@ -53,9 +54,9 @@ class SimpleBuyer(object):
         self._session = None
         self._running = False
 
-    async def start(self, session, session_details):
-        """
-        """
+        self._receive_key = nacl.public.PrivateKey.generate()
+
+    async def start(self, session, consumer_id):
         self._session = session
         self._running = True
 
@@ -67,7 +68,7 @@ class SimpleBuyer(object):
         if not channels:
             raise Exception('no active payment channels found')
 
-        channel_info = await session.call('xbr.marketmaker.get_payment_channel', channels[0]);
+        channel_info = await session.call('xbr.marketmaker.get_payment_channel', channels[0])
 
         if not channel_info or not channel_info.get('id', None):
             raise Exception('no payment channel found')
@@ -82,14 +83,7 @@ class SimpleBuyer(object):
 
         return self._balance
 
-    async def wrap(self, uri, payload):
-        """
-        """
-        pass
-
     async def unwrap(self, key_id, enc_ser, ciphertext):
-        """
-        """
         assert(enc_ser == 'cbor')
 
         # if we don't have the key, buy it!
@@ -106,20 +100,24 @@ class SimpleBuyer(object):
             # FIXME: compute actual kecchak256 based signature
             signature = b'\x00' * 64
 
-            # FIXME: use delegate 
-            buyer_pubkey = b'\x00' * 32
+            buyer_pubkey = self._receive_key.public_key.encode(encoder=nacl.encoding.RawEncoder)
 
             # call the market maker to buy the key
             #   -> channel_id, channel_seq, buyer_pubkey, datakey_id, amount, balance, signature
-            #   -> channel_id, channel_seq, key_id, amount, balance, signature
-            key = await self._session.call('xbr.marketmaker.buy',
-                                           self._channel,
-                                           self._channel_seq,
-                                           buyer_pubkey,
-                                           key_id,
-                                           amount,
-                                           balance,
-                                           signature)
+            sealed_key = await self._session.call('xbr.marketmaker.buy',
+                                                  self._channel,
+                                                  self._channel_seq,
+                                                  buyer_pubkey,
+                                                  key_id,
+                                                  amount,
+                                                  balance,
+                                                  signature)
+
+            unseal_box = nacl.public.SealedBox(self._receive_key)
+            try:
+                key = unseal_box.decrypt(sealed_key)
+            except nacl.exceptions.CryptoError as e:
+                raise Exception('failed to unseal the datakey: {}'.format(e))
 
             # remember the key, so we can use it to actually decrypt application payload data
             self._keys[key_id] = nacl.secret.SecretBox(key)

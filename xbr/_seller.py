@@ -41,9 +41,17 @@ class SimpleSeller(object):
 
     log = txaio.make_logger()
 
-    def __init__(self, private_key):
+    def __init__(self, private_key, interval, price):
+        """
+
+        :param private_key:
+        :param interval:
+        :param price:
+        """
         self._pkey = eth_keys.keys.PrivateKey(private_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
+        self._interval = interval
+        self._price = price
         self._id = None
         self._key = None
         self._box = None
@@ -51,8 +59,7 @@ class SimpleSeller(object):
         self._running = False
         self._rotate()
 
-    async def start(self, session, session_details, interval, price):
-        self._interval = interval
+    async def start(self, session, provider_id):
         self._running = True
 
         self.log.info('Start selling from provider delegate address {address} (public key 0x{public_key}..)',
@@ -60,34 +67,32 @@ class SimpleSeller(object):
                       public_key=binascii.b2a_hex(self._pkey.public_key[:10]).decode())
 
         for func in [self.sell]:
-            procedure = 'xbr.provider.{}.{}'.format(session_details.authid, func.__name__)
+            procedure = 'xbr.provider.{}.{}'.format(provider_id, func.__name__)
             await session.register(func, procedure, options=RegisterOptions(details_arg='details'))
             self.log.info('Registered {func} under {procedure}', func=func, procedure=procedure)
 
         from twisted.internet import reactor
-        reactor.callInThread(self._run, session, interval, price)
+        reactor.callInThread(self._run, session, self._interval, self._price)
 
     async def wrap(self, uri, payload):
-        """
-        """
         data = cbor2.dumps(payload)
-        key_id, ciphertext = self.encrypt(data)
-        return key_id, 'cbor', ciphertext
+        ciphertext = self._box.encrypt(data)
+        return self._id, 'cbor', ciphertext
 
-    def unwrap(self, key_id, enc_ser, ciphertext):
-        assert(enc_ser == 'cbor')
-        data = self.decrypt(key_id, ciphertext)
-        return cbor2.loads(data)
-
-    def encrypt(self, data):
-        assert(type(data) == bytes)
-        assert(self._box is not None)
-        return self._id, self._box.encrypt(data)
-
-    def decrypt(self, key_id, data):
-        assert(type(data) == bytes)
-        assert(key_id in self._archive)
-        return self._archive[key_id][2].decrypt(data)
+    # def unwrap(self, key_id, enc_ser, ciphertext):
+    #     assert(enc_ser == 'cbor')
+    #     data = self.decrypt(key_id, ciphertext)
+    #     return cbor2.loads(data)
+    #
+    # def encrypt(self, data):
+    #     assert(type(data) == bytes)
+    #     assert(self._box is not None)
+    #     return self._id, self._box.encrypt(data)
+    #
+    # def decrypt(self, key_id, data):
+    #     assert(type(data) == bytes)
+    #     assert(key_id in self._archive)
+    #     return self._archive[key_id][2].decrypt(data)
 
     def _rotate(self):
         self._id = os.urandom(16)
@@ -118,14 +123,20 @@ class SimpleSeller(object):
         """
         if key_id not in self._archive:
             raise RuntimeError('no such datakey')
+
         created, key, box = self._archive[key_id]
 
         # FIXME: check amount paid, post balance and signature
-        # FIXME: encrypt with public key of buyer
         # FIXME: sign transaction
+
+        sendkey_box = nacl.public.SealedBox(nacl.public.PublicKey(buyer_pubkey,
+                                                                  encoder=nacl.encoding.RawEncoder))
+
+        encrypted_key = sendkey_box.encrypt(key, encoder=nacl.encoding.RawEncoder)
+
         self.log.info('Key {key_id} sold to {buyer_pubkey} (caller={caller})', key_id=key_id, caller=details.caller, buyer_pubkey=buyer_pubkey)
 
-        return key
+        return encrypted_key
 
 
 ISeller.register(SimpleSeller)

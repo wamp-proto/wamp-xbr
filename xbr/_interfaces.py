@@ -21,6 +21,7 @@ import six
 @six.add_metaclass(abc.ABCMeta)
 class IMarketMaker(object):
     """
+    XBR Market Maker interface.
     """
 
     @abc.abstractmethod
@@ -62,6 +63,7 @@ class IMarketMaker(object):
 @six.add_metaclass(abc.ABCMeta)
 class IProvider(object):
     """
+    XBR Provider interface.
     """
 
     @abc.abstractmethod
@@ -73,39 +75,19 @@ class IProvider(object):
 @six.add_metaclass(abc.ABCMeta)
 class IConsumer(object):
     """
+    XBR Consumer interface.
     """
 
 
 @six.add_metaclass(abc.ABCMeta)
 class ISeller(object):
     """
+    XBR Seller interface.
     """
 
     @abc.abstractmethod
-    def start(self, session, session_details, interval, price):
+    async def start(self, session):
         """
-        """
-
-    @abc.abstractmethod
-    def wrap(self, uri, payload):
-        """
-        """
-
-    @abc.abstractmethod
-    def unwrap(self, key_id, enc_ser, ciphertext):
-        """
-        """
-
-
-@six.add_metaclass(abc.ABCMeta)
-class IBuyer(object):
-    """
-    """
-
-    @abc.abstractmethod
-    async def start(self, session, session_details):
-        """
-        Start buying keys.
         """
 
     @abc.abstractmethod
@@ -113,7 +95,37 @@ class IBuyer(object):
         """
         """
 
+
+@six.add_metaclass(abc.ABCMeta)
+class IBuyer(object):
+    """
+    XBR Buyer interface.
+    """
+
+    @abc.abstractmethod
+    async def start(self, session):
+        """
+        Start buying keys over the provided session.
+
+        :param session: WAMP session that allows to talk to the XBR Market Maker.
+        :type session: :class:`autobahn.wamp.interfaces.ISession`
+        """
+
     @abc.abstractmethod
     async def unwrap(self, key_id, enc_ser, ciphertext):
         """
+        Decrypt and deserialize received XBR payload.
+
+        :param key_id: The ID of the datakey the payload is encrypted with.
+        :type key_id bytes
+
+        :param enc_ser: The serializer that was used for serializing the payload.
+            One of ``cbor``, ``json``, ``msgpack``, ``ubjson``.
+        :type enc_ser: string
+
+        :param ciphertext: The encrypted payload to unwrap.
+        :type ciphertext: bytes
+
+        :returns: The unwrapped application payload.
+        :rtype: object
         """
