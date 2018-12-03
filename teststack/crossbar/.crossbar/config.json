@@ -36,12 +36,27 @@
                             "name": "xbrmm",
                             "permissions": [
                                 {
-                                    "uri": "xbr.maker.",
+                                    "uri": "xbr.marketmaker.",
                                     "match": "prefix",
                                     "allow": {
                                         "call": true,
                                         "register": true,
                                         "publish": true,
+                                        "subscribe": true
+                                    },
+                                    "disclose": {
+                                        "caller": true,
+                                        "publisher": true
+                                    },
+                                    "cache": true
+                                },
+                                {
+                                    "uri": "xbr.provider.",
+                                    "match": "prefix",
+                                    "allow": {
+                                        "call": true,
+                                        "register": false,
+                                        "publish": false,
                                         "subscribe": true
                                     },
                                     "disclose": {
@@ -57,6 +72,7 @@
                         "type": "cfxdb",
                         "path": "../.xbrdb",
                         "maxsize": 1073741824,
+                        "buffer-flush": 250,
                         "event-history": [
                             {
                                 "uri": "xbr.",

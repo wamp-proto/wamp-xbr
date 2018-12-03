@@ -225,7 +225,7 @@ async function test_join_market () {
     console.log('test_join_market(marketId=' + marketId + ', actorType=' + actorType + ')');
 
     // bytes32 marketId, ActorType actorType
-    await xbr.xbrNetwork.joinMarket(marketId, actorType, {from: metamask_account});
+    await xbr.xbrNetwork.joinMarket(marketId, actorType, {from: metamask_account, gas: 1000000});
 }
 
 
