@@ -61,8 +61,11 @@ release = version
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
 
     # https://solidity-domain-for-sphinx.readthedocs.io/en/latest/index.html
+    # https://github.com/cag/sphinxcontrib-soliditydomain/
     'sphinxcontrib.soliditydomain',
 
     # Usage: .. thumbnail:: picture.png
@@ -166,6 +169,26 @@ lexers['solidity'] = SolidityLexer()
 #pygments_style = 'monokai'
 #pygments_style = 'native'
 #pygments_style = 'pastie'
-pygments_style = 'friendly'
+#pygments_style = 'friendly'
+pygments_style = 'sphinx'
 
 # -- Extension configuration -------------------------------------------------
+
+# http://sphinx-doc.org/ext/intersphinx.html
+intersphinx_mapping = {
+   'py2': ('https://docs.python.org/2', None),
+   'py3': ('https://docs.python.org/3', None),
+   'six': ('https://pythonhosted.org/six/', None),
+}
+
+rst_epilog = """
+"""
+
+rst_prolog = """
+"""
+
+# http://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method
+autoclass_content = 'both'
+
+# http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autodoc_member_order
+autodoc_member_order = 'bysource'

@@ -1,3 +1,19 @@
+###############################################################################
+#
+# Copyright (c) Crossbar.io Technologies GmbH and contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy
+# of the License at https://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+###############################################################################
+
 from __future__ import absolute_import
 
 from xbr._version import __version__
@@ -5,6 +21,7 @@ from xbr._abi import XBR_TOKEN_ABI, XBR_NETWORK_ABI, XBR_PAYMENT_CHANNEL_ABI
 from xbr._abi import XBR_DEBUG_TOKEN_ADDR, XBR_DEBUG_NETWORK_ADDR
 from xbr._buyer import SimpleBuyer
 from xbr._seller import SimpleSeller
+from xbr._interfaces import IMarketMaker, IProvider, IConsumer, ISeller, IBuyer
 
 
 version = __version__
@@ -70,14 +87,24 @@ class ActorType(object):
 __all__ = (
     'version',
     'setProvider',
+
     'xbrToken',
     'xbrNetwork',
+
     'MemberLevel',
     'ActorType',
     'NodeType',
+
     'XBR_TOKEN_ABI',
     'XBR_NETWORK_ABI',
     'XBR_PAYMENT_CHANNEL_ABI',
+
+    'IMarketMaker',
+    'IProvider',
+    'IConsumer',
+    'ISeller',
+    'IBuyer',
+
     'SimpleBuyer',
     'SimpleSeller',
 )

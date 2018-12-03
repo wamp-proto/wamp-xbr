@@ -1,3 +1,19 @@
+###############################################################################
+#
+# Copyright (c) Crossbar.io Technologies GmbH and contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy
+# of the License at https://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+###############################################################################
+
 import os
 import uuid
 import binascii
@@ -18,6 +34,8 @@ from autobahn.wamp.types import RegisterOptions
 import eth_keys
 from eth_account import Account
 
+from ._interfaces import IProvider, ISeller
+
 
 class SimpleSeller(object):
 
@@ -33,8 +51,7 @@ class SimpleSeller(object):
         self._running = False
         self._rotate()
 
-    @inlineCallbacks
-    def start_selling(self, session, session_details, interval, price):
+    async def start(self, session, session_details, interval, price):
         self._interval = interval
         self._running = True
 
@@ -44,34 +61,15 @@ class SimpleSeller(object):
 
         for func in [self.sell]:
             procedure = 'xbr.provider.{}.{}'.format(session_details.authid, func.__name__)
-            yield session.register(func, procedure, options=RegisterOptions(details_arg='details'))
+            await session.register(func, procedure, options=RegisterOptions(details_arg='details'))
             self.log.info('Registered {func} under {procedure}', func=func, procedure=procedure)
 
         from twisted.internet import reactor
         reactor.callInThread(self._run, session, interval, price)
 
-    def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
-        """
-
-        @param key_id:
-        @param buyer_pubkey:
-        @param amount_paid:
-        @param post_balance:
-        @param signature:
-        @param details:
-        """
-        if key_id not in self._archive:
-            raise RuntimeError('no such datakey')
-        created, key, box = self._archive[key_id]
-
-        # FIXME: check amount paid, post balance and signature
-        # FIXME: encrypt with public key of buyer
-        # FIXME: sign transaction
-        self.log.info('Key {key_id} sold to {buyer_pubkey} (caller={caller})', key_id=key_id, caller=details.caller, buyer_pubkey=buyer_pubkey)
-
-        return key
-
     async def wrap(self, uri, payload):
+        """
+        """
         data = cbor2.dumps(payload)
         key_id, ciphertext = self.encrypt(data)
         return key_id, 'cbor', ciphertext
@@ -107,3 +105,28 @@ class SimpleSeller(object):
             except:
                 self.log.failure()
             yield sleep(interval)
+
+    def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
+        """
+
+        @param key_id:
+        @param buyer_pubkey:
+        @param amount_paid:
+        @param post_balance:
+        @param signature:
+        @param details:
+        """
+        if key_id not in self._archive:
+            raise RuntimeError('no such datakey')
+        created, key, box = self._archive[key_id]
+
+        # FIXME: check amount paid, post balance and signature
+        # FIXME: encrypt with public key of buyer
+        # FIXME: sign transaction
+        self.log.info('Key {key_id} sold to {buyer_pubkey} (caller={caller})', key_id=key_id, caller=details.caller, buyer_pubkey=buyer_pubkey)
+
+        return key
+
+
+ISeller.register(SimpleSeller)
+IProvider.register(SimpleSeller)
