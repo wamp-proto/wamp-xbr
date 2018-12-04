@@ -4,11 +4,11 @@ import web3
 
 import xbr
 
-from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
+from test_accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
     addr_charlie_provider, addr_charlie_provider_delegate1, addr_donald_provider, addr_donald_provider_delegate1, \
     addr_edith_consumer, addr_edith_consumer_delegate1, addr_frank_consumer, addr_frank_consumer_delegate1
 
-from accounts import markets
+from test_accounts import markets, hl
 
 def main(accounts):
     for market in markets:
@@ -18,7 +18,7 @@ def main(accounts):
             if owner != market['owner']:
                 print('Market {} already exists, but has wrong owner!! Expected {}, but owner is {}'.format(market['id'], market['owner'], owner))
             else:
-                print('Market {} already exists and has expected owner {}'.format(market['id'], owner))
+                print('Market {} already exists and has expected owner {}'.format(hl(market['id']), owner))
         else:
             xbr.xbrNetwork.functions.createMarket(
                 market['id'],
@@ -29,7 +29,7 @@ def main(accounts):
                 market['consumerSecurity'],
                 market['marketFee']).transact({'from': market['owner'], 'gas': 1000000})
 
-            print('Market {} created with owner!'.format(market['id'], market['owner']))
+            print('Market {} created with owner!'.format(hl(market['id']), market['owner']))
 
         for actor in market['actors']:
             atype = xbr.xbrNetwork.functions.getMarketActorType(market['id'], actor['addr']).call()
@@ -47,7 +47,7 @@ def main(accounts):
 
                     security = xbr.xbrNetwork.functions.joinMarket(market['id'], actor['type']).transact({'from': actor['addr'], 'gas': 1000000})
 
-                    print('Actor {} joined market {} as actor type {} with security {}!'.format(actor['addr'], market['id'], actor['type'], security))
+                    print('Actor {} joined market {} as actor type {} with security {}!'.format(hl(actor['addr']), market['id'], hl(actor['type']), security))
 
 
 if __name__ == '__main__':

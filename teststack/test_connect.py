@@ -2,19 +2,21 @@ import sys
 import web3
 import xbr
 
+from test_accounts import hl
+
 
 def main (accounts):
     print('\nTest accounts:')
     for acct in accounts:
         balance_eth = w3.eth.getBalance(acct)
         balance_xbr = xbr.xbrToken.functions.balanceOf(acct).call()
-        print('    balances of {}: {:>30} ETH, {:>30} XBR'.format(acct, balance_eth, balance_xbr))
+        print('    balances of {}: {:>30} ETH, {:>30} XBR'.format(hl(acct), balance_eth, balance_xbr))
 
     print('\nXBR contracts:')
     for acct in [xbr.xbrToken.address, xbr.xbrNetwork.address]:
         balance_eth = w3.eth.getBalance(acct)
         balance_xbr = xbr.xbrToken.functions.balanceOf(acct).call()
-        print('    balances of {}: {:>30} ETH, {:>30} XBR'.format(acct, balance_eth, balance_xbr))
+        print('    balances of {}: {:>30} ETH, {:>30} XBR'.format(hl(acct), balance_eth, balance_xbr))
 
     print()
 

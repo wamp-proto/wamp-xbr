@@ -6,6 +6,15 @@
 
 import web3
 import xbr
+import click
+import six
+
+
+def hl(text, bold=True, color='yellow'):
+    if not isinstance(text, six.text_type):
+        text = '{}'.format(text)
+    return click.style(text, fg=color, bold=bold)
+
 
 # the XBR Project
 addr_owner = web3.Web3.toChecksumAddress('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')

@@ -231,6 +231,9 @@ check_db:
 	ls -la teststack/crossbar/.testdb/
 
 
+#
+# Juypter
+#
 run_jupyter:
 	docker-compose up --force-recreate jupyter
 
@@ -238,3 +241,14 @@ run_jupyter_host:
 	jupyter notebook \
 		--config=${PWD}/teststack/jupyter/.jupyter/jupyter_notebook_config.py \
 		--notebook-dir=${PWD}/teststack/jupyter/notebooks
+
+
+run_test_xbr:
+	python teststack/test_connect.py
+	python teststack/test_transfer_tokens.py
+	python teststack/test_connect.py
+	python teststack/test_register.py
+	python teststack/test_market.py
+	python teststack/test_connect.py
+	python teststack/test_payment_channel.py
+	python teststack/test_connect.py

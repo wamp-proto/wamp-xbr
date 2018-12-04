@@ -3,9 +3,11 @@ import web3
 import xbr
 import os
 
-from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
+from test_accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
     addr_charlie_provider, addr_charlie_provider_delegate1, addr_donald_provider, addr_donald_provider_delegate1, \
     addr_edith_consumer, addr_edith_consumer_delegate1, addr_frank_consumer, addr_frank_consumer_delegate1
+
+from test_accounts import hl
 
 
 def main(accounts):
@@ -18,7 +20,7 @@ def main(accounts):
     for acct in [addr_alice_market, addr_bob_market, addr_charlie_provider, addr_donald_provider, addr_edith_consumer, addr_frank_consumer]:
         success = xbr.xbrToken.functions.transfer(acct, raw_amount).transact({'from': addr_owner, 'gas': 100000})
         if success:
-            print('Transferred {} XBR to {}'.format(amount, acct))
+            print('Transferred {} XBR to {}'.format(hl(amount), hl(acct)))
         else:
             print('Failed to transfer tokens!')
 

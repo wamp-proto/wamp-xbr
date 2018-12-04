@@ -5,7 +5,7 @@ import binascii
 import web3
 import xbr
 
-from accounts import addr_owner, addr_edith_consumer, addr_frank_consumer, markets
+from test_accounts import addr_owner, addr_edith_consumer, addr_frank_consumer, markets, hl
 
 
 def main(w3, accounts):
@@ -35,7 +35,7 @@ def main(w3, accounts):
                     recipient = args['receiver']
                     channel = args['channel']
 
-                    print('Actor {} opened payment channel {} in market {} with inital deposit of {}, delegate {} and recipient {}!'.format(actor['addr'], channel, market['id'], amount, delegate, recipient))
+                    print('Actor {} opened payment channel {} in market {} with inital deposit of {}, delegate {} and recipient {}!'.format(actor['addr'], hl(channel), market['id'], amount, hl(delegate), recipient))
 
 
 if __name__ == '__main__':
