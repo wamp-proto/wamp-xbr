@@ -153,7 +153,7 @@ This should give you output like
     ... 0x55d81aa99eb9b4da8e5408ece477658e9f6c8b2bc9988aa9c5be7f2bd34c25e0
     Saving artifacts...
 
-YOu should also see activity in the ganache log, e.g.
+You should also see activity in the ganache log, e.g.
 
 .. code-block:: console
 
