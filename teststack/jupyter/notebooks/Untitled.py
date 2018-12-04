@@ -22,6 +22,7 @@ db = zlmdb.Database(DBPATH, maxsize=2**30, readonly=False)
 schema = Schema.attach(db)
 
 print(schema.token_transfers)
+print(schema.payment_channels)
 
 
 # In[ ]:
@@ -61,4 +62,17 @@ while t > 0:
     print('total token transfers:', cnt)
     time.sleep(1)
     t -= 1
+
+
+# # Payment Channels
+# 
+# Here is how to access payment channels stored and operated on within a XBR market maker:
+
+# In[ ]:
+
+
+with db.begin() as txn:
+    for channel in schema.payment_channels.select(txn, return_values=True, return_keys=False, limit=20):
+        print('consumer={}.. delegate={}.. amount={} state={}'.format(
+            channel.sender.hex()[:8], channel.delegate.hex()[:8], channel.amount, channel.state))
 
