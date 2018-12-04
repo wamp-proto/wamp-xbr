@@ -20,11 +20,15 @@ We build on the following toolset:
     :maxdepth: 1
     :caption: Contents:
 
+    setup
     ganache
     metamask
     truffle
     remixide
     ipfs
+
+
+
 
 
 Build, Test and Deploy
