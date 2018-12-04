@@ -1,6 +1,7 @@
 import sys
 import web3
 import xbr
+import os
 
 from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
     addr_charlie_provider, addr_charlie_provider_delegate1, addr_donald_provider, addr_donald_provider_delegate1, \
@@ -8,20 +9,18 @@ from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, ad
 
 
 def main(accounts):
+    # XBR tokens to transfer
+    amount = 1000
+
+    # raw amount of XBR tokens (taking into account decimals)
+    raw_amount = amount * 10**18
+
     for acct in [addr_alice_market, addr_bob_market, addr_charlie_provider, addr_donald_provider, addr_edith_consumer, addr_frank_consumer]:
-        level = xbr.xbrNetwork.functions.getMemberLevel(acct).call()
-        if not level:
-            eula = 'QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81'
-            profile = ''
-
-            xbr.xbrNetwork.functions.register(eula, profile).transact({'from': acct, 'gas': 200000})
-            print('new member {} registered'.format(acct))
+        success = xbr.xbrToken.functions.transfer(acct, raw_amount).transact({'from': addr_owner, 'gas': 100000})
+        if success:
+            print('Transferred {} XBR to {}'.format(amount, acct))
         else:
-            print('{} is already a member (Level {})'.format(acct, level))
-
-        eula = xbr.xbrNetwork.functions.getMemberEula(acct).call()
-        profile = xbr.xbrNetwork.functions.getMemberProfile(acct).call()
-        print('EULA: {}, Profile: {}'.format(eula, profile))
+            print('Failed to transfer tokens!')
 
 
 if __name__ == '__main__':

@@ -3,13 +3,11 @@ import web3
 import xbr
 
 
-def main (account):
-    print('using account address {}'.format(account))
-
-    balance_eth = w3.eth.getBalance(account)
-    balance_xbr = xbr.xbrToken.functions.balanceOf(account).call()
-
-    print('current balances: {} ETH, {} XBR'.format(balance_eth, balance_xbr))
+def main (accounts):
+    for acct in accounts:
+        balance_eth = w3.eth.getBalance(acct)
+        balance_xbr = xbr.xbrToken.functions.balanceOf(acct).call()
+        print('current balances of {}: {:>30} ETH, {:>30} XBR'.format(acct, balance_eth, balance_xbr))
 
 
 if __name__ == '__main__':
@@ -29,4 +27,4 @@ if __name__ == '__main__':
     xbr.setProvider(w3)
 
     # now enter main ..
-    main(w3.eth.accounts[0])
+    main(w3.eth.accounts)

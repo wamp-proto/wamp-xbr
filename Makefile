@@ -195,8 +195,14 @@ clean_ganache_cli:
 #
 # Remix (and remixd as part (!) of RemixIDE when it is installed)
 #
-run_remix:
-	remix-ide
+#run_remix:
+#	remix-ide
+
+#
+# Remixd, then open https://remix.ethereum.org/
+#
+run_remixd:
+	remixd -s . --remix-ide https://remix.ethereum.org
 
 
 #
