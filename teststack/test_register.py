@@ -2,9 +2,11 @@ import sys
 import web3
 import xbr
 
-from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
+from test_accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
     addr_charlie_provider, addr_charlie_provider_delegate1, addr_donald_provider, addr_donald_provider_delegate1, \
     addr_edith_consumer, addr_edith_consumer_delegate1, addr_frank_consumer, addr_frank_consumer_delegate1
+
+from test_accounts import hl
 
 
 def main(accounts):
@@ -15,13 +17,12 @@ def main(accounts):
             profile = ''
 
             xbr.xbrNetwork.functions.register(eula, profile).transact({'from': acct, 'gas': 200000})
-            print('new member {} registered'.format(acct))
+            print('New member {} registered in the XBR Network (eula={}, profile={})'.format(hl(acct), eula, profile))
         else:
-            print('{} is already a member (Level {})'.format(acct, level))
+            eula = xbr.xbrNetwork.functions.getMemberEula(acct).call()
+            profile = xbr.xbrNetwork.functions.getMemberProfile(acct).call()
+            print('{} is already a member (level={}, eula={}, profile={})'.format(hl(acct), hl(level), eula, profile))
 
-        eula = xbr.xbrNetwork.functions.getMemberEula(acct).call()
-        profile = xbr.xbrNetwork.functions.getMemberProfile(acct).call()
-        print('EULA: {}, Profile: {}'.format(eula, profile))
 
 
 if __name__ == '__main__':

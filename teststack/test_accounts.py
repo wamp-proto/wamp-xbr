@@ -5,6 +5,16 @@
 # export XBR_DEBUG_NETWORK_ADDR="0x254dffcd3277c0b1660f6d42efbb754edababc2b"
 
 import web3
+import xbr
+import click
+import six
+
+
+def hl(text, bold=True, color='yellow'):
+    if not isinstance(text, six.text_type):
+        text = '{}'.format(text)
+    return click.style(text, fg=color, bold=bold)
+
 
 # the XBR Project
 addr_owner = web3.Web3.toChecksumAddress('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
@@ -30,6 +40,7 @@ addr_edith_consumer_delegate1 = web3.Web3.toChecksumAddress('0x610bb1573d1046fcb
 addr_frank_consumer = web3.Web3.toChecksumAddress('0x855fa758c77d68a04990e992aa4dcdef899f654a')
 addr_frank_consumer_delegate1 = web3.Web3.toChecksumAddress('0xfa2435eacf10ca62ae6787ba2fb044f8733ee843')
 
+
 accounts = [
 	addr_owner,
 	addr_alice_market,
@@ -44,4 +55,54 @@ accounts = [
 	addr_edith_consumer_delegate1,
 	addr_frank_consumer,
 	addr_frank_consumer_delegate1
+]
+
+
+markets = [
+    {
+        # '0x' + os.urandom(16).hex()
+        'id': '0xa1b8d6741ae8492017fafd8d4f8b67a2',
+        'owner': addr_alice_market,
+        'maker': addr_alice_market_maker1,
+        'terms': '',
+        'meta': '',
+        'providerSecurity': 100 * 10**18,
+        'consumerSecurity': 100 * 10**18,
+        'marketFee': 10**7 * 10**18,
+        'actors': [
+            {
+                'addr': addr_charlie_provider,
+                'type': xbr.ActorType.PROVIDER,
+                'security': 100 * 10**18
+            },
+            {
+                'addr': addr_donald_provider,
+                'type': xbr.ActorType.PROVIDER,
+                'security': 100 * 10**18
+            },
+            {
+                'addr': addr_edith_consumer,
+                'type': xbr.ActorType.CONSUMER,
+                'security': 100 * 10**18,
+                'delegate': addr_edith_consumer_delegate1
+            },
+            {
+                'addr': addr_frank_consumer,
+                'type': xbr.ActorType.CONSUMER,
+                'security': 100 * 10**18,
+                'delegate': addr_frank_consumer_delegate1
+            }
+        ]
+    },
+    {
+        'id': '0xa42474d7e8ed084e13d22690f9d002d5',
+        'owner': addr_bob_market,
+        'maker': addr_bob_market_maker1,
+        'terms': '',
+        'meta': '',
+        'providerSecurity': 100 * 10**18,
+        'consumerSecurity': 100 * 10**18,
+        'marketFee': 10**7 * 10**18,
+        'actors': []
+    }
 ]
