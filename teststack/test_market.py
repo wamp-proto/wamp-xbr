@@ -8,54 +8,10 @@ from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, ad
     addr_charlie_provider, addr_charlie_provider_delegate1, addr_donald_provider, addr_donald_provider_delegate1, \
     addr_edith_consumer, addr_edith_consumer_delegate1, addr_frank_consumer, addr_frank_consumer_delegate1
 
+from accounts import markets
 
 def main(accounts):
-    for market in [
-        {
-            # '0x' + os.urandom(16).hex()
-            'id': '0xa1b8d6741ae8492017fafd8d4f8b67a2',
-            'owner': addr_alice_market,
-            'maker': addr_alice_market_maker1,
-            'terms': '',
-            'meta': '',
-            'providerSecurity': 100 * 10**18,
-            'consumerSecurity': 100 * 10**18,
-            'marketFee': 10**7 * 10**18,
-            'actors': [
-                {
-                    'addr': addr_charlie_provider,
-                    'type': xbr.ActorType.PROVIDER,
-                    'security': 100 * 10**18
-                },
-                {
-                    'addr': addr_donald_provider,
-                    'type': xbr.ActorType.PROVIDER,
-                    'security': 100 * 10**18
-                },
-                {
-                    'addr': addr_edith_consumer,
-                    'type': xbr.ActorType.CONSUMER,
-                    'security': 100 * 10**18
-                },
-                {
-                    'addr': addr_frank_consumer,
-                    'type': xbr.ActorType.CONSUMER,
-                    'security': 100 * 10**18
-                }
-            ]
-        },
-        {
-            'id': '0xa42474d7e8ed084e13d22690f9d002d5',
-            'owner': addr_bob_market,
-            'maker': addr_bob_market_maker1,
-            'terms': '',
-            'meta': '',
-            'providerSecurity': 100 * 10**18,
-            'consumerSecurity': 100 * 10**18,
-            'marketFee': 10**7 * 10**18,
-            'actors': []
-        }
-    ]:
+    for market in markets:
         owner = xbr.xbrNetwork.functions.getMarketOwner(market['id']).call()
 
         if owner != '0x0000000000000000000000000000000000000000':
