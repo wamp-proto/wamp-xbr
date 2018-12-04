@@ -1,6 +1,7 @@
 import os
 import sys
 import web3
+
 import xbr
 
 from accounts import addr_owner, addr_alice_market, addr_alice_market_maker1, addr_bob_market, addr_bob_market_maker1, \
@@ -20,8 +21,28 @@ def main(accounts):
             'providerSecurity': 100 * 10**18,
             'consumerSecurity': 100 * 10**18,
             'marketFee': 10**7 * 10**18,
-            'providers': [addr_charlie_provider, addr_donald_provider],
-            'consumers': [addr_edith_consumer, addr_frank_consumer]
+            'actors': [
+                {
+                    'addr': addr_charlie_provider,
+                    'type': xbr.ActorType.PROVIDER,
+                    'security': 100 * 10**18
+                },
+                {
+                    'addr': addr_donald_provider,
+                    'type': xbr.ActorType.PROVIDER,
+                    'security': 100 * 10**18
+                },
+                {
+                    'addr': addr_edith_consumer,
+                    'type': xbr.ActorType.CONSUMER,
+                    'security': 100 * 10**18
+                },
+                {
+                    'addr': addr_frank_consumer,
+                    'type': xbr.ActorType.CONSUMER,
+                    'security': 100 * 10**18
+                }
+            ]
         },
         {
             'id': '0xa42474d7e8ed084e13d22690f9d002d5',
@@ -32,8 +53,7 @@ def main(accounts):
             'providerSecurity': 100 * 10**18,
             'consumerSecurity': 100 * 10**18,
             'marketFee': 10**7 * 10**18,
-            'providers': [],
-            'consumers': []
+            'actors': []
         }
     ]:
         owner = xbr.xbrNetwork.functions.getMarketOwner(market['id']).call()
@@ -55,21 +75,23 @@ def main(accounts):
 
             print('Market {} created with owner!'.format(market['id'], market['owner']))
 
-        for provider in market['providers']:
-            atype = xbr.xbrNetwork.functions.getMarketActorType(market['id'], provider).call()
+        for actor in market['actors']:
+            atype = xbr.xbrNetwork.functions.getMarketActorType(market['id'], actor['addr']).call()
             if atype:
-                if atype != xbr.ActorType.PROVIDER:
-                    print('Account {} is already actor in the market, but has wrong actor type! Expected {}, but got {}.'.format(provider, xbr.ActorType.PROVIDER, atype))
+                if atype != actor['type']:
+                    print('Account {} is already actor in the market, but has wrong actor type! Expected {}, but got {}.'.format(actor['addr'], actor['type'], atype))
                 else:
-                    print('Account {} is already actor in the market and has correct actor type {}'.format(provider, atype))
+                    print('Account {} is already actor in the market and has correct actor type {}'.format(actor['addr'], atype))
             else:
-                result = xbr.xbrToken.functions.approve(xbr.xbrNetwork.address, market['providerSecurity']).transact({'from': provider, 'gas': 1000000})
+                result = xbr.xbrToken.functions.approve(xbr.xbrNetwork.address, actor['security']).transact({'from': actor['addr'], 'gas': 1000000})
                 if not result:
                     print('Failed to allow transfer of tokens for market security!', result)
                 else:
-                    print('Allowed transfer of {} XBR from {} to {} as security for joining market'.format(market['providerSecurity'], provider, xbr.xbrNetwork.address))
-                    security = xbr.xbrNetwork.functions.joinMarket(market['id'], xbr.ActorType.PROVIDER).transact({'from': provider, 'gas': 1000000})
-                    print('Actor {} joined market {} as actor type {} with security {}!'.format(provider, market['id'], xbr.ActorType.PROVIDER, security))
+                    print('Allowed transfer of {} XBR from {} to {} as security for joining market'.format(actor['security'], actor['addr'], xbr.xbrNetwork.address))
+
+                    security = xbr.xbrNetwork.functions.joinMarket(market['id'], actor['type']).transact({'from': actor['addr'], 'gas': 1000000})
+
+                    print('Actor {} joined market {} as actor type {} with security {}!'.format(actor['addr'], market['id'], actor['type'], security))
 
 
 if __name__ == '__main__':
