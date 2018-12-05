@@ -24,8 +24,7 @@
     "uuid": "^3.3.2",
     "web3": "^1.0.0-beta.36"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "main": "index.js",
   "scripts": {
     "test": "truffle test --network ganache",
