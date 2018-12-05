@@ -22,3 +22,4 @@ coverageEnv
 scTopics
 .xbrdb-transactions
 .ipynb_checkpoints
+package-lock.json
