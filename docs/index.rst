@@ -21,6 +21,7 @@ code on GitHub `here <https://github.com/xbr/xbr-protocol>`_.
     :maxdepth: 2
     :caption: Contents:
 
+    overview
     dev/index
     project/index
     api/index
