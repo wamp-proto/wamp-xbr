@@ -19,7 +19,7 @@ The **XBR network proxy contract** is deployed once and serves as a fixed entry 
 
 The **XBR network contract** is deployed once. It is the central point for the registration of XBR network participants, XBR data markets and for the deployed XBR payment channels.
 
-Instances of the **XBR payment channels** contract are deployed as required for the handling of payments in markets, where each channel is between a participant and the respecitive market maker component within a data market.
+Instances of the **XBR payment channels** contract are deployed as required for the handling of payments in markets, where each channel is between a participant and the respective market maker component within a data market.
 
 
 Participants
