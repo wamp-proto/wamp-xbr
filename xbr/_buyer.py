@@ -57,6 +57,12 @@ class SimpleBuyer(object):
         self._receive_key = nacl.public.PrivateKey.generate()
 
     async def start(self, session, consumer_id):
+        """
+
+        :param session:
+        :param consumer_id:
+        :return:
+        """
         self._session = session
         self._running = True
 
@@ -84,6 +90,13 @@ class SimpleBuyer(object):
         return self._balance
 
     async def unwrap(self, key_id, enc_ser, ciphertext):
+        """
+
+        :param key_id:
+        :param enc_ser:
+        :param ciphertext:
+        :return:
+        """
         assert(enc_ser == 'cbor')
 
         # if we don't have the key, buy it!

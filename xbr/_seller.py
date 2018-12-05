@@ -60,6 +60,12 @@ class SimpleSeller(object):
         self._rotate()
 
     async def start(self, session, provider_id):
+        """
+
+        :param session:
+        :param provider_id:
+        :return:
+        """
         self._running = True
 
         self.log.info('Start selling from provider delegate address {address} (public key 0x{public_key}..)',
@@ -75,6 +81,12 @@ class SimpleSeller(object):
         reactor.callInThread(self._run, session, self._interval, self._price)
 
     async def wrap(self, uri, payload):
+        """
+
+        :param uri:
+        :param payload:
+        :return:
+        """
         data = cbor2.dumps(payload)
         ciphertext = self._box.encrypt(data)
         return self._id, 'cbor', ciphertext
@@ -114,12 +126,13 @@ class SimpleSeller(object):
     def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
         """
 
-        @param key_id:
-        @param buyer_pubkey:
-        @param amount_paid:
-        @param post_balance:
-        @param signature:
-        @param details:
+        :param key_id:
+        :param buyer_pubkey:
+        :param amount_paid:
+        :param post_balance:
+        :param signature:
+        :param details:
+        :return:
         """
         if key_id not in self._archive:
             raise RuntimeError('no such datakey')
