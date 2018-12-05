@@ -51,6 +51,7 @@ window.addEventListener('load', function () {
 
 // check for MetaMask and ask user to grant access to accounts ..
 // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
+// web3.currentProvider.isMetaMask
 async function unlock_metamask () {
     if (window.ethereum) {
             // if we have MetaMask, ask user for access
