@@ -5,7 +5,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy
 # of the License at https://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -37,6 +37,9 @@ setup(
     url='https://xbr.network',
     platforms='Any',
     install_requires=[
+        'cbor2>=4.1.1',         # MIT license
+        'zlmdb>=18.12.1',       # MIT license
+        'twisted>=18.9.0',      # MIT license
         'autobahn>=18.11.2',    # MIT license
         'web3>=4.8.1',          # MIT license
     ],
