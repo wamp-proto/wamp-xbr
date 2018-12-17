@@ -5,6 +5,14 @@ Overview
 
 ----------
 
+Contracts
+---------
+
+* :sol:contract:`XBRToken`
+* :sol:contract:`XBRNetwork`
+* :sol:contract:`XBRPaymentChannel`
+
+
 Data Markets
 ------------
 
