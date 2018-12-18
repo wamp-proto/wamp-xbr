@@ -30,6 +30,7 @@ clean: clean_docs
 	-rm -f ./coverage.json
 	-rm -f ./npm-debug.log
 	-rm -f ./scTopics
+	-rm -f ./*.pid
 
 
 requirements:
@@ -182,9 +183,6 @@ run_ganache:
 	ganache
 
 run_ganache_cli:
-	# https://github.com/trufflesuite/ganache-cli/issues/593
-	docker pull trufflesuite/ganache-cli:v6.1.8
-	#docker pull trufflesuite/ganache-cli:latest
 	docker-compose up --force-recreate ganache
 
 clean_ganache_cli:
