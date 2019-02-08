@@ -42,11 +42,11 @@ requirements:
 	sudo npm install -g coveralls
 	sudo npm install -g nodeunit
 	# https://github.com/trufflesuite/ganache-cli/issues/593
-	sudo npm install -g ganache-cli@v6.1.8
-	sudo npm install -g truffle
+	sudo npm install -g ganache-cli@v6.2.4
+	sudo npm install -g truffle@v5.0.3
+	sudo npm install -g solhint@v1.5.1
+	sudo npm install -g solidity-coverage@v0.5.1
 	sudo npm install -g remix-ide
-	sudo npm install -g solhint
-	sudo npm install -g solidity-coverage
 
 install:
 	npm install

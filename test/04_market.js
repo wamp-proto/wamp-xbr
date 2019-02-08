@@ -20,7 +20,11 @@ const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
 // https://ethereum.stackexchange.com/a/38197
-const sha3 = web3.utils.sha3 || web3.sha3;
+if (web3.utils) {
+    const sha3 = web3.utils.sha3;
+} else {
+    const sha3 = web3.sha3;
+}
 
 
 contract('XBRNetwork', accounts => {
