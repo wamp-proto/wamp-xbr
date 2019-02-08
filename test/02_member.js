@@ -156,24 +156,8 @@ contract('XBRNetwork', accounts => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
-/*
-        const filter = {};
-        const event = network.MemberCreated(filter);
 
-        var events_ok = false;
-
-        event.watch((err, result) => {
-
-            assert.equal(result.args.member, alice, "wrong member address in event");
-            assert.equal(result.args.eula, eula, "wrong member EULA in event");
-            assert.equal(result.args.profile, profile, "wrong member Profile in event");
-            assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
-
-            events_ok = true;
-            event.stopWatching()
-        });
-*/
-        await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+        const txn = await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
         assert.equal(_level.toNumber(), MemberLevel_ACTIVE, "wrong member level");
@@ -184,7 +168,16 @@ contract('XBRNetwork', accounts => {
         const _profile = await network.getMemberProfile(alice);
         assert.equal(_eula, eula, "wrong member Profile");
 
-        //assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "MemberCreated", "wrong event was emitted");
+        assert.equal(result.args.member, alice, "wrong member address in event");
+        assert.equal(result.args.eula, eula, "wrong member EULA in event");
+        assert.equal(result.args.profile, profile, "wrong member Profile in event");
+        assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
     });
 
     it('XBRNetwork.register() : registering a member twice should throw', async () => {
@@ -201,26 +194,19 @@ contract('XBRNetwork', accounts => {
     });
 
     it('XBRNetwork.unregister() : retiring a member should fire the correct event and store the correct member level', async () => {
-/*
-        const filter = {};
-        const event = network.MemberRetired(filter);
 
-        var events_ok = false;
-
-        event.watch((err, result) => {
-
-            assert.equal(result.args.member, alice, "wrong member address in event");
-
-            events_ok = true;
-            event.stopWatching()
-        });
-*/
-        await network.unregister({from: alice, gasLimit: gasLimit});
+        const txn = await network.unregister({from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
         assert.equal(_level.toNumber(), MemberLevel_RETIRED, "wrong member level");
 
-        //assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "MemberRetired", "wrong event was emitted");
+        assert.equal(result.args.member, alice, "wrong member address in event");
     });
 
 });

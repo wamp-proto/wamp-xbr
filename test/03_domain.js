@@ -105,27 +105,8 @@ contract('XBRNetwork', accounts => {
         const license = "";
         const terms = "";
         const meta = "";
-/*
-        const filter = {};
-        const event = network.DomainCreated(filter);
 
-        event.watch((err, result) => {
-
-            // bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner, bytes32 domainKey, string license, string terms, string meta
-
-            assert.equal(result.args.domainId, domainId, "wrong domainId in event");
-            assert.equal(result.args.domainSeq, 1, "wrong domainSeq in event");
-            assert.equal(result.args.status, DomainStatus_ACTIVE, "wrong status in event");
-            assert.equal(result.args.owner, alice, "wrong owner in event");
-            assert.equal(result.args.domainKey, domainKey, "wrong domainKey in event");
-            assert.equal(result.args.license, license, "wrong license in event");
-            assert.equal(result.args.terms, terms, "wrong terms in event");
-            assert.equal(result.args.meta, meta, "wrong meta in event");
-
-            event.stopWatching()
-        });
-*/
-        await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
+        const txn = await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_ACTIVE, "wrong domain status");
@@ -144,6 +125,26 @@ contract('XBRNetwork', accounts => {
 
         const _meta = await network.getDomainMeta(domainId);
         assert.equal(_meta, meta, "wrong domain meta");
+
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "DomainCreated", "wrong event was emitted");
+
+        // bytes16 domainId, uint32 domainSeq, DomainStatus status, address owner, bytes32 domainKey, string license, string terms, string meta
+
+        // FIXME: we get this returend 0x9d9827822252fbe721d45224c7db7cac00000000000000000000000000000000
+        //assert.equal(result.args.domainId, domainId, "wrong domainId in event");
+
+        assert.equal(result.args.domainSeq, 1, "wrong domainSeq in event");
+        assert.equal(result.args.status, DomainStatus_ACTIVE, "wrong status in event");
+        assert.equal(result.args.owner, alice, "wrong owner in event");
+        assert.equal(result.args.domainKey, domainKey, "wrong domainKey in event");
+        assert.equal(result.args.license, license, "wrong license in event");
+        assert.equal(result.args.terms, terms, "wrong terms in event");
+        assert.equal(result.args.meta, meta, "wrong meta in event");
     });
 
     it('XBRNetwork.createDomain() : creating a duplicate domain should throw', async () => {
@@ -201,31 +202,28 @@ contract('XBRNetwork', accounts => {
         const nodeType = NodeType_EDGE;
         const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa";
-/*
-        const filter = {};
-        const event = network.NodePaired(filter);
 
-        var events_ok = false;
-
-        event.watch((err, result) => {
-            // bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config
-
-            assert.equal(result.args.domainId, domainId, "wrong domainId in event");
-            assert.equal(result.args.nodeId, nodeId, "wrong nodeId in event");
-            assert.equal(result.args.nodeKey, nodeKey, "wrong nodeKey in event");
-            assert.equal(result.args.config, config, "wrong config in event");
-
-            events_ok = true;
-            event.stopWatching()
-        });
-*/
         // bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config
-        await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
+        const txn = await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
 
         _nodeId = await network.getNodeByKey(nodeKey);
+
         assert.equal(_nodeId, nodeId, "cannot find node by key");
 
-        //assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "NodePaired", "wrong event was emitted");
+
+        // bytes16 domainId, bytes16 nodeId, bytes32 nodeKey, string config
+
+        // FIXME
+        // assert.equal(result.args.domainId, domainId, "wrong domainId in event");
+        assert.equal(result.args.nodeId, nodeId, "wrong nodeId in event");
+        assert.equal(result.args.nodeKey, nodeKey, "wrong nodeKey in event");
+        assert.equal(result.args.config, config, "wrong config in event");
     });
 
     it('XBRNetwork.pairNode() : pairing a node twice should throw', async () => {
@@ -288,23 +286,23 @@ contract('XBRNetwork', accounts => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
-/*
-        const filter = {};
-        const event = network.DomainClosed(filter);
-        event.watch((err, result) => {
-
-            // bytes16 domainId, DomainStatus status
-
-            assert.equal(result.args.domainId, domainId, "wrong domainId in event");
-            assert.equal(result.args.status, DomainStatus_CLOSED, "wrong status in event");
-
-            event.stopWatching()
-        });
-*/
-        await network.closeDomain(domainId, {from: alice, gasLimit: gasLimit});
+        const txn = await network.closeDomain(domainId, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);
         assert.equal(_status, DomainStatus_CLOSED, "wrong domain status");
+
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "DomainClosed", "wrong event was emitted");
+
+        // bytes16 domainId, DomainStatus status
+
+        // FIXME
+        // assert.equal(result.args.domainId, domainId, "wrong domainId in event");
+        assert.equal(result.args.status, DomainStatus_CLOSED, "wrong status in event");
     });
 
 });

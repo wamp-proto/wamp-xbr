@@ -129,23 +129,6 @@ contract('XBRNetwork', accounts => {
         // the XBR provider we use here
         const provider = bob;
 
-        // setup event watching
-/*
-        var events_ok = false;
-        let event = network.ActorJoined({});
-        let watcher = async function (err, result) {
-
-            if (result.event == 'ActorJoined') {
-                assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-                assert.equal(result.args.actor, provider, "wrong provider address in event");
-                assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
-                assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
-
-                events_ok = true;
-                event.stopWatching()
-            }
-        }
-*/
         // 100 XBR security
         const providerSecurity = '100000000000000000000';
 
@@ -162,11 +145,20 @@ contract('XBRNetwork', accounts => {
         await token.approve(network.address, providerSecurity, {from: provider, gasLimit: gasLimit});
 
         // XBR provider joins market
-        await network.joinMarket(marketId, ActorType_PROVIDER, {from: provider, gasLimit: gasLimit});
+        const txn = await network.joinMarket(marketId, ActorType_PROVIDER, {from: provider, gasLimit: gasLimit});
 
-        // we expect ActorJoined event to be fired
-        // await utils.await_event(event, watcher);
-        // assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "ActorJoined", "wrong event was emitted");
+
+        // FIXME
+        // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result.args.actor, provider, "wrong provider address in event");
+        assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
+        assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
         const _actorType = await network.getMarketActorType(marketId, provider);
         assert.equal(_actorType.toNumber(), ActorType_PROVIDER, "wrong actorType " + _actorType);
@@ -188,23 +180,6 @@ contract('XBRNetwork', accounts => {
         // the XBR consumer we use here
         const consumer = charlie;
 
-        // setup event watching
-/*
-        var events_ok = false;
-        let event = network.ActorJoined({});
-        let watcher = async function (err, result) {
-
-            if (result.event == 'ActorJoined') {
-                assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-                assert.equal(result.args.actor, consumer, "wrong consumer address in event");
-                assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
-                assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
-
-                events_ok = true;
-                event.stopWatching()
-            }
-        }
-*/
         // 100 XBR security
         const consumerSecurity = '100000000000000000000';
 
@@ -221,11 +196,19 @@ contract('XBRNetwork', accounts => {
         await token.approve(network.address, consumerSecurity, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer joins market
-        await network.joinMarket(marketId, ActorType_CONSUMER, {from: consumer, gasLimit: gasLimit});
+        const txn = await network.joinMarket(marketId, ActorType_CONSUMER, {from: consumer, gasLimit: gasLimit});
 
-        // we expect ActorJoined event to be fired
-        // await utils.await_event(event, watcher);
-        // assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "ActorJoined", "wrong event was emitted");
+        // FIXME
+        //assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result.args.actor, consumer, "wrong consumer address in event");
+        assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
+        assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
 
         const _actorType = await network.getMarketActorType(marketId, consumer);
         assert.equal(_actorType.toNumber(), ActorType_CONSUMER, "wrong actorType " + _actorType);
@@ -254,25 +237,6 @@ contract('XBRNetwork', accounts => {
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
 
-        // setup event watching
-        var events_ok = false;
-        let event = network.PaymentChannelCreated({});
-        let watcher = async function (err, result) {
-
-            if (result.event == 'PaymentChannelCreated') {
-
-                // bytes16 marketId, address sender, address delegate, address receiver, address channel
-                assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-                assert.equal(result.args.sender, consumer, "wrong sender address in event");
-                //assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
-                assert.equal(result.args.receiver, market, "wrong receiver address in event");
-                //assert.equal(result.args.channel, consumerSecurity, "wrong consumerSecurity in event");
-
-                events_ok = true;
-                event.stopWatching()
-            }
-        }
-
         // 50 XBR security
         const amount = '50000000000000000000';
 
@@ -280,11 +244,22 @@ contract('XBRNetwork', accounts => {
         await token.approve(network.address, amount, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer opens a payment channel in the market
-        await network.openPaymentChannel(marketId, consumer, amount, {from: consumer, gasLimit: gasLimit});
+        const txn = await network.openPaymentChannel(marketId, consumer, amount, {from: consumer, gasLimit: gasLimit});
 
-        // we expect PaymentChannelCreated event to be fired
-        // await utils.await_event(event, watcher);
-        // assert(events_ok, "event(s) we expected not emitted");
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "PaymentChannelCreated", "wrong event was emitted");
+
+        // bytes16 marketId, address sender, address delegate, address receiver, address channel
+        // FIXME
+        //assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result.args.sender, consumer, "wrong sender address in event");
+        //assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
+        assert.equal(result.args.receiver, market, "wrong receiver address in event");
+        //assert.equal(result.args.channel, consumerSecurity, "wrong consumerSecurity in event");
     });
 
 });
