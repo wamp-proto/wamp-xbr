@@ -22,7 +22,7 @@ default:
 
 clean: clean_docs
 	-rm -rf ./dist/
-	-rm -rf ./build/
+	-sudo rm -rf ./build/
 	-rm -rf ./*.egg-info/
 	-rm -rf ./.tox/
 	-rm -rf ./coverage
@@ -56,6 +56,17 @@ build: compile docs build_js build_python
 
 publish: publish_docs publish_js publish_python
 
+
+truffle_build:
+	# docker-compose build --no-cache truffle
+	docker-compose build truffle
+
+truffle_compile:
+	docker run -it --rm --volume=${PWD}:/code:rw crossbario/truffle
+	# docker run -it --rm -v${PWD}:/code --network host --entrypoint /bin/bash crossbario/truffle
+
+truffle_test:
+	docker run -it --rm --volume=${PWD}:/code:rw --network=host crossbario/truffle test --network ganache
 
 #
 # XBR Protocol smart contracts

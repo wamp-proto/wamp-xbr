@@ -9,6 +9,7 @@ services:
         network_mode: host
         #ports:
         #    - "8545:8545"
+        #    - "7545:8545"
         volumes:
             # mount a data location from the host into the container - read-write
             - "${PWD}/teststack/ganache/.data:/ganache:rw"
@@ -31,6 +32,20 @@ services:
             - "5777"
             - "--db"
             - "/ganache"
+
+    # docker attach
+    truffle:
+        depends_on:
+          - ganache
+        image: crossbario/truffle
+        build:
+          context: docker
+        command: bash
+        stdin_open: true
+        tty: true
+        network_mode: host
+        volumes:
+          - ./:/code:rw
 
     crossbar:
         depends_on:
