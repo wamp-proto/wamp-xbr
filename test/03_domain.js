@@ -84,13 +84,16 @@ contract('XBRNetwork', accounts => {
     it('XBRNetwork.createDomain() : creating a domain by non-member should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+        const domainKey = "0xfeb083ce587a4ea72681d7db776452b05aaf58dc778534a6938313e4c85912f0";
+        const license = "";
+        const terms = "";
+        const meta = "";
 
         try {
-            await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
+            await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/NOT_A_MEMBER/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/NOT_A_MEMBER/.test(error), "wrong error message");
         }
     });
 
@@ -104,7 +107,7 @@ contract('XBRNetwork', accounts => {
         const license = "";
         const terms = "";
         const meta = "";
-
+/*
         const filter = {};
         const event = network.DomainCreated(filter);
 
@@ -123,7 +126,7 @@ contract('XBRNetwork', accounts => {
 
             event.stopWatching()
         });
-
+*/
         await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);
@@ -148,13 +151,16 @@ contract('XBRNetwork', accounts => {
     it('XBRNetwork.createDomain() : creating a duplicate domain should throw', async () => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
+        const domainKey = "0xfeb083ce587a4ea72681d7db776452b05aaf58dc778534a6938313e4c85912f0";
+        const license = "";
+        const terms = "";
+        const meta = "";
 
         try {
-            await network.createDomain(domainId, "", "", "", "", {from: alice, gasLimit: gasLimit});
+            await network.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/DOMAIN_ALREADY_EXISTS/.test(error), "wrong error message");
         }
     });
 
@@ -163,17 +169,14 @@ contract('XBRNetwork', accounts => {
         const domainId = "0x88888888888888888888888888888888";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
         const nodeType = NodeType_EDGE;
-        const nodeKey = "";
+        const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "";
 
         try {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            console.log('XXXXXXXXXXXXXXXXx');
-            console.log(error);
-            //assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
         }
     });
 
@@ -182,15 +185,14 @@ contract('XBRNetwork', accounts => {
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
         const nodeType = 0;
-        const nodeKey = "";
+        const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "";
 
         try {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/INVALID_NODE_TYPE/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/INVALID_NODE_TYPE/.test(error), "wrong error message");
         }
     });
 
@@ -201,7 +203,7 @@ contract('XBRNetwork', accounts => {
         const nodeType = NodeType_EDGE;
         const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa";
-
+/*
         const filter = {};
         const event = network.NodePaired(filter);
 
@@ -218,7 +220,7 @@ contract('XBRNetwork', accounts => {
             events_ok = true;
             event.stopWatching()
         });
-
+*/
         // bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config
         await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
 
@@ -233,15 +235,14 @@ contract('XBRNetwork', accounts => {
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
         const nodeId = "0x4570160dd5be4726b2a785499609d6ab";
         const nodeType = NodeType_EDGE;
-        const nodeKey = "";
+        const nodeKey = "0x01e3d2c870c7c8b662990a79eb5fa65eb846e29c47a1ac412e07984d7c37112f";
         const config = "";
 
         try {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/NODE_ALREADY_PAIRED/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/NODE_ALREADY_PAIRED/.test(error), "wrong error message");
         }
     });
 
@@ -257,8 +258,7 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/DUPLICATE_NODE_KEY/.test(error), "wrong error message");
         }
     });
 
@@ -270,8 +270,7 @@ contract('XBRNetwork', accounts => {
             await network.releaseNode(nodeId, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/NO_SUCH_NODE/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/NO_SUCH_NODE/.test(error), "wrong error message");
         }
     });
 
@@ -283,8 +282,7 @@ contract('XBRNetwork', accounts => {
             await network.releaseNode(nodeId, {from: bob, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/NOT_AUTHORIZED/.test(error), "wrong error message");
         }
     });
 
@@ -292,9 +290,9 @@ contract('XBRNetwork', accounts => {
 
         const domainId = "0x9d9827822252fbe721d45224c7db7cac";
 
+/*
         const filter = {};
         const event = network.DomainClosed(filter);
-
         event.watch((err, result) => {
 
             // bytes16 domainId, DomainStatus status
@@ -304,7 +302,7 @@ contract('XBRNetwork', accounts => {
 
             event.stopWatching()
         });
-
+*/
         await network.closeDomain(domainId, {from: alice, gasLimit: gasLimit});
 
         const _status = await network.getDomainStatus(domainId);

@@ -144,15 +144,13 @@ contract('XBRNetwork', accounts => {
     it('XBRNetwork.register() : registering a member with wrong EULA should throw', async () => {
 
         const eula = "invalid";
-        const profile = "";
+        const profile = "foobar";
 
         try {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-
-            //assert(/INVALID_EULA/.test(error), "wrong error message: " + error);
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/INVALID_EULA/.test(error), "wrong error message: " + error);
         }
     });
 
@@ -160,7 +158,7 @@ contract('XBRNetwork', accounts => {
 
         const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
-
+/*
         const filter = {};
         const event = network.MemberCreated(filter);
 
@@ -176,7 +174,7 @@ contract('XBRNetwork', accounts => {
             events_ok = true;
             event.stopWatching()
         });
-
+*/
         await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
@@ -200,13 +198,12 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
-            //assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message: " + JSON.stringify(error));
-            assert(/Error: VM Exception while processing transaction: revert/.test(error));
+            assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message: " + JSON.stringify(error));
         }
     });
 
     it('XBRNetwork.unregister() : retiring a member should fire the correct event and store the correct member level', async () => {
-
+/*
         const filter = {};
         const event = network.MemberRetired(filter);
 
@@ -219,7 +216,7 @@ contract('XBRNetwork', accounts => {
             events_ok = true;
             event.stopWatching()
         });
-
+*/
         await network.unregister({from: alice, gasLimit: gasLimit});
 
         const _level = await network.getMemberLevel(alice);
