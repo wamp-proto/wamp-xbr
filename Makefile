@@ -21,8 +21,9 @@ default:
 	@echo 'Targets: clean compile test'
 
 clean: clean_docs
-	-rm -rf ./dist/
 	-sudo rm -rf ./build/
+	-sudo rm -rf ./node_modules/
+	-rm -rf ./dist/
 	-rm -rf ./*.egg-info/
 	-rm -rf ./.tox/
 	-rm -rf ./coverage

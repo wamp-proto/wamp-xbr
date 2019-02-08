@@ -425,7 +425,9 @@ contract XBRNetwork is XBRMaintained {
      * @param nodeKey The Ed25519 public node key.
      * @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
      */
-    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string memory config) public {
+    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey,
+        string memory config) public {
+
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
         require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
         require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
@@ -529,8 +531,8 @@ contract XBRNetwork is XBRMaintained {
      *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
      *                  a fraction of the total supply of XBR tokens.
      */
-    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker, uint256 providerSecurity,
-        uint256 consumerSecurity, uint256 marketFee) public {
+    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
         XBRToken _token = XBRToken(token);
 
