@@ -19,10 +19,20 @@
     "url": "git://github.com/xbr/xbr-protocol.git"
   },
   "dependencies": {
+    "browserify": "^16.2.3",
+    "coveralls": "^3.0.2",
+    "ganache-cli": "^6.2.4",
+    "google-closure-compiler": "^20190121.0.0",
+    "node-buffer": "^1.0.3",
+    "nodeunit": "^0.11.3",
     "openzeppelin-solidity": "^2.1.2",
+    "remix-ide": "^0.7.5-local",
+    "sha3": "^2.0.0",
+    "solhint": "^1.5.1",
+    "solidity-coverage": "^0.5.1",
+    "truffle": "^5.0.3",
     "truffle-contract": "^4.0.4",
     "uuid": "^3.3.2",
-    "sha3": "^2.0.0",
     "web3": "^1.0.0-beta.43"
   },
   "devDependencies": {},

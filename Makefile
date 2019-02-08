@@ -36,6 +36,35 @@ clean: clean_docs
 
 requirements:
 	sudo apt install -y nodejs nodejs-dev npm
+
+npm:
+	npm install google-closure-compiler
+	npm install node-buffer
+	npm install browserify
+	npm install coveralls
+	npm install nodeunit
+
+	npm install ganache-cli@v6.2.4
+	sudo rm -f /usr/local/bin/ganache-cli
+	sudo ln -s ${PWD}/node_modules/ganache-cli/cli.js /usr/local/bin/ganache-cli
+
+	npm install truffle@v5.0.3
+	sudo rm -f /usr/local/bin/truffle
+	sudo ln -s ${PWD}/node_modules/truffle/build/cli.bundled.js /usr/local/bin/truffle
+
+	npm install solhint@v1.5.1
+	sudo rm -f /usr/local/bin/solhint
+	sudo ln -s ${PWD}/node_modules/solhint/solhint.js /usr/local/bin/solhint
+
+	npm install solidity-coverage@v0.5.1
+	sudo rm -f /usr/local/bin/solidity-coverage
+	sudo ln -s ${PWD}/node_modules/solidity-coverage/bin/exec.js /usr/local/bin/solidity-coverage
+
+	npm install remix-ide
+	sudo rm -f /usr/local/bin/remix-ide
+	sudo ln -s ${PWD}/node_modules/remix-ide/bin/remix-ide /usr/local/bin/remix-ide
+
+npm_global:
 	sudo npm install -g google-closure-compiler
 	sudo npm install -g node-buffer
 	sudo npm install -g browserify
