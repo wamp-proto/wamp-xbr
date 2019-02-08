@@ -19,6 +19,9 @@ const utils = require("./utils.js");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
+// https://ethereum.stackexchange.com/a/38197
+const sha3 = web3.utils.sha3 || web3.sha3;
+
 
 contract('XBRNetwork', accounts => {
 
@@ -107,7 +110,7 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
         }
 
-        const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+        const marketId = sha3("MyMarket1").substring(0, 34);
         const maker = alice_market_maker1;
 
         const terms = "";
@@ -151,7 +154,7 @@ contract('XBRNetwork', accounts => {
         const providerSecurity = '100000000000000000000';
 
         // XBR market to join
-        const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+        const marketId = sha3("MyMarket1").substring(0, 34);
 
         // remember XBR token balance of network contract before joining market
         const _balance_network_before = await token.balanceOf(network.address);
@@ -210,7 +213,7 @@ contract('XBRNetwork', accounts => {
         const consumerSecurity = '100000000000000000000';
 
         // XBR market to join
-        const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+        const marketId = sha3("MyMarket1").substring(0, 34);
 
         // remember XBR token balance of network contract before joining market
         const _balance_network_before = await token.balanceOf(network.address);
@@ -253,7 +256,7 @@ contract('XBRNetwork', accounts => {
         const delegate = charlie_provider_delegate1;
 
         // XBR market to join
-        const marketId = web3.utils.sha3("MyMarket1").substring(0, 34);
+        const marketId = sha3("MyMarket1").substring(0, 34);
 
         // setup event watching
         var events_ok = false;
