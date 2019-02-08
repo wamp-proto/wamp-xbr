@@ -26,8 +26,16 @@ function await_event (event, handler) {
     });
 }
 
-
 module.exports = {
     mine_tx: mine_tx,
     await_event: await_event
 };
+
+// https://ethereum.stackexchange.com/a/38197
+if (web3.utils && web3.utils) {
+    module.exports.sha3 = web3.utils.sha3;
+} else if (web3 && web3.sha3) {
+    module.exports.sha3 = web3.sha3;
+} else {
+    module.exports.sha3 = null;
+}

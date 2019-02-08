@@ -12,19 +12,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 const web3 = require("web3");
-console.log('Using Web3 version: ' + JSON.stringify(web3.version));
-
 const utils = require("./utils.js");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
-// https://ethereum.stackexchange.com/a/38197
-if (web3.utils) {
-    const sha3 = web3.utils.sha3;
-} else {
-    const sha3 = web3.sha3;
-}
 
 
 contract('XBRNetwork', accounts => {
@@ -114,7 +106,7 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
         }
 
-        const marketId = sha3("MyMarket1").substring(0, 34);
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const maker = alice_market_maker1;
 
         const terms = "";
@@ -158,7 +150,7 @@ contract('XBRNetwork', accounts => {
         const providerSecurity = '100000000000000000000';
 
         // XBR market to join
-        const marketId = sha3("MyMarket1").substring(0, 34);
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
 
         // remember XBR token balance of network contract before joining market
         const _balance_network_before = await token.balanceOf(network.address);
@@ -217,7 +209,7 @@ contract('XBRNetwork', accounts => {
         const consumerSecurity = '100000000000000000000';
 
         // XBR market to join
-        const marketId = sha3("MyMarket1").substring(0, 34);
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
 
         // remember XBR token balance of network contract before joining market
         const _balance_network_before = await token.balanceOf(network.address);
@@ -260,7 +252,7 @@ contract('XBRNetwork', accounts => {
         const delegate = charlie_provider_delegate1;
 
         // XBR market to join
-        const marketId = sha3("MyMarket1").substring(0, 34);
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
 
         // setup event watching
         var events_ok = false;
