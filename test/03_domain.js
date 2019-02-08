@@ -170,6 +170,8 @@ contract('XBRNetwork', accounts => {
             await network.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
+            console.log('XXXXXXXXXXXXXXXXx');
+            console.log(error);
             //assert(/NO_SUCH_DOMAIN/.test(error), "wrong error message");
             assert(/Error: VM Exception while processing transaction: revert/.test(error));
         }

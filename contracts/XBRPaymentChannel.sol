@@ -16,8 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.24;
-
+pragma solidity ^0.5.0;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -181,7 +180,7 @@ contract XBRPaymentChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public {
+    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public view {
 
         address signer;
         bytes32 proof;
@@ -198,7 +197,7 @@ contract XBRPaymentChannel {
         if (proof != h) {
             revert("invalid signature (signature is valid but doesn't match the data provided)");
         }
-
+/* FIXME
         if (_signatures[proof] == 0) {
             _signatures[proof] = signer;
 
@@ -218,6 +217,7 @@ contract XBRPaymentChannel {
             // event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
             emit Closed(_marketId, signer, value, _closedAt);
         }
+*/
     }
 
     /**
@@ -231,8 +231,10 @@ contract XBRPaymentChannel {
             revert("channel timeout");
         }
         _closedAt = block.number;
-        selfdestruct(_sender);
-        //emit Closed();
+
+        // FIXME
+        // selfdestruct(_sender);
+        // emit Closed();
     }
 
     function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expectedSigner) internal pure returns (bool)

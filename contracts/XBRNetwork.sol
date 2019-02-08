@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -241,7 +241,7 @@ contract XBRNetwork is XBRMaintained {
      *             Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
      * @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
-    function register (string eula, string profile) public {
+    function register (string memory eula, string memory profile) public {
         require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
         require(keccak256(abi.encode(eula)) ==
                 keccak256(abi.encode("QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81")), "INVALID_EULA");
@@ -280,7 +280,7 @@ contract XBRNetwork is XBRMaintained {
      * @param member The address to lookup the XBR Network member EULA for.
      * @return IPFS Multihash pointing to XBR Network EULA file on IPFS.
      */
-    function getMemberEula (address member) public view returns (string) {
+    function getMemberEula (address member) public view returns (string memory) {
         return members[member].eula;
     }
 
@@ -290,7 +290,7 @@ contract XBRNetwork is XBRMaintained {
      * @param member The address to lookup the XBR Network member profile for.
      * @return IPFS Multihash pointing to member profile file on IPFS.
      */
-    function getMemberProfile (address member) public view returns (string) {
+    function getMemberProfile (address member) public view returns (string memory) {
         return members[member].profile;
     }
 
@@ -319,8 +319,8 @@ contract XBRNetwork is XBRMaintained {
      *  @param license The license for the software stack running the domain. IPFS Multihash
      *                 pointing to a JSON/YAML file signed by the project release key.
      */
-    function createDomain (bytes16 domainId, bytes32 domainKey, string license,
-        string terms, string meta) public {
+    function createDomain (bytes16 domainId, bytes32 domainKey, string memory license,
+        string memory terms, string memory meta) public {
 
         require(members[msg.sender].level == MemberLevel.ACTIVE ||
                 members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
@@ -392,7 +392,7 @@ contract XBRNetwork is XBRMaintained {
      * @param domainId The ID of the domain to lookup license.
      * @return IPFS Multihash pointer to domain license file on IPFS.
      */
-    function getDomainLicense(bytes16 domainId) public view returns (string) {
+    function getDomainLicense(bytes16 domainId) public view returns (string memory) {
         return domains[domainId].license;
     }
 
@@ -402,7 +402,7 @@ contract XBRNetwork is XBRMaintained {
      * @param domainId The ID of the domain to lookup terms.
      * @return IPFS Multihash pointer to domain terms on IPFS.
      */
-    function getDomainTerms(bytes16 domainId) public view returns (string) {
+    function getDomainTerms(bytes16 domainId) public view returns (string memory) {
         return domains[domainId].terms;
     }
 
@@ -412,7 +412,7 @@ contract XBRNetwork is XBRMaintained {
      * @param domainId The ID of the domain to lookup meta data.
      * @return IPFS Multihash pointer to domain metadata file on IPFS.
      */
-    function getDomainMeta(bytes16 domainId) public view returns (string) {
+    function getDomainMeta(bytes16 domainId) public view returns (string memory) {
         return domains[domainId].meta;
     }
 
@@ -425,7 +425,7 @@ contract XBRNetwork is XBRMaintained {
      * @param nodeKey The Ed25519 public node key.
      * @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
      */
-    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string config) public {
+    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey, string memory config) public {
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
         require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
         require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
@@ -508,7 +508,7 @@ contract XBRNetwork is XBRMaintained {
      * @param nodeId The ID of the node to lookup the config for.
      * @return IPFS Multihash pointer to node config.
      */
-    function getNodeConfig(bytes16 nodeId) public view returns (string) {
+    function getNodeConfig(bytes16 nodeId) public view returns (string memory) {
         return nodes[nodeId].config;
     }
 
@@ -529,7 +529,7 @@ contract XBRNetwork is XBRMaintained {
      *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
      *                  a fraction of the total supply of XBR tokens.
      */
-    function createMarket (bytes16 marketId, string terms, string meta, address maker, uint256 providerSecurity,
+    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker, uint256 providerSecurity,
         uint256 consumerSecurity, uint256 marketFee) public {
 
         XBRToken _token = XBRToken(token);
@@ -581,7 +581,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the market to lookup terms for.
      * @return IPFS Multihash pointer to market terms.
      */
-    function getMarketTerms (bytes16 marketId) public view returns (string) {
+    function getMarketTerms (bytes16 marketId) public view returns (string memory) {
         return markets[marketId].terms;
     }
 
@@ -591,7 +591,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the market to lookup metadata for.
      * @return IPFS Multihash pointer to market metadata.
      */
-    function getMarketMeta (bytes16 marketId) public view returns (string) {
+    function getMarketMeta (bytes16 marketId) public view returns (string memory) {
         return markets[marketId].meta;
     }
 
@@ -652,7 +652,7 @@ contract XBRNetwork is XBRMaintained {
      *                  opened. It will NOT apply to already opened (or closed) payment channels.
      * @return Flag indicating weather the market information was actually updated or left unchanged.
      */
-    function updateMarket(bytes16 marketId, string terms, string meta, address maker,
+    function updateMarket(bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
 
         Market storage market = markets[marketId];
@@ -733,7 +733,7 @@ contract XBRNetwork is XBRMaintained {
         }
 
         XBRToken _token = XBRToken(token);
-        bool success = _token.transferFrom(msg.sender, this, security);
+        bool success = _token.transferFrom(msg.sender, address(this), security);
         require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
 
         markets[marketId].actors[msg.sender] = Actor(actorType, security);
@@ -751,7 +751,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The ID of the market to lookup actors.
      * @return  List of addresses of market actors in the market.
      */
-    function getAllMarketActors (bytes16 marketId) public view returns (address[]) {
+    function getAllMarketActors (bytes16 marketId) public view returns (address[] memory) {
         return markets[marketId].actorAddresses;
     }
 
@@ -804,15 +804,15 @@ contract XBRNetwork is XBRMaintained {
         XBRPaymentChannel channel = new XBRPaymentChannel(marketId, msg.sender, consumer, address(0), amount, 60);
 
         XBRToken _token = XBRToken(token);
-        bool success = _token.transferFrom(msg.sender, channel, amount);
+        bool success = _token.transferFrom(msg.sender, address(channel), amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
-        markets[marketId].channels.push(channel);
+        markets[marketId].channels.push(address(channel));
 
         // bytes16 marketId, address sender, address delegate, address receiver, address channel
-        emit PaymentChannelCreated(marketId, msg.sender, consumer, markets[marketId].owner, channel);
+        emit PaymentChannelCreated(marketId, msg.sender, consumer, markets[marketId].owner, address(channel));
 
-        return channel;
+        return address(channel);
     }
 
     /**
@@ -821,7 +821,7 @@ contract XBRNetwork is XBRMaintained {
      * @param marketId The XBR Market to get payment channels for.
      * @return List of contract addresses of payment channels in the market.
      */
-    function getAllMarketPaymentChannels(bytes16 marketId) public view returns (address[]) {
+    function getAllMarketPaymentChannels(bytes16 marketId) public view returns (address[] memory) {
         return markets[marketId].channels;
     }
 
