@@ -59,6 +59,10 @@ class SimpleSeller(object):
         self._running = False
         self._rotate()
 
+    @property
+    def public_key(self):
+        return self._pkey.public_key
+
     async def start(self, session, provider_id):
         """
 
