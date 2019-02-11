@@ -5,5 +5,7 @@ WORKDIR /code
 
 RUN npm install -g truffle
 
-ENTRYPOINT ["truffle"]
-CMD ["compile", "--all"]
+COPY ./run /
+
+ENTRYPOINT ["/run"]
+# CMD ["run"]
