@@ -23,18 +23,27 @@ import nacl.secret
 import nacl.utils
 
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.task import LoopingCall
 
 import txaio
 
 import zlmdb
 
-from autobahn.twisted.util import sleep
 from autobahn.wamp.types import RegisterOptions
+from autobahn.wamp.exception import ApplicationError, TransportLost
 
 import eth_keys
 from eth_account import Account
 
 from ._interfaces import IProvider, ISeller
+
+import click
+
+
+def hl(text, bold=True, color='yellow'):
+    if not isinstance(text, str):
+        text = '{}'.format(text)
+    return click.style(text, fg=color, bold=bold)
 
 
 class SimpleSeller(object):
@@ -56,33 +65,72 @@ class SimpleSeller(object):
         self._key = None
         self._box = None
         self._archive = {}
-        self._running = False
-        self._rotate()
+        self._run_loop = None
+        self._started = None
+        self._session = None
 
     @property
     def public_key(self):
         return self._pkey.public_key
 
-    async def start(self, session, provider_id):
+    def start(self, session, provider_id):
         """
 
         :param session:
         :param provider_id:
         :return:
         """
-        self._running = True
+        assert self._run_loop is None
+        assert self._session is None
 
-        self.log.info('Start selling from provider delegate address {address} (public key 0x{public_key}..)',
-                      address=self._acct.address,
-                      public_key=binascii.b2a_hex(self._pkey.public_key[:10]).decode())
+        self._session = session
 
+        dl = []
         for func in [self.sell]:
             procedure = 'xbr.provider.{}.{}'.format(provider_id, func.__name__)
-            await session.register(func, procedure, options=RegisterOptions(details_arg='details'))
-            self.log.info('Registered {func} under {procedure}', func=func, procedure=procedure)
+            d = session.register(func, procedure, options=RegisterOptions(details_arg='details'))
+            dl.append(d)
 
-        from twisted.internet import reactor
-        reactor.callInThread(self._run, session, self._interval, self._price)
+        d = txaio.gather(dl)
+
+        def registered(regs):
+            for reg in regs:
+                self.log.info('Registered procedure "{procedure}"', procedure=hl(reg.procedure))
+
+        d.addCallback(registered)
+
+        self._run_loop = LoopingCall(self.loop, session)
+
+        self._started = self._run_loop.start(self._interval)
+
+        def on_stop(res_or_err):
+            self._run_loop = None
+            # self._started = None
+            self.log.info('Stopped selling from provider delegate address "{address}" (public key "0x{public_key}..")',
+                          address=hl(self._acct.address),
+                          public_key=hl(binascii.b2a_hex(self._pkey.public_key[:10]).decode()))
+
+        self._started.addBoth(on_stop)
+
+        self.log.info('Started selling from provider delegate address "{address}" (public key "0x{public_key}..")',
+                      address=hl(self._acct.address),
+                      public_key=hl(binascii.b2a_hex(self._pkey.public_key[:10]).decode()))
+
+        return self._started
+
+    def stop(self):
+        """
+
+        :return:
+        """
+        if self._run_loop:
+            self._run_loop.stop()
+
+        if self._session and self._session.is_attached():
+            # FIXME: voluntarily unregister interface
+            pass
+
+        return self._started
 
     async def wrap(self, uri, payload):
         """
@@ -118,14 +166,20 @@ class SimpleSeller(object):
         self.log.info('key rotated, new key_id={key_id}', key_id=uuid.UUID(bytes=self._id))
 
     @inlineCallbacks
-    def _run(self, session, interval, price):
-        while self._running:
-            self._rotate()
-            try:
-                yield session.call('xbr.marketmaker.offer', self._id, price)
-            except:
+    def loop(self, session):
+        self._rotate()
+
+        try:
+            yield session.call('xbr.marketmaker.offer', self._id, self._price)
+        except ApplicationError as e:
+            if e.reason == 'wamp.error.no_such_procedure':
+                self.log.warn('xbr.marketmaker.offer: procedure unavailable!')
+            else:
                 self.log.failure()
-            yield sleep(interval)
+        except TransportLost:
+            self.log.warn('TransportLost while calling xbr.marketmaker.offer!')
+        except:
+            self.log.failure()
 
     def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
         """
