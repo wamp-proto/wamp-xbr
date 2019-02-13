@@ -15,6 +15,7 @@
 ###############################################################################
 
 import os
+import time
 import uuid
 import binascii
 
@@ -31,6 +32,8 @@ import zlmdb
 
 from autobahn.wamp.types import RegisterOptions
 from autobahn.wamp.exception import ApplicationError, TransportLost
+from autobahn.twisted.util import sleep
+
 
 import eth_keys
 from eth_account import Account
@@ -167,19 +170,44 @@ class SimpleSeller(object):
 
     @inlineCallbacks
     def loop(self, session):
+        # rotate our key
         self._rotate()
 
-        try:
-            yield session.call('xbr.marketmaker.offer', self._id, self._price)
-        except ApplicationError as e:
-            if e.reason == 'wamp.error.no_such_procedure':
-                self.log.warn('xbr.marketmaker.offer: procedure unavailable!')
-            else:
+        # offer the key to the market maker (retry 5x in specific error cases)
+        retries = 5
+        while retries:
+            try:
+                # FIXME
+                api_id = b'\0' * 16
+                uri = 'debug.'
+                valid_from = time.time_ns() - 10 * 10**9
+                signature = None
+
+                offer = yield session.call('xbr.marketmaker.place_offer',
+                                           self._id,
+                                           api_id,
+                                           uri,
+                                           valid_from,
+                                           signature,
+                                           price=self._price)
+                self.log.info('New key {key_id} offered at XBR market maker: {offer}', key_id=None, offer=offer)
+                break
+
+            except ApplicationError as e:
+                if e.error == 'wamp.error.no_such_procedure':
+                    self.log.warn('xbr.marketmaker.offer: procedure unavailable!')
+                else:
+                    self.log.failure()
+                    break
+            except TransportLost:
+                self.log.warn('TransportLost while calling xbr.marketmaker.offer!')
+                break
+            except:
                 self.log.failure()
-        except TransportLost:
-            self.log.warn('TransportLost while calling xbr.marketmaker.offer!')
-        except:
-            self.log.failure()
+
+            retries -= 1
+            self.log.warn('Failed to place offer for key! Retrying {retries}/5 ..', retries=retries)
+            yield sleep(1)
 
     def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
         """
