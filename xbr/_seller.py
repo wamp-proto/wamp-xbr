@@ -17,7 +17,6 @@
 import os
 import time
 import uuid
-import binascii
 
 import cbor2
 import nacl.secret
@@ -27,8 +26,6 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
 import txaio
-
-import zlmdb
 
 from autobahn.wamp.types import RegisterOptions
 from autobahn.wamp.exception import ApplicationError, TransportLost
@@ -49,165 +46,232 @@ def hl(text, bold=True, color='yellow'):
     return click.style(text, fg=color, bold=bold)
 
 
+class KeySeries(object):
+
+    log = txaio.make_logger()
+
+    def __init__(self, api_id, price, interval, on_rotate=None):
+        assert type(api_id) == bytes and len(api_id) == 16
+        assert type(price) == int and price > 0
+        assert type(interval) == int and interval > 0
+
+        self._api_id = api_id
+        self._price = price
+        self._interval = interval
+        self._on_rotate = on_rotate
+
+        self._id = None
+        self._key = None
+        self._box = None
+
+        self._run_loop = None
+        self._started = None
+
+    @inlineCallbacks
+    def _rotate(self):
+        # create new temp keys ..
+        key_id = os.urandom(16)
+        key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
+
+        self._id = key_id
+        self._key = key
+        self._box = nacl.secret.SecretBox(self._key)
+
+        self.log.info('Key rotated with new key_id="{key_id}" for api_id={api_id}',
+                      key_id=hl(uuid.UUID(bytes=self._id)),
+                      api_id=hl(uuid.UUID(bytes=self._api_id)))
+
+        if self._on_rotate:
+            yield self._on_rotate(key_id)
+
+    def start(self):
+        assert self._run_loop is None
+
+        self.log.info('Starting key rotation every {interval} seconds for api_id="{api_id}" ..',
+                      interval=hl(self._interval), api_id=hl(uuid.UUID(bytes=self._api_id)))
+
+        self._run_loop = LoopingCall(self._rotate)
+        self._started = self._run_loop.start(self._interval)
+
+        return self._started
+
+    def stop(self):
+        assert self._run_loop
+
+        if self._run_loop:
+            self._run_loop.stop()
+            self._run_loop = None
+
+        return self._started
+
+    def encrypt(self, payload):
+        assert self._run_loop
+        assert self._box
+
+        data = cbor2.dumps(payload)
+        ciphertext = self._box.encrypt(data)
+
+        return self._id, 'cbor', ciphertext
+
+
 class SimpleSeller(object):
 
     log = txaio.make_logger()
 
-    def __init__(self, private_key, interval, price):
+    def __init__(self, private_key, provider_id):
         """
 
         :param private_key:
-        :param interval:
-        :param price:
         """
+        # seller private key/account
         self._pkey = eth_keys.keys.PrivateKey(private_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
-        self._interval = interval
-        self._price = price
+
+        self._provider_id = provider_id
+
+        self._keys = {}
+
         self._id = None
-        self._key = None
-        self._box = None
+        self._boxes = None
         self._archive = {}
-        self._run_loop = None
-        self._started = None
+
+        # after start() is running, these will be set
         self._session = None
+        self._session_regs = None
 
     @property
     def public_key(self):
-        return self._pkey.public_key
-
-    def start(self, session, provider_id):
         """
+        Get the seller public key.
 
-        :param session:
-        :param provider_id:
         :return:
         """
-        assert self._run_loop is None
+        return self._pkey.public_key
+
+    def add(self, api_id, prefix, price, interval, categories=None):
+        """
+        Add a new (rotating) private encryption key for encrypting data on the given API.
+
+        :param api_id: API for which to create a new series of rotating encryption keys.
+        :param price: Price in XBR token per key.
+        :param interval: Interval (in seconds) in which to auto-rotate the encryption key.
+        """
+        assert api_id not in self._keys
+
+        @inlineCallbacks
+        def on_rotate(key_id):
+            # offer the key to the market maker (retry 5x in specific error cases)
+            retries = 5
+            while retries:
+                try:
+                    valid_from = time.time_ns() - 10 * 10 ** 9
+                    signature = None
+
+                    offer = yield self._session.call('xbr.marketmaker.place_offer',
+                                                     key_id,
+                                                     api_id,
+                                                     prefix,
+                                                     valid_from,
+                                                     signature,
+                                                     privkey=None,
+                                                     price=price,
+                                                     categories=categories,
+                                                     expires=None,
+                                                     copies=None)
+                    self.log.info('Key key_id="{key_id}" offered with offer_id="{offer_id}"',
+                                  key_id=hl(uuid.UUID(bytes=key_id)), offer_id=hl(offer['offer']))
+                    break
+
+                except ApplicationError as e:
+                    if e.error == 'wamp.error.no_such_procedure':
+                        self.log.warn('xbr.marketmaker.offer: procedure unavailable!')
+                    else:
+                        self.log.failure()
+                        break
+                except TransportLost:
+                    self.log.warn('TransportLost while calling xbr.marketmaker.offer!')
+                    break
+                except:
+                    self.log.failure()
+
+                retries -= 1
+                self.log.warn('Failed to place offer for key! Retrying {retries}/5 ..', retries=retries)
+                yield sleep(1)
+
+        key_series = KeySeries(api_id, price, interval, on_rotate)
+        self._keys[api_id] = key_series
+
+        return key_series
+
+    def start(self, session):
+        """
+        Start rotating keys and placing key offers with the XBR market maker.
+
+        :param session: WAMP session over which to communicate with the XBR market maker.
+        :param provider_id: The XBR provider ID.
+        :return:
+        """
         assert self._session is None
 
         self._session = session
 
         dl = []
         for func in [self.sell]:
-            procedure = 'xbr.provider.{}.{}'.format(provider_id, func.__name__)
+            procedure = 'xbr.provider.{}.{}'.format(self._provider_id, func.__name__)
             d = session.register(func, procedure, options=RegisterOptions(details_arg='details'))
             dl.append(d)
-
         d = txaio.gather(dl)
 
         def registered(regs):
             for reg in regs:
                 self.log.info('Registered procedure "{procedure}"', procedure=hl(reg.procedure))
+            self._session_regs = regs
 
         d.addCallback(registered)
 
-        self._run_loop = LoopingCall(self.loop, session)
+        for key_series in self._keys.values():
+            key_series.start()
 
-        self._started = self._run_loop.start(self._interval)
-
-        def on_stop(res_or_err):
-            self._run_loop = None
-            # self._started = None
-            self.log.info('Stopped selling from provider delegate address "{address}" (public key "0x{public_key}..")',
-                          address=hl(self._acct.address),
-                          public_key=hl(binascii.b2a_hex(self._pkey.public_key[:10]).decode()))
-
-        self._started.addBoth(on_stop)
-
-        self.log.info('Started selling from provider delegate address "{address}" (public key "0x{public_key}..")',
-                      address=hl(self._acct.address),
-                      public_key=hl(binascii.b2a_hex(self._pkey.public_key[:10]).decode()))
-
-        return self._started
+        return d
 
     def stop(self):
         """
 
         :return:
         """
-        if self._run_loop:
-            self._run_loop.stop()
+        dl = []
+        for key_series in self._keys.values():
+            d = key_series.stop()
+            dl.append(d)
 
-        if self._session and self._session.is_attached():
-            # FIXME: voluntarily unregister interface
-            pass
+        if self._session_regs:
+            if self._session and self._session.is_attached():
+                # voluntarily unregister interface
+                for reg in self._session_regs:
+                    d = reg.unregister()
+                    dl.append(d)
+            self._session_regs = None
 
-        return self._started
+        d = txaio.gather(dl)
+        return d
 
-    async def wrap(self, uri, payload):
+    async def wrap(self, api_id, uri, payload, categories=None):
         """
 
         :param uri:
         :param payload:
         :return:
         """
-        data = cbor2.dumps(payload)
-        ciphertext = self._box.encrypt(data)
-        return self._id, 'cbor', ciphertext
+        assert api_id in self._keys
+        assert type(uri) == str
+        assert payload is not None
+        assert categories is None or (type(categories) == dict and (type(k) == str for k in categories) and type(categories) == dict and (type(v) == str for v in categories.values()))
 
-    # def unwrap(self, key_id, enc_ser, ciphertext):
-    #     assert(enc_ser == 'cbor')
-    #     data = self.decrypt(key_id, ciphertext)
-    #     return cbor2.loads(data)
-    #
-    # def encrypt(self, data):
-    #     assert(type(data) == bytes)
-    #     assert(self._box is not None)
-    #     return self._id, self._box.encrypt(data)
-    #
-    # def decrypt(self, key_id, data):
-    #     assert(type(data) == bytes)
-    #     assert(key_id in self._archive)
-    #     return self._archive[key_id][2].decrypt(data)
+        keyseries = self._keys[api_id]
 
-    def _rotate(self):
-        self._id = os.urandom(16)
-        self._key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
-        self._box = nacl.secret.SecretBox(self._key)
-        self._archive[self._id] = (zlmdb.time_ns(), self._key, self._box)
-        self.log.info('key rotated, new key_id={key_id}', key_id=uuid.UUID(bytes=self._id))
+        key_id, serializer, ciphertext = keyseries.encrypt(payload)
 
-    @inlineCallbacks
-    def loop(self, session):
-        # rotate our key
-        self._rotate()
-
-        # offer the key to the market maker (retry 5x in specific error cases)
-        retries = 5
-        while retries:
-            try:
-                # FIXME
-                api_id = b'\0' * 16
-                uri = 'debug.'
-                valid_from = time.time_ns() - 10 * 10**9
-                signature = None
-
-                offer = yield session.call('xbr.marketmaker.place_offer',
-                                           self._id,
-                                           api_id,
-                                           uri,
-                                           valid_from,
-                                           signature,
-                                           price=self._price)
-                self.log.info('New key {key_id} offered at XBR market maker: {offer}', key_id=None, offer=offer)
-                break
-
-            except ApplicationError as e:
-                if e.error == 'wamp.error.no_such_procedure':
-                    self.log.warn('xbr.marketmaker.offer: procedure unavailable!')
-                else:
-                    self.log.failure()
-                    break
-            except TransportLost:
-                self.log.warn('TransportLost while calling xbr.marketmaker.offer!')
-                break
-            except:
-                self.log.failure()
-
-            retries -= 1
-            self.log.warn('Failed to place offer for key! Retrying {retries}/5 ..', retries=retries)
-            yield sleep(1)
+        return key_id, serializer, ciphertext
 
     def sell(self, key_id, buyer_pubkey, amount_paid, post_balance, signature, details=None):
         """
