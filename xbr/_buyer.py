@@ -30,6 +30,7 @@ import eth_keys
 from eth_account import Account
 
 from ._interfaces import IConsumer, IBuyer
+from ._util import hl
 
 
 class SimpleBuyer(object):
@@ -40,7 +41,7 @@ class SimpleBuyer(object):
 
     log = txaio.make_logger()
 
-    def __init__(self, buyer_key):
+    def __init__(self, buyer_key, max_price):
         """
 
         :param buyer_key: Consumer delegate (buyer) private Ethereum key.
@@ -48,6 +49,8 @@ class SimpleBuyer(object):
         """
         self._pkey = eth_keys.keys.PrivateKey(buyer_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
+
+        self._max_price = max_price
 
         # this holds the keys we bought (map: key_id => nacl.secret.SecretBox)
         self._keys = {}
@@ -105,7 +108,7 @@ class SimpleBuyer(object):
             self._keys[key_id] = False
 
             # call the market maker to buy the key
-            amount = 35
+            amount = self._max_price
             balance = 0
 
             self._channel_seq += 1
@@ -117,7 +120,7 @@ class SimpleBuyer(object):
 
             # call the market maker to buy the key
             #   -> channel_id, channel_seq, buyer_pubkey, datakey_id, amount, balance, signature
-            sealed_key = await self._session.call('xbr.marketmaker.buy',
+            sealed_key = await self._session.call('xbr.marketmaker.buy_key',
                                                   self._channel,
                                                   self._channel_seq,
                                                   buyer_pubkey,
@@ -134,7 +137,12 @@ class SimpleBuyer(object):
 
             # remember the key, so we can use it to actually decrypt application payload data
             self._keys[key_id] = nacl.secret.SecretBox(key)
-            self.log.info('Key {key_id} bought!', key_id=uuid.UUID(bytes=key_id))
+
+            self.log.info(
+                '{tx_type} Key key_id="{key_id}" bought with buyer_pubkey="{buyer_pubkey}"',
+                tx_type=hl('XBR BUY', color='magenta'),
+                key_id=hl(uuid.UUID(bytes=key_id)),
+                buyer_pubkey=hl(binascii.b2a_hex(buyer_pubkey).decode()))
 
         # if the key is already bein bought, wait until the one buying string of execution has succeeded and done
         while self._keys[key_id] == False:

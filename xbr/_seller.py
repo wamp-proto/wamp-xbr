@@ -17,6 +17,7 @@
 import os
 import time
 import uuid
+import binascii
 
 import cbor2
 import nacl.secret
@@ -31,19 +32,11 @@ from autobahn.wamp.types import RegisterOptions
 from autobahn.wamp.exception import ApplicationError, TransportLost
 from autobahn.twisted.util import sleep
 
-
 import eth_keys
 from eth_account import Account
 
 from ._interfaces import IProvider, ISeller
-
-import click
-
-
-def hl(text, bold=True, color='yellow'):
-    if not isinstance(text, str):
-        text = '{}'.format(text)
-    return click.style(text, fg=color, bold=bold)
+from ._util import hl
 
 
 class KeySeries(object):
@@ -63,26 +56,51 @@ class KeySeries(object):
         self._id = None
         self._key = None
         self._box = None
+        self._archive = {}
 
         self._run_loop = None
         self._started = None
 
-    @inlineCallbacks
-    def _rotate(self):
-        # create new temp keys ..
-        key_id = os.urandom(16)
-        key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
+    @property
+    def key_id(self):
+        """
+        Get current XBR data encryption key ID.
 
-        self._id = key_id
-        self._key = key
-        self._box = nacl.secret.SecretBox(self._key)
+        :return:
+        """
+        return self._id
 
-        self.log.info('Key rotated with new key_id="{key_id}" for api_id={api_id}',
-                      key_id=hl(uuid.UUID(bytes=self._id)),
-                      api_id=hl(uuid.UUID(bytes=self._api_id)))
+    def encrypt(self, payload):
+        """
+        Encrypt data with the current XBR data encryption key.
 
-        if self._on_rotate:
-            yield self._on_rotate(key_id)
+        :param payload:
+        :return:
+        """
+        data = cbor2.dumps(payload)
+        ciphertext = self._box.encrypt(data)
+
+        return self._id, 'cbor', ciphertext
+
+    def encrypt_key(self, key_id, buyer_pubkey):
+        """
+        Encrypt a previously used XBR data encryption key with a buyer public key.
+
+        :param key_id:
+        :param buyer_pubkey:
+        :return:
+        """
+
+        # FIXME: check amount paid, post balance and signature
+        # FIXME: sign transaction
+        key, _ = self._archive[key_id]
+
+        sendkey_box = nacl.public.SealedBox(nacl.public.PublicKey(buyer_pubkey,
+                                                                  encoder=nacl.encoding.RawEncoder))
+
+        encrypted_key = sendkey_box.encrypt(key, encoder=nacl.encoding.RawEncoder)
+
+        return encrypted_key
 
     def start(self):
         assert self._run_loop is None
@@ -104,21 +122,27 @@ class KeySeries(object):
 
         return self._started
 
-    def encrypt(self, payload):
-        assert self._run_loop
-        assert self._box
+    @inlineCallbacks
+    def _rotate(self):
+        self._id = os.urandom(16)
+        self._key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
+        self._box = nacl.secret.SecretBox(self._key)
 
-        data = cbor2.dumps(payload)
-        ciphertext = self._box.encrypt(data)
+        self._archive[self._id] = (self._key, self._box)
 
-        return self._id, 'cbor', ciphertext
+        self.log.info('Key rotated with new key_id="{key_id}" for api_id={api_id}',
+                      key_id=hl(uuid.UUID(bytes=self._id)),
+                      api_id=hl(uuid.UUID(bytes=self._api_id)))
+
+        if self._on_rotate:
+            yield self._on_rotate(self)
 
 
 class SimpleSeller(object):
 
     log = txaio.make_logger()
 
-    def __init__(self, private_key, provider_id):
+    def __init__(self, private_key, provider_id=None):
         """
 
         :param private_key:
@@ -127,13 +151,10 @@ class SimpleSeller(object):
         self._pkey = eth_keys.keys.PrivateKey(private_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
 
-        self._provider_id = provider_id
+        self._provider_id = provider_id or str(self._pkey.public_key)
 
         self._keys = {}
-
-        self._id = None
-        self._boxes = None
-        self._archive = {}
+        self._keys_map = {}
 
         # after start() is running, these will be set
         self._session = None
@@ -159,7 +180,12 @@ class SimpleSeller(object):
         assert api_id not in self._keys
 
         @inlineCallbacks
-        def on_rotate(key_id):
+        def on_rotate(key_series):
+
+            key_id = key_series.key_id
+
+            self._keys_map[key_id] = key_series
+
             # offer the key to the market maker (retry 5x in specific error cases)
             retries = 5
             while retries:
@@ -177,7 +203,8 @@ class SimpleSeller(object):
                                                      price=price,
                                                      categories=categories,
                                                      expires=None,
-                                                     copies=None)
+                                                     copies=None,
+                                                     provider_id=self._provider_id)
                     self.log.info('Key key_id="{key_id}" offered with offer_id="{offer_id}"',
                                   key_id=hl(uuid.UUID(bytes=key_id)), offer_id=hl(offer['offer']))
                     break
@@ -203,6 +230,7 @@ class SimpleSeller(object):
 
         return key_series
 
+    @inlineCallbacks
     def start(self, session):
         """
         Start rotating keys and placing key offers with the XBR market maker.
@@ -214,25 +242,32 @@ class SimpleSeller(object):
         assert self._session is None
 
         self._session = session
+        self._session_regs = []
 
-        dl = []
-        for func in [self.sell]:
-            procedure = 'xbr.provider.{}.{}'.format(self._provider_id, func.__name__)
-            d = session.register(func, procedure, options=RegisterOptions(details_arg='details'))
-            dl.append(d)
-        d = txaio.gather(dl)
-
-        def registered(regs):
-            for reg in regs:
-                self.log.info('Registered procedure "{procedure}"', procedure=hl(reg.procedure))
-            self._session_regs = regs
-
-        d.addCallback(registered)
+        procedure = 'xbr.provider.{}.sell'.format(self._provider_id)
+        reg = yield session.register(self.sell, procedure, options=RegisterOptions(details_arg='details'))
+        self._session_regs.append(reg)
+        self.log.info('Registered procedure "{procedure}"', procedure=hl(reg.procedure))
 
         for key_series in self._keys.values():
             key_series.start()
 
-        return d
+        if False:
+            dl = []
+            for func in [self.sell]:
+                procedure = 'xbr.provider.{}.{}'.format(self._provider_id, func.__name__)
+                d = session.register(func, procedure, options=RegisterOptions(details_arg='details'))
+                dl.append(d)
+            d = txaio.gather(dl)
+
+            def registered(regs):
+                for reg in regs:
+                    self.log.info('Registered procedure "{procedure}"', procedure=hl(reg.procedure))
+                self._session_regs = regs
+
+            d.addCallback(registered)
+
+            return d
 
     def stop(self):
         """
@@ -255,7 +290,7 @@ class SimpleSeller(object):
         d = txaio.gather(dl)
         return d
 
-    async def wrap(self, api_id, uri, payload, categories=None):
+    async def wrap(self, api_id, uri, payload):
         """
 
         :param uri:
@@ -265,7 +300,6 @@ class SimpleSeller(object):
         assert api_id in self._keys
         assert type(uri) == str
         assert payload is not None
-        assert categories is None or (type(categories) == dict and (type(k) == str for k in categories) and type(categories) == dict and (type(v) == str for v in categories.values()))
 
         keyseries = self._keys[api_id]
 
@@ -284,20 +318,19 @@ class SimpleSeller(object):
         :param details:
         :return:
         """
-        if key_id not in self._archive:
-            raise RuntimeError('no such datakey')
+        if key_id not in self._keys_map:
+            raise ApplicationError('crossbar.error.no_such_object', 'no key with ID "{}"'.format(key_id))
 
-        created, key, box = self._archive[key_id]
+        key_series = self._keys_map[key_id]
 
-        # FIXME: check amount paid, post balance and signature
-        # FIXME: sign transaction
+        encrypted_key = key_series.encrypt_key(key_id, buyer_pubkey)
 
-        sendkey_box = nacl.public.SealedBox(nacl.public.PublicKey(buyer_pubkey,
-                                                                  encoder=nacl.encoding.RawEncoder))
-
-        encrypted_key = sendkey_box.encrypt(key, encoder=nacl.encoding.RawEncoder)
-
-        self.log.info('Key {key_id} sold to {buyer_pubkey} (caller={caller})', key_id=key_id, caller=details.caller, buyer_pubkey=buyer_pubkey)
+        self.log.info('{tx_type} Key key_id="{key_id}" sold to buyer_pubkey="{buyer_pubkey}" [caller={caller}, caller_authid="{caller_authid}"]',
+                      tx_type=hl('XBR SELL', color='magenta'),
+                      key_id=hl(uuid.UUID(bytes=key_id)),
+                      caller=hl(details.caller),
+                      caller_authid=hl(details.caller_authid),
+                      buyer_pubkey=hl(binascii.b2a_hex(buyer_pubkey).decode()))
 
         return encrypted_key
 
