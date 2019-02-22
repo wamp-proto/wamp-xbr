@@ -49,6 +49,7 @@ class SimpleBuyer(object):
         """
         self._pkey = eth_keys.keys.PrivateKey(buyer_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
+        self._addr = self._pkey.public_key.to_canonical_address()
 
         self._max_price = max_price
 
@@ -73,22 +74,19 @@ class SimpleBuyer(object):
                       address=self._acct.address,
                       public_key=binascii.b2a_hex(self._pkey.public_key[:10]).decode())
 
-        channels = await session.call('xbr.marketmaker.get_payment_channels', self._acct.address)
-        if not channels:
-            raise Exception('no active payment channels found')
+        payment_channel = await session.call('xbr.marketmaker.get_payment_channel', self._addr)
 
-        channel_info = await session.call('xbr.marketmaker.get_payment_channel', channels[0])
+        self.log.info('Delegate current payment channel: {payment_channel', payment_channel=payment_channel)
 
-        if not channel_info or not channel_info.get('id', None):
-            raise Exception('no payment channel found')
-        if channel_info['status'] != 'open':
+        if not payment_channel:
+            raise Exception('no active payment channel found for delegate')
+        if payment_channel['state'] != 1:
             raise Exception('payment channel not open')
-        if not channel_info.get('balance', None):
-            raise Exception('no positive balance in payment channel')
+        if payment_channel['remaining'] == 0:
+            raise Exception('payment channel (amount={}) has no balance remaining'.format(payment_channel['remaining']))
 
-        self._channel = channel_info['id']
-        self._channel_seq = channel_info['seq']
-        self._balance = channel_info['balance']
+        self._channel = payment_channel
+        self._balance = payment_channel['remaining']
 
         return self._balance
 
@@ -111,8 +109,6 @@ class SimpleBuyer(object):
             amount = self._max_price
             balance = 0
 
-            self._channel_seq += 1
-
             # FIXME: compute actual kecchak256 based signature
             signature = b'\x00' * 64
 
@@ -121,8 +117,7 @@ class SimpleBuyer(object):
             # call the market maker to buy the key
             #   -> channel_id, channel_seq, buyer_pubkey, datakey_id, amount, balance, signature
             sealed_key = await self._session.call('xbr.marketmaker.buy_key',
-                                                  self._channel,
-                                                  self._channel_seq,
+                                                  self._addr,
                                                   buyer_pubkey,
                                                   key_id,
                                                   amount,
