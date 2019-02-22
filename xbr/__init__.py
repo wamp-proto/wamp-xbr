@@ -84,6 +84,19 @@ class ActorType(object):
     CONSUMER = 4
 
 
+ASCII_BOMB = r"""
+          _ ._  _ , _ ._
+        (_ ' ( `  )_  .__)
+      ( (  (    )   `)  ) _)
+     (__ (_   (_ . _) _) ,__)
+         `~~`\ ' . /`~~`
+              ;   ;
+              /   \
+_____________/_ __ \_____________
+
+"""
+
+
 __all__ = (
     'version',
     'setProvider',
@@ -98,6 +111,7 @@ __all__ = (
     'XBR_TOKEN_ABI',
     'XBR_NETWORK_ABI',
     'XBR_PAYMENT_CHANNEL_ABI',
+    'ASCII_BOMB',
 
     'IMarketMaker',
     'IProvider',

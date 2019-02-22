@@ -76,7 +76,7 @@ class SimpleBuyer(object):
 
         payment_channel = await session.call('xbr.marketmaker.get_payment_channel', self._addr)
 
-        self.log.info('Delegate current payment channel: {payment_channel', payment_channel=payment_channel)
+        self.log.info('Delegate current payment channel: {payment_channel}', payment_channel=payment_channel)
 
         if not payment_channel:
             raise Exception('no active payment channel found for delegate')
