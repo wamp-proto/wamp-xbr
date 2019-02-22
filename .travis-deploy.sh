@@ -60,10 +60,14 @@ aws s3 cp --acl public-read ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/j
 # deploy latest XBR Lib for Python:
 # https://www.python.org/dev/peps/pep-0503/
 # https://packaging.python.org/guides/hosting-your-own-index/
+tox -c tox.ini -e xbr-python
+
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/xbr/
 #   => https://xbr.network/lib/python/xbr/
-tox -c tox.ini -e xbr-python
 aws s3 cp --recursive --acl public-read ./dist s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
+
+#   => https://s3.eu-central-1.amazonaws.com/crossbarbuilder/wheels/
+aws s3 cp --recursive ./dist s3://crossbarbuilder/wheels
 
 # deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
