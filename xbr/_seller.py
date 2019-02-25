@@ -130,9 +130,11 @@ class KeySeries(object):
 
         self._archive[self._id] = (self._key, self._box)
 
-        self.log.info('Key rotated with new key_id="{key_id}" for api_id={api_id}',
-                      key_id=hl(uuid.UUID(bytes=self._id)),
-                      api_id=hl(uuid.UUID(bytes=self._api_id)))
+        self.log.info(
+            '{tx_type} key "{key_id}" rotated [api_id="{api_id}"]',
+            tx_type=hl('XBR ROTATE', color='magenta'),
+            key_id=hl(uuid.UUID(bytes=self._id)),
+            api_id=hl(uuid.UUID(bytes=self._api_id)))
 
         if self._on_rotate:
             yield self._on_rotate(self)
@@ -193,6 +195,8 @@ class SimpleSeller(object):
                 try:
                     valid_from = time.time_ns() - 10 * 10 ** 9
 
+                    delegate = self._addr
+
                     # FIXME: sign the supplied offer information using self._pkey
                     signature = os.urandom(64)
 
@@ -201,7 +205,7 @@ class SimpleSeller(object):
                                                      api_id,
                                                      prefix,
                                                      valid_from,
-                                                     self._addr,
+                                                     delegate,
                                                      signature,
                                                      privkey=None,
                                                      price=price,
@@ -209,8 +213,16 @@ class SimpleSeller(object):
                                                      expires=None,
                                                      copies=None,
                                                      provider_id=self._provider_id)
-                    self.log.info('Key key_id="{key_id}" offered with offer_id="{offer_id}"',
-                                  key_id=hl(uuid.UUID(bytes=key_id)), offer_id=hl(offer['offer']))
+
+                    self.log.info(
+                        '{tx_type} key "{key_id}" offered for {price} [api_id={api_id}, prefix="{prefix}", delegate="{delegate}"]',
+                        tx_type=hl('XBR OFFER ', color='magenta'),
+                        key_id=hl(uuid.UUID(bytes=key_id)),
+                        api_id=hl(uuid.UUID(bytes=api_id)),
+                        price=hl(str(price) + ' XBR', color='magenta'),
+                        delegate=hl(binascii.b2a_hex(delegate).decode()),
+                        prefix=hl(prefix))
+
                     break
 
                 except ApplicationError as e:
@@ -329,9 +341,11 @@ class SimpleSeller(object):
 
         encrypted_key = key_series.encrypt_key(key_id, buyer_pubkey)
 
-        self.log.info('{tx_type} Key key_id="{key_id}" sold to buyer_pubkey="{buyer_pubkey}" [caller={caller}, caller_authid="{caller_authid}"]',
-                      tx_type=hl('XBR SELL', color='magenta'),
+        self.log.info('{tx_type} key "{key_id}" sold for {amount_earned} [caller={caller}, caller_authid="{caller_authid}", buyer_pubkey="{buyer_pubkey}"]',
+                      tx_type=hl('XBR SELL  ', color='magenta'),
                       key_id=hl(uuid.UUID(bytes=key_id)),
+                      amount_earned=hl(str(amount_paid) + ' XBR', color='magenta'),
+                      # paying_channel=hl(binascii.b2a_hex(paying_channel).decode()),
                       caller=hl(details.caller),
                       caller_authid=hl(details.caller_authid),
                       buyer_pubkey=hl(binascii.b2a_hex(buyer_pubkey).decode()))

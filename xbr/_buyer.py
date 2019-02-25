@@ -77,7 +77,8 @@ class SimpleBuyer(object):
 
         payment_channel = await session.call('xbr.marketmaker.get_payment_channel', self._addr)
 
-        self.log.info('Delegate current payment channel: {payment_channel}', payment_channel=payment_channel)
+        self.log.info('Delegate current payment channel: {payment_channel}',
+                      payment_channel=hl(binascii.b2a_hex(payment_channel['channel']).decode()))
 
         if not payment_channel:
             raise Exception('no active payment channel found for delegate')
@@ -140,19 +141,22 @@ class SimpleBuyer(object):
             self._keys[key_id] = nacl.secret.SecretBox(key)
 
             self.log.info(
-                '{tx_type} Key key_id="{key_id}" bought with buyer_pubkey="{buyer_pubkey}" for {amount_paid} [payment_channel={payment_channel}, remaining={remaining}, inflight={inflight}]',
-                tx_type=hl('XBR BUY', color='magenta'),
+                '{tx_type} key "{key_id}" bought for {amount_paid} [payment_channel="{payment_channel}", remaining={remaining}, inflight={inflight}, buyer_pubkey="{buyer_pubkey}"]',
+                tx_type=hl('XBR BUY   ', color='magenta'),
                 key_id=hl(uuid.UUID(bytes=key_id)),
-                amount_paid=hl(receipt['amount_paid']),
+                amount_paid=hl(str(receipt['amount_paid']) + ' XBR', color='magenta'),
                 payment_channel=hl(binascii.b2a_hex(receipt['payment_channel']).decode()),
                 remaining=hl(receipt['remaining']),
                 inflight=hl(receipt['inflight']),
                 buyer_pubkey=hl(binascii.b2a_hex(buyer_pubkey).decode()))
 
         # if the key is already being bought, wait until the one buying path of execution has succeeded and done
+        log_counter = 0
         while self._keys[key_id] == False:
-            self.log.info('Waiting for key {key_id} currently being bought ..', key_id=uuid.UUID(bytes=key_id))
-            await sleep(1)
+            if log_counter % 100:
+                self.log.info('Waiting for key "{key_id}" currently being bought ..', key_id=hl(uuid.UUID(bytes=key_id)))
+                log_counter += 1
+            await sleep(.2)
 
         # check if the key buying failed and fail the unwrapping in turn
         if isinstance(self._keys[key_id], Exception):
