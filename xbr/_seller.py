@@ -150,6 +150,7 @@ class SimpleSeller(object):
         # seller private key/account
         self._pkey = eth_keys.keys.PrivateKey(private_key)
         self._acct = Account.privateKeyToAccount(self._pkey)
+        self._addr = self._pkey.public_key.to_canonical_address()
 
         self._provider_id = provider_id or str(self._pkey.public_key)
 
@@ -191,13 +192,16 @@ class SimpleSeller(object):
             while retries:
                 try:
                     valid_from = time.time_ns() - 10 * 10 ** 9
-                    signature = None
+
+                    # FIXME: sign the supplied offer information using self._pkey
+                    signature = os.urandom(64)
 
                     offer = yield self._session.call('xbr.marketmaker.place_offer',
                                                      key_id,
                                                      api_id,
                                                      prefix,
                                                      valid_from,
+                                                     self._addr,
                                                      signature,
                                                      privkey=None,
                                                      price=price,
