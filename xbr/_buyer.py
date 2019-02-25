@@ -25,6 +25,7 @@ import nacl.public
 
 import txaio
 from autobahn.twisted.util import sleep
+from autobahn.wamp.exception import ApplicationError
 
 import eth_keys
 from eth_account import Account
@@ -107,7 +108,6 @@ class SimpleBuyer(object):
 
             # call the market maker to buy the key
             amount = self._max_price
-            balance = 0
 
             # FIXME: compute actual kecchak256 based signature
             signature = b'\x00' * 64
@@ -116,46 +116,61 @@ class SimpleBuyer(object):
 
             # call the market maker to buy the key
             #   -> channel_id, channel_seq, buyer_pubkey, datakey_id, amount, balance, signature
-            sealed_key = await self._session.call('xbr.marketmaker.buy_key',
-                                                  self._addr,
-                                                  buyer_pubkey,
-                                                  key_id,
-                                                  amount,
-                                                  balance,
-                                                  signature)
+            try:
+                receipt = await self._session.call('xbr.marketmaker.buy_key',
+                                                   self._addr,
+                                                   buyer_pubkey,
+                                                   key_id,
+                                                   amount,
+                                                   signature)
+            except Exception as e:
+                self._keys[key_id] = e
+                raise e
+
+            sealed_key = receipt['sealed_key']
 
             unseal_box = nacl.public.SealedBox(self._receive_key)
             try:
                 key = unseal_box.decrypt(sealed_key)
             except nacl.exceptions.CryptoError as e:
-                raise Exception('failed to unseal the datakey: {}'.format(e))
+                self._keys[key_id] = e
+                raise ApplicationError('xbr.error.decryption_failed', 'could not unseal data encryption key: {}'.format(e))
 
             # remember the key, so we can use it to actually decrypt application payload data
             self._keys[key_id] = nacl.secret.SecretBox(key)
 
             self.log.info(
-                '{tx_type} Key key_id="{key_id}" bought with buyer_pubkey="{buyer_pubkey}"',
+                '{tx_type} Key key_id="{key_id}" bought with buyer_pubkey="{buyer_pubkey}" for {amount_paid} [payment_channel={payment_channel}, remaining={remaining}, inflight={inflight}]',
                 tx_type=hl('XBR BUY', color='magenta'),
                 key_id=hl(uuid.UUID(bytes=key_id)),
+                amount_paid=hl(receipt['amount_paid']),
+                payment_channel=hl(binascii.b2a_hex(receipt['payment_channel']).decode()),
+                remaining=hl(receipt['remaining']),
+                inflight=hl(receipt['inflight']),
                 buyer_pubkey=hl(binascii.b2a_hex(buyer_pubkey).decode()))
 
-        # if the key is already bein bought, wait until the one buying string of execution has succeeded and done
+        # if the key is already being bought, wait until the one buying path of execution has succeeded and done
         while self._keys[key_id] == False:
             self.log.info('Waiting for key {key_id} currently being bought ..', key_id=uuid.UUID(bytes=key_id))
-            await sleep(.2)
+            await sleep(1)
+
+        # check if the key buying failed and fail the unwrapping in turn
+        if isinstance(self._keys[key_id], Exception):
+            e = self._keys[key_id]
+            raise e
 
         # now that we have the secret key, decrypt the event application payload
         try:
             message = self._keys[key_id].decrypt(ciphertext)
         except nacl.exceptions.CryptoError as e:
             # Decryption failed. Ciphertext failed verification
-            raise RuntimeError('unwrapping XBR payload failed ({})'.format(e))
+            raise ApplicationError('xbr.error.decryption_failed', 'failed to unwrap encrypted data: {}'.format(e))
 
         try:
             payload = cbor2.loads(message)
         except cbor2.decoder.CBORDecodeError as e:
             # premature end of stream (expected to read 4187 bytes, got 27 instead)
-            raise RuntimeError('unwrapping XBR payload failed ({})'.format(e))
+            raise ApplicationError('xbr.error.deserialization_failed', 'failed to deserialize application payload: {}'.format(e))
 
         return payload
 
