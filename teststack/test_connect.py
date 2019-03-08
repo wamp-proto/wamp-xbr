@@ -1,6 +1,7 @@
 import sys
 import web3
 import xbr
+import argparse
 
 from test_accounts import hl
 
@@ -23,15 +24,29 @@ def main (accounts):
 if __name__ == '__main__':
     print('using web3.py v{}'.format(web3.__version__))
 
-    # using automatic provider detection:
-    from web3.auto import w3
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--gateway',
+                        dest='gateway',
+                        type=str,
+                        default=None,
+                        help='Ethereum HTTP gateway URL or None for auto-select (default: -, means let web3 auto-select).')
+
+    args = parser.parse_args()
+
+    if args.gateway:
+        w3 = web3.Web3(web3.Web3.HTTPProvider('http://continental1.crossbario.com:8545'))
+    else:
+        # using automatic provider detection:
+        from web3.auto import w3
 
     # check we are connected, and check network ID
     if not w3.isConnected():
-        print('could not connect to Web3/Ethereum')
+        print('could not connect to Web3/Ethereum at: {}'.format(args.gateway or 'auto'))
         sys.exit(1)
     else:
-        print('connected to network {}'.format(w3.version.network))
+        print('connected to network {} at provider "{}"'.format(w3.version.network,
+                                                                args.gateway or 'auto'))
 
     # set new provider on XBR library
     xbr.setProvider(w3)
