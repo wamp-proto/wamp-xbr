@@ -82,6 +82,11 @@ install:
 	pip install -r requirements-dev.txt
 	pip install -e .
 
+web3:
+	# https://github.com/ethereum/web3.js/issues/1041#issuecomment-335434041
+	npm install ethereum/web3.js
+	cp node_modules/web3/dist/web3.min.js teststack/crossbar/web/
+
 build: compile docs build_js build_python
 
 publish: publish_docs publish_js publish_python
@@ -291,3 +296,7 @@ run_test_xbr:
 	python teststack/test_connect.py
 	python teststack/test_payment_channel.py
 	python teststack/test_connect.py
+
+
+run_webserver:
+	twistd --nodaemon web --listen tcp:8080 --path teststack/crossbar/web
