@@ -35,7 +35,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.gateway:
-        w3 = web3.Web3(web3.Web3.HTTPProvider('http://continental1.crossbario.com:8545'))
+        w3 = web3.Web3(web3.Web3.HTTPProvider(args.gateway))
     else:
         # using automatic provider detection:
         from web3.auto import w3
