@@ -157,7 +157,6 @@ class IBuyer(object):
         Start buying keys over the provided session.
 
         :param session: WAMP session that allows to talk to the XBR Market Maker.
-        :type session: :class:`autobahn.wamp.interfaces.ISession`
         """
 
     @abc.abstractmethod
@@ -169,7 +168,7 @@ class IBuyer(object):
         :type key_id: bytes
 
         :param enc_ser: The serializer that was used for serializing the payload. One of ``cbor``, ``json``, ``msgpack``, ``ubjson``.
-        :type enc_ser: string
+        :type enc_ser: str
 
         :param ciphertext: The encrypted payload to unwrap.
         :type ciphertext: bytes

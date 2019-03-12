@@ -69,7 +69,7 @@ class SimpleBuyer(object):
 
     async def start(self, session, consumer_id):
         """
-        Start buying keys - when decrypting XBR by calling ``unwrap()``.
+        Start buying keys to decrypt XBR data by calling ``unwrap()``.
 
         :param session:
         :param consumer_id:
