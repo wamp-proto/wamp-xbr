@@ -17,6 +17,7 @@
 import uuid
 import binascii
 
+import os
 import cbor2
 import nacl.secret
 import nacl.utils
@@ -38,6 +39,11 @@ class SimpleBuyer(object):
     """
     Simple XBR buyer component. This component can be used by a XBR consumer to handle
     XBR buying transactions to buy data keys for services used by the XBR consumer.
+
+    on_offer_placed
+    on_offer_revoked
+    on_payment_channel_empty
+    on_paying_channel_empty
     """
 
     log = txaio.make_logger()
@@ -63,11 +69,14 @@ class SimpleBuyer(object):
 
     async def start(self, session, consumer_id):
         """
+        Start buying keys - when decrypting XBR by calling ``unwrap()``.
 
         :param session:
         :param consumer_id:
         :return:
         """
+        assert not self._running
+
         self._session = session
         self._running = True
 
@@ -92,8 +101,80 @@ class SimpleBuyer(object):
 
         return self._balance
 
+    async def stop(self):
+        assert self._running
+
+        self._running = False
+
+    async def balance(self):
+        """
+        Return current balance of payment channel:
+
+        * ``amount``: The initial amount with which the payment channel was opened.
+        * ``remaining``: The remaining amount of XBR in the payment channel that can be spent.
+        * ``inflight``: The amount of XBR allocated to buy transactions that are currently processed.
+
+        :return: Current payment balance.
+        :rtype: dict
+        """
+        assert self._session and self._session.is_attached()
+
+        payment_channel = await self._session.call('xbr.marketmaker.get_payment_channel', self._addr)
+
+        if not payment_channel:
+            raise Exception('no active payment channel found for delegate')
+        if payment_channel['state'] != 1:
+            raise Exception('payment channel not open')
+        if payment_channel['remaining'] == 0:
+            raise Exception('payment channel (amount={}) has no balance remaining'.format(payment_channel['remaining']))
+
+        balance = {
+            'amount': payment_channel['amount'],
+            'remaining': payment_channel['remaining'],
+            'inflight': payment_channel['inflight'],
+        }
+
+        return balance
+
+    async def open_channel(self, buyer_addr, amount, details=None):
+        """
+
+        :param amount:
+        :param details:
+        :return:
+        """
+        assert self._session and self._session.is_attached()
+
+        # FIXME
+        signature = os.urandom(64)
+
+        print('*'*100, buyer_addr, amount)
+
+        payment_channel = await self._session.call('xbr.marketmaker.open_payment_channel',
+                                                   buyer_addr,
+                                                   self._addr,
+                                                   amount,
+                                                   signature)
+
+        balance = {
+            'amount': payment_channel['amount'],
+            'remaining': payment_channel['remaining'],
+            'inflight': payment_channel['inflight'],
+        }
+
+        return balance
+
+    async def close_channel(self, details=None):
+        """
+        Requests to close the currently active payment channel.
+
+        :return:
+        """
+
     async def unwrap(self, key_id, enc_ser, ciphertext):
         """
+        Decrypt XBR data. This functions will potentially make the buyer call the
+        XBR market maker to buy data encryption keys from the XBR provider.
 
         :param key_id:
         :param enc_ser:
