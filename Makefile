@@ -21,8 +21,7 @@ default:
 	@echo 'Targets: clean compile test'
 
 clean: clean_docs
-	-sudo rm -rf ./build/
-	-sudo rm -rf ./node_modules/
+	-rm -rf ./build/
 	-rm -rf ./dist/
 	-rm -rf ./*.egg-info/
 	-rm -rf ./.tox/
@@ -33,6 +32,12 @@ clean: clean_docs
 	-rm -f ./scTopics
 	-rm -f ./*.pid
 
+distclean: clean_docs clean
+	-rm -rf ./node_modules/
+
+# cd $HOME
+# wget https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.xz
+# export PATH=${HOME}/node-v10.15.3-linux-x64/bin:${PATH}
 
 requirements:
 	sudo apt install -y nodejs nodejs-dev npm
@@ -44,22 +49,28 @@ npm:
 	npm install coveralls
 	npm install nodeunit
 
-	npm install ganache-cli@v6.2.4
+	npm install ganache-cli@v6.4.1
 	sudo rm -f /usr/local/bin/ganache-cli
 	sudo ln -s ${PWD}/node_modules/ganache-cli/cli.js /usr/local/bin/ganache-cli
 
-	npm install truffle@v5.0.3
+	npm install truffle@v5.0.9
 	sudo rm -f /usr/local/bin/truffle
 	sudo ln -s ${PWD}/node_modules/truffle/build/cli.bundled.js /usr/local/bin/truffle
 
-	npm install solhint@v1.5.1
+	npm install solhint@v2.0.0
 	sudo rm -f /usr/local/bin/solhint
 	sudo ln -s ${PWD}/node_modules/solhint/solhint.js /usr/local/bin/solhint
 
-	npm install solidity-coverage@v0.5.1
+	npm install solidity-coverage@v0.5.11
 	sudo rm -f /usr/local/bin/solidity-coverage
 	sudo ln -s ${PWD}/node_modules/solidity-coverage/bin/exec.js /usr/local/bin/solidity-coverage
 
+update_deps:
+	npm i -g npm-check-updates
+	ncu -u
+	npm install
+
+install_remixide:
 	npm install remix-ide
 	sudo rm -f /usr/local/bin/remix-ide
 	sudo ln -s ${PWD}/node_modules/remix-ide/bin/remix-ide /usr/local/bin/remix-ide
