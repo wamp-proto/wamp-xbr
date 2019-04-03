@@ -69,6 +69,13 @@ aws s3 cp --recursive --acl public-read ./dist s3://${AWS_S3_BUCKET_NAME}/lib/py
 #   => https://s3.eu-central-1.amazonaws.com/crossbarbuilder/wheels/
 aws s3 cp --recursive ./dist s3://crossbarbuilder/wheels
 
+# tell crossbar-builder about this new wheel push
+# get 'wamp' command, always with latest autobahn master
+pip install https://github.com/crossbario/autobahn-python/archive/master.zip#egg=autobahn[twisted,serialization,encryption]
+# use 'wamp' to notify crossbar-builder
+wamp --max-failures 3 --authid wheel_pusher --url ws://office2dmz.crossbario.com:8008/ --realm webhook call builder.wheel_pushed --keyword name xbr-protocol --keyword publish true
+
+
 # deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
 #   => https://xbr.network/docs/index.html
