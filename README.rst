@@ -104,7 +104,7 @@ license <https://www.apache.org/licenses/LICENSE-2.0>`__.
    :target: https://xbr.network/docs/index.html
 .. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
-.. |Travis| image:: https://travis-ci.org/xbr/xbr-protocol.svg?branch=master
-   :target: https://travis-ci.org/xbr/xbr-protocol
+.. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
+   :target: https://travis-ci.org/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/xbr/xbr-protocol/master.svg
    :target: https://codecov.io/github/xbr/xbr-protocol
