@@ -122,6 +122,9 @@ lint:
 
 compile:
 	truffle compile --all
+	rm ./abi/*.json
+	cp build/contracts/*.json ./abi/
+	find ./abi
 
 test:
 	truffle test --network ganache
