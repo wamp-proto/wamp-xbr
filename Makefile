@@ -31,6 +31,7 @@ clean: clean_docs
 	-rm -f ./npm-debug.log
 	-rm -f ./scTopics
 	-rm -f ./*.pid
+	-find . -name "__pycache__" -type d -exec rm -rf {} \;
 
 distclean: clean_docs clean
 	-rm -rf ./node_modules/
@@ -125,6 +126,7 @@ compile:
 	rm ./abi/*.json
 	cp build/contracts/*.json ./abi/
 	find ./abi
+	cp -r abi ../../crossbario/autobahn-python/autobahn/xbr/contracts
 
 test:
 	truffle test --network ganache
