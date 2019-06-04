@@ -9,4 +9,3 @@ This is the XBR API reference documentation:
     :maxdepth: 2
 
     solidity
-    python
