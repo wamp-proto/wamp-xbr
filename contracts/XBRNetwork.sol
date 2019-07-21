@@ -117,7 +117,12 @@ contract XBRNetwork is XBRMaintained {
     /// Container type for holding XBR Market Actors information.
     struct Actor {
         ActorType actorType;
+
+        /// Security deposited by actor.
         uint256 security;
+
+        /// Actor WAMP key (Ed25519 public key).
+        bytes32 key;
     }
 
     /// Container type for holding paying channel request information. FIXME: make this event-based (to save gas).
@@ -128,6 +133,13 @@ contract XBRNetwork is XBRMaintained {
         address recipient;
         uint256 amount;
         uint32 timeout;
+    }
+
+    struct DelegateAssociation {
+        address delegate;
+        bytes32 pubkey;
+        bytes16 marketId;
+        ActorType actorType;
     }
 
     // //////// events for MEMBERS
@@ -218,6 +230,9 @@ contract XBRNetwork is XBRMaintained {
 
     /// Index: maker address => market ID
     mapping(address => bytes16) private marketsByMaker;
+
+    /// Index: delegate address =>
+    mapping(address => address) private paymentChannels;
 
     /**
      * Create a new network.

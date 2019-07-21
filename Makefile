@@ -35,6 +35,7 @@ clean: clean_docs
 
 distclean: clean_docs clean
 	-rm -rf ./node_modules/
+	-rm -f ./package-lock.json
 
 # cd $HOME
 # wget https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.xz

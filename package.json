@@ -19,8 +19,8 @@
     "url": "git://github.com/xbr/xbr-protocol.git"
   },
   "dependencies": {
-    "browserify": "^16.2.3",
-    "coveralls": "^3.0.3",
+    "browserify": "^16.3.0",
+    "coveralls": "^3.0.5",
     "ganache-cli": "^6.4.1",
     "google-closure-compiler": "^20190301.0.0",
     "node-buffer": "^1.0.3",
