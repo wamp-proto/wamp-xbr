@@ -561,7 +561,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
 
-        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0);
+        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0, 0);
         markets[marketId].actorAddresses.push(maker);
 
         marketsByMaker[maker] = marketId;
@@ -753,7 +753,7 @@ contract XBRNetwork is XBRMaintained {
         bool success = _token.transferFrom(msg.sender, address(this), security);
         require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
 
-        markets[marketId].actors[msg.sender] = Actor(actorType, security);
+        markets[marketId].actors[msg.sender] = Actor(actorType, security, 0);
         markets[marketId].actorAddresses.push(msg.sender);
 
         // bytes16 marketId, address actor, ActorType actorType, uint256 security
