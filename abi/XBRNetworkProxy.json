@@ -92,14 +92,14 @@
     "absolutePath": "/home/oberstet/scm/crossbario/xbr-protocol/contracts/XBRNetworkProxy.sol",
     "exportedSymbols": {
       "XBRNetworkProxy": [
-        2660
+        2702
       ]
     },
-    "id": 2661,
+    "id": 2703,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 2642,
+        "id": 2684,
         "literals": [
           "solidity",
           "^",
@@ -112,9 +112,9 @@
       {
         "absolutePath": "/home/oberstet/scm/crossbario/xbr-protocol/contracts/XBRMaintained.sol",
         "file": "./XBRMaintained.sol",
-        "id": 2643,
+        "id": 2685,
         "nodeType": "ImportDirective",
-        "scope": 2661,
+        "scope": 2703,
         "sourceUnit": 490,
         "src": "830:29:4",
         "symbolAliases": [],
@@ -126,7 +126,7 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 2644,
+              "id": 2686,
               "name": "XBRMaintained",
               "nodeType": "UserDefinedTypeName",
               "referencedDeclaration": 489,
@@ -136,7 +136,7 @@
                 "typeString": "contract XBRMaintained"
               }
             },
-            "id": 2645,
+            "id": 2687,
             "nodeType": "InheritanceSpecifier",
             "src": "955:13:4"
           }
@@ -147,9 +147,9 @@
         "contractKind": "contract",
         "documentation": "@title XBR Network root SC\n@author The XBR Project",
         "fullyImplemented": true,
-        "id": 2660,
+        "id": 2702,
         "linearizedBaseContracts": [
-          2660,
+          2702,
           489
         ],
         "name": "XBRNetworkProxy",
@@ -157,10 +157,10 @@
         "nodes": [
           {
             "constant": false,
-            "id": 2647,
+            "id": 2689,
             "name": "_networkContract",
             "nodeType": "VariableDeclaration",
-            "scope": 2660,
+            "scope": 2702,
             "src": "976:33:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -169,7 +169,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 2646,
+              "id": 2688,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "976:7:4",
@@ -184,25 +184,25 @@
           },
           {
             "body": {
-              "id": 2658,
+              "id": 2700,
               "nodeType": "Block",
               "src": "1092:51:4",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 2656,
+                    "id": 2698,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 2654,
+                      "id": 2696,
                       "name": "_networkContract",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2647,
+                      "referencedDeclaration": 2689,
                       "src": "1102:16:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -213,11 +213,11 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 2655,
+                      "id": 2697,
                       "name": "networkContract",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2649,
+                      "referencedDeclaration": 2691,
                       "src": "1121:15:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -230,23 +230,23 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 2657,
+                  "id": 2699,
                   "nodeType": "ExpressionStatement",
                   "src": "1102:34:4"
                 }
               ]
             },
             "documentation": null,
-            "id": 2659,
+            "id": 2701,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
                 "arguments": null,
-                "id": 2652,
+                "id": 2694,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 2651,
+                  "id": 2693,
                   "name": "onlyMaintainer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
@@ -264,15 +264,15 @@
             "name": "setNetworkContract",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2650,
+              "id": 2692,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2649,
+                  "id": 2691,
                   "name": "networkContract",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2659,
+                  "scope": 2701,
                   "src": "1045:23:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -281,7 +281,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2648,
+                    "id": 2690,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1045:7:4",
@@ -298,19 +298,19 @@
               "src": "1044:25:4"
             },
             "returnParameters": {
-              "id": 2653,
+              "id": 2695,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1092:0:4"
             },
-            "scope": 2660,
+            "scope": 2702,
             "src": "1016:127:4",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 2661,
+        "scope": 2703,
         "src": "927:218:4"
       }
     ],
@@ -320,14 +320,14 @@
     "absolutePath": "/home/oberstet/scm/crossbario/xbr-protocol/contracts/XBRNetworkProxy.sol",
     "exportedSymbols": {
       "XBRNetworkProxy": [
-        2660
+        2702
       ]
     },
-    "id": 2661,
+    "id": 2703,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 2642,
+        "id": 2684,
         "literals": [
           "solidity",
           "^",
@@ -340,9 +340,9 @@
       {
         "absolutePath": "/home/oberstet/scm/crossbario/xbr-protocol/contracts/XBRMaintained.sol",
         "file": "./XBRMaintained.sol",
-        "id": 2643,
+        "id": 2685,
         "nodeType": "ImportDirective",
-        "scope": 2661,
+        "scope": 2703,
         "sourceUnit": 490,
         "src": "830:29:4",
         "symbolAliases": [],
@@ -354,7 +354,7 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 2644,
+              "id": 2686,
               "name": "XBRMaintained",
               "nodeType": "UserDefinedTypeName",
               "referencedDeclaration": 489,
@@ -364,7 +364,7 @@
                 "typeString": "contract XBRMaintained"
               }
             },
-            "id": 2645,
+            "id": 2687,
             "nodeType": "InheritanceSpecifier",
             "src": "955:13:4"
           }
@@ -375,9 +375,9 @@
         "contractKind": "contract",
         "documentation": "@title XBR Network root SC\n@author The XBR Project",
         "fullyImplemented": true,
-        "id": 2660,
+        "id": 2702,
         "linearizedBaseContracts": [
-          2660,
+          2702,
           489
         ],
         "name": "XBRNetworkProxy",
@@ -385,10 +385,10 @@
         "nodes": [
           {
             "constant": false,
-            "id": 2647,
+            "id": 2689,
             "name": "_networkContract",
             "nodeType": "VariableDeclaration",
-            "scope": 2660,
+            "scope": 2702,
             "src": "976:33:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -397,7 +397,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 2646,
+              "id": 2688,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "976:7:4",
@@ -412,25 +412,25 @@
           },
           {
             "body": {
-              "id": 2658,
+              "id": 2700,
               "nodeType": "Block",
               "src": "1092:51:4",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 2656,
+                    "id": 2698,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 2654,
+                      "id": 2696,
                       "name": "_networkContract",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2647,
+                      "referencedDeclaration": 2689,
                       "src": "1102:16:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -441,11 +441,11 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 2655,
+                      "id": 2697,
                       "name": "networkContract",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2649,
+                      "referencedDeclaration": 2691,
                       "src": "1121:15:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -458,23 +458,23 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 2657,
+                  "id": 2699,
                   "nodeType": "ExpressionStatement",
                   "src": "1102:34:4"
                 }
               ]
             },
             "documentation": null,
-            "id": 2659,
+            "id": 2701,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
                 "arguments": null,
-                "id": 2652,
+                "id": 2694,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 2651,
+                  "id": 2693,
                   "name": "onlyMaintainer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
@@ -492,15 +492,15 @@
             "name": "setNetworkContract",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2650,
+              "id": 2692,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2649,
+                  "id": 2691,
                   "name": "networkContract",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2659,
+                  "scope": 2701,
                   "src": "1045:23:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -509,7 +509,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2648,
+                    "id": 2690,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1045:7:4",
@@ -526,19 +526,19 @@
               "src": "1044:25:4"
             },
             "returnParameters": {
-              "id": 2653,
+              "id": 2695,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1092:0:4"
             },
-            "scope": 2660,
+            "scope": 2702,
             "src": "1016:127:4",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 2661,
+        "scope": 2703,
         "src": "927:218:4"
       }
     ],
@@ -550,7 +550,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.5",
-  "updatedAt": "2019-07-23T09:00:22.129Z",
+  "updatedAt": "2019-07-23T11:36:08.783Z",
   "devdoc": {
     "author": "The XBR Project",
     "methods": {
