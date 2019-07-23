@@ -26,10 +26,10 @@ import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 
 /**
- * XBR Payment Channel between a XBR data consumer and the XBR market maker,
+ * XBR Payment/Paying Channel between a XBR data consumer and the XBR market maker,
  * or the XBR Market Maker and a XBR data provider.
  */
-contract XBRPaymentChannel {
+contract XBRChannel {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -37,25 +37,34 @@ contract XBRPaymentChannel {
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
+    /// Payment channel types.
+    enum ChannelType { NONE, PAYMENT, PAYING }
+
     /// Payment channel states.
     enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
 
-    /// Current payment channel state.
-    ChannelState private state;
+    /// Current payment channel type (either payment or paying channel).
+    ChannelType private _type;
 
-    /// The XBR Market ID this channel is operating payments for.
+    /// Current payment channel state.
+    ChannelState private _state;
+
+    /// The XBR Market ID this channel is operating payments (or payouts) for.
     bytes16 private _marketId;
 
-    /// The sender of the payments in this channel. Either a XBR Consumer or XBR Market Maker (delegate).
+    /**
+     * The sender of the payments in this channel. Either a XBR Consumer (delegate) in case
+     * of a payment channel, or the XBR Market Maker (delegate) in case of a paying channel.
+     */
     address private _sender;
 
     /**
-     * The delegate working for the sender, and using this channel to pay for data keys.
-     * E.g. a XBR Consumer (delegate) or XBR Provider (delegate).
+     * The other delegate of the channel, eg the XBR Market Maker in case of a payment channel,
+     * or a XBR Provider (delegate) in case of a paying channel.
      */
     address private _delegate;
 
-    /// Recipient of the payments in this channel. Either a XBR Market Maker (delegate) or a XBR Provider.
+    /// Recipient of the payments in this channel. Either the XBR Market Operator (payment channels) or a XBR Provider (paying channels).
     address private _recipient;
 
     /// Amount of XBR held in the channel.
@@ -101,16 +110,31 @@ contract XBRPaymentChannel {
      * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
      */
     constructor (bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
-        uint32 channelTimeout) public {
+        uint32 channelTimeout, ChannelType channelType) public {
 
+        _type = channelType;
+        _state = ChannelState.OPEN;
         _marketId = marketId;
         _sender = sender;
         _delegate = delegate;
         _recipient = recipient;
         _amount = amount;
         _channelTimeout = channelTimeout;
-
         _openedAt = block.number; // solhint-disable-line
+    }
+
+    /**
+     * The XBR Market ID this channel is operating payments for.
+     */
+    function channelType () public view returns (ChannelType) {
+        return _type;
+    }
+
+    /**
+     * The XBR Market ID this channel is operating payments for.
+     */
+    function channelState () public view returns (ChannelState) {
+        return _state;
     }
 
     /**

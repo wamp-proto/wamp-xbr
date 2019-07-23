@@ -127,8 +127,8 @@ compile:
 	rm ./abi/*.json
 	cp build/contracts/*.json ./abi/
 	find ./abi
-	cp -r abi ../../crossbario/autobahn-python/autobahn/xbr/contracts
-	cp -r abi ../../crossbario/autobahn-js/lib/xbr/contracts
+	cp -r abi/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/
+	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
 test:
 	truffle test --network ganache
