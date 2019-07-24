@@ -195,7 +195,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
-        address receiver, address channel);
+        address receiver, address channel, XBRChannel.ChannelType channelType);
 
     /// Event emitted when a new request for a paying channel was created in a market.
     event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address delegate,
@@ -840,7 +840,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel));
+        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel), XBRChannel.ChannelType.PAYMENT);
 
         return address(channel);
     }
@@ -912,7 +912,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel));
+        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
     }
