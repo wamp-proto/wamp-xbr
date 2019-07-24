@@ -59,12 +59,15 @@ contract XBRChannel {
     address private _sender;
 
     /**
-     * The other delegate of the channel, eg the XBR Market Maker in case of a payment channel,
+     * The other delegate of the channel, e.g. the XBR Market Maker in case of a payment channel,
      * or a XBR Provider (delegate) in case of a paying channel.
      */
     address private _delegate;
 
-    /// Recipient of the payments in this channel. Either the XBR Market Operator (payment channels) or a XBR Provider (paying channels).
+    /**
+     * Recipient of the payments in this channel. Either the XBR Market Operator (payment
+     * channels) or a XBR Provider (paying channels).
+     */
     address private _recipient;
 
     /// Amount of XBR held in the channel.

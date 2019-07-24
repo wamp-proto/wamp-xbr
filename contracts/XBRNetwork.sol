@@ -812,13 +812,14 @@ contract XBRNetwork is XBRMaintained {
      * Must be called by the data consumer (XBR buyer) and an off-chain buyer delegate address must be given.
      *
      * @param marketId The ID of the market to open a payment channel within.
-     * @param recipient Recipient of the earned off-chain transaction amounts of this single channel, commonly the market operator.
+     * @param recipient Recipient of the earned off-chain transaction amounts of this single channel,
+     *                  commonly the market operator.
      * @param delegate The address of the (offchain) consumer delegate allowed to consume the channel.
      * @param amount Amount of XBR Token to deposit into the payment channel (the initial off-chain balance).
      * @param timeout Channel timeout which will apply.
      */
-    function openPaymentChannel (bytes16 marketId, address recipient, address delegate, uint256 amount, uint32 timeout) public returns
-        (address paymentChannel) {
+    function openPaymentChannel (bytes16 marketId, address recipient, address delegate,
+        uint256 amount, uint32 timeout) public returns (address paymentChannel) {
 
         // market must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -827,7 +828,8 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYMENT);
+        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount, timeout,
+            XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
         XBRToken _token = XBRToken(token);
@@ -837,8 +839,10 @@ contract XBRNetwork is XBRMaintained {
         // remember the new payment channel associated with the market
         markets[marketId].channels.push(address(channel));
 
-        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel), XBRChannel.ChannelType.PAYMENT);
+        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
+        //      address receiver, address channel)
+        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
+            address(channel), XBRChannel.ChannelType.PAYMENT);
 
         return address(channel);
     }
@@ -858,7 +862,8 @@ contract XBRNetwork is XBRMaintained {
      * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
      * @param timeout Channel timeout which will apply.
      */
-    function requestPayingChannel (bytes16 marketId, address recipient, address delegate, uint256 amount, uint32 timeout) public {
+    function requestPayingChannel (bytes16 marketId, address recipient, address delegate,
+        uint256 amount, uint32 timeout) public {
 
         // market must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -867,9 +872,11 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
 
         // sender must be provider in the market
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.PROVIDER), "NO_PROVIDER_ROLE");
+        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.PROVIDER),
+            "NO_PROVIDER_ROLE");
 
-        // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient, address delegate, uint256 amount, uint32 timeout)
+        // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient,
+        //      address delegate, uint256 amount, uint32 timeout)
         emit PayingChannelRequestCreated(marketId, msg.sender, recipient, delegate, amount, timeout);
     }
 
@@ -883,8 +890,8 @@ contract XBRNetwork is XBRMaintained {
      * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
      * @param timeout Channel timeout which will apply.
      */
-    function openPayingChannel (bytes16 marketId, address recipient, address delegate, uint256 amount, uint32 timeout) public returns
-        (address paymentChannel) {
+    function openPayingChannel (bytes16 marketId, address recipient, address delegate,
+        uint256 amount, uint32 timeout) public returns (address paymentChannel) {
 
         // market must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -893,10 +900,12 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker == msg.sender, "SENDER_NOT_MAKER");
 
         // recipient must be provider in the market
-        require(uint8(markets[marketId].actors[recipient].actorType) == uint8(ActorType.PROVIDER), "RECIPIENT_NOT_PROVIDER");
+        require(uint8(markets[marketId].actors[recipient].actorType) == uint8(ActorType.PROVIDER),
+            "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYING);
+        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount,
+            timeout, XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
         XBRToken _token = XBRToken(token);
@@ -906,8 +915,10 @@ contract XBRNetwork is XBRMaintained {
         // remember the new payment channel associated with the market
         markets[marketId].channels.push(address(channel));
 
-        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(), address(channel), XBRChannel.ChannelType.PAYING);
+        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
+        //  address receiver, address channel)
+        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
+            address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
     }
