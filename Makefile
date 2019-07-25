@@ -123,12 +123,15 @@ lint:
 	solhint "contracts/**/*.sol"
 
 compile:
+	-rm ./abi/*.json
+	-rm ./build/contracts/*.json
 	truffle compile --all
-	rm ./abi/*.json
 	cp build/contracts/*.json ./abi/
 	find ./abi
-	cp -r abi ../../crossbario/autobahn-python/autobahn/xbr/contracts
-	cp -r abi ../../crossbario/autobahn-js/lib/xbr/contracts
+	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
+	cp -r abi/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/
+	-rm ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/*.json
+	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
 test:
 	truffle test --network ganache

@@ -178,7 +178,6 @@ pygments_style = 'sphinx'
 intersphinx_mapping = {
    'py2': ('https://docs.python.org/2', None),
    'py3': ('https://docs.python.org/3', None),
-   'six': ('https://pythonhosted.org/six/', None),
 }
 
 rst_epilog = """

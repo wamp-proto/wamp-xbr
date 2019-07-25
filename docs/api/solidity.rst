@@ -34,10 +34,10 @@ XBRNetwork
         marketsByMaker
 
 
-XBRPaymentChannel
+XBRChannel
 -----------------
 
-.. autosolcontract:: XBRPaymentChannel
+.. autosolcontract:: XBRChannel
     :members:
 
 

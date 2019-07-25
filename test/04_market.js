@@ -239,27 +239,27 @@ contract('XBRNetwork', accounts => {
 
         // 50 XBR security
         const amount = '50000000000000000000';
+        const timeout = 100;
 
         // approve transfer of tokens to open payment channel
         await token.approve(network.address, amount, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer opens a payment channel in the market
-        const txn = await network.openPaymentChannel(marketId, consumer, amount, {from: consumer, gasLimit: gasLimit});
+        const txn = await network.openPaymentChannel(marketId, consumer, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
 
         // check event logs
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
         const result = txn.receipt.logs[0];
 
         // check events
-        assert.equal(result.event, "PaymentChannelCreated", "wrong event was emitted");
+        assert.equal(result.event, "ChannelCreated", "wrong event was emitted");
 
-        // bytes16 marketId, address sender, address delegate, address receiver, address channel
-        // FIXME
-        //assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        // event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
+        // FIXME: -0x9f80cc2aeb85c799e6c468af409dd6eb00000000000000000000000000000000
+        // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        // assert.equal(result.args.channel, channel, "wrong channel address in event");
         assert.equal(result.args.sender, consumer, "wrong sender address in event");
-        //assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
-        assert.equal(result.args.receiver, market, "wrong receiver address in event");
-        //assert.equal(result.args.channel, consumerSecurity, "wrong consumerSecurity in event");
+        // assert.equal(result.args.recipient, consumer, "wrong recipient address in event");
+        assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
     });
-
 });
