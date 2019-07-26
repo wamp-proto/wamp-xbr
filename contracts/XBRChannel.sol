@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.5.2;
+pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -36,6 +37,43 @@ contract XBRChannel {
 
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
+
+    struct Transaction {
+        // The buyer/seller delegate Ed25519 public key.
+        uint256 pubkey;
+
+        // The UUID of the data encryption key bought/sold in the transaction.
+        uint128 key_id;
+
+        // Channel transaction sequence number.
+        uint32 channel_seq;
+
+        // Amount paid / earned.
+        uint256 amount;
+
+        // Amount remaining in the payment/paying channel after the transaction.
+        uint256 balance;
+    }
+
+    uint256 constant chainId = 5777;
+
+    address constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
+
+    string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
+
+    string private constant TRANSACTION_TYPE = "Transaction(uint256 pubkey,uint128 key_id,uint32 channel_seq,uint256 amount,uint256 balance)";
+
+    bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
+
+    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+        EIP712_DOMAIN_TYPEHASH,
+        keccak256("XBR"),
+        keccak256("1"),
+        chainId,
+        verifyingContract
+    ));
 
     /// Payment channel types.
     enum ChannelType { NONE, PAYMENT, PAYING }
@@ -126,6 +164,26 @@ contract XBRChannel {
         _openedAt = block.number; // solhint-disable-line
     }
 
+    function hashTransaction (Transaction memory txn) private pure returns (bytes32) {
+        // bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance
+        return keccak256(abi.encodePacked(
+            "\\x19\\x01",
+            DOMAIN_SEPARATOR,
+            keccak256(abi.encode(
+                TRANSACTION_DOMAIN_TYPEHASH,
+                txn.pubkey,
+                txn.key_id,
+                txn.channel_seq,
+                txn.amount,
+                txn.balance
+            ))
+        ));
+    }
+/*
+    function verifyTransaction (address signer, Transaction memory txn, uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+        return signer == ecrecover(hashTransaction(txn), v, r, s);
+    }
+*/
     /**
      * The XBR Market ID this channel is operating payments for.
      */
@@ -207,8 +265,12 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public view {
+    function close (bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
+                    uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
+                    uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public view {
 
+/* FIXME
+    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public view {
         address signer;
         bytes32 proof;
 
@@ -224,7 +286,6 @@ contract XBRChannel {
         if (proof != h) {
             revert("invalid signature (signature is valid but doesn't match the data provided)");
         }
-/* FIXME
         if (_signatures[proof] == 0) {
             _signatures[proof] = signer;
 
