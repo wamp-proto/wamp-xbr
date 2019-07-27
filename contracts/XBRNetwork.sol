@@ -856,7 +856,7 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount, timeout,
+        XBRChannel channel = new XBRChannel(address(this), token, marketId, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
@@ -932,7 +932,7 @@ contract XBRNetwork is XBRMaintained {
             "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount,
+        XBRChannel channel = new XBRChannel(address(this), token, marketId, msg.sender, delegate, recipient, amount,
             timeout, XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract

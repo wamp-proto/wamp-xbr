@@ -26,7 +26,7 @@ module.exports = function (deployer, network, accounts) {
         console.log('gas set to ' + gas + ' on network ' + network);
     } else if (network === 'ganache') {
         // gas = 6721975;
-        gas = 1000000000;
+        gas = 0xfffffffffff;
         console.log('gas set to ' + gas + ' on network ' + network);
     } else {
         throw 'FIXME: determine required gas (on network ' + network + ')';

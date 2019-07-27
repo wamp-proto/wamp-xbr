@@ -25,6 +25,8 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 // https://openzeppelin.org/api/docs/cryptography_ECDSA.html
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
+import "./XBRToken.sol";
+
 
 /**
  * XBR Payment/Paying Channel between a XBR data consumer and the XBR market maker,
@@ -37,23 +39,6 @@ contract XBRChannel {
 
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
-
-    struct Transaction {
-        // The buyer/seller delegate Ed25519 public key.
-        uint256 pubkey;
-
-        // The UUID of the data encryption key bought/sold in the transaction.
-        uint128 key_id;
-
-        // Channel transaction sequence number.
-        uint32 channel_seq;
-
-        // Amount paid / earned.
-        uint256 amount;
-
-        // Amount remaining in the payment/paying channel after the transaction.
-        uint256 balance;
-    }
 
     uint256 constant chainId = 5777;
 
@@ -74,6 +59,12 @@ contract XBRChannel {
         chainId,
         verifyingContract
     ));
+
+    /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    address private _token;
+
+    /// Address of the XBR Network contract (XBR for the CrossbarFX technology stack)
+    address private _network;
 
     /// Payment channel types.
     enum ChannelType { NONE, PAYMENT, PAYING }
@@ -150,9 +141,11 @@ contract XBRChannel {
      * @param amount The amount of XBR held in the channel.
      * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
+    constructor (address network, address token, bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
         uint32 channelTimeout, ChannelType channelType) public {
 
+        _network = network;
+        _token = token;
         _type = channelType;
         _state = ChannelState.OPEN;
         _marketId = marketId;
@@ -164,26 +157,42 @@ contract XBRChannel {
         _openedAt = block.number; // solhint-disable-line
     }
 
-    function hashTransaction (Transaction memory txn) private pure returns (bytes32) {
-        // bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance
-        return keccak256(abi.encodePacked(
+    /**
+     * Verify transaction typed data was signed by signer.
+     */
+/* FIXME
+    function verifyTransaction (address signer,
+                                bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
+                                uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+
+        return signer == ecrecover(keccak256(abi.encodePacked(
             "\\x19\\x01",
             DOMAIN_SEPARATOR,
             keccak256(abi.encode(
                 TRANSACTION_DOMAIN_TYPEHASH,
-                txn.pubkey,
-                txn.key_id,
-                txn.channel_seq,
-                txn.amount,
-                txn.balance
+                tx_pubkey,
+                tx_key_id,
+                tx_channel_seq,
+                tx_amount,
+                tx_balance
             ))
-        ));
-    }
-/*
-    function verifyTransaction (address signer, Transaction memory txn, uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
-        return signer == ecrecover(hashTransaction(txn), v, r, s);
+        )), v, r, s);
     }
 */
+    /**
+     * Address of the XBRNetwork contract his channel contract was created from.
+     */
+    function network () public view returns (address) {
+        return _network;
+    }
+
+    /**
+     * Address of the XBRToken contract this channel holds tokens for.
+     */
+    function token () public view returns (address) {
+        return _token;
+    }
+
     /**
      * The XBR Market ID this channel is operating payments for.
      */
@@ -267,7 +276,36 @@ contract XBRChannel {
      */
     function close (bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
                     uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
-                    uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public view {
+                    uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public {
+/* FIXME
+Could not identify the intended function with name `close`, positional argument(s) of type
+    `(<class 'bytes'>, <class 'bytes'>, <class 'int'>, <class 'bytes'>, <class 'bytes'>, <class 'int'>, <class 'bytes'>, <class 'bytes'>, <class 'int'>, <class 'bytes'>, <class 'bytes'>)` and keyword argument(s) of type `{}`.
+Found 1 function(s) with the name `close`:
+    ['close(bytes32,bytes16,uint32,uint256,uint256,uint8,bytes32,bytes32,uint8,bytes32,bytes32)']
+Function invocation failed due to no matching argument types.
+*/
+
+/* FIXME: with the following code, deployment on ganache fails with "out of gas"
+        if (_type == XBRChannel.ChannelType.PAYMENT) {
+            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+        } else {
+            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+        }
+*/
+/* FIXME: with the following code, deployment on ganache fails with "out of gas"
+        XBRToken tc = XBRToken(_token);
+        bool success = tc.transferFrom(address(this), _recipient, _amount);
+        require(success, "CHANNEL_COSE_TRANSFER_FAILED");
+*/
+        // FIXME: selfdestruct ?! to whom?
+        // FIXME: recipient amount_amount vs tx_amount vs ..
+        // FIXME: network fee
+
+        emit Closed(_marketId, _sender, _amount, _closedAt);
+    }
+
 
 /* FIXME
     function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public view {
@@ -305,12 +343,7 @@ contract XBRChannel {
             // event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
             emit Closed(_marketId, signer, value, _closedAt);
         }
-*/
-    }
 
-    /**
-     * Timeout this state channel.
-     */
     function timeout () public {
         require(_closedAt == 0, "CHANNEL_ALREADY_CLOSED");
         // require(_signatures[proof] != 0, "CHANNEL_NOT_YET_SIGNED");
@@ -331,4 +364,5 @@ contract XBRChannel {
         bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
         return ecrecover(prefixedHash, v, r, s) == expectedSigner;
     }
+*/
 }
