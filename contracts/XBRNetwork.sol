@@ -218,8 +218,8 @@ contract XBRNetwork is XBRMaintained {
     // Created domains are sequence numbered using this counter (to allow deterministic collison-free IDs for domains)
     uint32 private domainSeq = 1;
 
-    /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    address public token;
+    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    XBRToken private token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public organization;
@@ -252,7 +252,7 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
-        token = token_;
+        token = XBRToken(token_);
         organization = organization_;
 
         members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
@@ -560,14 +560,12 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        XBRToken _token = XBRToken(token);
-
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(maker != address(0), "INVALID_MAKER");
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
-        require(providerSecurity >= 0 && providerSecurity <= _token.totalSupply(), "INVALID_PROVIDER_SECURITY");
-        require(consumerSecurity >= 0 && consumerSecurity <= _token.totalSupply(), "INVALID_CONSUMER_SECURITY");
-        require(marketFee >= 0 && marketFee < (_token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        require(providerSecurity >= 0 && providerSecurity <= token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+        require(consumerSecurity >= 0 && consumerSecurity <= token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+        require(marketFee >= 0 && marketFee < (token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
@@ -765,8 +763,7 @@ contract XBRNetwork is XBRMaintained {
 
         if (security > 0) {
             // ActorType.CONSUMER, ActorType.PROVIDER
-            XBRToken _token = XBRToken(token);
-            bool success = _token.transferFrom(msg.sender, address(this), security);
+            bool success = token.transferFrom(msg.sender, address(this), security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
@@ -856,12 +853,11 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(address(this), token, marketId, msg.sender, delegate, recipient, amount, timeout,
+        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
-        XBRToken _token = XBRToken(token);
-        bool success = _token.transferFrom(msg.sender, address(channel), amount);
+        bool success = token.transferFrom(msg.sender, address(channel), amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
@@ -932,7 +928,7 @@ contract XBRNetwork is XBRMaintained {
             "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(address(this), token, marketId, msg.sender, delegate, recipient, amount,
+        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount,
             timeout, XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
