@@ -27,9 +27,12 @@ module.exports = {
 
         ganache: {
             host: "localhost",
-	    // port: 8545,
-	    port: 1545,
+	        // port: 8545,
+	        port: 1545,
             network_id: "5777",
+            // gas: 0xfffffffffff,
+            gas: 100000000,
+            gasPrice: 0x01
         },
 
         // https://www.npmjs.com/package/solidity-coverage#network-configuration

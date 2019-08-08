@@ -24,6 +24,8 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 // https://openzeppelin.org/api/docs/cryptography_ECDSA.html
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
+import "./XBRToken.sol";
+
 
 /**
  * XBR Payment/Paying Channel between a XBR data consumer and the XBR market maker,
@@ -36,6 +38,29 @@ contract XBRChannel {
 
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
+
+    uint256 constant chainId = 5777;
+
+    address constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
+
+    string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
+
+    string private constant TRANSACTION_TYPE = "Transaction(uint256 pubkey,uint128 key_id,uint32 channel_seq,uint256 amount,uint256 balance)";
+
+    bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
+
+    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+        EIP712_DOMAIN_TYPEHASH,
+        keccak256("XBR"),
+        keccak256("1"),
+        chainId,
+        verifyingContract
+    ));
+
+    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    XBRToken private _token;
 
     /// Payment channel types.
     enum ChannelType { NONE, PAYMENT, PAYING }
@@ -112,9 +137,10 @@ contract XBRChannel {
      * @param amount The amount of XBR held in the channel.
      * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
+    constructor (address token, bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
         uint32 channelTimeout, ChannelType channelType) public {
 
+        _token = XBRToken(token);
         _type = channelType;
         _state = ChannelState.OPEN;
         _marketId = marketId;
@@ -124,6 +150,32 @@ contract XBRChannel {
         _amount = amount;
         _channelTimeout = channelTimeout;
         _openedAt = block.number; // solhint-disable-line
+    }
+
+    /**
+     * Verify transaction typed data was signed by signer.
+     */
+    function verifyTransaction (address signer,
+                                bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq,
+                                uint256 tx_amount, uint256 tx_balance,
+                                uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+/*
+FIXME: commenting in the following code leads to "ran out of gas" during deployment. why?
+
+        return signer == ecrecover(keccak256(abi.encodePacked(
+            "\\x19\\x01",
+            DOMAIN_SEPARATOR,
+            keccak256(abi.encode(
+                TRANSACTION_DOMAIN_TYPEHASH,
+                tx_pubkey,
+                tx_key_id,
+                tx_channel_seq,
+                tx_amount,
+                tx_balance
+            ))
+        )), v, r, s);
+*/
+        return true;
     }
 
     /**
@@ -207,67 +259,36 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 h, uint8 v, bytes32 r, bytes32 s, uint32 sequence, uint256 value) public view {
+    function close (bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
+                    uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
+                    uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public {
 
-        address signer;
-        bytes32 proof;
-
-        // get signer from signature
-        signer = ecrecover(h, v, r, s);
-
-        if (signer != _sender && signer != _recipient) {
-            revert("invalid signature");
-        }
-
-        proof = keccak256(abi.encodePacked(this, sequence, value));
-
-        if (proof != h) {
-            revert("invalid signature (signature is valid but doesn't match the data provided)");
-        }
-/* FIXME
-        if (_signatures[proof] == 0) {
-            _signatures[proof] = signer;
-
-            // event Closing(bytes16 indexed marketId, address signer, uint256 amount, uint256 timeoutAt);
-            emit Closing(_marketId, signer, value, block.number + _channelTimeout);
-
-        } else if (_signatures[proof] != signer) {
-            // channel completed, both _signatures provided
-            _closedAt = block.number;
-            if (!_recipient.send(value)) { // solhint-disable-line
-                revert("transaction failed on the very last meter");
-            }
-
-            // refund back anything left to the original opener of the payment channel
-            selfdestruct(_sender);
-
-            // event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
-            emit Closed(_marketId, signer, value, _closedAt);
+/*
+        if (_type == XBRChannel.ChannelType.PAYMENT) {
+            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+        } else {
+            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
         }
 */
-    }
+        require(_state == ChannelState.OPEN, "CHANNEL_NOT_OPEN");
 
-    /**
-     * Timeout this state channel.
-     */
-    function timeout () public {
-        require(_closedAt == 0, "CHANNEL_ALREADY_CLOSED");
-        // require(_signatures[proof] != 0, "CHANNEL_NOT_YET_SIGNED");
-
-        if (_openedAt + _channelTimeout > now) { // solhint-disable-line
-            revert("channel timeout");
-        }
-        _closedAt = block.number;
-
-        // FIXME
+        // approve(address spender, uint256 amount) external returns (bool)
+        // transferFrom(address sender, address recipient, uint256 amount)
+        // revert("invalid signature");
         // selfdestruct(_sender);
-        // emit Closed();
-    }
 
-    function _verify (bytes32 hash, uint8 v, bytes16 r, bytes32 s, address expectedSigner) internal pure returns (bool)
-    {
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, hash));
-        return ecrecover(prefixedHash, v, r, s) == expectedSigner;
+        // bool success = _token.transferFrom(address(this), _recipient, _amount);
+        bool success = _token.transfer(_recipient, _amount);
+        require(success, "CHANNEL_CLOSE_TRANSFER_FAILED");
+
+        // FIXME: selfdestruct ?! to whom?
+        // FIXME: recipient amount_amount vs tx_amount vs ..
+        // FIXME: network fee
+
+        _closedAt = block.number; // solhint-disable-line
+        _state = ChannelState.CLOSED;
+        emit Closed(_marketId, _sender, _amount, _closedAt);
     }
 }

@@ -53,9 +53,29 @@ contract XBRNetwork is XBRMaintained {
 
     /// Container type for holding XBR Network membership information.
     struct Member {
+        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
         string eula;
+
+        /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
         string profile;
+
+        /// Current member level.
         MemberLevel level;
+    }
+
+    /// Container type for holding XBR Market Actors information.
+    struct Actor {
+        /// The type of the actor within the market.
+        ActorType actorType;
+
+        /// Security deposited by actor.
+        uint256 security;
+
+        /// Metadata attached to an actor in a market.
+        string meta;
+
+        /// Actor WAMP key (Ed25519 public key).
+        bytes32 key;
     }
 
     /// Container type for holding XBR Domain information.
@@ -114,17 +134,6 @@ contract XBRNetwork is XBRMaintained {
         mapping(address => Actor) actors;
         mapping(address => address) currentPaymentChannelByDelegate;
         mapping(address => address) currentPayingChannelByDelegate;
-    }
-
-    /// Container type for holding XBR Market Actors information.
-    struct Actor {
-        ActorType actorType;
-
-        /// Security deposited by actor.
-        uint256 security;
-
-        /// Actor WAMP key (Ed25519 public key).
-        bytes32 key;
     }
 
     /// Container type for holding paying channel request information. FIXME: make this event-based (to save gas).
@@ -188,10 +197,10 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint256 security);
+    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 indexed marketId, address actor);
+    event ActorLeft (bytes16 indexed marketId, address actor, ActorType actorType);
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
@@ -209,8 +218,8 @@ contract XBRNetwork is XBRMaintained {
     // Created domains are sequence numbered using this counter (to allow deterministic collison-free IDs for domains)
     uint32 private domainSeq = 1;
 
-    /// Address of the XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    address public token;
+    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    XBRToken private token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public organization;
@@ -243,7 +252,7 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
-        token = token_;
+        token = XBRToken(token_);
         organization = organization_;
 
         members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
@@ -551,19 +560,17 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        XBRToken _token = XBRToken(token);
-
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(maker != address(0), "INVALID_MAKER");
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
-        require(providerSecurity >= 0 && providerSecurity <= _token.totalSupply(), "INVALID_PROVIDER_SECURITY");
-        require(consumerSecurity >= 0 && consumerSecurity <= _token.totalSupply(), "INVALID_CONSUMER_SECURITY");
-        require(marketFee >= 0 && marketFee < (_token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        require(providerSecurity >= 0 && providerSecurity <= token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+        require(consumerSecurity >= 0 && consumerSecurity <= token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+        require(marketFee >= 0 && marketFee < (token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0), new address[](0));
 
-        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0, 0);
+        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0, '', 0);
         markets[marketId].actorAddresses.push(maker);
 
         marketsByMaker[maker] = marketId;
@@ -728,6 +735,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
         // FIXME
+        require(false, "NOT_IMPLEMENTED");
     }
 
     /**
@@ -735,8 +743,9 @@ contract XBRNetwork is XBRMaintained {
      *
      * @param marketId The ID of the XBR data market to join.
      * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+     * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
      */
-    function joinMarket (bytes16 marketId, ActorType actorType) public returns (uint256) {
+    function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
         require(uint8(actorType) == uint8(ActorType.MARKET) ||
@@ -748,18 +757,22 @@ contract XBRNetwork is XBRMaintained {
         } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
             security = markets[marketId].consumerSecurity;
         } else {
+            // ActorType.MARKET
             security = 0;
         }
 
-        XBRToken _token = XBRToken(token);
-        bool success = _token.transferFrom(msg.sender, address(this), security);
-        require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        if (security > 0) {
+            // ActorType.CONSUMER, ActorType.PROVIDER
+            bool success = token.transferFrom(msg.sender, address(this), security);
+            require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        }
 
-        markets[marketId].actors[msg.sender] = Actor(actorType, security, 0);
+        // remember actor (by address+type) within market
+        markets[marketId].actors[msg.sender] = Actor(actorType, security, meta, 0);
         markets[marketId].actorAddresses.push(msg.sender);
 
-        // bytes16 marketId, address actor, ActorType actorType, uint256 security
-        emit ActorJoined(marketId, msg.sender, actorType, security);
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint256 security, string meta)
+        emit ActorJoined(marketId, msg.sender, actorType, security, meta);
 
         return security;
     }
@@ -797,6 +810,17 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
+     * Returns any meta associated with the actor in the market.
+     *
+     * @param marketId The ID of the market to lookup actor meta within.
+     * @param actor The address of the actor to lookup in the market.
+     * @return IPFS Multihash pointing to actor meta file on IPFS.
+     */
+    function getMarketActorMeta (bytes16 marketId, address actor) public view returns (string memory) {
+        return markets[marketId].actors[actor].meta;
+    }
+
+    /**
      * As a market actor (participant) currently member of a market, leave that market.
      * A market can only be left when all payment channels of the sender are closed (or expired).
      *
@@ -805,6 +829,7 @@ contract XBRNetwork is XBRMaintained {
     function leaveMarket (bytes16 marketId) public view {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         // FIXME
+        require(false, "NOT_IMPLEMENTED");
     }
 
     /**
@@ -828,12 +853,11 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount, timeout,
+        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
-        XBRToken _token = XBRToken(token);
-        bool success = _token.transferFrom(msg.sender, address(channel), amount);
+        bool success = token.transferFrom(msg.sender, address(channel), amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
@@ -904,7 +928,7 @@ contract XBRNetwork is XBRMaintained {
             "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(marketId, msg.sender, delegate, recipient, amount,
+        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount,
             timeout, XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
