@@ -39,6 +39,7 @@ contract XBRChannel {
 /*
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
+*/
 
     uint256 constant chainId = 5777;
 
@@ -59,7 +60,7 @@ contract XBRChannel {
         chainId,
         verifyingContract
     ));
-*/
+
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken private _token;
 
@@ -70,46 +71,46 @@ contract XBRChannel {
     enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
 
     /// Current payment channel type (either payment or paying channel).
-    ChannelType private _type;
+    ChannelType public ctype;
 
     /// Current payment channel state.
-    ChannelState private _state;
+    ChannelState public state;
 
     /// The XBR Market ID this channel is operating payments (or payouts) for.
-    bytes16 private _marketId;
+    bytes16 public marketId;
 
     /**
      * The sender of the payments in this channel. Either a XBR Consumer (delegate) in case
      * of a payment channel, or the XBR Market Maker (delegate) in case of a paying channel.
      */
-    address private _sender;
+    address public sender;
 
     /**
      * The other delegate of the channel, e.g. the XBR Market Maker in case of a payment channel,
      * or a XBR Provider (delegate) in case of a paying channel.
      */
-    address private _delegate;
+    address public delegate;
 
     /**
      * Recipient of the payments in this channel. Either the XBR Market Operator (payment
      * channels) or a XBR Provider (paying channels).
      */
-    address private _recipient;
+    address public recipient;
 
     /// Amount of XBR held in the channel.
-    uint256 private _amount;
+    uint256 public amount;
 
     /// Block number when the channel was created.
-    uint256 private _openedAt;
+    uint256 public openedAt;
 
     /// Block number when the channel was closed (finally, after the timeout).
-    uint256 private _closedAt;
+    uint256 public closedAt;
 
     /**
      * Timeout with which the channel will be closed (the grace period during which the
      * channel will wait for participants to submit their last signed transaction).
      */
-    uint32 private _channelTimeout;
+    uint32 public timeout;
 
     /// Signatures of the channel participants (when channel is closing).
     mapping (bytes32 => address) private _signatures;
@@ -130,41 +131,38 @@ contract XBRChannel {
     /**
      * Create a new XBR payment channel for handling microtransactions of XBR tokens.
      *
-     * @param marketId The ID of the XBR market this payment channel is associated with.
-     * @param sender The sender (onchain) of the payments.
-     * @param delegate The offchain delegate allowed to spend XBR offchain, from the channel,
+     * @param marketId_ The ID of the XBR market this payment channel is associated with.
+     * @param sender_ The sender (onchain) of the payments.
+     * @param delegate_ The offchain delegate allowed to spend XBR offchain, from the channel,
      *     in the name of the original sender.
-     * @param recipient The receiver (onchain) of the payments.
-     * @param amount The amount of XBR held in the channel.
-     * @param channelTimeout The payment channel timeout period that begins with the first call to `close()`
+     * @param recipient_ The receiver (onchain) of the payments.
+     * @param amount_ The amount of XBR held in the channel.
+     * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address token, bytes16 marketId, address sender, address delegate, address recipient, uint256 amount,
-        uint32 channelTimeout, ChannelType channelType) public {
+    constructor (address token_, bytes16 marketId_, address sender_, address delegate_, address recipient_,
+                 uint256 amount_, uint32 timeout_, ChannelType ctype_) public {
 
-        _token = XBRToken(token);
-        _type = channelType;
-        _state = ChannelState.OPEN;
-        _marketId = marketId;
-        _sender = sender;
-        _delegate = delegate;
-        _recipient = recipient;
-        _amount = amount;
-        _channelTimeout = channelTimeout;
-        _openedAt = block.number; // solhint-disable-line
+        _token = XBRToken(token_);
+        ctype = ctype_;
+        state = ChannelState.OPEN;
+        marketId = marketId_;
+        sender = sender_;
+        delegate = delegate_;
+        recipient = recipient_;
+        amount = amount_;
+        timeout = timeout_;
+        openedAt = block.number; // solhint-disable-line
     }
 
     /**
      * Verify transaction typed data was signed by signer.
      */
-    function verifyTransaction (address signer,
+    function verifyTransaction (address tx_signer,
                                 bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq,
                                 uint256 tx_amount, uint256 tx_balance,
                                 uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
-        return true;
-/*
-FIXME: commenting in the following code leads to "ran out of gas" during deployment. why?
 
-        return signer == ecrecover(keccak256(abi.encodePacked(
+        return tx_signer == ecrecover(keccak256(abi.encodePacked(
             "\\x19\\x01",
             DOMAIN_SEPARATOR,
             keccak256(abi.encode(
@@ -176,79 +174,6 @@ FIXME: commenting in the following code leads to "ran out of gas" during deploym
                 tx_balance
             ))
         )), v, r, s);
-*/
-    }
-
-    /**
-     * The XBR Market ID this channel is operating payments for.
-     */
-    function channelType () public view returns (ChannelType) {
-        return _type;
-    }
-
-    /**
-     * The XBR Market ID this channel is operating payments for.
-     */
-    function channelState () public view returns (ChannelState) {
-        return _state;
-    }
-
-    /**
-     * The XBR Market ID this channel is operating payments for.
-     */
-    function marketId () public view returns (bytes16) {
-        return _marketId;
-    }
-
-    /**
-     * The sender of the payments in this channel. Either a XBR Consumer or XBR Market Maker (delegate).
-     */
-    function sender () public view returns (address) {
-        return _sender;
-    }
-
-    /**
-     * The delegate working for the sender, and using this channel to pay for data keys. E.g. a
-     * XBR Consumer (delegate) or XBR Provider (delegate).
-     */
-    function delegate () public view returns (address) {
-        return _delegate;
-    }
-
-    /**
-     * Recipient of the payments in this channel. Either a XBR Market Maker (delegate) or a XBR Provider.
-     */
-    function recipient () public view returns (address) {
-        return _recipient;
-    }
-
-    /**
-     * Amount of XBR held in the channel.
-     */
-    function amount () public view returns (uint256) {
-        return _amount;
-    }
-
-    /**
-     * Block number when the channel was created.
-     */
-    function openedAt () public view returns (uint256) {
-        return _openedAt;
-    }
-
-    /**
-     * Block number when the channel was closed (finally, after the timeout).
-     */
-    function closedAt () public view returns (uint256) {
-        return _closedAt;
-    }
-
-    /**
-     * Timeout with which the channel will be closed (the grace period during which the
-     * channel will wait for participants to submit their last signed transaction).
-     */
-    function channelTimeout () public view returns (uint32) {
-        return _channelTimeout;
     }
 
     /**
@@ -264,32 +189,31 @@ FIXME: commenting in the following code leads to "ran out of gas" during deploym
                     uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
                     uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public {
 
-/*
-        if (_type == XBRChannel.ChannelType.PAYMENT) {
-            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+        if (ctype == XBRChannel.ChannelType.PAYMENT) {
+            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
         } else {
-            require(verifyTransaction(_delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(_sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
         }
-*/
-        require(_state == ChannelState.OPEN, "CHANNEL_NOT_OPEN");
+
+        require(state == ChannelState.OPEN, "CHANNEL_NOT_OPEN");
 
         // approve(address spender, uint256 amount) external returns (bool)
         // transferFrom(address sender, address recipient, uint256 amount)
         // revert("invalid signature");
-        // selfdestruct(_sender);
+        // selfdestruct(sender);
 
-        // bool success = _token.transferFrom(address(this), _recipient, _amount);
-        bool success = _token.transfer(_recipient, _amount);
+        // bool success = _token.transferFrom(address(this), recipient, amount);
+        bool success = _token.transfer(recipient, amount);
         require(success, "CHANNEL_CLOSE_TRANSFER_FAILED");
 
         // FIXME: selfdestruct ?! to whom?
-        // FIXME: recipient amount_amount vs tx_amount vs ..
+        // FIXME: recipient amountamount vs txamount vs ..
         // FIXME: network fee
 
-        _closedAt = block.number; // solhint-disable-line
-        _state = ChannelState.CLOSED;
-        emit Closed(_marketId, _sender, _amount, _closedAt);
+        closedAt = block.number; // solhint-disable-line
+        state = ChannelState.CLOSED;
+        emit Closed(marketId, sender, amount, closedAt);
     }
 }

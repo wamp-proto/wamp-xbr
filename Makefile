@@ -143,9 +143,10 @@ coverage:
 	solidity-coverage
 
 deploy:
-	truffle compile --all
+	#truffle compile --all
 	#truffle migrate --reset --network ganache
-	truffle migrate --reset --network geth
+	#truffle migrate --reset --network ropsten --dry-run
+	truffle migrate --reset --network ropsten
 
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
