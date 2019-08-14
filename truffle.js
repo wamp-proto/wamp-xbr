@@ -12,26 +12,28 @@
  *   },
  */
 
+var HDWalletProvider = require("truffle-hdwallet-provider");
+
 module.exports = {
     // See <http://truffleframework.com/docs/advanced/configuration>
     // to customize your Truffle configuration!
 
     networks: {
-        /*
-        development: {
+        geth: {
             host: "localhost",
-            port: 7545,
-            network_id: "*"
+            port: 1545,
+            network_id: "5777",
+            //from: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
+            //from: "0x4c5E35F5bC1D26d7a6Bb7Ff343CDaB110bC87B5E"
         },
-        */
 
         ganache: {
             host: "localhost",
 	        // port: 8545,
 	        port: 1545,
             network_id: "5777",
-            // gas: 0xfffffffffff,
-            gas: 100000000,
+            gas: 0xfffffffffff,
+            // gas: 100000000,
             gasPrice: 0x01
         },
 
@@ -44,6 +46,16 @@ module.exports = {
             gas: 0xfffffffffff,
             gasPrice: 0x01
         },
+
+        // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e
+        ropsten: {
+            provider: function() {
+                return new HDWalletProvider("ten misery survey business salon absorb liar avoid salon camera blade total",
+                                            "https://ropsten.infura.io/v3/40c6959767364c2cb961bd389c738d98")
+            },
+            network_id: 3,
+            gas: 4700000
+        }
     },
 
     compilers: {

@@ -36,6 +36,7 @@ contract XBRChannel {
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
 
+/*
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
@@ -58,7 +59,7 @@ contract XBRChannel {
         chainId,
         verifyingContract
     ));
-
+*/
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken private _token;
 
@@ -159,6 +160,7 @@ contract XBRChannel {
                                 bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq,
                                 uint256 tx_amount, uint256 tx_balance,
                                 uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+        return true;
 /*
 FIXME: commenting in the following code leads to "ran out of gas" during deployment. why?
 
@@ -175,7 +177,6 @@ FIXME: commenting in the following code leads to "ran out of gas" during deploym
             ))
         )), v, r, s);
 */
-        return true;
     }
 
     /**
