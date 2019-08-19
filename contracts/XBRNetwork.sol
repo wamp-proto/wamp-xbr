@@ -144,25 +144,25 @@ contract XBRNetwork is XBRMaintained {
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
     // Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
-    uint32 private marketSeq = 1;
+    uint32 public marketSeq = 1;
 
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    XBRToken private token;
+    XBRToken public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public organization;
 
     /// Current XBR Network members ("member directory").
-    mapping(address => Member) private members;
+    mapping(address => Member) public members;
 
     /// Current XBR Markets ("market directory")
-    mapping(bytes16 => Market) private markets;
+    mapping(bytes16 => Market) public markets;
 
     /// Index: maker address => market ID
-    mapping(address => bytes16) private marketsByMaker;
+    mapping(address => bytes16) public marketsByMaker;
 
     /// Index: delegate address =>
-    mapping(address => address) private paymentChannels;
+    mapping(address => address) public paymentChannels;
 
     /**
      * Create a new network.

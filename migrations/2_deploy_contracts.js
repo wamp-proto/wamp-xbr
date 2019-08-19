@@ -24,14 +24,20 @@ module.exports = function (deployer, network, accounts) {
     //gas = 6721975;
     //gas = 100000000;
     //gas = 17592186044415;
-    gas = 4700000;
+    //gas = 4700000;
+
+    // https://etherscan.io/chart/gaslimit
+    // https://www.rinkeby.io/#stats
+    // https://ropsten.etherscan.io/blocks
+    //gas = 8000000;
+    gas = 6900000;
 
     const organization = accounts[0];
     // const organization = "0x0000000000000000000000000000000000000000";
 
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
-    if (network === "ganache") {
+    if (false && network === "ganache") {
         // https://solidity.readthedocs.io/en/v0.5.3/units-and-global-variables.html#mathematical-and-cryptographic-functions
         // https://ethereum.stackexchange.com/questions/1607/out-of-gas-invoking-precompiled-contracts-on-private-blockchains#2536
         // https://ethereum.stackexchange.com/a/15483/17806
