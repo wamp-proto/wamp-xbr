@@ -1,8 +1,26 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2019 Crossbar.io Technologies GmbH and contributors.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 //
 // Example application level use of Flatbuffers with WAMP.
 //
 
-include "zlmdb.fbs";
+include "wamp.fbs";
 
 /// Our accelerometer example API lives in this namespace.
 namespace demo.accelstorage;
@@ -34,14 +52,11 @@ table AccelSeries
 /// A time range.
 table TimeRange
 {
-    foo: uint8;
     /// Unix epoch start time or 0 for infinity into the past.
-    start: uint32 (uuid);
+    start: uint64;
 
     /// Unix epoch end time or 0 for infinity into the future.
-    endof: uint64 (uuid: "81d3403a-8203-47a6-b7bd-dbaae03195b7");
-
-    bar: uint8 (uuid: 1, uuid: 2, uuid: 3);
+    endof: uint64;
 }
 
 
@@ -129,14 +144,8 @@ rpc_service AccelStorageAdvanced (type: "interface",
 /// Our survey example API lives in this namespace.
 namespace demo.survey;
 
-enum Moo: uint8
-{
-    TEST,
-    TESDT2
-}
-
 /// Gender (simplified;).
-enum Gender: uint8 (uuid: "TEST 666")
+enum Gender: uint8
 {
     /// Unset or unknown gender.
     UNSET = 0,
@@ -150,11 +159,10 @@ enum Gender: uint8 (uuid: "TEST 666")
 
 
 /// Ice cream surveys.
-table IceCreamOfTheDaySurvey (uuid: "TEST 2323")
+table IceCreamOfTheDaySurvey
 {
     /// Unix epoch (UTC) when survey expires.
-    expires: uint64 (uuid: "TEST 4242");
-    moo: Moo;
+    expires: uint64;
 
     test_1: accelstorage.AccelSample;
 
