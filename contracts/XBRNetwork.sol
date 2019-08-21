@@ -74,6 +74,9 @@ contract XBRNetwork is XBRMaintained {
 
     /// Container type for holding XBR Market information.
     struct Market {
+        /// Time (block.timestamp) when the market was created.
+        uint created;
+
         /// Market sequence number.
         uint32 marketSeq;
 
@@ -135,7 +138,7 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for MARKETS
 
     /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
+    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, string terms, string meta,
         address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was updated.
@@ -167,9 +170,6 @@ contract XBRNetwork is XBRMaintained {
     /// XBR network EULA (IPFS Multihash).
     string public constant eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
 
-    /// Original (technical) creator of the contract.
-    address public owner;
-
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken public token;
 
@@ -195,7 +195,7 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
-        owner = msg.sender;
+
         token = XBRToken(token_);
         organization = organization_;
 
@@ -204,12 +204,11 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     * Join the XBR Network. All XBR stakeholders, namely XBR Data Providers,
-     * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
+     * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+     * XBR Data Consumers and XBR Data Market Operators, must first register
      * with the XBR Network on the global blockchain by calling this function.
      *
      * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     *              Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
      * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
     function register (string memory eula_, string memory profile_) public {
@@ -264,6 +263,7 @@ contract XBRNetwork is XBRMaintained {
      * and automatically becomes owner of the new market.
      *
      * @param marketId The ID of the market to create. Must be unique (not yet existing).
+                       To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
      * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
      *              to a ZIP archive file with market documents.
      * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
@@ -279,22 +279,41 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        // the market operator (owner) must be a registered member
+        require(members[msg.sender].level == MemberLevel.ACTIVE ||
+                members[msg.sender].level == MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+
+        // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
+
+        // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
+
+        // the market maker can only work for one market
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+
+        // provider security must be non-negative (and obviously smaller than the total token supply)
         require(providerSecurity >= 0 && providerSecurity <= token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+
+        // consumer security must be non-negative (and obviously smaller than the total token supply)
         require(consumerSecurity >= 0 && consumerSecurity <= token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+
+        // FIXME: treat market fee
         require(marketFee >= 0 && marketFee < (token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
-        markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
+        // now remember out new market ..
+        uint created = block.timestamp;
+        markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker, providerSecurity,
             consumerSecurity, marketFee, new address[](0));
 
+        // .. and the market-maker-to-market mapping
         marketsByMaker[maker] = marketId;
 
+        // increment market sequence for next market
         marketSeq = marketSeq + 1;
 
-        emit MarketCreated(marketId, marketSeq, msg.sender, terms, meta, maker,
+        // notify observers (eg a dormant market maker waiting to be associated)
+        emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
                                 providerSecurity, consumerSecurity, marketFee);
     }
 
