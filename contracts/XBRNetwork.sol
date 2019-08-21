@@ -80,7 +80,7 @@ contract XBRNetwork is XBRMaintained {
         /// Market sequence number.
         uint32 marketSeq;
 
-        /// Market owner.
+        /// Market owner (aka "market operator").
         address owner;
 
         /// Market terms (IPFS Multihash).
@@ -402,23 +402,32 @@ contract XBRNetwork is XBRMaintained {
      * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
      */
     function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
+
+        // the joining sender must be a registered member
         require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the joining member must join as a data provider (seller) or data consumer (buyer)
         require(uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
+        // get the security amount required for joining the market (if any)
         uint256 security;
         if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
-            require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ACTOR_ALREADY_JOINED");
+            // the joining member must not be joined as a provider already
+            require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
             security = markets[marketId].providerSecurity;
         } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
-            require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ACTOR_ALREADY_JOINED");
+            // the joining member must not be joined as a consumer already
+            require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
             security = markets[marketId].consumerSecurity;
         } else {
             require(false, "SHOULD_NOT_ARRIVE_HERE");
         }
 
         if (security > 0) {
-            // Transfer (if any) security to the market owner, for both ActorType.CONSUMER and ActorType.PROVIDER.
+            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
             bool success = token.transferFrom(msg.sender, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
@@ -472,6 +481,16 @@ contract XBRNetwork is XBRMaintained {
         // sender must be consumer in the market
         require(uint8(markets[marketId].consumerActors[msg.sender].joined) != 0, "NO_CONSUMER_ROLE");
 
+        // technical recipient of the unidirectional, half-legged channel must be the
+        // owner (operator) of the market
+        require(recipient == markets[marketId].owner, "INVALID_CHANNEL_RECIPIENT");
+
+        // must provide a valid off-chain channel delegate address
+        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // payment channel amount must be positive
+        require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+
         // create new payment channel contract
         XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYMENT);
@@ -488,6 +507,7 @@ contract XBRNetwork is XBRMaintained {
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYMENT);
 
+        // return address of new channel contract
         return address(channel);
     }
 
