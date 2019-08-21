@@ -41,12 +41,15 @@ contract XBRNetwork is XBRMaintained {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// XBR Market Actor types
-    enum ActorType {NULL, PROVIDER, CONSUMER }
+    enum ActorType { NULL, PROVIDER, CONSUMER }
 
     // //////// container types
 
     /// Container type for holding XBR Network membership information.
     struct Member {
+        /// Time (block.timestamp) when the member was (initially) registered.
+        uint registered;
+
         /// The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
         string eula;
 
@@ -124,7 +127,7 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for MEMBERS
 
     /// Event emitted when a new member joined the XBR Network.
-    event MemberCreated (address indexed member, string eula, string profile, MemberLevel level);
+    event MemberCreated (address indexed member, uint registered, string eula, string profile, MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
@@ -158,8 +161,14 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    // Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
+    /// Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
     uint32 public marketSeq = 1;
+
+    /// XBR network EULA (IPFS Multihash).
+    string public constant eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
+
+    /// Original (technical) creator of the contract.
+    address public owner;
 
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken public token;
@@ -186,10 +195,12 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
+        owner = msg.sender;
         token = XBRToken(token_);
         organization = organization_;
 
-        members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
+        // Technical creator is XBR member (by definition).
+        members[msg.sender] = Member(block.timestamp, "", "", MemberLevel.VERIFIED);
     }
 
     /**
@@ -197,25 +208,33 @@ contract XBRNetwork is XBRMaintained {
      * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
      * with the XBR Network on the global blockchain by calling this function.
      *
-     * @param eula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     *             Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
-     * @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+     * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+     *              Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
+     * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
-    function register (string memory eula, string memory profile) public {
-        require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
-        require(keccak256(abi.encode(eula)) ==
-                keccak256(abi.encode("QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81")), "INVALID_EULA");
+    function register (string memory eula_, string memory profile_) public {
+        // check that sender is not already a member
+        require(uint8(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
-        members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
+        // check that the EULA the member accepted is the one we expect
+        require(keccak256(abi.encode(eula_)) ==
+                keccak256(abi.encode(eula)), "INVALID_EULA");
 
-        emit MemberCreated(msg.sender, eula, profile, MemberLevel.ACTIVE);
+        // remember the member
+        uint registered = block.timestamp;
+        members[msg.sender] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
+
+        // notify observers of new member
+        emit MemberCreated(msg.sender, registered, eula_, profile_, MemberLevel.ACTIVE);
     }
 
     /**
      * Leave the XBR Network.
      */
     function unregister () public {
-        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
+                (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
         // FIXME: check that the member has no active objects associated anymore
 
@@ -260,6 +279,7 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
+        require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
         require(maker != address(0), "INVALID_MAKER");
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
@@ -363,6 +383,7 @@ contract XBRNetwork is XBRMaintained {
      * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
      */
     function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
+        require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
         require(uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
