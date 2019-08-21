@@ -41,7 +41,7 @@ contract XBRNetwork is XBRMaintained {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// XBR Market Actor types
-    enum ActorType { NULL, NETWORK, MARKET, PROVIDER, CONSUMER }
+    enum ActorType {NULL, PROVIDER, CONSUMER }
 
     // //////// container types
 
@@ -59,33 +59,55 @@ contract XBRNetwork is XBRMaintained {
 
     /// Container type for holding XBR Market Actors information.
     struct Actor {
-        /// The type of the actor within the market.
-        ActorType actorType;
+        /// Time (block.timestamp) when the actor has joined.
+        uint joined;
 
         /// Security deposited by actor.
         uint256 security;
 
         /// Metadata attached to an actor in a market.
         string meta;
-
-        /// Actor WAMP key (Ed25519 public key).
-        bytes32 key;
     }
 
     /// Container type for holding XBR Market information.
     struct Market {
+        /// Market sequence number.
         uint32 marketSeq;
+
+        /// Market owner.
         address owner;
+
+        /// Market terms (IPFS Multihash).
         string terms;
+
+        /// Market metadata (IPFS Multihash)
         string meta;
+
+        /// Current market maker address.
         address maker;
+
+        /// Security deposit required by data providers (sellers) to join the market.
         uint256 providerSecurity;
+
+        /// Security deposit required by data consumers (buyers) to join the market.
         uint256 consumerSecurity;
+
+        /// Market fee rate for the market operator.
         uint256 marketFee;
+
+        /// All market payment/paying channels.
         address[] channels;
-        address[] actorAddresses;
-        mapping(address => Actor) actors;
+
+        /// Provider (seller) actors joined in the market by actor address.
+        mapping(address => Actor) providerActors;
+
+        /// Consumer (buyer) actors joined in the market by actor address.
+        mapping(address => Actor) consumerActors;
+
+        /// Current payment channel by (buyer) delegate.
         mapping(address => address) currentPaymentChannelByDelegate;
+
+        /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
     }
 
@@ -97,13 +119,6 @@ contract XBRNetwork is XBRMaintained {
         address recipient;
         uint256 amount;
         uint32 timeout;
-    }
-
-    struct DelegateAssociation {
-        address delegate;
-        bytes32 pubkey;
-        bytes16 marketId;
-        ActorType actorType;
     }
 
     // //////// events for MEMBERS
@@ -128,7 +143,7 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint256 security, string meta);
+    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint joined, uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
     event ActorLeft (bytes16 indexed marketId, address actor, ActorType actorType);
@@ -253,10 +268,7 @@ contract XBRNetwork is XBRMaintained {
         require(marketFee >= 0 && marketFee < (token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
-            consumerSecurity, marketFee, new address[](0), new address[](0));
-
-        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0, '', 0);
-        markets[marketId].actorAddresses.push(maker);
+            consumerSecurity, marketFee, new address[](0));
 
         marketsByMaker[maker] = marketId;
 
@@ -352,33 +364,39 @@ contract XBRNetwork is XBRMaintained {
      */
     function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
-        require(uint8(actorType) == uint8(ActorType.MARKET) ||
-            uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
+        require(uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
         uint256 security;
         if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+            require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ACTOR_ALREADY_JOINED");
             security = markets[marketId].providerSecurity;
         } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
+            require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ACTOR_ALREADY_JOINED");
             security = markets[marketId].consumerSecurity;
         } else {
-            // ActorType.MARKET
-            security = 0;
+            require(false, "SHOULD_NOT_ARRIVE_HERE");
         }
 
         if (security > 0) {
-            // ActorType.CONSUMER, ActorType.PROVIDER
-            bool success = token.transferFrom(msg.sender, address(this), security);
+            // Transfer (if any) security to the market owner, for both ActorType.CONSUMER and ActorType.PROVIDER.
+            bool success = token.transferFrom(msg.sender, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
-        // remember actor (by address+type) within market
-        markets[marketId].actors[msg.sender] = Actor(actorType, security, meta, 0);
-        markets[marketId].actorAddresses.push(msg.sender);
+        // remember actor (by actor address) within market
+        uint joined = block.timestamp;
+        if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+            markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta);
+        } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
+            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
+        } else {
+            require(false, "SHOULD_NOT_ARRIVE_HERE");
+        }
 
-        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint256 security, string meta)
-        emit ActorJoined(marketId, msg.sender, actorType, security, meta);
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined, uint256 security, string meta)
+        emit ActorJoined(marketId, msg.sender, actorType, joined, security, meta);
 
+        // return effective security transferred
         return security;
     }
 
@@ -412,7 +430,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
         // sender must be consumer in the market
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
+        require(uint8(markets[marketId].consumerActors[msg.sender].joined) != 0, "NO_CONSUMER_ROLE");
 
         // create new payment channel contract
         XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
@@ -458,8 +476,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
 
         // sender must be provider in the market
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.PROVIDER),
-            "NO_PROVIDER_ROLE");
+        require(uint8(markets[marketId].providerActors[msg.sender].joined) != 0, "NO_PROVIDER_ROLE");
 
         // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient,
         //      address delegate, uint256 amount, uint32 timeout)
@@ -486,8 +503,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker == msg.sender, "SENDER_NOT_MAKER");
 
         // recipient must be provider in the market
-        require(uint8(markets[marketId].actors[recipient].actorType) == uint8(ActorType.PROVIDER),
-            "RECIPIENT_NOT_PROVIDER");
+        require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
         XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount,
