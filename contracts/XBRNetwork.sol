@@ -50,7 +50,8 @@ contract XBRNetwork is XBRMaintained {
         /// Time (block.timestamp) when the member was (initially) registered.
         uint registered;
 
-        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
+        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
+        /// ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
         string eula;
 
         /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
@@ -138,8 +139,8 @@ contract XBRNetwork is XBRMaintained {
     // //////// events for MARKETS
 
     /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, string terms, string meta,
-        address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, string terms,
+        string meta, address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was updated.
     event MarketUpdated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
@@ -149,7 +150,8 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint joined, uint256 security, string meta);
+    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint joined,
+        uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
     event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
@@ -164,7 +166,7 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    /// Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
+    /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 public marketSeq = 1;
 
     /// XBR network EULA (IPFS Multihash).
@@ -440,7 +442,8 @@ contract XBRNetwork is XBRMaintained {
             markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
         }
 
-        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined, uint256 security, string meta)
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
+        //                        uint256 security, string meta)
         emit ActorJoined(marketId, msg.sender, actorType, joined, security, meta);
 
         // return effective security transferred

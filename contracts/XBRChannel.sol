@@ -45,11 +45,13 @@ contract XBRChannel {
 
     address constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
 
-    string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+    string private constant EIP712_DOMAIN =
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
 
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
 
-    string private constant TRANSACTION_TYPE = "Transaction(uint256 pubkey,uint128 key_id,uint32 channel_seq,uint256 amount,uint256 balance)";
+    string private constant TRANSACTION_TYPE =
+        "Transaction(uint256 pubkey,uint128 key_id,uint32 channel_seq,uint256 amount,uint256 balance)";
 
     bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
 
@@ -139,8 +141,8 @@ contract XBRChannel {
      * @param amount_ The amount of XBR held in the channel.
      * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address token_, bytes16 marketId_, address sender_, address delegate_, address recipient_,
-                 uint256 amount_, uint32 timeout_, ChannelType ctype_) public {
+    constructor (address token_, bytes16 marketId_, address sender_, address delegate_,
+                address recipient_, uint256 amount_, uint32 timeout_, ChannelType ctype_) public {
 
         _token = XBRToken(token_);
         ctype = ctype_;
@@ -190,11 +192,15 @@ contract XBRChannel {
                     uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public {
 
         if (ctype == XBRChannel.ChannelType.PAYMENT) {
-            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
+                tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
+                tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
         } else {
-            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount, tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
+                tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
+            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
+                tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
         }
 
         require(state == ChannelState.OPEN, "CHANNEL_NOT_OPEN");
