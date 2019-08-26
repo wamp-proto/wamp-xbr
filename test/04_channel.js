@@ -66,30 +66,19 @@ contract('XBRNetwork', accounts => {
     //
     // test accounts setup
     //
-
-    // the XBR Project
     const owner = accounts[0];
-
-    // 2 test XBR market owners
     const alice = accounts[1];
     const alice_market_maker1 = accounts[2];
-
     const bob = accounts[3];
-    const bob_market_maker1 = accounts[4];
-
-    // 2 test XBR data providers
+    const bob_delegate1 = accounts[4];
     const charlie = accounts[5];
-    const charlie_provider_delegate1 = accounts[6];
-
+    const charlie_delegate1 = accounts[6];
     const donald = accounts[7];
-    const donald_provider_delegate1 = accounts[8];
-
-    // 2 test XBR data consumers
+    const donald_delegate1 = accounts[8];
     const edith = accounts[9];
-    const edith_provider_delegate1 = accounts[10];
-
+    const edith_delegate1 = accounts[10];
     const frank = accounts[11];
-    const frank_provider_delegate1 = accounts[12];
+    const frank_delegate1 = accounts[12];
 
     beforeEach('setup contract for each test', async function () {
         network = await XBRNetwork.deployed();
@@ -173,12 +162,10 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.openPaymentChannel() : consumer should open payment channel', async () => {
 
-        // openPaymentChannel (bytes16 marketId, address consumer, uint256 amount)
-
         // the XBR consumer we use here
         const market_operator = alice;
         const consumer = charlie;
-        const delegate = charlie_provider_delegate1;
+        const delegate = charlie_delegate1;
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -218,4 +205,52 @@ contract('XBRNetwork', accounts => {
         assert.equal(result2.args.recipient, market.owner, "wrong recipient address in event");
         //assert.equal(result2.args.channel, channel, "wrong channel address in event");
     });
+
+    it('XBRNetwork.openPayingChannel() : provider should open paying channel', async () => {
+
+        // the XBR provider we use here
+        const market_operator = alice;
+        const maker = alice_market_maker1;
+        const provider = bob;
+        const delegate = bob_delegate1;
+
+        // XBR market to join
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
+        const market = await network.markets(marketId);
+
+        // console.log('MARKET OWNER', market_operator, market);
+
+        // 50 XBR channel deposit
+        const amount = '' + 50 * 10**18;
+        // const amount = providerSecurity / 4;
+        const timeout = 100;
+
+        // transfer tokens to maker
+        await token.transfer(maker, amount, {from: owner, gasLimit: gasLimit});
+
+        // approve transfer of tokens to open payment channel
+        await token.approve(network.address, amount, {from: maker, gasLimit: gasLimit});
+
+        // XBR consumer opens a payment channel in the market
+        const txn = await network.openPayingChannel(marketId, provider, delegate, amount, timeout, {from: maker, gasLimit: gasLimit});
+        //console.log('result1 txn', txn);
+        //const result1 = txn.receipt.logs[0];
+        //console.log('result1', result1);
+
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result2 = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result2.event, "ChannelCreated", "wrong event was emitted");
+
+        // event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
+        // FIXME: -0x9f80cc2aeb85c799e6c468af409dd6eb00000000000000000000000000000000
+        //assert.equal(result2.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result2.args.sender, maker, "wrong sender address in event");
+        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
+        assert.equal(result2.args.recipient, provider, "wrong recipient address in event");
+        //assert.equal(result2.args.channel, channel, "wrong channel address in event");
+    });
+
 });
