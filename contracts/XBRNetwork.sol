@@ -41,19 +41,17 @@ contract XBRNetwork is XBRMaintained {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// XBR Market Actor types
-    enum ActorType { NULL, NETWORK, MARKET, PROVIDER, CONSUMER }
-
-    /// XBR Domain status values
-    enum DomainStatus { NULL, ACTIVE, CLOSED }
-
-    /// XBR Carrier Node types
-    enum NodeType { NULL, MASTER, CORE, EDGE }
+    enum ActorType { NULL, PROVIDER, CONSUMER }
 
     // //////// container types
 
     /// Container type for holding XBR Network membership information.
     struct Member {
-        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
+        /// Time (block.timestamp) when the member was (initially) registered.
+        uint registered;
+
+        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
+        /// ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
         string eula;
 
         /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
@@ -65,74 +63,58 @@ contract XBRNetwork is XBRMaintained {
 
     /// Container type for holding XBR Market Actors information.
     struct Actor {
-        /// The type of the actor within the market.
-        ActorType actorType;
+        /// Time (block.timestamp) when the actor has joined.
+        uint joined;
 
         /// Security deposited by actor.
         uint256 security;
 
         /// Metadata attached to an actor in a market.
         string meta;
-
-        /// Actor WAMP key (Ed25519 public key).
-        bytes32 key;
-    }
-
-    /// Container type for holding XBR Domain information.
-    struct Domain {
-        /// Domain sequence.
-        uint32 domainSeq;
-
-        /// Domain status
-        DomainStatus status;
-
-        /// Domain owner.
-        address owner;
-
-        /// Domain signing key (Ed25519 public key).
-        bytes32 domainKey;
-
-        /// Software stack license file on IPFS (required).
-        string license;
-
-        /// Optional domain terms on IPFS.
-        string terms;
-
-        /// Optional domain metadata on IPFS.
-        string meta;
-
-        /// Nodes within the domain.
-        bytes16[] nodes;
-    }
-
-    /// Container type for holding XBR Domain Nodes information.
-    struct Node {
-        bytes16 domain;
-
-        /// Type of node.
-        NodeType nodeType;
-
-        /// Node key (Ed25519 public key).
-        bytes32 key;
-
-        /// Optional (encrypted) node configuration on IPFS.
-        string config;
     }
 
     /// Container type for holding XBR Market information.
     struct Market {
+        /// Time (block.timestamp) when the market was created.
+        uint created;
+
+        /// Market sequence number.
         uint32 marketSeq;
+
+        /// Market owner (aka "market operator").
         address owner;
+
+        /// Market terms (IPFS Multihash).
         string terms;
+
+        /// Market metadata (IPFS Multihash)
         string meta;
+
+        /// Current market maker address.
         address maker;
+
+        /// Security deposit required by data providers (sellers) to join the market.
         uint256 providerSecurity;
+
+        /// Security deposit required by data consumers (buyers) to join the market.
         uint256 consumerSecurity;
+
+        /// Market fee rate for the market operator.
         uint256 marketFee;
+
+        /// All market payment/paying channels.
         address[] channels;
-        address[] actorAddresses;
-        mapping(address => Actor) actors;
+
+        /// Provider (seller) actors joined in the market by actor address.
+        mapping(address => Actor) providerActors;
+
+        /// Consumer (buyer) actors joined in the market by actor address.
+        mapping(address => Actor) consumerActors;
+
+        /// Current payment channel by (buyer) delegate.
         mapping(address => address) currentPaymentChannelByDelegate;
+
+        /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
     }
 
@@ -146,48 +128,19 @@ contract XBRNetwork is XBRMaintained {
         uint32 timeout;
     }
 
-    struct DelegateAssociation {
-        address delegate;
-        bytes32 pubkey;
-        bytes16 marketId;
-        ActorType actorType;
-    }
-
     // //////// events for MEMBERS
 
     /// Event emitted when a new member joined the XBR Network.
-    event MemberCreated (address indexed member, string eula, string profile, MemberLevel level);
+    event MemberCreated (address indexed member, uint registered, string eula, string profile, MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
 
-    // //////// events for DOMAINS
-
-    /// Event emitted when a new domain was created.
-    event DomainCreated (bytes16 indexed domainId, uint32 domainSeq, DomainStatus status, address owner,
-        bytes32 domainKey, string license, string terms, string meta);
-
-    /// Event emitted when a domain was updated.
-    event DomainUpdated (bytes16 indexed domainId, uint32 domainSeq, DomainStatus status, address owner,
-        bytes32 domainKey, string license, string terms, string meta);
-
-    /// Event emitted when a domain was closed.
-    event DomainClosed (bytes16 indexed domainId, DomainStatus status);
-
-    /// Event emitted when a new node was paired with the domain.
-    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
-
-    /// Event emitted when a node was updated.
-    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
-
-    /// Event emitted when a node was released from a domain.
-    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId);
-
     // //////// events for MARKETS
 
     /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
-        address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
+    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, string terms,
+        string meta, address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was updated.
     event MarketUpdated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
@@ -197,10 +150,11 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint256 security, string meta);
+    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint joined,
+        uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 indexed marketId, address actor, ActorType actorType);
+    event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
@@ -212,38 +166,29 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    // Created markets are sequence numbered using this counter (to allow deterministic collison-free IDs for markets)
-    uint32 private marketSeq = 1;
+    /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
+    uint32 public marketSeq = 1;
 
-    // Created domains are sequence numbered using this counter (to allow deterministic collison-free IDs for domains)
-    uint32 private domainSeq = 1;
+    /// XBR network EULA (IPFS Multihash).
+    string public constant eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
 
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    XBRToken private token;
+    XBRToken public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public organization;
 
     /// Current XBR Network members ("member directory").
-    mapping(address => Member) private members;
-
-    /// Current XBR Domains ("domain directory")
-    mapping(bytes16 => Domain) private domains;
-
-    /// Current XBR Nodes ("node directory");
-    mapping(bytes16 => Node) private nodes;
-
-    /// Index: node public key => (market ID, node ID)
-    mapping(bytes32 => bytes16) private nodesByKey;
+    mapping(address => Member) public members;
 
     /// Current XBR Markets ("market directory")
-    mapping(bytes16 => Market) private markets;
+    mapping(bytes16 => Market) public markets;
 
     /// Index: maker address => market ID
-    mapping(address => bytes16) private marketsByMaker;
+    mapping(address => bytes16) public marketsByMaker;
 
     /// Index: delegate address =>
-    mapping(address => address) private paymentChannels;
+    mapping(address => address) public paymentChannels;
 
     /**
      * Create a new network.
@@ -252,72 +197,51 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
+
         token = XBRToken(token_);
         organization = organization_;
 
-        members[msg.sender] = Member("", "", MemberLevel.VERIFIED);
+        // Technical creator is XBR member (by definition).
+        members[msg.sender] = Member(block.timestamp, "", "", MemberLevel.VERIFIED);
     }
 
     /**
-     * Join the XBR Network. All XBR stakeholders, namely XBR Data Providers,
-     * XBR Data Consumers, XBR Data Markets and XBR Data Clouds, must register
+     * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+     * XBR Data Consumers and XBR Data Market Operators, must first register
      * with the XBR Network on the global blockchain by calling this function.
      *
-     * @param eula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     *             Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
-     * @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+     * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+     * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
-    function register (string memory eula, string memory profile) public {
-        require(uint(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
-        require(keccak256(abi.encode(eula)) ==
-                keccak256(abi.encode("QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81")), "INVALID_EULA");
+    function register (string memory eula_, string memory profile_) public {
+        // check that sender is not already a member
+        require(uint8(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
-        members[msg.sender] = Member(eula, profile, MemberLevel.ACTIVE);
+        // check that the EULA the member accepted is the one we expect
+        require(keccak256(abi.encode(eula_)) ==
+                keccak256(abi.encode(eula)), "INVALID_EULA");
 
-        emit MemberCreated(msg.sender, eula, profile, MemberLevel.ACTIVE);
+        // remember the member
+        uint registered = block.timestamp;
+        members[msg.sender] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
+
+        // notify observers of new member
+        emit MemberCreated(msg.sender, registered, eula_, profile_, MemberLevel.ACTIVE);
     }
 
     /**
      * Leave the XBR Network.
      */
     function unregister () public {
-        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
+                (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
         // FIXME: check that the member has no active objects associated anymore
 
         members[msg.sender].level = MemberLevel.RETIRED;
 
         emit MemberRetired(msg.sender);
-    }
-
-    /**
-     * Returns XBR Network member level given an address.
-     *
-     * @param member The address to lookup the XBR Network member level for.
-     * @return The current member level of the member.
-     */
-    function getMemberLevel (address member) public view returns (MemberLevel) {
-        return members[member].level;
-    }
-
-    /**
-     * Returns XBR Network member EULA given an address.
-     *
-     * @param member The address to lookup the XBR Network member EULA for.
-     * @return IPFS Multihash pointing to XBR Network EULA file on IPFS.
-     */
-    function getMemberEula (address member) public view returns (string memory) {
-        return members[member].eula;
-    }
-
-    /**
-     * Returns XBR Network member profile given an address.
-     *
-     * @param member The address to lookup the XBR Network member profile for.
-     * @return IPFS Multihash pointing to member profile file on IPFS.
-     */
-    function getMemberProfile (address member) public view returns (string memory) {
-        return members[member].profile;
     }
 
     /**
@@ -337,214 +261,11 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     *  Create a new XBR domain. Then sender to the transaction must be XBR network member
-     *  and automatically becomes owner of the new domain.
-     *
-     *  @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
-     *  @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
-     *  @param license The license for the software stack running the domain. IPFS Multihash
-     *                 pointing to a JSON/YAML file signed by the project release key.
-     */
-    function createDomain (bytes16 domainId, bytes32 domainKey, string memory license,
-        string memory terms, string memory meta) public {
-
-        require(members[msg.sender].level == MemberLevel.ACTIVE ||
-                members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
-
-        require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
-
-        domains[domainId] = Domain(domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
-                                    license, terms, meta, new bytes16[](0));
-
-        emit DomainCreated(domainId, domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
-                            license, terms, meta);
-
-        domainSeq = domainSeq + 1;
-    }
-
-    /**
-     * Close an existing XBR domain. The sender must be owner of the domain, and the domain
-     * must not have any nodes paired (anymore).
-     *
-     * @param domainId The ID of the domain to close.
-     */
-    function closeDomain (bytes16 domainId) public {
-        require(members[msg.sender].level == MemberLevel.ACTIVE ||
-                members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
-        require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
-        require(domains[domainId].status == DomainStatus.ACTIVE, "DOMAIN_NOT_ACTIVE");
-
-        // FIXME: check that the domain has no active objects associated anymore
-
-        domains[domainId].status = DomainStatus.CLOSED;
-
-        emit DomainClosed(domainId, DomainStatus.CLOSED);
-    }
-
-    /**
-     * Returns domain status.
-     *
-     * @param domainId The ID of the domain to lookup status.
-     * @return The current status of the domain.
-     */
-    function getDomainStatus(bytes16 domainId) public view returns (DomainStatus) {
-        return domains[domainId].status;
-    }
-
-    /**
-     * Returns domain owner.
-     *
-     * @param domainId The ID of the domain to lookup owner.
-     * @return The address of the owner of the domain.
-     */
-    function getDomainOwner(bytes16 domainId) public view returns (address) {
-        return domains[domainId].owner;
-    }
-
-    /**
-     * Returns domain (signing) key.
-     *
-     * @param domainId The ID of the domain to lookup key.
-     * @return The Ed25519 public signing key for the domain.
-     */
-    function getDomainKey(bytes16 domainId) public view returns (bytes32) {
-        return domains[domainId].domainKey;
-    }
-
-    /**
-     * Returns domain license.
-     *
-     * @param domainId The ID of the domain to lookup license.
-     * @return IPFS Multihash pointer to domain license file on IPFS.
-     */
-    function getDomainLicense(bytes16 domainId) public view returns (string memory) {
-        return domains[domainId].license;
-    }
-
-    /**
-     * Returns domain terms.
-     *
-     * @param domainId The ID of the domain to lookup terms.
-     * @return IPFS Multihash pointer to domain terms on IPFS.
-     */
-    function getDomainTerms(bytes16 domainId) public view returns (string memory) {
-        return domains[domainId].terms;
-    }
-
-    /**
-     * Returns domain meta data.
-     *
-     * @param domainId The ID of the domain to lookup meta data.
-     * @return IPFS Multihash pointer to domain metadata file on IPFS.
-     */
-    function getDomainMeta(bytes16 domainId) public view returns (string memory) {
-        return domains[domainId].meta;
-    }
-
-    /**
-     * Pair a node with an existing XBR Domain. The sender must be owner of the domain.
-     *
-     * @param nodeId The ID of the node to pair. Must be globally unique (not yet existing).
-     * @param domainId The ID of the domain to pair the node with.
-     * @param nodeType The type of node to pair the node under.
-     * @param nodeKey The Ed25519 public node key.
-     * @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
-     */
-    function pairNode (bytes16 nodeId, bytes16 domainId, NodeType nodeType, bytes32 nodeKey,
-        string memory config) public {
-
-        require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
-        require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
-        require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
-        require(uint8(nodeType) == uint8(NodeType.MASTER) ||
-                uint8(nodeType) == uint8(NodeType.EDGE), "INVALID_NODE_TYPE");
-
-        nodes[nodeId] = Node(domainId, nodeType, nodeKey, config);
-        nodesByKey[nodeKey] = nodeId;
-        domains[domainId].nodes.push(nodeId);
-
-        emit NodePaired(domainId, nodeId, nodeKey, config);
-    }
-
-    /**
-     * Release a node currently paired with an XBR domain. The sender must be owner of the domain.
-     *
-     * @param nodeId The ID of the node to release.
-     */
-    function releaseNode (bytes16 nodeId) public {
-        require(uint8(nodes[nodeId].nodeType) != 0, "NO_SUCH_NODE");
-        require(domains[nodes[nodeId].domain].owner == msg.sender, "NOT_AUTHORIZED");
-
-        bytes16 domainId = nodes[nodeId].domain;
-        bytes32 nodeKey = nodes[nodeId].key;
-
-        nodes[nodeId].domain = bytes16(0);
-        nodes[nodeId].nodeType = NodeType.NULL;
-        nodes[nodeId].key = bytes32(0);
-        nodes[nodeId].config = "";
-
-        nodesByKey[nodeKey] = bytes16(0);
-
-        emit NodeReleased(domainId, nodeId);
-    }
-
-    /**
-     * Lookup node ID by node public key.
-     *
-     * @param nodeKey The node public key to lookup
-     * @return The Ed25519 public key of the node.
-     */
-    function getNodeByKey(bytes32 nodeKey) public view returns (bytes16) {
-        return nodesByKey[nodeKey];
-    }
-
-    /**
-     * Returns domain for a node.
-     *
-     * @param nodeId The ID of the node to lookup the domain for.
-     * @return The domain the node is currently paired with.
-     */
-    function getNodeDomain(bytes16 nodeId) public view returns (bytes16) {
-        return nodes[nodeId].domain;
-    }
-
-    /**
-     * Returns node type for a node.
-     *
-     * @param nodeId The ID of the node to lookup the node type for.
-     * @return The node type.
-     */
-    function getNodeType(bytes16 nodeId) public view returns (NodeType) {
-        return nodes[nodeId].nodeType;
-    }
-
-    /**
-     * Returns node public key for a node.
-     *
-     * @param nodeId The ID of the node to lookup the node public key for.
-     * @return The node public key.
-     */
-    function getNodeKey(bytes16 nodeId) public view returns (bytes32) {
-        return nodes[nodeId].key;
-    }
-
-    /**
-     * Returns config for a node.
-     *
-     * @param nodeId The ID of the node to lookup the config for.
-     * @return IPFS Multihash pointer to node config.
-     */
-    function getNodeConfig(bytes16 nodeId) public view returns (string memory) {
-        return nodes[nodeId].config;
-    }
-
-    /**
      * Create a new XBR market. The sender of the transaction must be XBR network member
      * and automatically becomes owner of the new market.
      *
      * @param marketId The ID of the market to create. Must be unique (not yet existing).
+                       To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
      * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
      *              to a ZIP archive file with market documents.
      * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
@@ -560,105 +281,42 @@ contract XBRNetwork is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
+        // the market operator (owner) must be a registered member
+        require(members[msg.sender].level == MemberLevel.ACTIVE ||
+                members[msg.sender].level == MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+
+        // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
+
+        // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
+
+        // the market maker can only work for one market
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+
+        // provider security must be non-negative (and obviously smaller than the total token supply)
         require(providerSecurity >= 0 && providerSecurity <= token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+
+        // consumer security must be non-negative (and obviously smaller than the total token supply)
         require(consumerSecurity >= 0 && consumerSecurity <= token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+
+        // FIXME: treat market fee
         require(marketFee >= 0 && marketFee < (token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
-        markets[marketId] = Market(marketSeq, msg.sender, terms, meta, maker, providerSecurity,
-            consumerSecurity, marketFee, new address[](0), new address[](0));
+        // now remember out new market ..
+        uint created = block.timestamp;
+        markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker, providerSecurity,
+            consumerSecurity, marketFee, new address[](0));
 
-        markets[marketId].actors[msg.sender] = Actor(ActorType.MARKET, 0, '', 0);
-        markets[marketId].actorAddresses.push(maker);
-
+        // .. and the market-maker-to-market mapping
         marketsByMaker[maker] = marketId;
 
+        // increment market sequence for next market
         marketSeq = marketSeq + 1;
 
-        emit MarketCreated(marketId, marketSeq, msg.sender, terms, meta, maker,
+        // notify observers (eg a dormant market maker waiting to be associated)
+        emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
                                 providerSecurity, consumerSecurity, marketFee);
-    }
-
-    /**
-     * Lookup market ID by market maker address.
-     *
-     * @param maker The market maker address to lookup market for
-     * @return ID of the market maker.
-     */
-    function getMarketByMaker (address maker) public view returns (bytes16) {
-        return marketsByMaker[maker];
-    }
-
-    /**
-     * Returns owner for a market.
-     *
-     * @param marketId The ID of the market to lookup owner for.
-     * @return Address of the owner of the market.
-     */
-    function getMarketOwner (bytes16 marketId) public view returns (address) {
-        return markets[marketId].owner;
-    }
-
-    /**
-     * Returns terms for a market.
-     *
-     * @param marketId The ID of the market to lookup terms for.
-     * @return IPFS Multihash pointer to market terms.
-     */
-    function getMarketTerms (bytes16 marketId) public view returns (string memory) {
-        return markets[marketId].terms;
-    }
-
-    /**
-     * Returns metadata for a market.
-     *
-     * @param marketId The ID of the market to lookup metadata for.
-     * @return IPFS Multihash pointer to market metadata.
-     */
-    function getMarketMeta (bytes16 marketId) public view returns (string memory) {
-        return markets[marketId].meta;
-    }
-
-    /**
-     * Returns market maker for a market.
-     *
-     * @param marketId The ID of the market to lookup the market maker address for.
-     * @return The address of the (offchain) market maker delegate responsible for this market.
-     */
-    function getMarketMaker (bytes16 marketId) public view returns (address) {
-        return markets[marketId].maker;
-    }
-
-    /**
-     * Returns provider security for a market.
-     *
-     * @param marketId The ID of the market to lookup provider security for.
-     * @return The provider security defined in the market.
-     */
-    function getMarketProviderSecurity (bytes16 marketId) public view returns (uint256) {
-        return markets[marketId].providerSecurity;
-    }
-
-    /**
-     * Returns consumer security for a market.
-     *
-     * @param marketId The ID of the market to lookup consumer security for.
-     * @return The consumer security defined in the market.
-     */
-    function getMarketConsumerSecurity (bytes16 marketId) public view returns (uint256) {
-        return markets[marketId].consumerSecurity;
-    }
-
-    /**
-     * Returns market fee for a market.
-     *
-     * @param marketId The ID of the market to lookup market fee for.
-     * @return The fee defined in the market.
-     */
-    function getMarketFee (bytes16 marketId) public view returns (uint256) {
-        return markets[marketId].marketFee;
     }
 
     /**
@@ -745,79 +403,51 @@ contract XBRNetwork is XBRMaintained {
      * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
      * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
      */
-    function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == 0, "ACTOR_ALREADY_JOINED");
-        require(uint8(actorType) == uint8(ActorType.MARKET) ||
-            uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER));
+    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
+        // the joining sender must be a registered member
+        require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the market to join must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the joining member must join as a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(ActorType.PROVIDER) ||
+                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+
+        // get the security amount required for joining the market (if any)
         uint256 security;
-        if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        if (actorType == uint8(ActorType.PROVIDER)) {
+            // the joining member must not be joined as a provider already
+            require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
             security = markets[marketId].providerSecurity;
-        } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
+        } else  {
+            // the joining member must not be joined as a consumer already
+            require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
             security = markets[marketId].consumerSecurity;
-        } else {
-            // ActorType.MARKET
-            security = 0;
         }
 
         if (security > 0) {
-            // ActorType.CONSUMER, ActorType.PROVIDER
-            bool success = token.transferFrom(msg.sender, address(this), security);
+            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
+            bool success = token.transferFrom(msg.sender, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
-        // remember actor (by address+type) within market
-        markets[marketId].actors[msg.sender] = Actor(actorType, security, meta, 0);
-        markets[marketId].actorAddresses.push(msg.sender);
+        // remember actor (by actor address) within market
+        uint joined = block.timestamp;
+        if (actorType == uint8(ActorType.PROVIDER)) {
+            markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta);
+        } else {
+            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
+        }
 
-        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint256 security, string meta)
-        emit ActorJoined(marketId, msg.sender, actorType, security, meta);
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
+        //                        uint256 security, string meta)
+        emit ActorJoined(marketId, msg.sender, actorType, joined, security, meta);
 
+        // return effective security transferred
         return security;
-    }
-
-    /**
-     * Returns all actors in a given market.
-     *
-     * @param marketId The ID of the market to lookup actors.
-     * @return  List of addresses of market actors in the market.
-     */
-    function getAllMarketActors (bytes16 marketId) public view returns (address[] memory) {
-        return markets[marketId].actorAddresses;
-    }
-
-    /**
-     * Returns the type of an actor within a market.
-     *
-     * @param marketId The ID of the market to lookup actor type.
-     * @param actor The address of the actor to lookup.
-     * @return The type under which the actor is joined in the market.
-     */
-    function getMarketActorType (bytes16 marketId, address actor) public view returns (ActorType) {
-        return markets[marketId].actors[actor].actorType;
-    }
-
-    /**
-     * Returns the current security deposit of an actor within a market.
-     *
-     * @param marketId The ID of the market to lookup actor type.
-     * @param actor The address of the actor to lookup.
-     * @return The security deposit of the actor in the given market.
-     */
-    function getMarketActorSecurity (bytes16 marketId, address actor) public view returns (uint256) {
-        return markets[marketId].actors[actor].security;
-    }
-
-    /**
-     * Returns any meta associated with the actor in the market.
-     *
-     * @param marketId The ID of the market to lookup actor meta within.
-     * @param actor The address of the actor to lookup in the market.
-     * @return IPFS Multihash pointing to actor meta file on IPFS.
-     */
-    function getMarketActorMeta (bytes16 marketId, address actor) public view returns (string memory) {
-        return markets[marketId].actors[actor].meta;
     }
 
     /**
@@ -850,7 +480,17 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
         // sender must be consumer in the market
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.CONSUMER), "NO_CONSUMER_ROLE");
+        require(uint8(markets[marketId].consumerActors[msg.sender].joined) != 0, "NO_CONSUMER_ROLE");
+
+        // technical recipient of the unidirectional, half-legged channel must be the
+        // owner (operator) of the market
+        require(recipient == markets[marketId].owner, "INVALID_CHANNEL_RECIPIENT");
+
+        // must provide a valid off-chain channel delegate address
+        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // payment channel amount must be positive
+        require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // create new payment channel contract
         XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
@@ -868,6 +508,7 @@ contract XBRNetwork is XBRMaintained {
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYMENT);
 
+        // return address of new channel contract
         return address(channel);
     }
 
@@ -896,8 +537,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
 
         // sender must be provider in the market
-        require(uint8(markets[marketId].actors[msg.sender].actorType) == uint8(ActorType.PROVIDER),
-            "NO_PROVIDER_ROLE");
+        require(uint8(markets[marketId].providerActors[msg.sender].joined) != 0, "NO_PROVIDER_ROLE");
 
         // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient,
         //      address delegate, uint256 amount, uint32 timeout)
@@ -924,8 +564,7 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].maker == msg.sender, "SENDER_NOT_MAKER");
 
         // recipient must be provider in the market
-        require(uint8(markets[marketId].actors[recipient].actorType) == uint8(ActorType.PROVIDER),
-            "RECIPIENT_NOT_PROVIDER");
+        require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
         XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount,
@@ -945,37 +584,5 @@ contract XBRNetwork is XBRMaintained {
             address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
-    }
-
-    /**
-     * Lookup all payment and paying channels for a XBR Market.
-     *
-     * @param marketId The XBR Market to get channels for.
-     * @return List of contract addresses of channels in the market.
-     */
-    function getAllMarketChannels(bytes16 marketId) public view returns (address[] memory) {
-        return markets[marketId].channels;
-    }
-
-    /**
-     * Lookup the current payment channel to use for the given delegate in the given market.
-     *
-     * @param marketId The XBR Market to get the current payment channel address for.
-     * @param delegate The delegate to get the current payment channel address for.
-     * @return Current payment channel address for the given delegate/market.
-     */
-    function currentPaymentChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
-        return markets[marketId].currentPaymentChannelByDelegate[delegate];
-    }
-
-    /**
-     * Lookup the current paying channel to use for the given delegate in the given market.
-     *
-     * @param marketId The XBR Market to get the current paying channel address for.
-     * @param delegate The delegate to get the current paying channel address for.
-     * @return Current paying channel address for the given delegate/market.
-     */
-    function currentPayingChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
-        return markets[marketId].currentPayingChannelByDelegate[delegate];
     }
 }

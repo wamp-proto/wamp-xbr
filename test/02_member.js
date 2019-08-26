@@ -110,33 +110,37 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork() : owner account should be initially registered', async () => {
 
-        const level = await network.getMemberLevel(owner);
+        const _owner = await network.members(owner);
+        const _level = _owner.level.toNumber();
 
-        assert.equal(level.toNumber(), MemberLevel_VERIFIED, "wrong member level");
+        assert.equal(_level, MemberLevel_VERIFIED, "wrong member level");
     });
 
     it('XBRNetwork() : non-owner accounts should be initially unregistered', async () => {
-        //const network = await XBRNetwork.deployed();
 
-        var level;
+        const _alice = await network.members(alice);
+        const _alice_level = _alice.level.toNumber();
+        assert.equal(_alice_level, MemberLevel_NULL, "wrong member level " + _alice_level);
 
-        level = await network.getMemberLevel(alice);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
+        const _bob = await network.members(bob);
+        const _bob_level = _bob.level.toNumber();
+        assert.equal(_bob_level, MemberLevel_NULL, "wrong member level " + _bob_level);
 
-        level = await network.getMemberLevel(bob);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
+        const _charlie = await network.members(charlie);
+        const _charlie_level = _charlie.level.toNumber();
+        assert.equal(_charlie_level, MemberLevel_NULL, "wrong member level " + _charlie_level);
 
-        level = await network.getMemberLevel(charlie);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
+        const _donald = await network.members(donald);
+        const _donald_level = _donald.level.toNumber();
+        assert.equal(_donald_level, MemberLevel_NULL, "wrong member level " + _donald_level);
 
-        level = await network.getMemberLevel(donald);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
+        const _edith = await network.members(edith);
+        const _edith_level = _edith.level.toNumber();
+        assert.equal(_edith_level, MemberLevel_NULL, "wrong member level " + _edith_level);
 
-        level = await network.getMemberLevel(edith);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
-
-        level = await network.getMemberLevel(frank);
-        assert.equal(level.toNumber(), MemberLevel_NULL, "wrong member level " + level);
+        const _frank = await network.members(frank);
+        const _frank_level = _frank.level.toNumber();
+        assert.equal(_frank_level, MemberLevel_NULL, "wrong member level " + _frank_level);
     });
 
     it('XBRNetwork.register() : registering a member with wrong EULA should throw', async () => {
@@ -159,14 +163,14 @@ contract('XBRNetwork', accounts => {
 
         const txn = await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
 
-        const _level = await network.getMemberLevel(alice);
-        assert.equal(_level.toNumber(), MemberLevel_ACTIVE, "wrong member level");
+        const _alice = await network.members(alice);
+        const _alice_eula = _alice.eula;
+        const _alice_profile = _alice.profile;
+        const _alice_level = _alice.level.toNumber();
 
-        const _eula = await network.getMemberEula(alice);
-        assert.equal(_eula, eula, "wrong member EULA");
-
-        const _profile = await network.getMemberProfile(alice);
-        assert.equal(_eula, eula, "wrong member Profile");
+        assert.equal(_alice_level, MemberLevel_ACTIVE, "wrong member level");
+        assert.equal(_alice_eula, eula, "wrong member EULA");
+        assert.equal(_alice_profile, profile, "wrong member Profile");
 
         // check event logs
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
@@ -197,8 +201,10 @@ contract('XBRNetwork', accounts => {
 
         const txn = await network.unregister({from: alice, gasLimit: gasLimit});
 
-        const _level = await network.getMemberLevel(alice);
-        assert.equal(_level.toNumber(), MemberLevel_RETIRED, "wrong member level");
+        const _alice = await network.members(alice);
+        const _alice_level = _alice.level.toNumber();
+
+        assert.equal(_alice_level, MemberLevel_RETIRED, "wrong member level");
 
         // check event logs
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");

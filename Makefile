@@ -89,11 +89,14 @@ npm_global:
 	sudo npm install -g solhint@v1.5.1
 	sudo npm install -g solidity-coverage@v0.5.1
 	sudo npm install -g remix-ide
+	sudo npm install -g npm-check-updates
 
 install:
 	npm install
-	pip install -r requirements-dev.txt
-	pip install -e .
+	npm outdated
+	@echo "run 'ncu -u' to update deps .."
+	# pip install -r requirements-dev.txt
+	# pip install -e .
 
 web3:
 	# https://github.com/ethereum/web3.js/issues/1041#issuecomment-335434041
@@ -140,8 +143,10 @@ coverage:
 	solidity-coverage
 
 deploy:
-	truffle compile --all
-	truffle migrate --reset --network ganache
+	#truffle compile --all
+	#truffle migrate --reset --network ganache
+	#truffle migrate --reset --network ropsten --dry-run
+	truffle migrate --reset --network ropsten
 
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js
