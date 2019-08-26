@@ -158,7 +158,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
-        address receiver, address channel, XBRChannel.ChannelType channelType);
+        address recipient, address channel, XBRChannel.ChannelType channelType);
 
     /// Event emitted when a new request for a paying channel was created in a market.
     event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address recipient, address delegate,
@@ -186,9 +186,6 @@ contract XBRNetwork is XBRMaintained {
 
     /// Index: maker address => market ID
     mapping(address => bytes16) public marketsByMaker;
-
-    /// Index: delegate address =>
-    mapping(address => address) public paymentChannels;
 
     /**
      * Create a new network.
@@ -528,7 +525,7 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //      address receiver, address channel)
+        //      address recipient, address channel)
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYMENT);
 
@@ -603,10 +600,42 @@ contract XBRNetwork is XBRMaintained {
         markets[marketId].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //  address receiver, address channel)
+        //  address recipient, address channel)
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
+    }
+
+    /**
+     * Lookup all payment and paying channels for a XBR Market.
+     *
+     * @param marketId The XBR Market to get channels for.
+     * @return List of contract addresses of channels in the market.
+     */
+    function getAllMarketChannels(bytes16 marketId) public view returns (address[] memory) {
+        return markets[marketId].channels;
+    }
+
+    /**
+     * Lookup the current payment channel to use for the given delegate in the given market.
+     *
+     * @param marketId The XBR Market to get the current payment channel address for.
+     * @param delegate The delegate to get the current payment channel address for.
+     * @return Current payment channel address for the given delegate/market.
+     */
+    function currentPaymentChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
+        return markets[marketId].currentPaymentChannelByDelegate[delegate];
+    }
+
+    /**
+     * Lookup the current paying channel to use for the given delegate in the given market.
+     *
+     * @param marketId The XBR Market to get the current paying channel address for.
+     * @param delegate The delegate to get the current paying channel address for.
+     * @return Current paying channel address for the given delegate/market.
+     */
+    function currentPayingChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
+        return markets[marketId].currentPayingChannelByDelegate[delegate];
     }
 }

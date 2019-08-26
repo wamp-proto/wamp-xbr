@@ -57,6 +57,12 @@ contract('XBRNetwork', accounts => {
     const NodeType_CORE = 2;
     const NodeType_EDGE = 3;
 
+    // 100 XBR security
+    //const providerSecurity = 0;
+    //const consumerSecurity = 0;
+    const providerSecurity = '' + 100 * 10**18;
+    const consumerSecurity = '' + 100 * 10**18;
+
     //
     // test accounts setup
     //
@@ -121,12 +127,6 @@ contract('XBRNetwork', accounts => {
             const terms = "";
             const meta = "";
 
-            // 100 XBR security
-            //const providerSecurity = 0;
-            //const consumerSecurity = 0;
-            const providerSecurity = '' + 100 * 10**18;
-            const consumerSecurity = '' + 100 * 10**18;
-
             // 5% market fee
             // FIXME: how to write a large uint256 literal?
             // const marketFee = '' + Math.trunc(0.05 * 10**9 * 10**18);
@@ -184,10 +184,11 @@ contract('XBRNetwork', accounts => {
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const market = await network.markets(marketId);
 
-        console.log('MARKET OWNER', market_operator, market);
+        // console.log('MARKET OWNER', market_operator, market);
 
         // 50 XBR channel deposit
         const amount = '' + 50 * 10**18;
+        // const amount = consumerSecurity / 4;
         const timeout = 100;
 
         // transfer tokens to consumer
@@ -198,20 +199,23 @@ contract('XBRNetwork', accounts => {
 
         // XBR consumer opens a payment channel in the market
         const txn = await network.openPaymentChannel(marketId, market.owner, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
+        //console.log('result1 txn', txn);
+        //const result1 = txn.receipt.logs[0];
+        //console.log('result1', result1);
 
         // check event logs
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result = txn.receipt.logs[0];
+        const result2 = txn.receipt.logs[0];
 
         // check events
-        assert.equal(result.event, "ChannelCreated", "wrong event was emitted");
+        assert.equal(result2.event, "ChannelCreated", "wrong event was emitted");
 
         // event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
         // FIXME: -0x9f80cc2aeb85c799e6c468af409dd6eb00000000000000000000000000000000
-        // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-        // assert.equal(result.args.channel, channel, "wrong channel address in event");
-        assert.equal(result.args.sender, consumer, "wrong sender address in event");
-        // assert.equal(result.args.recipient, consumer, "wrong recipient address in event");
-        assert.equal(result.args.delegate, delegate, "wrong delegate address in event");
+        //assert.equal(result2.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result2.args.sender, consumer, "wrong sender address in event");
+        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
+        assert.equal(result2.args.recipient, market.owner, "wrong recipient address in event");
+        //assert.equal(result2.args.channel, channel, "wrong channel address in event");
     });
 });

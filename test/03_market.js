@@ -173,10 +173,10 @@ contract('XBRNetwork', accounts => {
         assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
         const market = await network.markets(marketId);
-        console.log('market', market);
+        // console.log('market', market);
 
-        //const actor = await market.providerActors(provider);
-        //console.log('ACTOR', actor);
+        // const actor = await market.providerActors(provider);
+        // console.log('ACTOR', actor);
 
         // const _actorType = await network.getMarketActorType(marketId, network);
         // assert.equal(_actorType.toNumber(), ActorType_PROVIDER, "wrong actorType " + _actorType);
