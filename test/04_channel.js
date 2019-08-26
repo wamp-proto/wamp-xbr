@@ -122,10 +122,10 @@ contract('XBRNetwork', accounts => {
             const meta = "";
 
             // 100 XBR security
-            const providerSecurity = 0;
-            const consumerSecurity = 0;
-            //const providerSecurity = '' + 100 * 10**18;
-            //const consumerSecurity = '' + 100 * 10**18;
+            //const providerSecurity = 0;
+            //const consumerSecurity = 0;
+            const providerSecurity = '' + 100 * 10**18;
+            const consumerSecurity = '' + 100 * 10**18;
 
             // 5% market fee
             // FIXME: how to write a large uint256 literal?
@@ -184,10 +184,10 @@ contract('XBRNetwork', accounts => {
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const market = await network.markets(marketId);
 
-        // console.log('MARKET OWNER', market, market_operator, market.owner);
+        console.log('MARKET OWNER', market_operator, market);
 
-        // 50 XBR security
-        const amount = '50000000000000000000';
+        // 50 XBR channel deposit
+        const amount = '' + 50 * 10**18;
         const timeout = 100;
 
         // transfer tokens to consumer

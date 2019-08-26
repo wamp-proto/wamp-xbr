@@ -61,6 +61,12 @@ contract('XBRNetwork', accounts => {
     // test accounts setup
     //
 
+    const marketId = utils.sha3("MyMarket1").substring(0, 34);
+
+    // 100 XBR security
+    const providerSecurity = '' + 100 * 10**18;
+    const consumerSecurity = '' + 100 * 10**18;
+
     // the XBR Project
     const owner = accounts[0];
 
@@ -118,15 +124,10 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.createMarket() : should create new market', async () => {
 
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const maker = alice_market_maker1;
 
         const terms = "";
         const meta = "";
-
-        // 100 XBR security
-        const providerSecurity = '' + 100 * 10**18;
-        const consumerSecurity = '' + 100 * 10**18;
 
         // 5% market fee
         // FIXME: how to write a large uint256 literal?
@@ -141,11 +142,7 @@ contract('XBRNetwork', accounts => {
         // the XBR provider we use here
         const provider = bob;
 
-        // 100 XBR security
-        const providerSecurity = '100000000000000000000';
-
         // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const meta = "";
 
         if (true) {
@@ -153,7 +150,7 @@ contract('XBRNetwork', accounts => {
             const _balance_network_before = await token.balanceOf(network.address);
 
             // transfer 1000 XBR to provider
-            await token.transfer(provider, '1000000000000000000000', {from: owner, gasLimit: gasLimit});
+            await token.transfer(provider, providerSecurity, {from: owner, gasLimit: gasLimit});
 
             // approve transfer of tokens to join market
             await token.approve(network.address, providerSecurity, {from: provider, gasLimit: gasLimit});
@@ -176,6 +173,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
         const market = await network.markets(marketId);
+        console.log('market', market);
 
         //const actor = await market.providerActors(provider);
         //console.log('ACTOR', actor);
@@ -200,11 +198,7 @@ contract('XBRNetwork', accounts => {
         // the XBR consumer we use here
         const consumer = charlie;
 
-        // 100 XBR security
-        const consumerSecurity = '100000000000000000000';
-
         // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const meta = "";
 
         if (true) {
@@ -212,7 +206,7 @@ contract('XBRNetwork', accounts => {
             const _balance_network_before = await token.balanceOf(network.address);
 
             // transfer 1000 XBR to consumer
-            await token.transfer(consumer, '1000000000000000000000', {from: owner, gasLimit: gasLimit});
+            await token.transfer(consumer, consumerSecurity, {from: owner, gasLimit: gasLimit});
 
             // approve transfer of tokens to join market
             await token.approve(network.address, consumerSecurity, {from: consumer, gasLimit: gasLimit});
@@ -222,16 +216,27 @@ contract('XBRNetwork', accounts => {
         const txn = await network.joinMarket(marketId, ActorType_CONSUMER, meta, {from: consumer, gasLimit: gasLimit});
 
         // // check event logs
-        // assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        // const result = txn.receipt.logs[0];
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
 
         // // check events
-        // assert.equal(result.event, "ActorJoined", "wrong event was emitted");
-        // // FIXME
-        // //assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-        // assert.equal(result.args.actor, consumer, "wrong consumer address in event");
-        // assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
-        // assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
+        assert.equal(result.event, "ActorJoined", "wrong event was emitted");
+        // FIXME
+        //assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result.args.actor, consumer, "wrong consumer address in event");
+        assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
+        assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
+
+        res = await network.getMarketActor(marketId, consumer, ActorType_CONSUMER, {from: consumer, gasLimit: gasLimit});
+
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "consumer wasn't joined to market");
+
+        _security = '' + res["1"];
+        assert.equal(_security, consumerSecurity, "security differed");
+
+        _meta = res["2"];
+        assert.equal(meta, _meta, "meta stored was different");
 
         // const _actorType = await network.getMarketActorType(marketId, consumer);
         // assert.equal(_actorType.toNumber(), ActorType_CONSUMER, "wrong actorType " + _actorType);

@@ -319,6 +319,30 @@ contract XBRNetwork is XBRMaintained {
                                 providerSecurity, consumerSecurity, marketFee);
     }
 
+    function getMarketActor (bytes16 marketId, address actor, uint8 actorType) public view
+        returns (uint, uint256, string memory)
+    {
+
+        // the market must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // must ask for a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(ActorType.PROVIDER) ||
+                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+
+        // the actor must be a registered/verified member
+        require(members[actor].level == MemberLevel.ACTIVE ||
+                members[actor].level == MemberLevel.VERIFIED, "ACTOR_NOT_A_MEMBER");
+
+        if (actorType == uint8(ActorType.CONSUMER)) {
+            Actor storage _actor = markets[marketId].consumerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta);
+        } else {
+            Actor storage _actor = markets[marketId].providerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta);
+        }
+    }
+
     /**
      * Update market information, like market terms, metadata or maker address.
      *
