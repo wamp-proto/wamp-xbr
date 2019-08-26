@@ -163,19 +163,24 @@ contract('XBRNetwork', accounts => {
         const txn = await network.joinMarket(marketId, ActorType_PROVIDER, meta, {from: provider, gasLimit: gasLimit});
 
         // // check event logs
-        // assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        // const result = txn.receipt.logs[0];
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
 
-        // // check events
-        // assert.equal(result.event, "ActorJoined", "wrong event was emitted");
+        // check events
+        assert.equal(result.event, "ActorJoined", "wrong event was emitted");
 
         // // FIXME
         // // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-        // assert.equal(result.args.actor, provider, "wrong provider address in event");
-        // assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
-        // assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
+        assert.equal(result.args.actor, provider, "wrong provider address in event");
+        assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
+        assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
-        // const _actorType = await network.getMarketActorType(marketId, provider);
+        const market = await network.markets(marketId);
+
+        //const actor = await market.providerActors(provider);
+        //console.log('ACTOR', actor);
+
+        // const _actorType = await network.getMarketActorType(marketId, network);
         // assert.equal(_actorType.toNumber(), ActorType_PROVIDER, "wrong actorType " + _actorType);
 
         // const _security = await network.getMarketActorSecurity(marketId, provider);
