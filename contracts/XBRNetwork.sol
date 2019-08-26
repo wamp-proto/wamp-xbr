@@ -149,10 +149,10 @@ contract XBRNetwork is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, ActorType actorType, uint joined, uint256 security, string meta);
+    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint joined, uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 indexed marketId, address actor, ActorType actorType);
+    event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
@@ -401,7 +401,7 @@ contract XBRNetwork is XBRMaintained {
      * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
      * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
      */
-    function joinMarket (bytes16 marketId, ActorType actorType, string memory meta) public returns (uint256) {
+    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
         // the joining sender must be a registered member
         require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
@@ -410,20 +410,20 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
         // the joining member must join as a data provider (seller) or data consumer (buyer)
-        require(uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        // require(uint8(actorType) == uint8(ActorType.PROVIDER) || uint8(actorType) == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        require(actorType == 1 || actorType == 2, "INVALID_ACTOR_TYPE");
 
         // get the security amount required for joining the market (if any)
         uint256 security;
-        if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        if (actorType == 1) {
             // the joining member must not be joined as a provider already
             require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
             security = markets[marketId].providerSecurity;
-        } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
+        } else  {
             // the joining member must not be joined as a consumer already
             require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
             security = markets[marketId].consumerSecurity;
-        } else {
-            require(false, "SHOULD_NOT_ARRIVE_HERE");
         }
 
         if (security > 0) {
@@ -434,12 +434,10 @@ contract XBRNetwork is XBRMaintained {
 
         // remember actor (by actor address) within market
         uint joined = block.timestamp;
-        if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        if (actorType == 1) {
             markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta);
-        } else if (uint8(actorType) == uint8(ActorType.CONSUMER)) {
-            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
         } else {
-            require(false, "SHOULD_NOT_ARRIVE_HERE");
+            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
         }
 
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined, uint256 security, string meta)
