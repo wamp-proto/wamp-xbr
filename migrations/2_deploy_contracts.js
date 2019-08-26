@@ -30,7 +30,11 @@ module.exports = function (deployer, network, accounts) {
     // https://www.rinkeby.io/#stats
     // https://ropsten.etherscan.io/blocks
     //gas = 8000000;
-    gas = 6900000;
+    if (network === "coverage") {
+        gas = 0xfffffffffff;
+    } else {
+        gas = 6900000;
+    }
 
     const organization = accounts[0];
     // const organization = "0x0000000000000000000000000000000000000000";
