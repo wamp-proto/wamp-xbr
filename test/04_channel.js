@@ -206,7 +206,7 @@ contract('XBRNetwork', accounts => {
         //assert.equal(result2.args.channel, channel, "wrong channel address in event");
     });
 
-    it('XBRNetwork.openPayingChannel() : provider should open paying channel', async () => {
+    it('XBRNetwork.requestPayingChannel() : provider should request paying channel', async () => {
 
         // the XBR provider we use here
         const market_operator = alice;
@@ -225,11 +225,60 @@ contract('XBRNetwork', accounts => {
         // const amount = providerSecurity / 4;
         const timeout = 100;
 
-        // transfer tokens to maker
-        await token.transfer(maker, amount, {from: owner, gasLimit: gasLimit});
+        // transfer tokens to provider
+        await token.transfer(provider, amount, {from: owner, gasLimit: gasLimit});
 
-        // approve transfer of tokens to open payment channel
-        await token.approve(network.address, amount, {from: maker, gasLimit: gasLimit});
+        // approve transfer of tokens to open paying channel
+        await token.approve(maker, amount, {from: provider, gasLimit: gasLimit});
+
+        // XBR provider requests a paying channel in the market
+        const txn = await network.requestPayingChannel(marketId, provider, delegate, amount, timeout, {from: provider, gasLimit: gasLimit});
+        //console.log('result1 txn', txn);
+        //const result1 = txn.receipt.logs[0];
+        //console.log('result1', result1);
+
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result2 = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result2.event, "PayingChannelRequestCreated", "wrong event was emitted");
+
+        // event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
+        // FIXME: -0x9f80cc2aeb85c799e6c468af409dd6eb00000000000000000000000000000000
+        //assert.equal(result2.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result2.args.sender, provider, "wrong sender address in event");
+        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
+        assert.equal(result2.args.recipient, provider, "wrong recipient address in event");
+        //assert.equal(result2.args.channel, channel, "wrong channel address in event");
+    });
+
+    it('XBRNetwork.openPayingChannel() : maker should open paying channel', async () => {
+
+        // the XBR provider we use here
+        const market_operator = alice;
+        const maker = alice_market_maker1;
+        const provider = bob;
+        const delegate = bob_delegate1;
+
+        // XBR market to join
+        const marketId = utils.sha3("MyMarket1").substring(0, 34);
+        const market = await network.markets(marketId);
+
+        // console.log('MARKET OWNER', market_operator, market);
+
+        // 50 XBR channel deposit
+        const amount = '' + 50 * 10**18;
+        // const amount = providerSecurity / 4;
+        const timeout = 100;
+
+        if (true) {
+            // transfer tokens to provider
+            await token.transfer(maker, amount, {from: owner, gasLimit: gasLimit});
+
+            // approve transfer of tokens to open paying channel
+            await token.approve(network.address, amount, {from: maker, gasLimit: gasLimit});
+        }
 
         // XBR consumer opens a payment channel in the market
         const txn = await network.openPayingChannel(marketId, provider, delegate, amount, timeout, {from: maker, gasLimit: gasLimit});
