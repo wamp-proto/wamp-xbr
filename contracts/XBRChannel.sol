@@ -178,10 +178,8 @@ contract XBRChannel {
     /**
      * Verify close transaction typed data was signed by signer.
      */
-    function verifyClose (address tx_signer,
-                          bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_,
-                          uint256 amount_, uint256 balance_,
-                          uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+    function verifyClose (address tx_signer, bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_,
+        uint256 amount_, uint256 balance_, uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
 
         return tx_signer == ecrecover(keccak256(abi.encodePacked(
             "\\x19\\x01",
@@ -210,20 +208,21 @@ contract XBRChannel {
                     bytes memory delegate_sig, bytes memory marketmaker_sig) public {
 
         (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
-        (uint8 _marketmaker_sig_v, bytes32 _marketmaker_sig_r, bytes32 _marketmaker_sig_s) = splitSignature(marketmaker_sig);
+        (uint8 _maker_sig_v, bytes32 _maker_sig_r, bytes32 _maker_sig_s) = splitSignature(marketmaker_sig);
 
-        // FIXME: abpy and abjs agree on signature, but the following code does not (anymore .. because it "did already work")
+        // FIXME: abpy and abjs agree on signature, but the following code does not (anymore, because
+        // it "did already work")
         if (false) {
             if (ctype == XBRChannel.ChannelType.PAYMENT) {
                 require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
                     balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
                 require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _marketmaker_sig_v, _marketmaker_sig_r, _marketmaker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                    balance_, _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
             } else {
                 require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
                     balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
                 require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _marketmaker_sig_v, _marketmaker_sig_r, _marketmaker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                    balance_, _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
             }
         }
 

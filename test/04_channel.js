@@ -463,6 +463,8 @@ contract('XBRNetwork', accounts => {
         // uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s
         // await channel.close();
 
+        const network_balance_before = '' + (await token.balanceOf(await network.organization()));
+        const channel_balance_before = '' + (await token.balanceOf(result2.args.channel));
         const market_balance_before = '' + (await token.balanceOf(market_operator));
         const maker_balance_before = '' + (await token.balanceOf(maker));
         const consumer_balance_before = '' + (await token.balanceOf(consumer));
@@ -489,15 +491,21 @@ contract('XBRNetwork', accounts => {
         await channel.close(msg['pubkey'], msg['key_id'], msg['channel_seq'], msg['amount'], msg['balance'],
                             delegate_sig, marketmaker_sig);
 
+        const network_balance_after = '' + (await token.balanceOf(await network.organization()));
+        const channel_balance_after = '' + (await token.balanceOf(result2.args.channel));
         const market_balance_after = '' + (await token.balanceOf(market_operator));
         const maker_balance_after = '' + (await token.balanceOf(maker));
         const consumer_balance_after = '' + (await token.balanceOf(consumer));
         const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
 
+        console.log('--------------------------------------------')
+        console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
         console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
         console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
+        console.log('CHANNEL_BALANCE', channel_balance_before, channel_balance_after);
         console.log('CONSUMER_BALANCE', consumer_balance_before, consumer_balance_after);
         console.log('CONSUMER_DELEGATE_BALANCE', consumer_delegate_balance_before, consumer_delegate_balance_after);
+        console.log('--------------------------------------------')
 
         const _ctype = await channel.ctype();
         const _state = await channel.state();
