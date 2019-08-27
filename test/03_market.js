@@ -267,19 +267,9 @@ contract('XBRNetwork', accounts => {
         const provider = charlie;
         const meta = "";
 
-        _joined, _security, _meta = await network.getMarketActor(marketId, provider, ActorType_PROVIDER);
-        if (_joined) {
-            console.log('charlie is a provider');
-        } else {
-            console.log('charlie is not a provider yet')
-        }
-
-        _joined, _security, _meta = await network.getMarketActor(marketId, provider, ActorType_CONSUMER);
-        if (_joined) {
-            console.log('charlie is a consumer');
-        } else {
-            console.log('charlie is not a consumer yet')
-        }
+        res = await network.getMarketActor(marketId, provider, ActorType_CONSUMER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "consumer wasn't joined to market");
 
         res = await network.getMarketActor(marketId, provider, ActorType_PROVIDER);
         _joined = res["0"].toNumber();
@@ -303,9 +293,52 @@ contract('XBRNetwork', accounts => {
         assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
         assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
-        const market = await network.markets(marketId);
+        res = await network.getMarketActor(marketId, provider, ActorType_CONSUMER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "consumer wasn't joined to market");
 
         res = await network.getMarketActor(marketId, provider, ActorType_PROVIDER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "provider wasn't joined to market");
+    });
+
+    it('XBRNetwork.joinMarket() : provider should join as consumer in market', async () => {
+
+        // bob is already a provider in the market
+        const consumer = bob;
+        const meta = "";
+
+        res = await network.getMarketActor(marketId, consumer, ActorType_CONSUMER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined, 0, "consumer is already joined to market");
+
+        res = await network.getMarketActor(marketId, consumer, ActorType_PROVIDER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "provider wasn't joined to market");
+
+        if (true) {
+            await token.transfer(consumer, consumerSecurity, {from: owner, gasLimit: gasLimit});
+            await token.approve(network.address, consumerSecurity, {from: consumer, gasLimit: gasLimit});
+        }
+
+        const txn = await network.joinMarket(marketId, ActorType_CONSUMER, meta, {from: consumer, gasLimit: gasLimit});
+
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        assert.equal(result.event, "ActorJoined", "wrong event was emitted");
+
+        // FIXME
+        // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
+        assert.equal(result.args.actor, consumer, "wrong consumer address in event");
+        assert.equal(result.args.actorType, ActorType_CONSUMER, "wrong actorType in event");
+        assert.equal(result.args.security, consumerSecurity, "wrong consumerSecurity in event");
+
+        res = await network.getMarketActor(marketId, consumer, ActorType_CONSUMER);
+        _joined = res["0"].toNumber();
+        assert.equal(_joined > 0, true, "consumer wasn't joined to market");
+
+        res = await network.getMarketActor(marketId, consumer, ActorType_PROVIDER);
         _joined = res["0"].toNumber();
         assert.equal(_joined > 0, true, "provider wasn't joined to market");
     });
