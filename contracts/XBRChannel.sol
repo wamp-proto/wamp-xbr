@@ -102,10 +102,10 @@ contract XBRChannel {
     /// Amount of XBR held in the channel.
     uint256 public amount;
 
-    /// Block number when the channel was created.
+    /// Block timestamp when the channel was created.
     uint256 public openedAt;
 
-    /// Block number when the channel was closed (finally, after the timeout).
+    /// Block timestamp when the channel was closed (finally, after the timeout).
     uint256 public closedAt;
 
     /**
@@ -121,14 +121,14 @@ contract XBRChannel {
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
      */
-    event Closing(bytes16 indexed marketId, address signer, uint256 amount, uint256 timeoutAt);
+    event Closing(bytes16 indexed marketId, address signer, uint256 earned, uint256 remaining, uint256 timeoutAt);
 
     /**
      * Event emitted when payment channel has finally closed, which happens after both state
      * channel participants have called close(), agreeing on last state, or after the timeout
      * at latest - in case the second participant doesn't react within timeout)
      */
-    event Closed(bytes16 indexed marketId, address signer, uint256 amount, uint256 closedAt);
+    event Closed(bytes16 indexed marketId, address signer, uint256 earned, uint256 remaining, uint256 closedAt);
 
     /**
      * Create a new XBR payment channel for handling microtransactions of XBR tokens.
@@ -153,27 +153,46 @@ contract XBRChannel {
         recipient = recipient_;
         amount = amount_;
         timeout = timeout_;
-        openedAt = block.number; // solhint-disable-line
+        openedAt = block.timestamp; // solhint-disable-line
     }
 
     /**
-     * Verify transaction typed data was signed by signer.
+     * Split a signature given as a bytes string into components.
      */
-    function verifyTransaction (address tx_signer,
-                                bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq,
-                                uint256 tx_amount, uint256 tx_balance,
-                                uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+    function splitSignature (bytes memory sig) internal pure returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        require(sig.length == 65, "INVALID_SIGNATURE_LENGTH");
+
+        assembly {
+            // first 32 bytes, after the length prefix
+            r := mload(add(sig, 32))
+            // second 32 bytes
+            s := mload(add(sig, 64))
+            // final byte (first byte of the next 32 bytes)
+            v := byte(0, mload(add(sig, 96)))
+        }
+
+        return (v, r, s);
+    }
+
+    /**
+     * Verify close transaction typed data was signed by signer.
+     */
+    function verifyClose (address tx_signer,
+                          bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_,
+                          uint256 amount_, uint256 balance_,
+                          uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
 
         return tx_signer == ecrecover(keccak256(abi.encodePacked(
             "\\x19\\x01",
             DOMAIN_SEPARATOR,
             keccak256(abi.encode(
                 TRANSACTION_DOMAIN_TYPEHASH,
-                tx_pubkey,
-                tx_key_id,
-                tx_channel_seq,
-                tx_amount,
-                tx_balance
+                pubkey_,
+                key_id_,
+                channel_seq_,
+                amount_,
+                balance_
             ))
         )), v, r, s);
     }
@@ -187,39 +206,49 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
-                    uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
-                    uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s) public {
+    function close (bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_, uint256 amount_, uint256 balance_,
+                    bytes memory delegate_sig, bytes memory marketmaker_sig) public {
+
+        (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
+        (uint8 _marketmaker_sig_v, bytes32 _marketmaker_sig_r, bytes32 _marketmaker_sig_s) = splitSignature(marketmaker_sig);
 
         if (ctype == XBRChannel.ChannelType.PAYMENT) {
-            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
-                tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
-                tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
+                balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
+                balance_, _marketmaker_sig_v, _marketmaker_sig_r, _marketmaker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
         } else {
-            require(verifyTransaction(delegate, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
-                tx_balance, marketmaker_v, marketmaker_r, marketmaker_s), "INVALID_MARKETMAKER_SIGNATURE");
-            require(verifyTransaction(sender, tx_pubkey, tx_key_id, tx_channel_seq, tx_amount,
-                tx_balance, delegate_v, delegate_r, delegate_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
+                balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+            require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
+                balance_, _marketmaker_sig_v, _marketmaker_sig_r, _marketmaker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
         }
 
         require(state == ChannelState.OPEN, "CHANNEL_NOT_OPEN");
+        require(0 <= balance_ && balance_ <= amount, "INVALID_CLOSING_BALANCE");
+        require(channel_seq_ >= 1, "INVALID_CLOSING_SEQ");
 
-        // approve(address spender, uint256 amount) external returns (bool)
-        // transferFrom(address sender, address recipient, uint256 amount)
-        // revert("invalid signature");
-        // selfdestruct(sender);
+        uint256 earned = amount - balance_;
+        uint256 remaining = balance_;
 
-        // bool success = _token.transferFrom(address(this), recipient, amount);
-        bool success = _token.transfer(recipient, amount);
-        require(success, "CHANNEL_CLOSE_TRANSFER_FAILED");
+        bool success = false;
+        if (earned > 0) {
+            success = _token.transfer(recipient, earned);
+            require(success, "CHANNEL_CLOSE_EARNED_TRANSFER_FAILED");
+        }
+
+        if (remaining > 0) {
+            success = _token.transfer(sender, remaining);
+            require(success, "CHANNEL_CLOSE_REMAINING_TRANSFER_FAILED");
+        }
 
         // FIXME: selfdestruct ?! to whom?
         // FIXME: recipient amountamount vs txamount vs ..
         // FIXME: network fee
+        // FIXME: timeout and CLOSING event
 
-        closedAt = block.number; // solhint-disable-line
+        closedAt = block.timestamp; // solhint-disable-line
         state = ChannelState.CLOSED;
-        emit Closed(marketId, sender, amount, closedAt);
+        emit Closed(marketId, sender, earned, remaining, closedAt);
     }
 }
