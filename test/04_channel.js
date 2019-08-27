@@ -434,6 +434,7 @@ contract('XBRNetwork', accounts => {
 
         // the XBR consumer we use here
         const market_operator = alice;
+        const maker = alice_market_maker1;
         const consumer = charlie;
         const delegate = charlie_delegate1;
 
@@ -456,12 +457,16 @@ contract('XBRNetwork', accounts => {
         // XBR consumer opens a payment channel in the market
         const txn = await network.openPaymentChannel(marketId, market.owner, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
         const result2 = txn.receipt.logs[0];
-        const channel = await XBRChannel.at(result2.args.channel);
 
         // bytes32 tx_pubkey, bytes16 tx_key_id, uint32 tx_channel_seq, uint256 tx_amount, uint256 tx_balance,
         // uint8 delegate_v, bytes32 delegate_r, bytes32 delegate_s,
         // uint8 marketmaker_v, bytes32 marketmaker_r, bytes32 marketmaker_s
         // await channel.close();
+
+        const market_balance_before = '' + (await token.balanceOf(market_operator));
+        const maker_balance_before = '' + (await token.balanceOf(maker));
+        const consumer_balance_before = '' + (await token.balanceOf(consumer));
+        const consumer_delegate_balance_before = '' + (await token.balanceOf(delegate));
 
         const maker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
         const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
@@ -480,9 +485,42 @@ contract('XBRNetwork', accounts => {
         const marketmaker_sig = create_sig(maker_key, msg);
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
+        const channel = await XBRChannel.at(result2.args.channel);
         await channel.close(msg['pubkey'], msg['key_id'], msg['channel_seq'], msg['amount'], msg['balance'],
-        //delegate_sig, marketmaker_sig);
-        marketmaker_sig, delegate_sig);
+                            delegate_sig, marketmaker_sig);
+
+        const market_balance_after = '' + (await token.balanceOf(market_operator));
+        const maker_balance_after = '' + (await token.balanceOf(maker));
+        const consumer_balance_after = '' + (await token.balanceOf(consumer));
+        const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
+
+        console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
+        console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
+        console.log('CONSUMER_BALANCE', consumer_balance_before, consumer_balance_after);
+        console.log('CONSUMER_DELEGATE_BALANCE', consumer_delegate_balance_before, consumer_delegate_balance_after);
+
+        const _ctype = await channel.ctype();
+        const _state = await channel.state();
+        const _marketId = await channel.marketId();
+        const _sender = await channel.sender();
+        const _delegate = await channel.delegate();
+        const _recipient = await channel.recipient();
+        const _amount = await channel.amount();
+        const _timeout = await channel.timeout();
+        const _openedAt = await channel.openedAt();
+        const _closedAt = await channel.closedAt();
+
+        console.log('CHANNEL_address', result2.args.channel);
+        console.log('CHANNEL_ctype', _ctype.toNumber());
+        console.log('CHANNEL_state', _state.toNumber());
+        console.log('CHANNEL_marketId', _marketId);
+        console.log('CHANNEL_sender', _sender);
+        console.log('CHANNEL_delegate', _delegate);
+        console.log('CHANNEL_recipient', _recipient);
+        console.log('CHANNEL_amount', '' + _amount);
+        console.log('CHANNEL_timeout', _timeout.toNumber());
+        console.log('CHANNEL_openedAt', _openedAt.toNumber());
+        console.log('CHANNEL_closedAt', _closedAt.toNumber());
     });
 
 });
