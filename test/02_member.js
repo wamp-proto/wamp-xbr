@@ -186,6 +186,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
+/*
     it('XBRNetwork.unregister() : retiring a member should fire the correct event and store the correct member level', async () => {
 
         const txn = await network.unregister({from: alice, gasLimit: gasLimit});
@@ -203,5 +204,5 @@ contract('XBRNetwork', accounts => {
         assert.equal(result.event, "MemberRetired", "wrong event was emitted");
         assert.equal(result.args.member, alice, "wrong member address in event");
     });
-
+*/
 });
