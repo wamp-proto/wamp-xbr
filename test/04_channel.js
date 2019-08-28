@@ -57,17 +57,11 @@ function create_sig(key_, message_) {
                 {'name': 'verifyingContract', 'type': 'address'},
             ],
             'Transaction': [
-                // The buyer/seller delegate Ed25519 public key.
-                {'name': 'pubkey', 'type': 'uint256'},
-
-                // The UUID of the data encryption key bought/sold in the transaction.
-                {'name': 'key_id', 'type': 'uint128'},
+                // The channel address (cross-contract replay protection).
+                {'name': 'channel', 'type': 'address'},
 
                 // Channel transaction sequence number.
                 {'name': 'channel_seq', 'type': 'uint32'},
-
-                // Amount paid / earned.
-                {'name': 'amount', 'type': 'uint256'},
 
                 // Amount remaining in the payment/paying channel after the transaction.
                 {'name': 'balance', 'type': 'uint256'},
@@ -477,10 +471,8 @@ contract('XBRNetwork', accounts => {
         const consumer_delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
 
         const msg = {
-            'pubkey': '0xebdfef6d225155873355bd4afeb2ed3100b0e0b5fddad12bd3cd498c1e0c1fbd',
-            'key_id': '0xc37ba03c32608744c3c06302bf81d174',
+            'channel': result2.args.channel,
             'channel_seq': 1,
-            'amount': '35000000000000000000',
             'balance': 2000,
         }
         const delegate_sig = create_sig(consumer_delegate_key, msg);
@@ -490,8 +482,8 @@ contract('XBRNetwork', accounts => {
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
         const channel = await XBRChannel.at(result2.args.channel);
-        await channel.close(msg['pubkey'], msg['key_id'], msg['channel_seq'], msg['amount'], msg['balance'],
-                            delegate_sig, marketmaker_sig, {from: consumer, gasLimit: gasLimit});
+        await channel.close(msg['channel_seq'], msg['balance'], delegate_sig, marketmaker_sig,
+            {from: consumer, gasLimit: gasLimit});
 
         const network_balance_after = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_after = '' + (await token.balanceOf(result2.args.channel));
@@ -597,10 +589,8 @@ contract('XBRNetwork', accounts => {
         const provider_delegate_key = '0xadd53f9a7e588d003326d1cbf9e4a43c061aadd9bc938c843a79e7b4fd2ad743';
 
         const msg = {
-            'pubkey': '0xebdfef6d225155873355bd4afeb2ed3100b0e0b5fddad12bd3cd498c1e0c1fbd',
-            'key_id': '0xc37ba03c32608744c3c06302bf81d174',
+            'channel': result2.args.channel,
             'channel_seq': 1,
-            'amount': '35000000000000000000',
             'balance': 2000,
         }
         const delegate_sig = create_sig(provider_delegate_key, msg);
@@ -610,8 +600,8 @@ contract('XBRNetwork', accounts => {
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
         const channel = await XBRChannel.at(result2.args.channel);
-        await channel.close(msg['pubkey'], msg['key_id'], msg['channel_seq'], msg['amount'], msg['balance'],
-                            delegate_sig, marketmaker_sig, {from: maker, gasLimit: gasLimit});
+        await channel.close(msg['channel_seq'], msg['balance'], delegate_sig, marketmaker_sig,
+            {from: maker, gasLimit: gasLimit});
 
         const network_balance_after = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_after = '' + (await token.balanceOf(result2.args.channel));

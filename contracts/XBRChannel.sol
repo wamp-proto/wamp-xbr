@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2019 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ contract XBRChannel {
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
 
     string private constant TRANSACTION_TYPE =
-        "Transaction(uint256 pubkey,uint128 key_id,uint32 channel_seq,uint256 amount,uint256 balance)";
+        "Transaction(address channel,uint32 channel_seq,uint256 balance)";
 
     bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
 
@@ -117,9 +117,6 @@ contract XBRChannel {
      * channel will wait for participants to submit their last signed transaction).
      */
     uint32 public timeout;
-
-    /// Signatures of the channel participants (when channel is closing).
-    mapping (bytes32 => address) private _signatures;
 
     /// When this channel is closing, the sequence number of the closing transaction.
     uint32 private _closing_channel_seq;
@@ -191,18 +188,16 @@ contract XBRChannel {
     /**
      * Verify close transaction typed data was signed by signer.
      */
-    function verifyClose (address tx_signer, bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_,
-        uint256 amount_, uint256 balance_, uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+    function verifyClose (address tx_signer, address channel_, uint32 channel_seq_, uint256 balance_,
+        uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
 
         return tx_signer == ecrecover(keccak256(abi.encodePacked(
             "\\x19\\x01",
             DOMAIN_SEPARATOR,
             keccak256(abi.encode(
                 TRANSACTION_DOMAIN_TYPEHASH,
-                pubkey_,
-                key_id_,
+                channel_,
                 channel_seq_,
-                amount_,
                 balance_
             ))
         )), v, r, s);
@@ -217,8 +212,8 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (bytes32 pubkey_, bytes16 key_id_, uint32 channel_seq_, uint256 amount_, uint256 balance_,
-                    bytes memory delegate_sig, bytes memory marketmaker_sig) public {
+    function close (uint32 channel_seq_, uint256 balance_,
+        bytes memory delegate_sig, bytes memory marketmaker_sig) public {
 
         // split up 65 bytes signatures into components
         (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
@@ -228,15 +223,17 @@ contract XBRChannel {
         // it "did already work")
         if (false) {
             if (ctype == XBRChannel.ChannelType.PAYMENT) {
-                require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
-                require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(delegate, address(this), channel_seq_, balance_,
+                    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+
+                require(verifyClose(sender, address(this), channel_seq_, balance_,
+                    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
             } else {
-                require(verifyClose(sender, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
-                require(verifyClose(delegate, pubkey_, key_id_, channel_seq_, amount_,
-                    balance_, _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(sender, address(this), channel_seq_, balance_,
+                    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+
+                require(verifyClose(delegate, address(this), channel_seq_, balance_,
+                    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
             }
         }
 
