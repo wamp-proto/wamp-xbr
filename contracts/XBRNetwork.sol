@@ -328,10 +328,6 @@ contract XBRNetwork is XBRMaintained {
         require(actorType == uint8(ActorType.PROVIDER) ||
                 actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        // the actor must be a registered/verified member
-        require(members[actor].level == MemberLevel.ACTIVE ||
-                members[actor].level == MemberLevel.VERIFIED, "ACTOR_NOT_A_MEMBER");
-
         if (actorType == uint8(ActorType.CONSUMER)) {
             Actor storage _actor = markets[marketId].consumerActors[actor];
             return (_actor.joined, _actor.security, _actor.meta);
