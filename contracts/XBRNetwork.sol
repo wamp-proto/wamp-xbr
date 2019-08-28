@@ -24,6 +24,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./XBRToken.sol";
 import "./XBRMaintained.sol";
 import "./XBRChannel.sol";
+import "./LinkedListLib.sol";
 
 
 /**
@@ -71,6 +72,9 @@ contract XBRNetwork is XBRMaintained {
 
         /// Metadata attached to an actor in a market.
         string meta;
+
+        /// All payment (paying) channels of the respective buyer (seller) actor.
+        address[] channels;
     }
 
     /// Container type for holding XBR Market information.
@@ -101,9 +105,6 @@ contract XBRNetwork is XBRMaintained {
 
         /// Market fee rate for the market operator.
         uint256 marketFee;
-
-        /// All market payment/paying channels.
-        address[] channels;
 
         /// Provider (seller) actors joined in the market by actor address.
         mapping(address => Actor) providerActors;
@@ -158,7 +159,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// Event emitted when a new payment channel was created in a market.
     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
-        address receiver, address channel, XBRChannel.ChannelType channelType);
+        address recipient, address channel, XBRChannel.ChannelType channelType);
 
     /// Event emitted when a new request for a paying channel was created in a market.
     event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address recipient, address delegate,
@@ -186,9 +187,6 @@ contract XBRNetwork is XBRMaintained {
 
     /// Index: maker address => market ID
     mapping(address => bytes16) public marketsByMaker;
-
-    /// Index: delegate address =>
-    mapping(address => address) public paymentChannels;
 
     /**
      * Create a new network.
@@ -305,8 +303,8 @@ contract XBRNetwork is XBRMaintained {
 
         // now remember out new market ..
         uint created = block.timestamp;
-        markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker, providerSecurity,
-            consumerSecurity, marketFee, new address[](0));
+        markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker,
+            providerSecurity, consumerSecurity, marketFee);
 
         // .. and the market-maker-to-market mapping
         marketsByMaker[maker] = marketId;
@@ -317,6 +315,26 @@ contract XBRNetwork is XBRMaintained {
         // notify observers (eg a dormant market maker waiting to be associated)
         emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
                                 providerSecurity, consumerSecurity, marketFee);
+    }
+
+    function getMarketActor (bytes16 marketId, address actor, uint8 actorType) public view
+        returns (uint, uint256, string memory)
+    {
+
+        // the market must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // must ask for a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(ActorType.PROVIDER) ||
+                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+
+        if (actorType == uint8(ActorType.CONSUMER)) {
+            Actor storage _actor = markets[marketId].consumerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta);
+        } else {
+            Actor storage _actor = markets[marketId].providerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta);
+        }
     }
 
     /**
@@ -437,9 +455,9 @@ contract XBRNetwork is XBRMaintained {
         // remember actor (by actor address) within market
         uint joined = block.timestamp;
         if (actorType == uint8(ActorType.PROVIDER)) {
-            markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta);
+            markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
         } else {
-            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta);
+            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
         }
 
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
@@ -501,10 +519,11 @@ contract XBRNetwork is XBRMaintained {
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
-        markets[marketId].channels.push(address(channel));
+        //markets[marketId].channels.push(address(channel));
+        markets[marketId].consumerActors[msg.sender].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //      address receiver, address channel)
+        //      address recipient, address channel)
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYMENT);
 
@@ -576,13 +595,58 @@ contract XBRNetwork is XBRMaintained {
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
-        markets[marketId].channels.push(address(channel));
+        //markets[marketId].channels.push(address(channel));
+        markets[marketId].providerActors[recipient].channels.push(address(channel));
 
         // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //  address receiver, address channel)
+        //  address recipient, address channel)
         emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
             address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
+    }
+
+    /**
+     * Lookup all payment channels for an consumer actor in a XBR Market.
+     *
+     * @param marketId The XBR Market to get payment channels for.
+     * @param actor The XBR actor to get payment channels for.
+     * @return List of contract addresses of payment channels in the market.
+     */
+    function getAllPaymentChannels(bytes16 marketId, address actor) public view returns (address[] memory) {
+        return markets[marketId].consumerActors[actor].channels;
+    }
+
+    /**
+     * Lookup all paying channels for an provider actor in a XBR Market.
+     *
+     * @param marketId The XBR Market to get paying channels for.
+     * @param actor The XBR actor to get paying channels for.
+     * @return List of contract addresses of paying channels in the market.
+     */
+    function getAllPayingChannels(bytes16 marketId, address actor) public view returns (address[] memory) {
+        return markets[marketId].providerActors[actor].channels;
+    }
+
+    /**
+     * Lookup the current payment channel to use for the given delegate in the given market.
+     *
+     * @param marketId The XBR Market to get the current payment channel address for.
+     * @param delegate The delegate to get the current payment channel address for.
+     * @return Current payment channel address for the given delegate/market.
+     */
+    function currentPaymentChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
+        return markets[marketId].currentPaymentChannelByDelegate[delegate];
+    }
+
+    /**
+     * Lookup the current paying channel to use for the given delegate in the given market.
+     *
+     * @param marketId The XBR Market to get the current paying channel address for.
+     * @param delegate The delegate to get the current paying channel address for.
+     * @return Current paying channel address for the given delegate/market.
+     */
+    function currentPayingChannelByDelegate(bytes16 marketId, address delegate) public view returns (address) {
+        return markets[marketId].currentPayingChannelByDelegate[delegate];
     }
 }

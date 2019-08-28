@@ -21,6 +21,7 @@
   "dependencies": {
     "browserify": "^16.5.0",
     "coveralls": "^3.0.6",
+    "eth-sig-util": "^2.4.0",
     "ganache-cli": "^6.5.1",
     "google-closure-compiler": "^20190729.0.0",
     "node-buffer": "^1.0.3",

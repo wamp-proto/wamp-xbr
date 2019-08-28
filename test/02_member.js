@@ -61,30 +61,19 @@ contract('XBRNetwork', accounts => {
     //
     // test accounts setup
     //
-
-    // the XBR Project
     const owner = accounts[0];
-
-    // 2 test XBR market owners
     const alice = accounts[1];
     const alice_market_maker1 = accounts[2];
-
     const bob = accounts[3];
-    const bob_market_maker1 = accounts[4];
-
-    // 2 test XBR data providers
+    const bob_delegate1 = accounts[4];
     const charlie = accounts[5];
-    const charlie_provider_delegate1 = accounts[6];
-
+    const charlie_delegate1 = accounts[6];
     const donald = accounts[7];
-    const donald_provider_delegate1 = accounts[8];
-
-    // 2 test XBR data consumers
+    const donald_delegate1 = accounts[8];
     const edith = accounts[9];
-    const edith_provider_delegate1 = accounts[10];
-
+    const edith_delegate1 = accounts[10];
     const frank = accounts[11];
-    const frank_provider_delegate1 = accounts[12];
+    const frank_delegate1 = accounts[12];
 
     beforeEach('setup contract for each test', async function () {
         network = await XBRNetwork.deployed();
