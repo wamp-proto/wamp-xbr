@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2019 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./XBRToken.sol";
 import "./XBRMaintained.sol";
 import "./XBRChannel.sol";
-import "./LinkedListLib.sol";
 
 
 /**
@@ -236,6 +235,7 @@ contract XBRNetwork is XBRMaintained {
                 (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
         // FIXME: check that the member has no active objects associated anymore
+        require(false, "NOT_IMPLEMENTED");
 
         members[msg.sender].level = MemberLevel.RETIRED;
 
@@ -511,8 +511,8 @@ contract XBRNetwork is XBRMaintained {
         require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount, timeout,
-            XBRChannel.ChannelType.PAYMENT);
+        XBRChannel channel = new XBRChannel(organization, address(token), marketId, msg.sender, delegate,
+            recipient, amount, timeout, XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
         bool success = token.transferFrom(msg.sender, address(channel), amount);
@@ -586,8 +586,8 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(address(token), marketId, msg.sender, delegate, recipient, amount,
-            timeout, XBRChannel.ChannelType.PAYING);
+        XBRChannel channel = new XBRChannel(organization, address(token), marketId, msg.sender,
+            delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
         XBRToken _token = XBRToken(token);
