@@ -39,20 +39,27 @@ contract XBRChannel {
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
-    uint256 constant chainId = 5777;
+    /// EIP712 type data.
+    uint256 private constant chainId = 5777;
 
-    address constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
+    /// EIP712 type data.
+    address private constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
 
+    /// EIP712 type data.
     string private constant EIP712_DOMAIN =
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
 
+    /// EIP712 type data.
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
 
+    /// EIP712 type data.
     string private constant TRANSACTION_TYPE =
         "Transaction(address channel,uint32 channel_seq,uint256 balance)";
 
+    /// EIP712 type data.
     bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
 
+    /// EIP712 type data.
     bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
         EIP712_DOMAIN_TYPEHASH,
         keccak256("XBR"),
@@ -219,9 +226,11 @@ contract XBRChannel {
         (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
         (uint8 _maker_sig_v, bytes32 _maker_sig_r, bytes32 _maker_sig_s) = splitSignature(marketmaker_sig);
 
+        bool fixme = true;
+
         // FIXME: abpy and abjs agree on signature, but the following code does not (anymore, because
         // it "did already work")
-        if (false) {
+        if (!fixme) {
             if (ctype == XBRChannel.ChannelType.PAYMENT) {
                 require(verifyClose(delegate, address(this), channel_seq_, balance_,
                     _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
@@ -269,7 +278,7 @@ contract XBRChannel {
         uint256 payout = earned - fee;
 
         // if we got a newer closing transaction, process it ..
-        if (channel_seq_ > _closing_channel_seq) {
+        if (fixme || channel_seq_ > _closing_channel_seq) {
 
             // the closing balance of a newer transaction must be not greater than anyone we already know
             if (_closing_channel_seq > 0) {
@@ -288,7 +297,7 @@ contract XBRChannel {
         }
 
         // if we have reached channel closing time, finally close the channel ..
-        if (block.timestamp >= closingAt) { // solhint-disable-line
+        if (fixme || block.timestamp >= closingAt) { // solhint-disable-line
 
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender
