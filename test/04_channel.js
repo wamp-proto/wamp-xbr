@@ -46,35 +46,39 @@ console.log("Account canonical address: " + account.address);
 
 //console.log(data);
 
+const DomainData = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+        ],
+        ChannelClose: [
+            {'name': 'channel_adr', 'type': 'address'},
+            {'name': 'channel_seq', 'type': 'uint32'},
+            {'name': 'balance', 'type': 'uint256'},
+        ]
+    },
+    primaryType: 'ChannelClose',
+    domain: {
+        name: 'XBR',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+    },
+    message: null,
+};
+
+
+
 function create_sig(key_, message_) {
 
-    const data = {
-        'types': {
-            'EIP712Domain': [
-                {'name': 'name', 'type': 'string'},
-                {'name': 'version', 'type': 'string'},
-                {'name': 'chainId', 'type': 'uint256'},
-                {'name': 'verifyingContract', 'type': 'address'},
-            ],
-            'ChannelClose': [
-                {'name': 'channel_adr', 'type': 'address'},
-                {'name': 'channel_seq', 'type': 'uint32'},
-                {'name': 'balance', 'type': 'uint256'},
-            ],
-        },
-        'primaryType': 'ChannelClose',
-        'domain': {
-            'name': 'XBR',
-            'version': '1',
-            'chainId': 1,
-            'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
-            },
-        'message': message_
-    }
+    DomainData['message'] = message_;
 
     const key = eth_util.toBuffer(key_);
 
-    const sig = eth_sig_utils.signTypedData(key, {data: data})
+    const sig = eth_sig_utils.signTypedData(key, {data: DomainData})
 
     return eth_util.toBuffer(sig);
 }
@@ -412,12 +416,22 @@ contract('XBRNetwork', accounts => {
 
     it('XBRChannel.close() : consumer should close payment channel', async () => {
 
-        // the XBR consumer we use here
         const market_operator = alice;
-        const maker = alice_market_maker1;
-        const provider = bob;
-        const consumer = charlie;
-        const delegate = charlie_delegate1;
+
+        const marketmaker = '0x22d491bde2303f2f43325b2108d26f1eaba1e32b';
+        const marketmaker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
+
+        // Charlie
+        const consumer = '0x95ced938f7991cd0dfcb48f0a06a40fa1af46ebc';
+        const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
+
+        // Bob
+        const provider = '0xe11ba2b4d45eaed5996cd0823791e0c93114882d';
+        const provider_key = null;
+
+        // Charlies buyer delegate
+        const delegate = '0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9';
+        const delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -447,28 +461,22 @@ contract('XBRNetwork', accounts => {
         const network_balance_before = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_before = '' + (await token.balanceOf(result2.args.channel));
         const market_balance_before = '' + (await token.balanceOf(market_operator));
-        const maker_balance_before = '' + (await token.balanceOf(maker));
+        const maker_balance_before = '' + (await token.balanceOf(marketmaker));
         const provider_balance_before = '' + (await token.balanceOf(provider));
         const consumer_balance_before = '' + (await token.balanceOf(consumer));
         const consumer_delegate_balance_before = '' + (await token.balanceOf(delegate));
 
-        const market_key = '0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1';
-        const maker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
-        const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
-        const consumer_delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
 
         const msg = {
             //'channel_adr': result2.args.channel,
-            'channel_adr': '0x254dffcd3277c0b1660f6d42efbb754edababc2b',
-            'channel_seq': 39,
-            'balance': 2700,
+            'channel_adr': '0x0000000000000000000000000000000000000000',
+            'channel_seq': 1,
+            'balance': 0,
         }
-        const delegate_sig = create_sig(consumer_key, msg);
-        //const delegate_sig = create_sig(consumer_delegate_key, msg);
+        const delegate_sig = create_sig(delegate_key, msg);
         console.log('DELEGATE_SIG', delegate_sig);
 
-        //const marketmaker_sig = create_sig(maker_key, msg);
-        const marketmaker_sig = create_sig(market_key, msg);
+        const marketmaker_sig = create_sig(marketmaker_key, msg);
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
         const channel = await XBRChannel.at(result2.args.channel);
@@ -476,10 +484,10 @@ contract('XBRNetwork', accounts => {
         //res = await channel.computeSignature(msg['channel_adr'], msg['channel_seq'], msg['balance']);
         //console.log('XXXXXXXXXXXXXXXXXXXXXXXx computeSignature', res);
 
-        res = await channel.verifyClose(consumer, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
+        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
         console.log('XXXXXXXXXXXXXXXXXXXXXXXx verifyClose - delegate_sig', res);
 
-        res = await channel.verifyClose(maker, msg['channel_adr'], msg['channel_seq'], msg['balance'], marketmaker_sig);
+        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'], marketmaker_sig);
         console.log('XXXXXXXXXXXXXXXXXXXXXXXx verifyClose - marketmaker_sig', res);
 
         //res = await channel.test({from: consumer, gasLimit: gasLimit});
@@ -494,7 +502,7 @@ contract('XBRNetwork', accounts => {
         const network_balance_after = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_after = '' + (await token.balanceOf(result2.args.channel));
         const market_balance_after = '' + (await token.balanceOf(market_operator));
-        const maker_balance_after = '' + (await token.balanceOf(maker));
+        const maker_balance_after = '' + (await token.balanceOf(marketmaker));
         const provider_balance_after = '' + (await token.balanceOf(provider));
         const consumer_balance_after = '' + (await token.balanceOf(consumer));
         const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));

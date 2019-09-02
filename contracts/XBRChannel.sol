@@ -41,18 +41,14 @@ contract XBRChannel {
     using ECDSA for bytes32;
 
     /// EIP712 type data.
-    string private constant EIP712_DOMAIN =
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
 
     /// EIP712 type data.
-    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
-
-    /// EIP712 type data.
-    string private constant CHANNELCLOSE_DOMAIN =
-        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance)";
-
-    /// EIP712 type data.
-    bytes32 private constant CHANNELCLOSE_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(CHANNELCLOSE_DOMAIN));
+    bytes32 constant CHANNELCLOSE_DOMAIN_TYPEHASH = keccak256(
+        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance)"
+    );
 
     /// EIP712 type data.
     bytes32 private DOMAIN_SEPARATOR;
@@ -250,7 +246,7 @@ contract XBRChannel {
         });
 
         bytes32 digest = keccak256(abi.encodePacked(
-            "\\x19\\x01",
+            "\x19\x01",
             DOMAIN_SEPARATOR,
             hash(close)
         ));
