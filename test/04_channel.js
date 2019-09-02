@@ -56,41 +56,27 @@ function create_sig(key_, message_) {
                 {'name': 'chainId', 'type': 'uint256'},
                 {'name': 'verifyingContract', 'type': 'address'},
             ],
-            'Transaction': [
-                // The channel address (cross-contract replay protection).
-                {'name': 'channel', 'type': 'address'},
-
-                // Channel transaction sequence number.
+            'ChannelClose': [
+                {'name': 'channel_adr', 'type': 'address'},
                 {'name': 'channel_seq', 'type': 'uint32'},
-
-                // Amount remaining in the payment/paying channel after the transaction.
                 {'name': 'balance', 'type': 'uint256'},
             ],
         },
-        'primaryType': 'Transaction',
+        'primaryType': 'ChannelClose',
         'domain': {
             'name': 'XBR',
             'version': '1',
-
-            // test chain/network ID
-            'chainId': 5777,
-
-            // XBRNetwork contract address
-            'verifyingContract': '0x254dffcd3277c0b1660f6d42efbb754edababc2b',
-        },
+            'chainId': 1,
+            'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+            },
         'message': message_
     }
 
     const key = eth_util.toBuffer(key_);
 
-    if (false) {
-        const message = eth_sig_utils.TypedDataUtils.sign(data, false);
-        const sig = ethUtil.ecsign(message, key)
-        return (sig.v, sig.r, sig.s)
-    } else {
-        const sig = eth_sig_utils.signTypedData(key, {data: data})
-        return eth_util.toBuffer(sig);
-    }
+    const sig = eth_sig_utils.signTypedData(key, {data: data})
+
+    return eth_util.toBuffer(sig);
 }
 
 
@@ -466,22 +452,42 @@ contract('XBRNetwork', accounts => {
         const consumer_balance_before = '' + (await token.balanceOf(consumer));
         const consumer_delegate_balance_before = '' + (await token.balanceOf(delegate));
 
+        const market_key = '0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1';
         const maker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
         const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
         const consumer_delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
 
         const msg = {
-            'channel': result2.args.channel,
-            'channel_seq': 1,
-            'balance': 2000,
+            //'channel_adr': result2.args.channel,
+            'channel_adr': '0x254dffcd3277c0b1660f6d42efbb754edababc2b',
+            'channel_seq': 39,
+            'balance': 2700,
         }
-        const delegate_sig = create_sig(consumer_delegate_key, msg);
+        const delegate_sig = create_sig(consumer_key, msg);
+        //const delegate_sig = create_sig(consumer_delegate_key, msg);
         console.log('DELEGATE_SIG', delegate_sig);
 
-        const marketmaker_sig = create_sig(maker_key, msg);
+        //const marketmaker_sig = create_sig(maker_key, msg);
+        const marketmaker_sig = create_sig(market_key, msg);
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
         const channel = await XBRChannel.at(result2.args.channel);
+
+        res = await channel.computeSignature(msg['channel_adr'], msg['channel_seq'], msg['balance']);
+        console.log('XXXXXXXXXXXXXXXXXXXXXXXx computeSignature', res);
+
+        res = await channel.verifyClose(consumer, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
+        console.log('XXXXXXXXXXXXXXXXXXXXXXXx verifyClose - delegate_sig', res);
+
+        res = await channel.verifyClose(maker, msg['channel_adr'], msg['channel_seq'], msg['balance'], marketmaker_sig);
+        console.log('XXXXXXXXXXXXXXXXXXXXXXXx verifyClose - marketmaker_sig', res);
+
+        //res = await channel.test({from: consumer, gasLimit: gasLimit});
+        //console.log('XXXXXXXXXXXXXXXXXXXXXXXx test', res);
+
+        //res = await channel.test2({from: consumer, gasLimit: gasLimit});
+        //console.log('XXXXXXXXXXXXXXXXXXXXXXXx test2', res);
+
         await channel.close(msg['channel_seq'], msg['balance'], delegate_sig, marketmaker_sig,
             {from: consumer, gasLimit: gasLimit});
 
