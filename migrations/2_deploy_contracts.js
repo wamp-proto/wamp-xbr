@@ -13,6 +13,7 @@
 
 var XBRToken = artifacts.require("./XBRToken.sol");
 var XBRNetwork = artifacts.require("./XBRNetwork.sol");
+var XBRTest = artifacts.require("./XBRTest.sol");
 // var XBRPaymentChannel = artifacts.require("./XBRPaymentChannel.sol");
 // var XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
 
@@ -21,20 +22,14 @@ module.exports = function (deployer, network, accounts) {
 
     var self = this;
 
-    //gas = 6721975;
-    //gas = 100000000;
-    //gas = 17592186044415;
-    //gas = 4700000;
-
     // https://etherscan.io/chart/gaslimit
     // https://www.rinkeby.io/#stats
     // https://ropsten.etherscan.io/blocks
-    //gas = 8000000;
+
     if (network === "coverage") {
         gas = 0xfffffffffff;
     } else {
         gas = 6900000;
-        gas = 10000000;
     }
 
     const organization = accounts[0];
@@ -59,6 +54,8 @@ module.exports = function (deployer, network, accounts) {
     deployer.deploy(XBRToken, {gas: gas, from: organization}).then(function() {
         return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
     });
+
+    deployer.deploy(XBRTest, {gas: gas, from: organization});
 
     // deployer.deploy(XBRPaymentChannel);
     // deployer.deploy(XBRNetworkProxy);

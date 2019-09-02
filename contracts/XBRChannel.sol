@@ -41,12 +41,6 @@ contract XBRChannel {
     using ECDSA for bytes32;
 
     /// EIP712 type data.
-    uint256 private constant chainId = 1;
-
-    /// EIP712 type data.
-    address private constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
-
-    /// EIP712 type data.
     string private constant EIP712_DOMAIN =
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
 
@@ -54,20 +48,14 @@ contract XBRChannel {
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
 
     /// EIP712 type data.
-    string private constant TRANSACTION_TYPE =
-        "ChannelClose(address channel_adr,uint256 channel_seq,uint256 balance)";
+    string private constant CHANNELCLOSE_DOMAIN =
+        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance)";
 
     /// EIP712 type data.
-    bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
+    bytes32 private constant CHANNELCLOSE_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(CHANNELCLOSE_DOMAIN));
 
     /// EIP712 type data.
-    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
-        EIP712_DOMAIN_TYPEHASH,
-        keccak256("XBR"),
-        keccak256("1"),
-        chainId,
-        verifyingContract
-    ));
+    bytes32 private DOMAIN_SEPARATOR;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
     address public organization;
@@ -147,6 +135,13 @@ contract XBRChannel {
     event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 closedAt);
 
+    struct EIP712Domain {
+        string  name;
+        string  version;
+        uint256 chainId;
+        address verifyingContract;
+    }
+
     struct ChannelClose {
         address channel_adr;
         uint32 channel_seq;
@@ -178,6 +173,32 @@ contract XBRChannel {
         amount = amount_;
         timeout = timeout_;
         openedAt = block.timestamp; // solhint-disable-line
+
+        DOMAIN_SEPARATOR = hash(EIP712Domain({
+            name: "XBR",
+            version: '1',
+            chainId: 1,
+            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+        }));
+    }
+
+    function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_DOMAIN_TYPEHASH,
+            keccak256(bytes(domain_.name)),
+            keccak256(bytes(domain_.version)),
+            domain_.chainId,
+            domain_.verifyingContract
+        ));
+    }
+
+    function hash(ChannelClose memory close_) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            CHANNELCLOSE_DOMAIN_TYPEHASH,
+            close_.channel_adr,
+            close_.channel_seq,
+            close_.balance
+        ));
     }
 
     /**
@@ -200,12 +221,17 @@ contract XBRChannel {
         return (v, r, s);
     }
 */
+    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
+        // bytes32 r = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d;
+        // bytes32 s = 0x07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b91562;
+        // uint8 v = 0x1c;
+        // bytes signature_rsv = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b915621c
+        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
-    function splitSignature (bytes memory signature) private pure returns (uint8 v, bytes32 r, bytes32 s) {
         assembly {
-            r := mload(add(signature, 32))
-            s := mload(add(signature, 64))
-            v := and(mload(add(signature, 65)), 255)
+            r := mload(add(signature_rsv, 32))
+            s := mload(add(signature_rsv, 64))
+            v := and(mload(add(signature_rsv, 65)), 255)
         }
         if (v < 27) {
             v += 27;
@@ -216,57 +242,24 @@ contract XBRChannel {
     /**
      * Verify close transaction typed data was signed by signer.
      */
-    function verifyClose (address tx_signer, address channel_adr_, uint32 channel_seq_, uint256 balance_,
-        bytes memory sig_) public pure returns (bool) {
+    function verifyClose (address signer, address channel_adr_, uint32 channel_seq_, uint256 balance_,
+        bytes memory sig_rsv_) public view returns (bool) {
 
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig_);
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig_rsv_);
 
-        return tx_signer == ecrecover(keccak256(abi.encode(
+        ChannelClose memory close = ChannelClose({
+            channel_adr: channel_adr_,
+            channel_seq: channel_seq_,
+            balance: balance_
+        });
+
+        bytes32 digest = keccak256(abi.encodePacked(
             "\\x19\\x01",
             DOMAIN_SEPARATOR,
-            keccak256(abi.encodePacked(
-                TRANSACTION_DOMAIN_TYPEHASH,
-                channel_adr_,
-                channel_seq_,
-                balance_
-            ))
-        )), v, r, s);
-    }
-/*
-    function recoverSigner (address channel_adr_, uint32 channel_seq_, uint256 balance_,
-        bytes memory sig) public pure returns (address) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig);
-
-        address signer = ecrecover(keccak256(abi.encode(
-            "\\x19\\x01",
-            DOMAIN_SEPARATOR,
-            keccak256(abi.encodePacked(
-                TRANSACTION_DOMAIN_TYPEHASH,
-                channel_adr_,
-                channel_seq_,
-                balance_
-            ))
-        )), v, r, s);
-
-        return signer;
-    }
-*/
-    function computeSignature (address channel_adr_, uint32 channel_seq_, uint256 balance_)
-        public pure returns (bytes32) {
-
-        // https://pypi.org/project/eip712-structs/
-
-        return keccak256(abi.encode(
-            "\\x19\\x01",
-            DOMAIN_SEPARATOR,
-            keccak256(abi.encode(
-                TRANSACTION_DOMAIN_TYPEHASH,
-                channel_adr_,
-                channel_seq_,
-                balance_
-            ))
+            hash(close)
         ));
+
+        return ecrecover(digest, v, r, s) == signer;
     }
 
     /**
@@ -281,27 +274,19 @@ contract XBRChannel {
     function close (uint32 channel_seq_, uint256 balance_,
         bytes memory delegate_sig, bytes memory marketmaker_sig) public {
 
-        // split up 65 bytes signatures into components
-        (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
-        (uint8 _maker_sig_v, bytes32 _maker_sig_r, bytes32 _maker_sig_s) = splitSignature(marketmaker_sig);
-
         bool fixme = true;
 
         // FIXME: abpy and abjs agree on signature, but the following code does not (anymore, because
         // it "did already work")
-        if (true) {
+        if (!fixme) {
             if (ctype == XBRChannel.ChannelType.PAYMENT) {
-                //require(verifyClose(delegate, address(this), channel_seq_, balance_,
-                //    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+                require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig), "INVALID_DELEGATE_SIGNATURE");
 
-                //require(verifyClose(recipient, address(this), channel_seq_, balance_,
-                //    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(recipient, address(this), channel_seq_, balance_, marketmaker_sig), "INVALID_MARKETMAKER_SIGNATURE");
             } else {
-                //require(verifyClose(sender, address(this), channel_seq_, balance_,
-                //    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
+                require(verifyClose(sender, address(this), channel_seq_, balance_, delegate_sig), "INVALID_DELEGATE_SIGNATURE");
 
-                //require(verifyClose(delegate, address(this), channel_seq_, balance_,
-                //    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(delegate, address(this), channel_seq_, balance_, marketmaker_sig), "INVALID_MARKETMAKER_SIGNATURE");
             }
         }
 
@@ -380,112 +365,4 @@ contract XBRChannel {
             emit Closed(marketId, sender, payout, fee, refund, closedAt);
         }
     }
-/*
-    struct EIP712Domain {
-        string  name;
-        string  version;
-        uint256 chainId;
-        address verifyingContract;
-    }
-
-    struct Person {
-        string name;
-        address wallet;
-    }
-
-    struct Mail {
-        Person from;
-        Person to;
-        string contents;
-    }
-
-    bytes32 constant EIP712DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-    );
-
-    bytes32 constant CLOSE_TYPEHASH = keccak256(
-        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance)"
-    );
-
-    bytes32 constant PERSON_TYPEHASH = keccak256(
-        "Person(string name,address wallet)"
-    );
-
-    bytes32 constant MAIL_TYPEHASH = keccak256(
-        "Mail(Person from,Person to,string contents)Person(string name,address wallet)"
-    );
-
-    function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712DOMAIN_TYPEHASH,
-            keccak256(bytes(domain_.name)),
-            keccak256(bytes(domain_.version)),
-            domain_.chainId,
-            domain_.verifyingContract
-        ));
-    }
-
-    function hash(ChannelClose memory close_) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            CLOSE_TYPEHASH,
-            close_.channel_adr,
-            close_.channel_seq,
-            close_.balance
-        ));
-    }
-
-    function hash(Person memory person_) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            PERSON_TYPEHASH,
-            keccak256(bytes(person_.name)),
-            person_.wallet
-        ));
-    }
-
-    function hash(Mail memory mail_) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            MAIL_TYPEHASH,
-            hash(mail_.from),
-            hash(mail_.to),
-            keccak256(bytes(mail_.contents))
-        ));
-    }
-
-    function test() public view returns (bytes32) {
-        ChannelClose memory close_ = ChannelClose({
-            channel_adr: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
-            channel_seq: 39,
-            balance: 2700
-        });
-
-        return hash(close_);
-    }
-
-    function test2() public view returns (bytes32) {
-        bytes32 DOMAIN_SEPARATOR2 = hash(EIP712Domain({
-            name: "Ether Mail",
-            version: '1',
-            chainId: 1,
-            verifyingContract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC
-        }));
-        assert(DOMAIN_SEPARATOR2 == 0xf2cee375fa42b42143804025fc449deafd50cc031ca257e0b194a650a912090f);
-
-        Mail memory mail_ = Mail({
-            from: Person({
-               name: "Cow",
-               wallet: 0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826
-            }),
-            to: Person({
-                name: "Bob",
-                wallet: 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB
-            }),
-            contents: "Hello, Bob!"
-        });
-        //bytes32 msg_hash = hash(mail_);
-        bytes32 msg_hash = 0xc52c0ee5d84264471806290a3f2c4cecfc5490626bf912d01f240d7a274b371e;
-        assert(msg_hash == 0xc52c0ee5d84264471806290a3f2c4cecfc5490626bf912d01f240d7a274b371e);
-
-        return msg_hash;
-    }
-*/
 }

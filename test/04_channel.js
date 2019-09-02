@@ -473,8 +473,8 @@ contract('XBRNetwork', accounts => {
 
         const channel = await XBRChannel.at(result2.args.channel);
 
-        res = await channel.computeSignature(msg['channel_adr'], msg['channel_seq'], msg['balance']);
-        console.log('XXXXXXXXXXXXXXXXXXXXXXXx computeSignature', res);
+        //res = await channel.computeSignature(msg['channel_adr'], msg['channel_seq'], msg['balance']);
+        //console.log('XXXXXXXXXXXXXXXXXXXXXXXx computeSignature', res);
 
         res = await channel.verifyClose(consumer, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
         console.log('XXXXXXXXXXXXXXXXXXXXXXXx verifyClose - delegate_sig', res);
