@@ -75,20 +75,26 @@ contract XBRChannel {
     bytes16 public marketId;
 
     /**
-     * The sender of the payments in this channel. Either a XBR Consumer (delegate) in case
-     * of a payment channel, or the XBR Market Maker (delegate) in case of a paying channel.
+     * The off-chain market maker that operates this payment or paying channel.
+     */
+    address public marketmaker;
+
+    /**
+     * The sender of the payments in this channel. Either a XBR Consumer (payment channels) or
+     * the XBR Market Maker (paying channels).
      */
     address public sender;
 
     /**
-     * The other delegate of the channel, e.g. the XBR Market Maker in case of a payment channel,
-     * or a XBR Provider (delegate) in case of a paying channel.
+     * The delegate of the channel, e.g. the XBR Consumer delegate in case of a payment channel
+     * or the XBR Provider (delegate) in case of a paying channel that is allowed to consume or
+     * provide data with payment therefor running under this channel.
      */
     address public delegate;
 
     /**
      * Recipient of the payments in this channel. Either the XBR Market Operator (payment
-     * channels) or a XBR Provider (paying channels).
+     * channels) or a XBR Provider (paying channels) in the market.
      */
     address public recipient;
 
@@ -155,14 +161,16 @@ contract XBRChannel {
      * @param amount_ The amount of XBR held in the channel.
      * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address organization_, address token_, bytes16 marketId_, address sender_, address delegate_,
-                address recipient_, uint256 amount_, uint32 timeout_, ChannelType ctype_) public {
+    constructor (address organization_, address token_, bytes16 marketId_, address marketmaker_,
+        address sender_, address delegate_, address recipient_, uint256 amount_, uint32 timeout_,
+        ChannelType ctype_) public {
 
         organization = organization_;
         _token = XBRToken(token_);
         ctype = ctype_;
         state = ChannelState.OPEN;
         marketId = marketId_;
+        marketmaker = marketmaker_;
         sender = sender_;
         delegate = delegate_;
         recipient = recipient_;
@@ -263,28 +271,16 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (uint32 channel_seq_, uint256 balance_,
-        bytes memory delegate_sig, bytes memory marketmaker_sig) public {
+    function close (uint32 channel_seq_, uint256 balance_, bytes memory delegate_sig,
+        bytes memory marketmaker_sig) public {
 
         bool fixme = true;
 
-        // FIXME: abpy and abjs agree on signature, but the following code does not (anymore, because
-        // it "did already work")
-        if (!fixme) {
-            if (ctype == XBRChannel.ChannelType.PAYMENT) {
-                require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig),
-                    "INVALID_DELEGATE_SIGNATURE");
+        require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig),
+            "INVALID_DELEGATE_SIGNATURE");
 
-                require(verifyClose(recipient, address(this), channel_seq_, balance_, marketmaker_sig),
-                    "INVALID_MARKETMAKER_SIGNATURE");
-            } else {
-                require(verifyClose(sender, address(this), channel_seq_, balance_, delegate_sig),
-                    "INVALID_DELEGATE_SIGNATURE");
-
-                require(verifyClose(delegate, address(this), channel_seq_, balance_, marketmaker_sig),
-                    "INVALID_MARKETMAKER_SIGNATURE");
-            }
-        }
+        require(verifyClose(marketmaker, address(this), channel_seq_, balance_, marketmaker_sig),
+            "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid
         require(0 <= balance_ && balance_ <= amount, "INVALID_CLOSING_BALANCE");
