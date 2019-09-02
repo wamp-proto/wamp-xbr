@@ -176,7 +176,7 @@ contract XBRChannel {
 
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "XBR",
-            version: '1',
+            version: "1",
             chainId: 1,
             verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
         }));
@@ -222,10 +222,6 @@ contract XBRChannel {
     }
 */
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
-        // bytes32 r = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d;
-        // bytes32 s = 0x07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b91562;
-        // uint8 v = 0x1c;
-        // bytes signature_rsv = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b915621c
         require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
         assembly {
@@ -280,13 +276,17 @@ contract XBRChannel {
         // it "did already work")
         if (!fixme) {
             if (ctype == XBRChannel.ChannelType.PAYMENT) {
-                require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig), "INVALID_DELEGATE_SIGNATURE");
+                require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig),
+                    "INVALID_DELEGATE_SIGNATURE");
 
-                require(verifyClose(recipient, address(this), channel_seq_, balance_, marketmaker_sig), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(recipient, address(this), channel_seq_, balance_, marketmaker_sig),
+                    "INVALID_MARKETMAKER_SIGNATURE");
             } else {
-                require(verifyClose(sender, address(this), channel_seq_, balance_, delegate_sig), "INVALID_DELEGATE_SIGNATURE");
+                require(verifyClose(sender, address(this), channel_seq_, balance_, delegate_sig),
+                    "INVALID_DELEGATE_SIGNATURE");
 
-                require(verifyClose(delegate, address(this), channel_seq_, balance_, marketmaker_sig), "INVALID_MARKETMAKER_SIGNATURE");
+                require(verifyClose(delegate, address(this), channel_seq_, balance_, marketmaker_sig),
+                    "INVALID_MARKETMAKER_SIGNATURE");
             }
         }
 

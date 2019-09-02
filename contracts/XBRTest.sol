@@ -57,7 +57,7 @@ contract XBRTest {
     constructor () public {
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "Ether Mail",
-            version: '1',
+            version: "1",
             chainId: 1,
             // verifyingContract: this
             verifyingContract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC
@@ -102,10 +102,6 @@ contract XBRTest {
     }
 
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
-        // bytes32 r = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d;
-        // bytes32 s = 0x07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b91562;
-        // uint8 v = 0x1c;
-        // bytes signature_rsv = 0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b915621c
 
         assembly {
             r := mload(add(signature_rsv, 32))
@@ -118,15 +114,15 @@ contract XBRTest {
         return (v, r, s);
     }
 
-    function test_verify1(address signer, string memory from_name, address from_wallet, string memory to_name, address to_wallet,
-                          string memory contents, bytes memory sig_rsv) public view returns (bool) {
+    function test_verify1(address signer, string memory from_name, address from_wallet, string memory to_name,
+        address to_wallet, string memory contents, bytes memory sig_rsv) public view returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig_rsv);
 
         Mail memory mail = Mail({
             from: Person({
-               name: from_name,
-               wallet: from_wallet
+                name: from_name,
+                wallet: from_wallet
             }),
             to: Person({
                 name: to_name,
@@ -144,13 +140,13 @@ contract XBRTest {
         return ecrecover(digest, v, r, s) == signer;
     }
 
-    function test_verify2(address signer, string memory from_name, address from_wallet, string memory to_name, address to_wallet,
-                          string memory contents, uint8 v, bytes32 r, bytes32 s) public view returns (bool) {
+    function test_verify2(address signer, string memory from_name, address from_wallet, string memory to_name,
+        address to_wallet, string memory contents, uint8 v, bytes32 r, bytes32 s) public view returns (bool) {
 
         Mail memory mail = Mail({
             from: Person({
-               name: from_name,
-               wallet: from_wallet
+                name: from_name,
+                wallet: from_wallet
             }),
             to: Person({
                 name: to_name,
@@ -172,8 +168,8 @@ contract XBRTest {
         // Example signed message
         Mail memory mail = Mail({
             from: Person({
-               name: "Cow",
-               wallet: 0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826
+                name: "Cow",
+                wallet: 0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826
             }),
             to: Person({
                 name: "Bob",
