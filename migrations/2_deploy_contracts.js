@@ -41,7 +41,7 @@ module.exports = function (deployer, network, accounts) {
         return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
     });
 
-    if (network === "ganache") {
+    if (network === "ganache" || network === "coverage") {
         deployer.deploy(XBRTest, {gas: gas, from: organization});
     }
 };
