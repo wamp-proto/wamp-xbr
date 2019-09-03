@@ -553,9 +553,9 @@ contract('XBRNetwork', accounts => {
        const provider = '0xe11ba2b4d45eaed5996cd0823791e0c93114882d';
        const provider_key = null;
 
-       // Charlies buyer delegate
-       const delegate = w3_utils.toChecksumAddress('0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9');
-       const delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
+       // Bobs seller delegate
+       const delegate = w3_utils.toChecksumAddress('0xe11ba2b4d45eaed5996cd0823791e0c93114882d');
+       const delegate_key = '0x646f1ce2fdad0e6deeeb5c7e8e5543bdde65e86029e2fd9fc169899c440a7913';
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
