@@ -457,7 +457,7 @@ contract('XBRNetwork', accounts => {
         const channel = await XBRChannel.at(channel_adr);
         console.log('CHANNEL', channel_adr);
 
-        const network_balance_before = '' + (await token.balanceOf(await network.organization()));
+        // const network_balance_before = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_before = '' + (await token.balanceOf(channel_adr));
         const market_balance_before = '' + (await token.balanceOf(market_operator));
         const maker_balance_before = '' + (await token.balanceOf(marketmaker));
@@ -488,7 +488,7 @@ contract('XBRNetwork', accounts => {
         await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
             {from: consumer, gasLimit: gasLimit});
 
-        const network_balance_after = '' + (await token.balanceOf(await network.organization()));
+        // const network_balance_after = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_after = '' + (await token.balanceOf(channel_adr));
         const market_balance_after = '' + (await token.balanceOf(market_operator));
         const maker_balance_after = '' + (await token.balanceOf(marketmaker));
@@ -497,7 +497,7 @@ contract('XBRNetwork', accounts => {
         const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
 
         console.log('--------------------------------------------')
-        console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
+        // console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
         console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
         console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
         console.log('CHANNEL_BALANCE', channel_balance_before, channel_balance_after);
@@ -582,7 +582,7 @@ contract('XBRNetwork', accounts => {
         const channel = await XBRChannel.at(channel_adr);
         console.log('CHANNEL', channel_adr);
 
-        const network_balance_before = '' + (await token.balanceOf(await network.organization()));
+        // const network_balance_before = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_before = '' + (await token.balanceOf(channel_adr));
         const market_balance_before = '' + (await token.balanceOf(market_operator));
         const maker_balance_before = '' + (await token.balanceOf(marketmaker));
@@ -619,7 +619,7 @@ contract('XBRNetwork', accounts => {
         await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
             {from: marketmaker, gasLimit: gasLimit});
 
-        const network_balance_after = '' + (await token.balanceOf(await network.organization()));
+        // const network_balance_after = '' + (await token.balanceOf(await network.organization()));
         const channel_balance_after = '' + (await token.balanceOf(channel_adr));
         const market_balance_after = '' + (await token.balanceOf(market_operator));
         const maker_balance_after = '' + (await token.balanceOf(marketmaker));
@@ -628,7 +628,7 @@ contract('XBRNetwork', accounts => {
         const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
 
         console.log('--------------------------------------------')
-        console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
+        // console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
         console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
         console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
         console.log('CHANNEL_BALANCE', channel_balance_before, channel_balance_after);
