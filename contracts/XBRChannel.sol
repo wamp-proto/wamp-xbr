@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.5.2;
+//pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -39,46 +40,39 @@ contract XBRChannel {
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
-    /// EIP712 type data.
-    uint256 private constant chainId = 5777;
-
-    /// EIP712 type data.
-    address private constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;
-
-    /// EIP712 type data.
-    string private constant EIP712_DOMAIN =
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
-
-    /// EIP712 type data.
-    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
-
-    /// EIP712 type data.
-    string private constant TRANSACTION_TYPE =
-        "Transaction(address channel,uint32 channel_seq,uint256 balance)";
-
-    /// EIP712 type data.
-    bytes32 private constant TRANSACTION_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(TRANSACTION_TYPE));
-
-    /// EIP712 type data.
-    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
-        EIP712_DOMAIN_TYPEHASH,
-        keccak256("XBR"),
-        keccak256("1"),
-        chainId,
-        verifyingContract
-    ));
-
-    /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address public organization;
-
-    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    XBRToken private _token;
-
     /// Payment channel types.
     enum ChannelType { NONE, PAYMENT, PAYING }
 
     /// Payment channel states.
     enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
+
+    /// EIP712 type data.
+    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+
+    /// EIP712 type data.
+    bytes32 constant CHANNELCLOSE_DOMAIN_TYPEHASH = keccak256(
+        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance,bool is_final)"
+    );
+
+    /// EIP712 type data.
+    bytes32 private DOMAIN_SEPARATOR;
+
+    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    XBRToken private _token;
+
+    /// When this channel is closing, the sequence number of the closing transaction.
+    uint32 private _closing_channel_seq;
+
+    /// When this channel is closing, the off-chain closing balance of the closing transaction.
+    uint256 private _closing_balance;
+
+    /// Address of the `XBR Network Organization <https://xbr.network/>`_
+    address public organization;
+
+    /// Address of XBRNetwork instance that created this channel.
+    address public network;
 
     /// Current payment channel type (either payment or paying channel).
     ChannelType public ctype;
@@ -90,20 +84,26 @@ contract XBRChannel {
     bytes16 public marketId;
 
     /**
-     * The sender of the payments in this channel. Either a XBR Consumer (delegate) in case
-     * of a payment channel, or the XBR Market Maker (delegate) in case of a paying channel.
+     * The off-chain market maker that operates this payment or paying channel.
+     */
+    address public marketmaker;
+
+    /**
+     * The sender of the payments in this channel. Either a XBR Consumer (payment channels) or
+     * the XBR Market Maker (paying channels).
      */
     address public sender;
 
     /**
-     * The other delegate of the channel, e.g. the XBR Market Maker in case of a payment channel,
-     * or a XBR Provider (delegate) in case of a paying channel.
+     * The delegate of the channel, e.g. the XBR Consumer delegate in case of a payment channel
+     * or the XBR Provider (delegate) in case of a paying channel that is allowed to consume or
+     * provide data with payment therefor running under this channel.
      */
     address public delegate;
 
     /**
      * Recipient of the payments in this channel. Either the XBR Market Operator (payment
-     * channels) or a XBR Provider (paying channels).
+     * channels) or a XBR Provider (paying channels) in the market.
      */
     address public recipient;
 
@@ -125,12 +125,6 @@ contract XBRChannel {
      */
     uint32 public timeout;
 
-    /// When this channel is closing, the sequence number of the closing transaction.
-    uint32 private _closing_channel_seq;
-
-    /// When this channel is closing, the off-chain closing balance of the closing transaction.
-    uint256 private _closing_balance;
-
     /**
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
@@ -146,6 +140,22 @@ contract XBRChannel {
     event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 closedAt);
 
+    /// EIP712 type.
+    struct EIP712Domain {
+        string  name;
+        string  version;
+        uint256 chainId;
+        address verifyingContract;
+    }
+
+    /// EIP712 type.
+    struct ChannelClose {
+        address channel_adr;
+        uint32 channel_seq;
+        uint256 balance;
+        bool is_final;
+    }
+
     /**
      * Create a new XBR payment channel for handling microtransactions of XBR tokens.
      *
@@ -157,36 +167,74 @@ contract XBRChannel {
      * @param amount_ The amount of XBR held in the channel.
      * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address organization_, address token_, bytes16 marketId_, address sender_, address delegate_,
-                address recipient_, uint256 amount_, uint32 timeout_, ChannelType ctype_) public {
+    constructor (address organization_, address token_, address network_, bytes16 marketId_, address marketmaker_,
+        address sender_, address delegate_, address recipient_, uint256 amount_, uint32 timeout_,
+        ChannelType ctype_) public {
 
         organization = organization_;
-        _token = XBRToken(token_);
+        network = network_;
         ctype = ctype_;
         state = ChannelState.OPEN;
         marketId = marketId_;
+        marketmaker = marketmaker_;
         sender = sender_;
         delegate = delegate_;
         recipient = recipient_;
         amount = amount_;
         timeout = timeout_;
         openedAt = block.timestamp; // solhint-disable-line
+
+        _token = XBRToken(token_);
+
+        DOMAIN_SEPARATOR = hash(EIP712Domain({
+            name: "XBR",
+            version: "1",
+            chainId: 1,
+            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+            // verifyingContract: network_
+        }));
+    }
+
+    function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_DOMAIN_TYPEHASH,
+            keccak256(bytes(domain_.name)),
+            keccak256(bytes(domain_.version)),
+            domain_.chainId,
+            domain_.verifyingContract
+        ));
+    }
+
+    function hash(ChannelClose memory close_) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            CHANNELCLOSE_DOMAIN_TYPEHASH,
+            close_.channel_adr,
+            close_.channel_seq,
+            close_.balance,
+            close_.is_final
+        ));
     }
 
     /**
      * Split a signature given as a bytes string into components.
      */
-    function splitSignature (bytes memory sig) internal pure returns (uint8 v, bytes32 r, bytes32 s)
-    {
-        require(sig.length == 65, "INVALID_SIGNATURE_LENGTH");
+    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
+        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
-        assembly {
-            // first 32 bytes, after the length prefix
-            r := mload(add(sig, 32))
-            // second 32 bytes
-            s := mload(add(sig, 64))
-            // final byte (first byte of the next 32 bytes)
-            v := byte(0, mload(add(sig, 96)))
+        //  // first 32 bytes, after the length prefix
+        //  r := mload(add(sig, 32))
+        //  // second 32 bytes
+        //  s := mload(add(sig, 64))
+        //  // final byte (first byte of the next 32 bytes)
+        //  v := byte(0, mload(add(sig, 96)))
+        assembly
+        {
+            r := mload(add(signature_rsv, 32))
+            s := mload(add(signature_rsv, 64))
+            v := and(mload(add(signature_rsv, 65)), 255)
+        }
+        if (v < 27) {
+            v += 27;
         }
 
         return (v, r, s);
@@ -195,19 +243,25 @@ contract XBRChannel {
     /**
      * Verify close transaction typed data was signed by signer.
      */
-    function verifyClose (address tx_signer, address channel_, uint32 channel_seq_, uint256 balance_,
-        uint8 v, bytes32 r, bytes32 s) public pure returns (bool) {
+    function verifyClose (address signer, address channel_adr_, uint32 channel_seq_, uint256 balance_,
+        bool is_final_, bytes memory sig_rsv_) public view returns (bool) {
 
-        return tx_signer == ecrecover(keccak256(abi.encodePacked(
-            "\\x19\\x01",
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig_rsv_);
+
+        ChannelClose memory close = ChannelClose({
+            channel_adr: channel_adr_,
+            channel_seq: channel_seq_,
+            balance: balance_,
+            is_final: is_final_
+        });
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
             DOMAIN_SEPARATOR,
-            keccak256(abi.encode(
-                TRANSACTION_DOMAIN_TYPEHASH,
-                channel_,
-                channel_seq_,
-                balance_
-            ))
-        )), v, r, s);
+            hash(close)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
     }
 
     /**
@@ -219,32 +273,14 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (uint32 channel_seq_, uint256 balance_,
+    function close (uint32 channel_seq_, uint256 balance_, bool is_final_,
         bytes memory delegate_sig, bytes memory marketmaker_sig) public {
 
-        // split up 65 bytes signatures into components
-        (uint8 _delegate_sig_v, bytes32 _delegate_sig_r, bytes32 _delegate_sig_s) = splitSignature(delegate_sig);
-        (uint8 _maker_sig_v, bytes32 _maker_sig_r, bytes32 _maker_sig_s) = splitSignature(marketmaker_sig);
+        require(verifyClose(delegate, address(this), channel_seq_, balance_, is_final_, delegate_sig),
+            "INVALID_DELEGATE_SIGNATURE");
 
-        bool fixme = true;
-
-        // FIXME: abpy and abjs agree on signature, but the following code does not (anymore, because
-        // it "did already work")
-        if (!fixme) {
-            if (ctype == XBRChannel.ChannelType.PAYMENT) {
-                require(verifyClose(delegate, address(this), channel_seq_, balance_,
-                    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
-
-                require(verifyClose(sender, address(this), channel_seq_, balance_,
-                    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
-            } else {
-                require(verifyClose(sender, address(this), channel_seq_, balance_,
-                    _delegate_sig_v, _delegate_sig_r, _delegate_sig_s), "INVALID_DELEGATE_SIGNATURE");
-
-                require(verifyClose(delegate, address(this), channel_seq_, balance_,
-                    _maker_sig_v, _maker_sig_r, _maker_sig_s), "INVALID_MARKETMAKER_SIGNATURE");
-            }
-        }
+        require(verifyClose(marketmaker, address(this), channel_seq_, balance_, is_final_, marketmaker_sig),
+            "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid
         require(0 <= balance_ && balance_ <= amount, "INVALID_CLOSING_BALANCE");
@@ -278,7 +314,7 @@ contract XBRChannel {
         uint256 payout = earned - fee;
 
         // if we got a newer closing transaction, process it ..
-        if (fixme || channel_seq_ > _closing_channel_seq) {
+        if (channel_seq_ > _closing_channel_seq) {
 
             // the closing balance of a newer transaction must be not greater than anyone we already know
             if (_closing_channel_seq > 0) {
@@ -286,6 +322,7 @@ contract XBRChannel {
             }
 
             // note the closing transaction sequence number and closing off-chain balance
+            state = ChannelState.CLOSING;
             _closing_channel_seq = channel_seq_;
             _closing_balance = balance_;
 
@@ -296,8 +333,8 @@ contract XBRChannel {
             emit Closing(marketId, sender, payout, fee, refund, closingAt);
         }
 
-        // if we have reached channel closing time, finally close the channel ..
-        if (fixme || block.timestamp >= closingAt) { // solhint-disable-line
+        // finally close the channel ..
+        if (is_final_ || balance_ == 0 || (state == ChannelState.CLOSING && block.timestamp >= closingAt)) { // solhint-disable-line
 
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender

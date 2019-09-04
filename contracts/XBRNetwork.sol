@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.5.2;
+//pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -118,7 +119,7 @@ contract XBRNetwork is XBRMaintained {
         mapping(address => address) currentPayingChannelByDelegate;
     }
 
-    /// Container type for holding paying channel request information. FIXME: make this event-based (to save gas).
+    /// Container type for holding paying channel request information.
     struct PayingChannelRequest {
         bytes16 marketId;
         address sender;
@@ -167,7 +168,7 @@ contract XBRNetwork is XBRMaintained {
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
-    uint32 public marketSeq = 1;
+    uint32 private marketSeq = 1;
 
     /// XBR network EULA (IPFS Multihash).
     string public constant eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
@@ -176,7 +177,7 @@ contract XBRNetwork is XBRMaintained {
     XBRToken public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address public organization;
+    address private organization;
 
     /// Current XBR Network members ("member directory").
     mapping(address => Member) public members;
@@ -510,9 +511,13 @@ contract XBRNetwork is XBRMaintained {
         // payment channel amount must be positive
         require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
+        // payment channel timeout can be [0 seconds - 10 days[
+        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
+
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(organization, address(token), marketId, msg.sender, delegate,
-            recipient, amount, timeout, XBRChannel.ChannelType.PAYMENT);
+        XBRChannel channel = new XBRChannel(organization, address(token), address(this), marketId,
+            markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+            XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
         bool success = token.transferFrom(msg.sender, address(channel), amount);
@@ -555,8 +560,20 @@ contract XBRNetwork is XBRMaintained {
         // market must have a market maker associated
         require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
 
-        // sender must be provider in the market
-        require(uint8(markets[marketId].providerActors[msg.sender].joined) != 0, "NO_PROVIDER_ROLE");
+        // sender must be market maker for market
+        require(msg.sender == recipient, "SENDER_NOT_RECIPIENT");
+
+        // recipient must be provider in the market
+        require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
+
+        // must provide a valid off-chain channel delegate address
+        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // paying channel amount must be positive
+        require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+
+        // paying channel timeout can be [0 seconds - 10 days[
+        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
 
         // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient,
         //      address delegate, uint256 amount, uint32 timeout)
@@ -585,9 +602,19 @@ contract XBRNetwork is XBRMaintained {
         // recipient must be provider in the market
         require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
 
+        // must provide a valid off-chain channel delegate address
+        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // payment channel amount must be positive
+        require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+
+        // payment channel timeout can be [0 seconds - 10 days[
+        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
+
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(organization, address(token), marketId, msg.sender,
-            delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYING);
+        XBRChannel channel = new XBRChannel(organization, address(token), address(this),
+            marketId, markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+            XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
         XBRToken _token = XBRToken(token);

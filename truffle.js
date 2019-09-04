@@ -12,6 +12,9 @@
  *   },
  */
 
+var XBR_HDWALLET_SEED = process.env.XBR_HDWALLET_SEED;
+var XBR_INFURA_ENDPOINT= "https://ropsten.infura.io/v3/40c6959767364c2cb961bd389c738d98";
+
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
 module.exports = {
@@ -50,11 +53,10 @@ module.exports = {
         // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e
         ropsten: {
             provider: function() {
-                return new HDWalletProvider("ten misery survey business salon absorb liar avoid salon camera blade total",
-                                            "https://ropsten.infura.io/v3/40c6959767364c2cb961bd389c738d98")
+                return new HDWalletProvider(XBR_HDWALLET_SEED, XBR_INFURA_ENDPOINT)
             },
             network_id: 3,
-            gas: 4700000
+            gas: 2900000
         }
     },
 

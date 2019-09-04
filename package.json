@@ -28,6 +28,8 @@
     "nodeunit": "^0.11.3",
     "openzeppelin-solidity": "^2.3.0",
     "remix-ide": "^0.8.5",
+    "remixd": "^0.1.8-alpha.7",
+    "scrypt": "^6.0.3",
     "sha3": "^2.0.6",
     "solhint": "^2.2.0",
     "solidity-coverage": "^0.6.4",

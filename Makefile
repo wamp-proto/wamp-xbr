@@ -130,6 +130,7 @@ compile:
 	-rm ./build/contracts/*.json
 	truffle compile --all
 	cp build/contracts/*.json ./abi/
+	rm ./abi/XBRTest.json
 	find ./abi
 	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
 	cp -r abi/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/
@@ -145,8 +146,12 @@ coverage:
 deploy:
 	#truffle compile --all
 	truffle migrate --reset --network ganache
-	#truffle migrate --reset --network ropsten --dry-run
-	#truffle migrate --reset --network ropsten
+
+deploy_ropsten_dryrun:
+	truffle migrate --reset --network ropsten --dry-run
+
+deploy_ropsten:
+	truffle migrate --reset --network ropsten
 
 browserify:
 	$(BROWSERIFY) ./index.js --ignore-missing --standalone xbr -o ./build/xbr.js

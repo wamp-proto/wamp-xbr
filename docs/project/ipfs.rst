@@ -28,23 +28,28 @@ Store a file on IPFS via Infura as gateway, and using ``curl``:
 
 .. code-block:: console
 
-    oberstet@thinkpad-x1:~/scm/xbr/xbr-protocol$ curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
-    >     -X POST \
-    >     -H "Content-Type: multipart/form-data" \
-    >     -F file=@"teststack/crossbar/.crossbar/config.json"
-    {"Name":"config.json","Hash":"QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa","Size":"5225"}
+    oberstet@intel-nuci7:/tmp$ echo "Hello, world!" > test.txt
+    oberstet@intel-nuci7:/tmp$ openssl sha256 test.txt
+    SHA256(test.txt)= d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5
+    oberstet@intel-nuci7:/tmp$ curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" -X POST -H "Content-Type: multipart/form-data" -F file=@"test.txt"
+    {"Name":"test.txt","Hash":"QmeeLUVdiSTTKQqhWqsffYDtNvvvcTfJdotkNyi1KDEJtQ","Size":"22"}
+    oberstet@intel-nuci7:/tmp$ curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmeeLUVdiSTTKQqhWqsffYDtNvvvcTfJdotkNyi1KDEJtQ" | openssl sha256
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    100    14  100    14    0     0     29      0 --:--:-- --:--:-- --:--:--    29
+    (stdin)= d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5
+
 
 Retrieve a file from IPFS via Infura as gateway, and using ``curl``:
 
 .. code-block:: console
 
-    oberstet@thinkpad-x1:~/scm/xbr/xbr-protocol$ curl "https://ipfs.infura.io:5001/api/v0/get?arg=QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa&archive=true" --output -
-    QmVz2ay78NXyoAiqd1N5EuKHhjBSzoF2GLxg6hURcM5UTa0000644000000000000000000001213613375254641017070 0ustar0000000000000000{
-        "$schema": "https://raw.githubusercontent.com/crossbario/crossbar/master/crossbar.json",
-        "version": 2,
-        "controller": {
-    ...
-
+    oberstet@intel-nuci7:/tmp$ curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmeeLUVdiSTTKQqhWqsffYDtNvvvcTfJdotkNyi1KDEJtQ" --output test.bak
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    100    14  100    14    0     0     28      0 --:--:-- --:--:-- --:--:--    28
+    oberstet@intel-nuci7:/tmp$ diff test.txt test.bak
+    oberstet@intel-nuci7:/tmp$
 
 .. code-block:: console
 
