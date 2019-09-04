@@ -40,6 +40,12 @@ contract XBRChannel {
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
+    /// Payment channel types.
+    enum ChannelType { NONE, PAYMENT, PAYING }
+
+    /// Payment channel states.
+    enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
+
     /// EIP712 type data.
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -47,23 +53,26 @@ contract XBRChannel {
 
     /// EIP712 type data.
     bytes32 constant CHANNELCLOSE_DOMAIN_TYPEHASH = keccak256(
-        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance)"
+        "ChannelClose(address channel_adr,uint32 channel_seq,uint256 balance,bool is_final)"
     );
 
     /// EIP712 type data.
     bytes32 private DOMAIN_SEPARATOR;
 
-    /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address public organization;
-
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken private _token;
 
-    /// Payment channel types.
-    enum ChannelType { NONE, PAYMENT, PAYING }
+    /// When this channel is closing, the sequence number of the closing transaction.
+    uint32 private _closing_channel_seq;
 
-    /// Payment channel states.
-    enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
+    /// When this channel is closing, the off-chain closing balance of the closing transaction.
+    uint256 private _closing_balance;
+
+    /// Address of the `XBR Network Organization <https://xbr.network/>`_
+    address public organization;
+
+    /// Address of XBRNetwork instance that created this channel.
+    address public network;
 
     /// Current payment channel type (either payment or paying channel).
     ChannelType public ctype;
@@ -116,12 +125,6 @@ contract XBRChannel {
      */
     uint32 public timeout;
 
-    /// When this channel is closing, the sequence number of the closing transaction.
-    uint32 private _closing_channel_seq;
-
-    /// When this channel is closing, the off-chain closing balance of the closing transaction.
-    uint256 private _closing_balance;
-
     /**
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
@@ -137,6 +140,7 @@ contract XBRChannel {
     event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 closedAt);
 
+    /// EIP712 type.
     struct EIP712Domain {
         string  name;
         string  version;
@@ -144,10 +148,12 @@ contract XBRChannel {
         address verifyingContract;
     }
 
+    /// EIP712 type.
     struct ChannelClose {
         address channel_adr;
         uint32 channel_seq;
         uint256 balance;
+        bool is_final;
     }
 
     /**
@@ -161,12 +167,12 @@ contract XBRChannel {
      * @param amount_ The amount of XBR held in the channel.
      * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address organization_, address token_, bytes16 marketId_, address marketmaker_,
+    constructor (address organization_, address token_, address network_, bytes16 marketId_, address marketmaker_,
         address sender_, address delegate_, address recipient_, uint256 amount_, uint32 timeout_,
         ChannelType ctype_) public {
 
         organization = organization_;
-        _token = XBRToken(token_);
+        network = network_;
         ctype = ctype_;
         state = ChannelState.OPEN;
         marketId = marketId_;
@@ -178,11 +184,14 @@ contract XBRChannel {
         timeout = timeout_;
         openedAt = block.timestamp; // solhint-disable-line
 
+        _token = XBRToken(token_);
+
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "XBR",
             version: "1",
             chainId: 1,
             verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+            // verifyingContract: network_
         }));
     }
 
@@ -201,34 +210,25 @@ contract XBRChannel {
             CHANNELCLOSE_DOMAIN_TYPEHASH,
             close_.channel_adr,
             close_.channel_seq,
-            close_.balance
+            close_.balance,
+            close_.is_final
         ));
     }
 
     /**
      * Split a signature given as a bytes string into components.
      */
-/*
-    function splitSignature2 (bytes memory sig) internal pure returns (uint8 v, bytes32 r, bytes32 s)
-    {
-        require(sig.length == 65, "INVALID_SIGNATURE_LENGTH");
-
-        assembly {
-            // first 32 bytes, after the length prefix
-            r := mload(add(sig, 32))
-            // second 32 bytes
-            s := mload(add(sig, 64))
-            // final byte (first byte of the next 32 bytes)
-            v := byte(0, mload(add(sig, 96)))
-        }
-
-        return (v, r, s);
-    }
-*/
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
         require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
-        assembly {
+        //  // first 32 bytes, after the length prefix
+        //  r := mload(add(sig, 32))
+        //  // second 32 bytes
+        //  s := mload(add(sig, 64))
+        //  // final byte (first byte of the next 32 bytes)
+        //  v := byte(0, mload(add(sig, 96)))
+        assembly
+        {
             r := mload(add(signature_rsv, 32))
             s := mload(add(signature_rsv, 64))
             v := and(mload(add(signature_rsv, 65)), 255)
@@ -236,6 +236,7 @@ contract XBRChannel {
         if (v < 27) {
             v += 27;
         }
+
         return (v, r, s);
     }
 
@@ -243,14 +244,15 @@ contract XBRChannel {
      * Verify close transaction typed data was signed by signer.
      */
     function verifyClose (address signer, address channel_adr_, uint32 channel_seq_, uint256 balance_,
-        bytes memory sig_rsv_) public view returns (bool) {
+        bool is_final_, bytes memory sig_rsv_) public view returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig_rsv_);
 
         ChannelClose memory close = ChannelClose({
             channel_adr: channel_adr_,
             channel_seq: channel_seq_,
-            balance: balance_
+            balance: balance_,
+            is_final: is_final_
         });
 
         bytes32 digest = keccak256(abi.encodePacked(
@@ -271,15 +273,13 @@ contract XBRChannel {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function close (uint32 channel_seq_, uint256 balance_, bytes memory delegate_sig,
-        bytes memory marketmaker_sig) public {
+    function close (uint32 channel_seq_, uint256 balance_, bool is_final_,
+        bytes memory delegate_sig, bytes memory marketmaker_sig) public {
 
-        bool fixme = true;
-
-        require(verifyClose(delegate, address(this), channel_seq_, balance_, delegate_sig),
+        require(verifyClose(delegate, address(this), channel_seq_, balance_, is_final_, delegate_sig),
             "INVALID_DELEGATE_SIGNATURE");
 
-        require(verifyClose(marketmaker, address(this), channel_seq_, balance_, marketmaker_sig),
+        require(verifyClose(marketmaker, address(this), channel_seq_, balance_, is_final_, marketmaker_sig),
             "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid
@@ -314,7 +314,7 @@ contract XBRChannel {
         uint256 payout = earned - fee;
 
         // if we got a newer closing transaction, process it ..
-        if (fixme || channel_seq_ > _closing_channel_seq) {
+        if (channel_seq_ > _closing_channel_seq) {
 
             // the closing balance of a newer transaction must be not greater than anyone we already know
             if (_closing_channel_seq > 0) {
@@ -322,6 +322,7 @@ contract XBRChannel {
             }
 
             // note the closing transaction sequence number and closing off-chain balance
+            state = ChannelState.CLOSING;
             _closing_channel_seq = channel_seq_;
             _closing_balance = balance_;
 
@@ -332,8 +333,8 @@ contract XBRChannel {
             emit Closing(marketId, sender, payout, fee, refund, closingAt);
         }
 
-        // if we have reached channel closing time, finally close the channel ..
-        if (fixme || block.timestamp >= closingAt) { // solhint-disable-line
+        // finally close the channel ..
+        if (is_final_ || balance_ == 0 || (state == ChannelState.CLOSING && block.timestamp >= closingAt)) { // solhint-disable-line
 
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender

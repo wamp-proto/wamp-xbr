@@ -512,8 +512,9 @@ contract XBRNetwork is XBRMaintained {
         require(amount > 0 && amount <= token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(organization, address(token), marketId, markets[marketId].maker,
-            msg.sender, delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYMENT);
+        XBRChannel channel = new XBRChannel(organization, address(token), address(this), marketId,
+            markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+            XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
         bool success = token.transferFrom(msg.sender, address(channel), amount);
@@ -587,8 +588,9 @@ contract XBRNetwork is XBRMaintained {
         require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(organization, address(token), marketId, markets[marketId].maker,
-            msg.sender, delegate, recipient, amount, timeout, XBRChannel.ChannelType.PAYING);
+        XBRChannel channel = new XBRChannel(organization, address(token), address(this),
+            marketId, markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+            XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
         XBRToken _token = XBRToken(token);

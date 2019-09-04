@@ -130,6 +130,7 @@ compile:
 	-rm ./build/contracts/*.json
 	truffle compile --all
 	cp build/contracts/*.json ./abi/
+	rm ./abi/XBRTest.json
 	find ./abi
 	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
 	cp -r abi/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/

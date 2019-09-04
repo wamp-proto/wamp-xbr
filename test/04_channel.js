@@ -58,6 +58,7 @@ const DomainData = {
             {'name': 'channel_adr', 'type': 'address'},
             {'name': 'channel_seq', 'type': 'uint32'},
             {'name': 'balance', 'type': 'uint256'},
+            {'name': 'is_final', 'type': 'bool'},
         ]
     },
     primaryType: 'ChannelClose',
@@ -468,6 +469,7 @@ contract('XBRNetwork', accounts => {
             'channel_adr': channel_adr,
             'channel_seq': 117,
             'balance': 13,
+            'is_final': true
         }
         console.log('MESSAGE', msg);
 
@@ -477,13 +479,13 @@ contract('XBRNetwork', accounts => {
         const marketmaker_sig = create_sig(marketmaker_key, msg);
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
-        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
+        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig);
         assert.equal(res, true, "close verification by delegate should succeed");
 
-        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'], marketmaker_sig);
+        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'],msg['is_final'],  marketmaker_sig);
         assert.equal(res, true, "close verification by market maker should succeed");
 
-        await channel.close(msg['channel_seq'], msg['balance'], delegate_sig, marketmaker_sig,
+        await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
             {from: consumer, gasLimit: gasLimit});
 
         const network_balance_after = '' + (await token.balanceOf(await network.organization()));
@@ -598,6 +600,7 @@ contract('XBRNetwork', accounts => {
             'channel_adr': channel_adr,
             'channel_seq': 117,
             'balance': 13,
+            'is_final': true
         }
         console.log('MESSAGE', msg);
 
@@ -607,13 +610,13 @@ contract('XBRNetwork', accounts => {
         const marketmaker_sig = create_sig(marketmaker_key, msg);
         console.log('MARKETMAKER_SIG', marketmaker_sig);
 
-        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], delegate_sig);
+        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig);
         assert.equal(res, true, "close verification by delegate should succeed");
 
-        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'], marketmaker_sig);
+        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], marketmaker_sig);
         assert.equal(res, true, "close verification by market maker should succeed");
 
-        await channel.close(msg['channel_seq'], msg['balance'], delegate_sig, marketmaker_sig,
+        await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
             {from: marketmaker, gasLimit: gasLimit});
 
         const network_balance_after = '' + (await token.balanceOf(await network.organization()));
