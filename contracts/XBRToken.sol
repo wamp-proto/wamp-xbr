@@ -27,7 +27,8 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
  * The XBR Token is a `ERC20` compatible token using (with no modifications)
  * the OpenZeppelin (https://openzeppelin.org/) reference implementation.
  *
- * For API, please see https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
+ * For API, please see
+ * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
  */
 contract XBRToken is ERC20, ERC20Detailed {
 
