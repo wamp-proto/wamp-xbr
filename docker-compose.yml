@@ -17,7 +17,7 @@ services:
         command:
             # https://github.com/trufflesuite/ganache-cli#using-ganache-cli
             - "--accounts"
-            - "15"
+            - "20"
             - "--defaultBalanceEther"
             - "10000"
             # - "--deterministic"

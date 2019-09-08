@@ -150,7 +150,7 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.register() : should create new member with the correct attributes stored, and firing correct event', async () => {
 
-        const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
+        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
         const txn = await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
@@ -178,7 +178,7 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.register() : registering a member twice should throw', async () => {
 
-        const eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
+        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "";
 
         try {

@@ -52,7 +52,7 @@ contract XBRNetwork is XBRMaintained {
         uint registered;
 
         /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
-        /// ZIP file archive on IPFS. Currently, this must be equal to "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81"
+        /// ZIP file archive on IPFS.
         string eula;
 
         /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
@@ -170,8 +170,8 @@ contract XBRNetwork is XBRMaintained {
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
-    /// XBR network EULA (IPFS Multihash).
-    string public constant eula = "QmU7Gizbre17x6V2VR1Q2GJEjz6m8S1bXmBtVxS2vmvb81";
+    /// XBR network EULA (IPFS Multihash). Source: https://github.com/crossbario/xbr-protocol/tree/master/ipfs/xbr-eula
+    string public constant eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
 
     /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
     XBRToken public token;
