@@ -4,7 +4,8 @@ services:
     ganache:
         # https://github.com/trufflesuite/ganache-cli/issues/593
         # image: trufflesuite/ganache-cli:v6.2.4
-        image: trufflesuite/ganache-cli:v6.5.1
+        # image: trufflesuite/ganache-cli:v6.5.1
+        image: trufflesuite/ganache-cli:v6.7.0
         # UID:GID => id -u, id -g
         user: "1000:1000"
         network_mode: host

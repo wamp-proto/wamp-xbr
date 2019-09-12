@@ -259,10 +259,12 @@ clean_docs:
 run_ganache:
 	ganache
 
+# starts docker container "xbr-protocol_ganache_1"
 run_ganache_cli:
 	docker-compose up --force-recreate ganache
 
 clean_ganache_cli:
+	-docker rm xbr-protocol_ganache_1
 	-rm -rf ./teststack/ganache/.data
 	mkdir -p ./teststack/ganache/.data
 
