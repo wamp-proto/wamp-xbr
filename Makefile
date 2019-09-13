@@ -98,6 +98,11 @@ install:
 	# pip install -r requirements-dev.txt
 	# pip install -e .
 
+install_dockercompose:
+	pip uninstall -y docker-py
+	pip uninstall -y docker-compose
+	pip install --upgrade --force-reinstall --no-cache-dir docker-compose
+
 web3:
 	# https://github.com/ethereum/web3.js/issues/1041#issuecomment-335434041
 	npm install ethereum/web3.js

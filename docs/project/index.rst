@@ -26,6 +26,7 @@ We build on the following toolset:
     truffle
     remixide
     ipfs
+    bip39
 
 
 
