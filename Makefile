@@ -1,4 +1,4 @@
-.PHONY: crossbar coverage docs clean build test
+.PHONY: list coverage docs clean build test
 
 TRUFFLE = ${PWD}/node_modules/truffle/build/cli.bundled.js
 SOLHINT = ${PWD}/node_modules/solhint/solhint.js
@@ -14,8 +14,44 @@ XBR_DEBUG_NETWORK_ADDR="0x254dffcd3277c0b1660f6d42efbb754edababc2b"
 
 
 default:
-	@echo 'Targets: clean compile test deploy'
+	@echo 'Targets:'
+	@echo
+	@echo '   clean                  '
+	@echo '   clean_all              '
+	@echo '   clean_docs             '
+	@echo ' * clean_ganache          '
+	@echo '   clean_images           '
+	@echo
+	@echo ' * install                '
+	@echo '   update_dependencies    '
+	@echo
+	@echo ' * run_ganache            '
+	@echo
+	@echo '   compile                '
+	@echo '   lint                   '
+	@echo ' * test                   '
+	@echo '   coverage               '
+	@echo ' * deploy                 '
+	@echo '   deploy_ropsten         '
+	@echo '   deploy_ropsten_dryrun  '
+	@echo
+	@echo '   docs                   '
+	@echo '   run_docs               '
+	@echo '   images                 '
+	@echo '   check_docs             '
+	@echo '   spellcheck_docs        '
+	@echo '   publish_docs           '
+	@echo
+	@echo '   publish_ipfs_eula      '
+	@echo '   publish_ipfs_members   '
+	@echo
+	@echo '   truffle_build          '
+	@echo '   truffle_compile        '
+	@echo '   truffle_test           '
+	@echo
 
+list_targets:
+	@grep '^[^#[:space:]].*:' Makefile
 
 clean: clean_docs
 	-rm -rf ./build/
@@ -131,6 +167,7 @@ $(BUILDDIR)_exists:
 	mkdir -p $(BUILDDIR)
 
 images: $(BUILDDIR)_exists $(BUILDDIR)/$(OBJECTS)
+	@echo "optimizing images:\n"$(SOURCES)
 
 $(BUILDDIR)/%.svg: $(SOURCEDIR)/%.svg
 	$(SCOUR) $(SCOUR_FLAGS) $< $@
