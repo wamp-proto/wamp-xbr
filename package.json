@@ -19,12 +19,14 @@
     "url": "git://github.com/xbr/xbr-protocol.git"
   },
   "dependencies": {
-    "truffle": "^5.0.36",
-    "truffle-contract": "^4.0.31",
-    "truffle-hdwallet-provider": "^1.0.17",
+    "eth-sig-util": "^2.4.4",
+    "ethereumjs-util": "^6.1.0",
     "openzeppelin-solidity": "^2.3.0",
     "solhint": "^2.2.0",
-    "solidity-coverage": "^0.6.4"
+    "solidity-coverage": "^0.6.4",
+    "truffle": "^5.0.36",
+    "truffle-contract": "^4.0.31",
+    "truffle-hdwallet-provider": "^1.0.17"
   },
   "devDependencies": {},
   "main": "index.js",
