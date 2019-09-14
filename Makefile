@@ -36,7 +36,7 @@ clean_all: clean_docs clean
 
 
 install:
-	pip install -r requirements-dev.txt
+	pip install -r requirements.txt
 	npm install
 	npm outdated
 	@echo "run 'ncu -u' to update deps .."

@@ -155,8 +155,6 @@ Register in JavaScript
 Query Member Information
 ------------------------
 
-To check for the membership level of an address, you can use :sol:func:`XBRNetwork.getMemberLevel`.
-
 Query Member in Python
 ......................
 
