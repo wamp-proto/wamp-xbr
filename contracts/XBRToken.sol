@@ -28,7 +28,9 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
  * the OpenZeppelin (https://openzeppelin.org/) reference implementation.
  *
  * For API, please see
- * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
+ *
+ *   * https://docs.openzeppelin.com/contracts/2.x/api/token/erc20
+ *   * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
  */
 contract XBRToken is ERC20, ERC20Detailed {
 

@@ -243,3 +243,5 @@ ISeller
 IBuyer
 decrypt
 datakey
+goto
+seedphrase
