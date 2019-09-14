@@ -10,8 +10,8 @@ Protocol**.
 Please see the `documentation <https://xbr.network/docs/index.html>`__
 for more information.
 
-XBR Client Library
-------------------
+XBR Client Libraries
+--------------------
 
 The XBR Protocol - at its core - is made of the XBR smart contracts, and
 the primary artifacts built are the contract ABI files (in
@@ -28,72 +28,8 @@ JavaScript, that make interaction with XBR contract super easy.
 
 The libraries are available here:
 
--  `XBR client library for Python <https://pypi.org/project/xbr/>`__
--  `XBR client library for
-   JavaScript/Browser <https://xbr.network/lib/xbr.min.js>`__
--  `XBR client library for
-   JavaScript/NodeJS <https://www.npmjs.org/package/xbr>`__
-
-XBR Lib for Browser
-~~~~~~~~~~~~~~~~~~~
-
-To use XBR Lib for JavaScript (in a browser Dapp), add a reference to
-the latest development version we host:
-
-.. code:: html
-
-    <script>
-        XBR_DEBUG_TOKEN_ADDR = '0x67b5656d60a809915323bf2c40a8bef15a152e3e';
-        XBR_DEBUG_NETWORK_ADDR = '0x2612af3a521c2df9eaf28422ca335b04adf3ac66';
-    </script>
-    <script src="https://xbr.network/lib/xbr.min.js"></script>
-
-Then to use
-
-.. code:: javascript
-
-    xbr.setProvider(window.web3.currentProvider);
-
-    As long as we haven't deployed the XBR smart contracts to any public
-    network (testnets or mainnet), a user must set the addresses of our
-    deployed token and network smart contracts on the (private) network
-    the user is connecting to and where the XBR contracts need to be
-    deployed.
-
-XBR Lib for NodeJS
-~~~~~~~~~~~~~~~~~~
-
-`XBR Lib for NodeJS <https://www.npmjs.org/package/xbr>`__:
-
-::
-
-    npm install autobahn
-
-XBR Lib for Python
-~~~~~~~~~~~~~~~~~~
-
-XBR Lib for Python is `published on
-PyPI <https://pypi.org/project/xbr/>`__ and can be installed:
-
-.. code:: console
-
-    pip install xbr
-
-To use XBR Lib for Python, export the following environment variables
-
-.. code:: console
-
-    export XBR_DEBUG_TOKEN_ADDR="0x67b5656d60a809915323bf2c40a8bef15a152e3e"
-    export XBR_DEBUG_NETWORK_ADDR="0x2612af3a521c2df9eaf28422ca335b04adf3ac66"
-
-import the library and set the Web3 provider:
-
-.. code:: python
-
-    import xbr
-    from web3.auto import w3
-
-    xbr.setProvider(w3)
+-  `XBR client library for Python <https://github.com/crossbario/autobahn-python>`__
+-  `XBR client library for JavaScript (Browser and Node) <https://github.com/crossbario/autobahn-js>`__
 
 --------------
 
