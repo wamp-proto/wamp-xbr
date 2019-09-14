@@ -44,7 +44,7 @@ before_install:
 
 install:
   - npm install
-  - pip install -r requirements-dev.txt
+  - pip install -r requirements.txt
 
 before_script:
   - ganache-cli --accounts 15 --defaultBalanceEther 1000 --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 > /dev/null &
