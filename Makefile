@@ -16,6 +16,7 @@ GCLOSURE = ./node_modules/google-closure-compiler/cli.js
 AWS_DEFAULT_REGION = eu-central-1
 AWS_S3_BUCKET_NAME = xbr.foundation
 
+TRUFFLE=${PWD}/node_modules/truffle/build/cli.bundled.js
 
 default:
 	@echo 'Targets: clean compile test'
@@ -92,11 +93,11 @@ npm_global:
 	sudo npm install -g npm-check-updates
 
 install:
+	pip install -r requirements-dev.txt
 	npm install
 	npm outdated
 	@echo "run 'ncu -u' to update deps .."
-	# pip install -r requirements-dev.txt
-	# pip install -e .
+	$(TRUFFLE) version
 
 install_dockercompose:
 	pip uninstall -y docker-py
@@ -133,7 +134,7 @@ lint:
 compile:
 	-rm ./abi/*.json
 	-rm ./build/contracts/*.json
-	truffle compile --all
+	$(TRUFFLE) compile --all
 	cp build/contracts/*.json ./abi/
 	rm ./abi/XBRTest.json
 	find ./abi
