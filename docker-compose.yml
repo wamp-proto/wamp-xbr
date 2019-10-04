@@ -35,6 +35,32 @@ services:
             - "--db"
             - "/ganache"
 
+    # this is for temporarily running a new blockchain, deploying xbr contracts into
+    # and creating a docker image from the pre-initialized blockchain
+    ganache_blockchain:
+        image: trufflesuite/ganache-cli:v6.7.0
+        user: "1000:1000"
+        network_mode: host
+        volumes:
+            - "${PWD}/docker/data:/ganache:rw"
+        command:
+            - "--accounts"
+            - "20"
+            - "--defaultBalanceEther"
+            - "10000"
+            - "--mnemonic"
+            - "${XBR_HDWALLET_SEED}"
+            - "--gasLimit"
+            - "0xfffffffffff"
+            - "--gasPrice"
+            - "1"
+            - "--port"
+            - "1545"
+            - "--networkId"
+            - "5777"
+            - "--db"
+            - "/ganache"
+
     # docker attach
     truffle:
         depends_on:

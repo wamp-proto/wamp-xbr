@@ -24,3 +24,4 @@ scTopics
 .ipynb_checkpoints
 package-lock.json
 geth/privchain
+docker/data

@@ -151,6 +151,58 @@ clean_ganache:
 	mkdir -p ./teststack/ganache/.data
 
 
+# The following is for building our development blockchain docker image, which is
+# Ganache + deployed XBR smart contracts + initial balances for testaccounts (both ETH and XBR).
+#
+# The XBR contracts are deployed using a different seedphrase than the test accounts
+# which are initialized with some ETH+XBR balance!
+#
+# The deploying onwer is derived from a seedphrase read from an env var:
+#
+# 	export XBR_HDWALLET_SEED="..."
+#
+# and results in contract addresses:
+#
+# 	export XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576"
+# 	export XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c"
+#
+# Then, 20 test accounts are setup from this seed phrase:
+#
+# 	"myth like bonus scare over problem client lizard pioneer submit female collect"
+#
+# The resulting XBR blockchain docker image is published to:
+#
+# public: 	https://hub.docker.com/r/crossbario/crossbarfx-blockchain
+# admin:  	https://cloud.docker.com/u/crossbario/repository/docker/crossbario/crossbarfx-blockchain
+#
+
+# clean file staging area to create blockchain docker image
+clean_ganache_blockchain:
+	-rm -rf docker/data/*
+
+# run a blockchain from the empty staging area
+run_ganache_blockchain:
+	docker-compose up --force-recreate ganache_blockchain
+
+# deploy xbr smart contract to blockchain
+deploy_ganache_blockchain:
+	$(TRUFFLE) migrate --reset --network ganache
+
+# initialize blockchain data
+init_ganache_blockchain:
+	XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576" \
+	XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c" \
+	python docker/init-blockchain.py --gateway http://localhost:1545
+
+# build a blockchain (ganache based) docker image using the initialized data from the staging area
+build_ganache_blockchain:
+	cd docker && docker build -t crossbario/crossbarfx-blockchain:latest -f Dockerfile.ganache .
+
+# publish locally created docker image with xbr-preinitialized ganache blockchain
+publish_ganache_blockchain:
+	docker push crossbario/crossbarfx-blockchain:latest
+
+
 #
 # build optimized SVG files from source SVGs
 #
