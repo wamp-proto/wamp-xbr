@@ -106,6 +106,12 @@ contract XBRNetwork is XBRMaintained {
         /// Market fee rate for the market operator.
         uint256 marketFee;
 
+        /// Adresses of provider (seller) actors joined in the market.
+        address[] providerActorAdrs;
+
+        /// Adresses of consumer (buyer) actors joined in the market.
+        address[] consumerActorAdrs;
+
         /// Provider (seller) actors joined in the market by actor address.
         mapping(address => Actor) providerActors;
 
@@ -117,6 +123,7 @@ contract XBRNetwork is XBRMaintained {
 
         /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
+
     }
 
     /// Container type for holding paying channel request information.
@@ -185,8 +192,14 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Markets ("market directory")
     mapping(bytes16 => Market) public markets;
 
+    /// List of IDs of current XBR Markets.
+    bytes16[] public marketIds;
+
     /// Index: maker address => market ID
     mapping(address => bytes16) public marketsByMaker;
+
+    /// Index: market owner address => [market ID]
+    mapping(address => bytes16[]) public marketsByOwner;
 
     /**
      * Create a new network.
@@ -227,21 +240,21 @@ contract XBRNetwork is XBRMaintained {
         emit MemberCreated(msg.sender, registered, eula_, profile_, MemberLevel.ACTIVE);
     }
 
-    /**
-     * Leave the XBR Network.
-     */
-    function unregister () public {
-        require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-        require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
-                (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
+    // /**
+    //  * Leave the XBR Network.
+    //  */
+    // function unregister () public {
+    //     require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    //     require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
+    //             (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
-        // FIXME: check that the member has no active objects associated anymore
-        require(false, "NOT_IMPLEMENTED");
+    //     // FIXME: check that the member has no active objects associated anymore
+    //     require(false, "NOT_IMPLEMENTED");
 
-        members[msg.sender].level = MemberLevel.RETIRED;
+    //     members[msg.sender].level = MemberLevel.RETIRED;
 
-        emit MemberRetired(msg.sender);
-    }
+    //     emit MemberRetired(msg.sender);
+    // }
 
     /**
      * Manually override the member level of a XBR Network member. Being able to do so
@@ -305,10 +318,16 @@ contract XBRNetwork is XBRMaintained {
         // now remember out new market ..
         uint created = block.timestamp;
         markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker,
-            providerSecurity, consumerSecurity, marketFee);
+            providerSecurity, consumerSecurity, marketFee, new address[](0), new address[](0));
 
         // .. and the market-maker-to-market mapping
         marketsByMaker[maker] = marketId;
+
+        // .. and the market-owner-to-market mapping
+        marketsByOwner[msg.sender].push(marketId);
+
+        // .. and list of markst IDs
+        marketIds.push(marketId);
 
         // increment market sequence for next market
         marketSeq = marketSeq + 1;
@@ -316,6 +335,14 @@ contract XBRNetwork is XBRMaintained {
         // notify observers (eg a dormant market maker waiting to be associated)
         emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
                                 providerSecurity, consumerSecurity, marketFee);
+    }
+
+    function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
+        return marketsByOwner[owner][index];
+    }
+
+    function countMarketsByOwner(address owner) public view returns (uint) {
+        return marketsByOwner[owner].length;
     }
 
     function getMarketActor (bytes16 marketId, address actor, uint8 actorType) public view
@@ -362,7 +389,7 @@ contract XBRNetwork is XBRMaintained {
 
         require(market.owner != address(0), "NO_SUCH_MARKET");
         require(market.owner == msg.sender, "NOT_AUTHORIZED");
-        require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+        //require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
         require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         bool wasChanged = false;
@@ -372,6 +399,9 @@ contract XBRNetwork is XBRMaintained {
             markets[marketId].maker = maker;
             wasChanged = true;
         }
+
+        /* FIXME: find out why including the following code leas to "out of gas" issues when deploying contracts
+
         if (bytes(terms).length > 0 && keccak256(abi.encode(terms)) != keccak256(abi.encode(market.terms))) {
             markets[marketId].terms = terms;
             wasChanged = true;
@@ -380,6 +410,7 @@ contract XBRNetwork is XBRMaintained {
             markets[marketId].meta = meta;
             wasChanged = true;
         }
+        */
 
         // for these knobs, we allow updating to zero value
         if (providerSecurity != market.providerSecurity) {
@@ -403,17 +434,18 @@ contract XBRNetwork is XBRMaintained {
         return wasChanged;
     }
 
-    /**
-     * Close a market. A closed market will not accept new memberships.
-     *
-     * @param marketId The ID of the market to close.
-     */
-    function closeMarket (bytes16 marketId) public view {
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
-        // FIXME
-        require(false, "NOT_IMPLEMENTED");
-    }
+    // /**
+    //  * Close a market. A closed market will not accept new memberships.
+    //  *
+    //  * @param marketId The ID of the market to close.
+    //  */
+    // function closeMarket (bytes16 marketId) public view {
+    //     require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+    //     require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
+    //     // FIXME
+    //     // - remove market ID from marketIds
+    //     require(false, "NOT_IMPLEMENTED");
+    // }
 
     /**
      * Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
@@ -429,6 +461,9 @@ contract XBRNetwork is XBRMaintained {
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the market owner cannot join as an actor (provider/consumer) in the market
+        require(markets[marketId].owner != msg.sender, "SENDER_IS_OWNER");
 
         // the joining member must join as a data provider (seller) or data consumer (buyer)
         require(actorType == uint8(ActorType.PROVIDER) ||
@@ -457,8 +492,10 @@ contract XBRNetwork is XBRMaintained {
         uint joined = block.timestamp;
         if (actorType == uint8(ActorType.PROVIDER)) {
             markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
+            markets[marketId].providerActorAdrs.push(msg.sender);
         } else {
             markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
+            markets[marketId].consumerActorAdrs.push(msg.sender);
         }
 
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
@@ -469,17 +506,18 @@ contract XBRNetwork is XBRMaintained {
         return security;
     }
 
-    /**
-     * As a market actor (participant) currently member of a market, leave that market.
-     * A market can only be left when all payment channels of the sender are closed (or expired).
-     *
-     * @param marketId The ID of the market to leave.
-     */
-    function leaveMarket (bytes16 marketId) public view {
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-        // FIXME
-        require(false, "NOT_IMPLEMENTED");
-    }
+    // /**
+    //  * As a market actor (participant) currently member of a market, leave that market.
+    //  * A market can only be left when all payment channels of the sender are closed (or expired).
+    //  *
+    //  * @param marketId The ID of the market to leave.
+    //  */
+    // function leaveMarket (bytes16 marketId) public view {
+    //     require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+    //     // FIXME
+    //     // - remove sender actor from markets[marketId].providerActorAdrs|consumerActorAdrs
+    //     require(false, "NOT_IMPLEMENTED");
+    // }
 
     /**
      * Open a new payment channel and deposit an amount of XBR token for off-chain consumption.
@@ -631,6 +669,26 @@ contract XBRNetwork is XBRMaintained {
             address(channel), XBRChannel.ChannelType.PAYING);
 
         return address(channel);
+    }
+
+    /**
+     * Lookup all provider actors in a XBR Market.
+     *
+     * @param marketId The XBR Market to provider actors for.
+     * @return List of provider actor addresses in the market.
+     */
+    function getAllMarketProviders(bytes16 marketId) public view returns (address[] memory) {
+        return markets[marketId].providerActorAdrs;
+    }
+
+    /**
+     * Lookup all consumer actors in a XBR Market.
+     *
+     * @param marketId The XBR Market to consumer actors for.
+     * @return List of consumer actor addresses in the market.
+     */
+    function getAllMarketConsumers(bytes16 marketId) public view returns (address[] memory) {
+        return markets[marketId].consumerActorAdrs;
     }
 
     /**
