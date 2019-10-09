@@ -337,6 +337,10 @@ contract XBRNetwork is XBRMaintained {
                                 providerSecurity, consumerSecurity, marketFee);
     }
 
+    function countMarkets() public view returns (uint) {
+        return marketIds.length;
+    }
+
     function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
         return marketsByOwner[owner][index];
     }
