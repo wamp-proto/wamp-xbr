@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Infura IPFS CORS issue</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client@30.1.3/dist/index.js"></script>
+    <script src="https://bundle.run/buffer@5.2.1"></script>
+
+  </head>
+  <body>
+
+      <h3>readAsArrayBuffer to Buffer to Infura to IPFS</h3>
+      <input type="file" id="upload">
+
+      <script>
+          const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' })
+
+          $("#upload").on("change", function() {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                console.log('reader.onload ..');
+
+                const magic_array_buffer_converted_to_buffer = buffer.Buffer(reader.result); // honestly as a web developer I do not fully appreciate the difference between buffer and arrayBuffer
+                ipfs.add(magic_array_buffer_converted_to_buffer, (err, ipfsHash) => {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      console.log(ipfsHash[0].path);
+                      console.log(ipfsHash[0].hash);
+                      console.log(ipfsHash[0].size);
+                    }
+                })
+            }
+            reader.readAsArrayBuffer(this.files[0]);
+          })
+      </script>
+
+  </body>
+</html>

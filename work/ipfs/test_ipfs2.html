@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Infura IPFS CORS issue</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client@30.1.3/dist/index.js"></script>
+    <script src="https://bundle.run/buffer@5.2.1"></script>
+
+  </head>
+  <body>
+
+    <h3>readAsArrayBuffer to Buffer to Infura to IPFS</h3>
+
+    <pre>
+        https://github.com/ipfs/interface-js-ipfs-core/blob/master/SPEC/FILES.md#add
+        https://ipfs.infura.io:5001/api/v0/cat?arg=Qmar4Wa5UvbSd7PN7HxKfQNAnUaXM7XohNKtYLskJp5yAM
+    </pre>
+
+    <script>
+        const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' })
+        console.log('window.IpfsHttpClient ..');
+
+        const obj = {
+            foo: 23,
+            bar: "baz"
+        }
+        const data = window.IpfsHttpClient.Buffer.from(JSON.stringify(obj));
+        console.log('window.IpfsHttpClient.Buffer ..')
+
+        ipfs.add(data, (err, ipfsHash) => {
+            console.log('ipfs.add', err, ipfsHash);
+            if (err) {
+                console.log(err);
+            } else {
+                // Qmar4Wa5UvbSd7PN7HxKfQNAnUaXM7XohNKtYLskJp5yAM
+                console.log(ipfsHash[0].path);
+
+                // Qmar4Wa5UvbSd7PN7HxKfQNAnUaXM7XohNKtYLskJp5yAM
+                console.log(ipfsHash[0].hash);
+
+                // 30
+                console.log(ipfsHash[0].size);
+
+                const ipfsPath = '/ipfs/' + ipfsHash[0].hash
+                ipfs.get(ipfsPath, (err, files) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('files', files);
+
+                        const data_ = files[0].content;
+                        console.log('data', data_);
+
+                        const obj_ = JSON.parse(data_);
+                        const is_equal = obj.foo === obj_.foo && obj.bar === obj_.bar;
+                        console.log('obj', obj_, is_equal);
+                    }
+
+                });
+            }
+        });
+    </script>
+
+  </body>
+</html>
