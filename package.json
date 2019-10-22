@@ -26,7 +26,8 @@
     "solidity-coverage": "^0.6.4",
     "truffle": "^5.0.36",
     "truffle-contract": "^4.0.31",
-    "truffle-hdwallet-provider": "^1.0.17"
+    "truffle-hdwallet-provider": "^1.0.17",
+    "zos-lab": "file:../../3rdparty/openzeppelin-labs"
   },
   "devDependencies": {},
   "main": "index.js",

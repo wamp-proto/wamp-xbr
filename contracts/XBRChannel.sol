@@ -81,7 +81,7 @@ contract XBRChannel {
     ChannelState public state;
 
     /// The XBR Market ID this channel is operating payments (or payouts) for.
-    bytes16 public marketId;
+    address public marketId;
 
     /**
      * The off-chain market maker that operates this payment or paying channel.
@@ -129,7 +129,7 @@ contract XBRChannel {
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
      */
-    event Closing(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
+    event Closing(address indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 timeoutAt);
 
     /**
@@ -137,7 +137,7 @@ contract XBRChannel {
      * channel participants have called close(), agreeing on last state, or after the timeout
      * at latest - in case the second participant doesn't react within timeout)
      */
-    event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
+    event Closed(address indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 closedAt);
 
     /// EIP712 type.
@@ -167,7 +167,7 @@ contract XBRChannel {
      * @param amount_ The amount of XBR held in the channel.
      * @param timeout_ The payment channel timeout period that begins with the first call to `close()`
      */
-    constructor (address organization_, address token_, address network_, bytes16 marketId_, address marketmaker_,
+    constructor (address organization_, address token_, address network_, address marketId_, address marketmaker_,
         address sender_, address delegate_, address recipient_, uint256 amount_, uint32 timeout_,
         ChannelType ctype_) public {
 

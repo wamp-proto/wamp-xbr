@@ -18,18 +18,32 @@
 
 pragma solidity ^0.5.2;
 
-import "./XBRMaintained.sol";
 
+contract XBRCatalog {
 
-/**
- * @title XBR Network root SC
- * @author The XBR Project
- */
-contract XBRNetworkProxy is XBRMaintained {
+    /// Address of XBRNetwork instance that created this catalog.
+    address public network;
 
-    address internal _networkContract;
+    address public owner;
 
-    function setNetworkContract (address networkContract) public onlyMaintainer {
-        _networkContract = networkContract;
+    string public terms;
+
+    string public meta;
+
+/*
+    constructor (address network_, address owner_, string memory terms_, string memory meta_) public {
+        network = network_;
+        owner = owner_;
+        terms = terms_;
+        meta = meta_;
     }
+*/
+/*
+    function initialize (address network_, address owner_, string memory terms_, string memory meta_) {
+        network = network_;
+        owner = owner_;
+        terms = terms_;
+        meta = meta_;
+    }
+*/
 }

@@ -104,8 +104,13 @@ compile:
 	-rm ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/*.json
 	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
-deploy:
-	$(TRUFFLE) migrate --reset --network ganache
+deploy: deploy_1 deploy_2
+
+deploy_1:
+	$(TRUFFLE) migrate --reset --network ganache --to 2
+
+deploy_2:
+	$(TRUFFLE) migrate --reset --network ganache -f 3
 
 deploy_ropsten_dryrun:
 	$(TRUFFLE) migrate --reset --network ropsten --dry-run
