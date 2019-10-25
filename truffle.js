@@ -12,8 +12,7 @@
  *   },
  */
 
-var XBR_HDWALLET_SEED = process.env.XBR_HDWALLET_SEED;
-var XBR_INFURA_ENDPOINT= "https://ropsten.infura.io/v3/40c6959767364c2cb961bd389c738d98";
+const XBR_HDWALLET_SEED = process.env.XBR_HDWALLET_SEED;
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
@@ -55,10 +54,24 @@ module.exports = {
         // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e
         ropsten: {
             provider: function() {
+                const XBR_INFURA_ENDPOINT= "https://ropsten.infura.io/v3/40c6959767364c2cb961bd389c738d98";
+
                 return new HDWalletProvider(XBR_HDWALLET_SEED, XBR_INFURA_ENDPOINT)
             },
             network_id: 3,
             gas: 2900000
+        },
+
+        // https://ethereum.stackexchange.com/a/17101/17806
+        rinkeby: {
+            provider: function() {
+                const XBR_INFURA_ENDPOINT= "https://rinkeby.infura.io/v3/40c6959767364c2cb961bd389c738d98";
+
+                return new HDWalletProvider(XBR_HDWALLET_SEED, XBR_INFURA_ENDPOINT)
+            },
+            network_id: 4,
+            // https://www.rinkeby.io/#stats
+            gas: 6900000
         }
     },
 

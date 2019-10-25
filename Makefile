@@ -113,6 +113,11 @@ deploy_ropsten_dryrun:
 deploy_ropsten:
 	$(TRUFFLE) migrate --reset --network ropsten
 
+deploy_rinkeby_dryrun:
+	$(TRUFFLE) migrate --reset --network rinkeby --dry-run
+
+deploy_rinkeby:
+	$(TRUFFLE) migrate --reset --network rinkeby
 
 #
 # Truffle in Docker
