@@ -19,6 +19,7 @@
     "url": "git://github.com/xbr/xbr-protocol.git"
   },
   "dependencies": {
+    "bindings": "^1.5.0",
     "eth-sig-util": "^2.5.2",
     "ethereumjs-util": "^6.2.0",
     "openzeppelin-solidity": "^2.4.0"
@@ -33,7 +34,7 @@
   "main": "index.js",
   "scripts": {
     "test": "truffle test --network ganache",
-    "coverage": "solidity-coverage"
+    "coverage": "truffle run coverage"
   },
   "directories": {
     "test": "test"

@@ -74,15 +74,11 @@ clean_all: clean_docs clean
 
 install:
 	pip install -r requirements.txt
-	npm install -g --only=dev
+	npm install --only=dev
 	npm outdated
 	@echo "run 'ncu -u' to update deps .."
-	which $(TRUFFLE)
 	$(TRUFFLE) version
-	which $(SOLHINT)
 	$(SOLHINT) version
-	which $(COVERAGE)
-	$(COVERAGE) version
 
 update_dependencies:
 	npm i -g npm-check-updates
@@ -96,7 +92,7 @@ test:
 	$(TRUFFLE) test --network ganache
 
 coverage:
-	solidity-coverage
+	truffle run coverage
 
 compile:
 	-rm ./abi/*.json

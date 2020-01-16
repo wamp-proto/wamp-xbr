@@ -90,5 +90,7 @@ module.exports = {
 
     mocha: {
         useColors: true
-    }
+    },
+
+    plugins: ["solidity-coverage"]
 };
