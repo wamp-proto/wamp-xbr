@@ -37,6 +37,34 @@ The libraries are available here:
 -  `XBR client library for Python <https://github.com/crossbario/autobahn-python>`__
 -  `XBR client library for JavaScript (Browser and Node) <https://github.com/crossbario/autobahn-js>`__
 
+Testing
+-------
+
+To test, open a first shell and run:
+
+.. code-block:: console
+
+    make run_ganache
+
+Open a second shell and run:
+
+.. code-block:: console
+
+    tox
+
+This should run all CI steps locally, eg here is sample output:
+
+.. code-block:: console
+
+    truffle-build: commands succeeded
+    truffle-test: commands succeeded
+    solhint: commands succeeded
+    coverage: commands succeeded
+    sphinx: commands succeeded
+    xbr-js: commands succeeded
+    congratulations :)
+
+
 --------------
 
 Copyright Crossbar.io Technologies GmbH. Licensed under the `Apache 2.0

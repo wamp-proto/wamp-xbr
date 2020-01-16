@@ -1,16 +1,17 @@
 .PHONY: list coverage docs clean build test
 
-TRUFFLE = ${PWD}/node_modules/truffle/build/cli.bundled.js
-SOLHINT = ${PWD}/node_modules/solhint/solhint.js
-COVERAGE = ${PWD}/node_modules/solidity-coverage/bin/exec.js
+TRUFFLE = ${PWD}/node_modules/.bin/truffle
+SOLHINT = ${PWD}/node_modules/.bin/solhint
+COVERAGE = ${PWD}/node_modules/.bin/solidity-coverage
+
 SCOUR = scour
 SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
 
 AWS_DEFAULT_REGION = eu-central-1
 AWS_S3_BUCKET_NAME = xbr.foundation
 
-XBR_DEBUG_TOKEN_ADDR="0xcfeb869f69431e42cdb54a4f4f105c19c080a601"
-XBR_DEBUG_NETWORK_ADDR="0x254dffcd3277c0b1660f6d42efbb754edababc2b"
+XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576"
+XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c"
 
 
 default:
@@ -73,10 +74,15 @@ clean_all: clean_docs clean
 
 install:
 	pip install -r requirements.txt
-	npm install
+	npm install -g --only=dev
 	npm outdated
 	@echo "run 'ncu -u' to update deps .."
+	which $(TRUFFLE)
 	$(TRUFFLE) version
+	which $(SOLHINT)
+	$(SOLHINT) version
+	which $(COVERAGE)
+	$(COVERAGE) version
 
 update_dependencies:
 	npm i -g npm-check-updates
@@ -187,6 +193,7 @@ clean_ganache_blockchain:
 
 # run a blockchain from the empty staging area
 run_ganache_blockchain:
+	# sudo chown -R 1000:1000 docker/data/
 	docker-compose up --force-recreate ganache_blockchain
 
 # deploy xbr smart contract to blockchain

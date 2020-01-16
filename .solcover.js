@@ -9,5 +9,8 @@ module.exports = {
     ],
     skipFiles: [
         'contracts/Migrations.sol',
-    ]
+    ],
+    rules: {
+        'no-unused-vars': 'off'
+    }
 };
