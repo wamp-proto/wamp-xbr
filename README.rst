@@ -76,5 +76,5 @@ license <https://www.apache.org/licenses/LICENSE-2.0>`__.
    :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html
 .. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.org/crossbario/xbr-protocol
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/xbr/xbr-protocol/master.svg
-   :target: https://codecov.io/github/xbr/xbr-protocol
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
+   :target: https://codecov.io/github/crossbario/xbr-protocol
