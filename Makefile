@@ -1,8 +1,9 @@
 .PHONY: list coverage docs clean build test
 
-TRUFFLE = ${PWD}/node_modules/truffle/build/cli.bundled.js
-SOLHINT = ${PWD}/node_modules/solhint/solhint.js
-COVERAGE = ${PWD}/node_modules/solidity-coverage/bin/exec.js
+TRUFFLE = ${PWD}/node_modules/.bin/truffle
+SOLHINT = ${PWD}/node_modules/.bin/solhint
+COVERAGE = ${PWD}/node_modules/.bin/solidity-coverage
+
 SCOUR = scour
 SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-viewboxing --indent=none --no-line-breaks --shorten-ids
 
@@ -73,10 +74,15 @@ clean_all: clean_docs clean
 
 install:
 	pip install -r requirements.txt
-	npm install
+	npm install -g --only=dev
 	npm outdated
 	@echo "run 'ncu -u' to update deps .."
+	which $(TRUFFLE)
 	$(TRUFFLE) version
+	which $(SOLHINT)
+	$(SOLHINT) version
+	which $(COVERAGE)
+	$(COVERAGE) version
 
 update_dependencies:
 	npm i -g npm-check-updates
@@ -187,6 +193,7 @@ clean_ganache_blockchain:
 
 # run a blockchain from the empty staging area
 run_ganache_blockchain:
+	# sudo chown -R 1000:1000 docker/data/
 	docker-compose up --force-recreate ganache_blockchain
 
 # deploy xbr smart contract to blockchain
