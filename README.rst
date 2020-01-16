@@ -7,8 +7,14 @@ This repository contains the XBR smart contracts, with Ethereum as
 target blockchain, and Solidity as implementation language for the **XBR
 Protocol**.
 
-Please see the `documentation <https://xbr.network/docs/index.html>`__
+Please see the `documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__
 for more information.
+
+.. note::
+
+    * `The XBR Protocol documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__) (THIS)
+    * `The XBR Network documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__)
+
 
 XBR Client Libraries
 --------------------
@@ -37,9 +43,9 @@ Copyright Crossbar.io Technologies GmbH. Licensed under the `Apache 2.0
 license <https://www.apache.org/licenses/LICENSE-2.0>`__.
 
 .. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-brightgreen.svg?style=flat
-   :target: https://xbr.network/docs/index.html
+   :target: https://xbr.network/docs/network/index.html
 .. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
-   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html
 .. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.org/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/xbr/xbr-protocol/master.svg

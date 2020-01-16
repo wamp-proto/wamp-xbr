@@ -250,11 +250,11 @@ run_docs: docs
 	twistd --nodaemon web --path=docs/_build --listen=tcp:8090
 
 # build and deploy latest docs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
-#   => https://xbr.network/docs/index.html
+#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
+#   => https://xbr.network/docs/protocol/index.html
 publish_docs:
 	aws s3 cp --recursive --acl public-read \
-		./docs/_build s3://$(AWS_S3_BUCKET_NAME)/docs
+		./docs/_build s3://$(AWS_S3_BUCKET_NAME)/docs/protocol
 
 clean_docs:
 	-rm -rf docs/_build
