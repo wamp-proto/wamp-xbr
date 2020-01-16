@@ -24,31 +24,15 @@ module.exports = {
         geth: {
             host: "localhost",
             port: 1545,
-            network_id: "5777",
-            //from: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
-            //from: "0x4c5E35F5bC1D26d7a6Bb7Ff343CDaB110bC87B5E"
+            network_id: "5777"
         },
 
         ganache: {
             host: "localhost",
-	        // port: 8545,
 	        port: 1545,
             network_id: "5777",
-            gas: 0xfffffffffff,
-            // gas: 100000000,
-            // gasPrice: 0x01
             gas: 8000000,
             gasPrice: 9000000000
-        },
-
-        // https://www.npmjs.com/package/solidity-coverage#network-configuration
-        // https://github.com/sc-forks/solidity-coverage#network-configuration
-        coverage: {
-            host: "localhost",
-            network_id: "*",
-            port: 8555,
-            gas: 0xfffffffffff,
-            gasPrice: 0x01
         },
 
         // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e
