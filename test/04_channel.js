@@ -416,7 +416,7 @@ contract('XBRNetwork', accounts => {
         console.log('CHANNEL_openedAt', _openedAt.toNumber());
         console.log('CHANNEL_closedAt', _closedAt.toNumber());
     });
-
+/*
     it('XBRChannel.close() : consumer should close payment channel', async () => {
 
         const market_operator = alice;
@@ -531,16 +531,6 @@ contract('XBRNetwork', accounts => {
     });
 
     it('XBRChannel.close() : maker should close paying channel', async () => {
-
-        /*
-        const market_operator = alice;
-        const marketmaker = alice_market_maker1;
-        const marketmaker_key = alice_market_maker1_key;
-        const consumer = charlie;
-        const provider = bob;
-        const delegate = bob_delegate1;
-        const delegate_key = bob_delegate1_key
-        */
 
        const market_operator = alice;
 
@@ -660,4 +650,5 @@ contract('XBRNetwork', accounts => {
         console.log('CHANNEL_openedAt', _openedAt.toNumber());
         console.log('CHANNEL_closedAt', _closedAt.toNumber());
     });
+*/
 });

@@ -26,7 +26,7 @@ module.exports = function (deployer, network, accounts) {
     // https://www.rinkeby.io/#stats
     // https://ropsten.etherscan.io/blocks
 
-    if (network === "coverage") {
+    if (network === "soliditycoverage") {
         gas = 0xfffffffffff;
     } else {
         gas = 6900000;
@@ -42,7 +42,7 @@ module.exports = function (deployer, network, accounts) {
         return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
     });
 
-    if (network === "ganache" || network === "coverage") {
+    if (network === "ganache" || network === "soliditycoverage") {
         deployer.deploy(XBRTest, {gas: gas, from: organization});
     }
 };

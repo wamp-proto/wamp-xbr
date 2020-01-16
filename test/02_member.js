@@ -130,9 +130,11 @@ contract('XBRNetwork', accounts => {
         const _edith_level = _edith.level.toNumber();
         assert.equal(_edith_level, MemberLevel_NULL, "wrong member level " + _edith_level);
 
+        /*
         const _frank = await network.members(frank);
         const _frank_level = _frank.level.toNumber();
         assert.equal(_frank_level, MemberLevel_NULL, "wrong member level " + _frank_level);
+        */
     });
 
     it('XBRNetwork.register() : registering a member with wrong EULA should throw', async () => {
