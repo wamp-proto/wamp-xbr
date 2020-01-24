@@ -198,8 +198,8 @@ deploy_ganache_blockchain:
 
 # initialize blockchain data
 init_ganache_blockchain:
-	XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576" \
-	XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c" \
+	XBR_DEBUG_TOKEN_ADDR=0xcfeb869f69431e42cdb54a4f4f105c19c080a601 \
+	XBR_DEBUG_NETWORK_ADDR=0x254dffcd3277c0b1660f6d42efbb754edababc2b \
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
 # build a blockchain (ganache based) docker image using the initialized data from the staging area
