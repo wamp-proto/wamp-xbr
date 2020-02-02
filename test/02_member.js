@@ -33,12 +33,12 @@ const DomainData = {
             { name: 'verifyingContract', type: 'address' },
         ],
         EIP712MemberRegister: [
-            {'name': 'chainId', 'type': 'uint256'},
-            {'name': 'blockNumber', 'type': 'uint256'},
-            {'name': 'verifyingContract', 'type': 'address'},
-            {'name': 'member', 'type': 'address'},
-            {'name': 'eula', 'type': 'string'},
-            {'name': 'profile', 'type': 'string'},
+            {name: 'chainId', type: 'uint256'},
+            {name: 'blockNumber', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'member', type: 'address'},
+            {name: 'eula', type: 'string'},
+            {name: 'profile', type: 'string'},
         ]
     },
     primaryType: 'EIP712MemberRegister',
@@ -48,20 +48,16 @@ const DomainData = {
         chainId: 1,
         verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
     },
-    message: null,
+    message: null
 };
 
 
 
-function create_sig(key_, message_) {
-
-    DomainData['message'] = message_;
-
-    const key = eth_util.toBuffer(key_);
-
-    const sig = eth_sig_utils.signTypedData(key, {data: DomainData})
-
-    return eth_util.toBuffer(sig);
+function create_sig(key_, data_) {
+    DomainData['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+    return sig;
 }
 
 
@@ -267,10 +263,9 @@ contract('XBRNetwork', accounts => {
         const _member_profile = _member.profile;
         const _member_level = _member.level.toNumber();
 
-        assert.equal(_frank_level, MemberLevel_ACTIVE, "wrong member level");
-        assert.equal(_frank_eula, eula, "wrong member EULA");
-        assert.equal(_frank_profile, profile, "wrong member Profile");
-        /*
+        assert.equal(_member_level, MemberLevel_ACTIVE, "wrong member level");
+        assert.equal(_member_eula, eula, "wrong member EULA");
+        assert.equal(_member_profile, profile, "wrong member Profile");
 
         // check event logs
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
@@ -278,11 +273,10 @@ contract('XBRNetwork', accounts => {
 
         // check events
         assert.equal(result.event, "MemberCreated", "wrong event was emitted");
-        assert.equal(result.args.member, frank, "wrong member address in event");
+        assert.equal(result.args.member, member, "wrong member address in event");
         assert.equal(result.args.eula, eula, "wrong member EULA in event");
         assert.equal(result.args.profile, profile, "wrong member Profile in event");
         assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
-        */
     });
 
 /*

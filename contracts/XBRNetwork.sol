@@ -321,8 +321,8 @@ contract XBRNetwork is XBRMaintained {
             obj.blockNumber,
             obj.verifyingContract,
             obj.member,
-            obj.eula,
-            obj.profile
+            keccak256(bytes(obj.eula)),
+            keccak256(bytes(obj.profile))
         ));
     }
 
