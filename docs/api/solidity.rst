@@ -24,13 +24,13 @@ XBRNetwork
 .. autosolcontract:: XBRNetwork
     :members:
     :exclude-members:
-        marketSeq
-        domainSeq
-        members
-        domains
-        nodes
-        nodesByKey
-        markets
+        marketSeq,
+        domainSeq,
+        members,
+        domains,
+        nodes,
+        nodesByKey,
+        markets,
         marketsByMaker
 
 

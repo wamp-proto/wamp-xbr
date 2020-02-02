@@ -27,7 +27,7 @@
   "devDependencies": {
     "solhint": "^2.3.0",
     "solidity-coverage": "^0.7.1",
-    "truffle": "^5.1.8",
+    "truffle": "^5.1.11",
     "truffle-contract": "^4.0.31",
     "truffle-hdwallet-provider": "^1.0.17"
   },
