@@ -199,8 +199,7 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,"
-        "address verifyingContract,address member,string eula,string profile)"
+        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
     );
 
     /// EIP712 type data.
@@ -370,7 +369,8 @@ contract XBRNetwork is XBRMaintained {
 
         // FIXME: check profile
 
-        require(verify(member, registered, eula_, profile_, signature),
+        // FIXME: check signature:
+        require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
             "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
