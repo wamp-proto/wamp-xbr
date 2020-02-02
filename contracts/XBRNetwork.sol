@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.5.2;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -174,6 +174,37 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
+    /// EIP712 type.
+    struct EIP712Domain {
+        string  name;
+        string  version;
+        uint256 chainId;
+        address verifyingContract;
+    }
+
+    /// EIP712 type.
+    struct EIP712MemberRegister {
+        uint256 chainId;
+        uint256 blockNumber;
+        address verifyingContract;
+        address member;
+        string eula;
+        string profile;
+    }
+
+    /// EIP712 type data.
+    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+
+    /// EIP712 type data.
+    bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
+        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+    );
+
+    /// EIP712 type data.
+    bytes32 private DOMAIN_SEPARATOR;
+
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -201,6 +232,16 @@ contract XBRNetwork is XBRMaintained {
     /// Index: market owner address => [market ID]
     mapping(address => bytes16[]) public marketsByOwner;
 
+    function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_DOMAIN_TYPEHASH,
+            keccak256(bytes(domain_.name)),
+            keccak256(bytes(domain_.version)),
+            domain_.chainId,
+            domain_.verifyingContract
+        ));
+    }
+
     /**
      * Create a new network.
      *
@@ -208,6 +249,14 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
+
+        // FIXME
+        DOMAIN_SEPARATOR = hash(EIP712Domain({
+            name: "XBR",
+            version: "1",
+            chainId: 1,
+            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+        }));
 
         token = XBRToken(token_);
         organization = organization_;
@@ -240,6 +289,97 @@ contract XBRNetwork is XBRMaintained {
         emit MemberCreated(msg.sender, registered, eula_, profile_, MemberLevel.ACTIVE);
     }
 
+    /**
+     * Split a signature given as a bytes string into components.
+     */
+    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
+        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
+
+        //  // first 32 bytes, after the length prefix
+        //  r := mload(add(sig, 32))
+        //  // second 32 bytes
+        //  s := mload(add(sig, 64))
+        //  // final byte (first byte of the next 32 bytes)
+        //  v := byte(0, mload(add(sig, 96)))
+        assembly
+        {
+            r := mload(add(signature_rsv, 32))
+            s := mload(add(signature_rsv, 64))
+            v := and(mload(add(signature_rsv, 65)), 255)
+        }
+        if (v < 27) {
+            v += 27;
+        }
+
+        return (v, r, s);
+    }
+
+    function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_REGISTER_TYPEHASH,
+            obj.chainId,
+            obj.blockNumber,
+            obj.verifyingContract,
+            obj.member,
+            keccak256(bytes(obj.eula)),
+            keccak256(bytes(obj.profile))
+        ));
+    }
+
+    function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /**
+     * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+     * XBR Data Consumers and XBR Data Market Operators, must first register
+     * with the XBR Network on the global blockchain by calling this function.
+     *
+     * IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+     * submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+     *
+     * @param member Address of the registering (new) member.
+     * @param registered Block number at which the registering member has created the signature.
+     * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+     * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+     * @param signature EIP712 signature (using private key of member) over
+     *                  `(chain_id, contract_adr, register_at, eula_hash, profile_hash)`.
+     */
+    function register_for (address member, uint256 registered, string memory eula_,
+        string memory profile_, bytes memory signature) public {
+
+        // check that sender is not already a member
+        require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
+
+        // FIXME: check registered
+
+        // check that the EULA the member accepted is the one we expect
+        require(keccak256(abi.encode(eula_)) ==
+                keccak256(abi.encode(eula)), "INVALID_EULA");
+
+        // FIXME: check profile
+
+        // FIXME: check signature:
+        require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
+            "INVALID_MEMBER_REGISTER_SIGNATURE");
+
+        // remember the member
+        members[member] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
+
+        // notify observers of new member
+        emit MemberCreated(member, registered, eula_, profile_, MemberLevel.ACTIVE);
+    }
+
     // /**
     //  * Leave the XBR Network.
     //  */
@@ -256,21 +396,21 @@ contract XBRNetwork is XBRMaintained {
     //     emit MemberRetired(msg.sender);
     // }
 
-    /**
-     * Manually override the member level of a XBR Network member. Being able to do so
-     * currently serves two purposes:
-     *
-     * - having a last resort to handle situation where members violated the EULA
-     * - being able to manually patch things in error/bug cases
-     *
-     * @param member The address of the XBR network member to override member level.
-     * @param level The member level to set the member to.
-     */
-    function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
-        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    // /**
+    //  * Manually override the member level of a XBR Network member. Being able to do so
+    //  * currently serves two purposes:
+    //  *
+    //  * - having a last resort to handle situation where members violated the EULA
+    //  * - being able to manually patch things in error/bug cases
+    //  *
+    //  * @param member The address of the XBR network member to override member level.
+    //  * @param level The member level to set the member to.
+    //  */
+    // function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
+    //     require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
-        members[member].level = level;
-    }
+    //     members[member].level = level;
+    // }
 
     /**
      * Create a new XBR market. The sender of the transaction must be XBR network member
@@ -369,74 +509,74 @@ contract XBRNetwork is XBRMaintained {
         }
     }
 
-    /**
-     * Update market information, like market terms, metadata or maker address.
-     *
-     * @param marketId The ID of the market to update.
-     * @param terms When terms should be updated, provide a string of non-zero length with
-     *              an IPFS Multihash pointing to the new ZIP file with market terms.
-     * @param meta When metadata should be updated, provide a string of non-zero length with
-     *             an IPFS Multihash pointing to the new RDF/Turtle file with market metadata.
-     * @param maker When maker should be updated, provide a non-zero address.
-     * @param providerSecurity Provider security to set that will apply for new members (providers) joining
-     *                         the market. It will NOT apply to current market members.
-     * @param consumerSecurity Consumer security to set that will apply for new members (consumers) joining
-     *                         the market. It will NOT apply to current market members.
-     * @param marketFee New market fee to set. The new market fee will apply to all new payment channels
-     *                  opened. It will NOT apply to already opened (or closed) payment channels.
-     * @return Flag indicating weather the market information was actually updated or left unchanged.
-     */
-    function updateMarket(bytes16 marketId, string memory terms, string memory meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
+    // /**
+    //  * Update market information, like market terms, metadata or maker address.
+    //  *
+    //  * @param marketId The ID of the market to update.
+    //  * @param terms When terms should be updated, provide a string of non-zero length with
+    //  *              an IPFS Multihash pointing to the new ZIP file with market terms.
+    //  * @param meta When metadata should be updated, provide a string of non-zero length with
+    //  *             an IPFS Multihash pointing to the new RDF/Turtle file with market metadata.
+    //  * @param maker When maker should be updated, provide a non-zero address.
+    //  * @param providerSecurity Provider security to set that will apply for new members (providers) joining
+    //  *                         the market. It will NOT apply to current market members.
+    //  * @param consumerSecurity Consumer security to set that will apply for new members (consumers) joining
+    //  *                         the market. It will NOT apply to current market members.
+    //  * @param marketFee New market fee to set. The new market fee will apply to all new payment channels
+    //  *                  opened. It will NOT apply to already opened (or closed) payment channels.
+    //  * @return Flag indicating weather the market information was actually updated or left unchanged.
+    //  */
+    // function updateMarket(bytes16 marketId, string memory terms, string memory meta, address maker,
+    //     uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
 
-        Market storage market = markets[marketId];
+    //     Market storage market = markets[marketId];
 
-        require(market.owner != address(0), "NO_SUCH_MARKET");
-        require(market.owner == msg.sender, "NOT_AUTHORIZED");
-        //require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
-        require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
+    //     require(market.owner != address(0), "NO_SUCH_MARKET");
+    //     require(market.owner == msg.sender, "NOT_AUTHORIZED");
+    //     //require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
+    //     require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
-        bool wasChanged = false;
+    //     bool wasChanged = false;
 
-        // for these knobs, only update when non-zero values provided
-        if (maker != address(0) && maker != market.maker) {
-            markets[marketId].maker = maker;
-            wasChanged = true;
-        }
+    //     // for these knobs, only update when non-zero values provided
+    //     if (maker != address(0) && maker != market.maker) {
+    //         markets[marketId].maker = maker;
+    //         wasChanged = true;
+    //     }
 
-        /* FIXME: find out why including the following code leas to "out of gas" issues when deploying contracts
+    //     /* FIXME: find out why including the following code leas to "out of gas" issues when deploying contracts
 
-        if (bytes(terms).length > 0 && keccak256(abi.encode(terms)) != keccak256(abi.encode(market.terms))) {
-            markets[marketId].terms = terms;
-            wasChanged = true;
-        }
-        if (bytes(meta).length > 0 && keccak256(abi.encode(meta)) != keccak256(abi.encode(market.meta))) {
-            markets[marketId].meta = meta;
-            wasChanged = true;
-        }
-        */
+    //     if (bytes(terms).length > 0 && keccak256(abi.encode(terms)) != keccak256(abi.encode(market.terms))) {
+    //         markets[marketId].terms = terms;
+    //         wasChanged = true;
+    //     }
+    //     if (bytes(meta).length > 0 && keccak256(abi.encode(meta)) != keccak256(abi.encode(market.meta))) {
+    //         markets[marketId].meta = meta;
+    //         wasChanged = true;
+    //     }
+    //     */
 
-        // for these knobs, we allow updating to zero value
-        if (providerSecurity != market.providerSecurity) {
-            markets[marketId].providerSecurity = providerSecurity;
-            wasChanged = true;
-        }
-        if (consumerSecurity != market.consumerSecurity) {
-            markets[marketId].consumerSecurity = consumerSecurity;
-            wasChanged = true;
-        }
-        if (marketFee != market.marketFee) {
-            markets[marketId].marketFee = marketFee;
-            wasChanged = true;
-        }
+    //     // for these knobs, we allow updating to zero value
+    //     if (providerSecurity != market.providerSecurity) {
+    //         markets[marketId].providerSecurity = providerSecurity;
+    //         wasChanged = true;
+    //     }
+    //     if (consumerSecurity != market.consumerSecurity) {
+    //         markets[marketId].consumerSecurity = consumerSecurity;
+    //         wasChanged = true;
+    //     }
+    //     if (marketFee != market.marketFee) {
+    //         markets[marketId].marketFee = marketFee;
+    //         wasChanged = true;
+    //     }
 
-        if (wasChanged) {
-            emit MarketUpdated(marketId, market.marketSeq, market.owner, market.terms, market.meta, market.maker,
-                    market.providerSecurity, market.consumerSecurity, market.marketFee);
-        }
+    //     if (wasChanged) {
+    //         emit MarketUpdated(marketId, market.marketSeq, market.owner, market.terms, market.meta, market.maker,
+    //                 market.providerSecurity, market.consumerSecurity, market.marketFee);
+    //     }
 
-        return wasChanged;
-    }
+    //     return wasChanged;
+    // }
 
     // /**
     //  * Close a market. A closed market will not accept new memberships.

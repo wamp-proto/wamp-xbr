@@ -13,9 +13,52 @@
 
 const web3 = require("web3");
 const utils = require("./utils.js");
+const ethUtil = require('ethereumjs-util');
+
+var w3_utils = require("web3-utils");
+var eth_sig_utils = require("eth-sig-util");
+var eth_accounts = require("web3-eth-accounts");
+var eth_util = require("ethereumjs-util");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
+
+
+const DomainData = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+        ],
+        EIP712MemberRegister: [
+            {name: 'chainId', type: 'uint256'},
+            {name: 'blockNumber', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'member', type: 'address'},
+            {name: 'eula', type: 'string'},
+            {name: 'profile', type: 'string'},
+        ]
+    },
+    primaryType: 'EIP712MemberRegister',
+    domain: {
+        name: 'XBR',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+    },
+    message: null
+};
+
+
+
+function create_sig(key_, data_) {
+    DomainData['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+    return sig;
+}
 
 
 contract('XBRNetwork', accounts => {
@@ -189,6 +232,51 @@ contract('XBRNetwork', accounts => {
         } catch (error) {
             assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message: " + JSON.stringify(error));
         }
+    });
+
+    it('XBRNetwork.register_for() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
+
+        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
+
+        const member = w3_utils.toChecksumAddress('0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9');
+        const member_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
+
+        const registered = 1;
+        const msg = {
+            'chainId': 1,
+            'blockNumber': registered,
+            'verifyingContract': network.address,
+            'member': member,
+            'eula': eula,
+            'profile': profile,
+        }
+        console.log('MESSAGE', msg);
+
+        const signature = create_sig(member_key, msg);
+        console.log('SIGNATURE', signature);
+
+        const txn = await network.register_for(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
+
+        const _member = await network.members(member);
+        const _member_eula = _member.eula;
+        const _member_profile = _member.profile;
+        const _member_level = _member.level.toNumber();
+
+        assert.equal(_member_level, MemberLevel_ACTIVE, "wrong member level");
+        assert.equal(_member_eula, eula, "wrong member EULA");
+        assert.equal(_member_profile, profile, "wrong member Profile");
+
+        // check event logs
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+        const result = txn.receipt.logs[0];
+
+        // check events
+        assert.equal(result.event, "MemberCreated", "wrong event was emitted");
+        assert.equal(result.args.member, member, "wrong member address in event");
+        assert.equal(result.args.eula, eula, "wrong member EULA in event");
+        assert.equal(result.args.profile, profile, "wrong member Profile in event");
+        assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
     });
 
 /*
