@@ -186,6 +186,7 @@ clean_ganache:
 # clean file staging area to create blockchain docker image
 clean_ganache_blockchain:
 	-rm -rf ./docker/data/
+	mkdir ./docker/data/
 
 # run a blockchain from the empty staging area
 run_ganache_blockchain:

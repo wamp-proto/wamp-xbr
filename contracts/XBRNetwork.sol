@@ -872,6 +872,7 @@ contract XBRNetwork is XBRMaintained {
      * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
      * @param timeout Channel timeout which will apply.
      */
+     /*
     function openPayingChannel (bytes16 marketId, address recipient, address delegate,
         uint256 amount, uint32 timeout) public returns (address paymentChannel) {
 
@@ -914,6 +915,7 @@ contract XBRNetwork is XBRMaintained {
 
         return address(channel);
     }
+    */
 
     /**
      * Lookup all provider actors in a XBR Market.

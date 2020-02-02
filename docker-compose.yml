@@ -2,8 +2,8 @@ version: '3'
 services:
 
     ganache:
-        # image: trufflesuite/ganache-cli:v6.7.0
-        image: trufflesuite/ganache-cli:v6.9.0
+        image: trufflesuite/ganache-cli:v6.7.0
+        #image: trufflesuite/ganache-cli:v6.9.0
         # UID:GID => id -u, id -g
         user: "1000:1000"
         network_mode: host
@@ -40,8 +40,8 @@ services:
     # this is for temporarily running a new blockchain, deploying xbr contracts into
     # and creating a docker image from the pre-initialized blockchain
     ganache_blockchain:
-        #image: trufflesuite/ganache-cli:v6.7.0
-        image: trufflesuite/ganache-cli:v6.9.0
+        image: trufflesuite/ganache-cli:v6.7.0
+        #image: trufflesuite/ganache-cli:v6.9.0
         user: "1000:1000"
         network_mode: host
         volumes:
