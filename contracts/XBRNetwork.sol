@@ -199,7 +199,8 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,"
+        "address verifyingContract,address member,string eula,string profile)"
     );
 
     /// EIP712 type data.
@@ -326,7 +327,8 @@ contract XBRNetwork is XBRMaintained {
         ));
     }
 
-    function verify (address signer, EIP712MemberRegister memory obj, bytes memory signature) public view returns (bool) {
+    function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public view returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
 
@@ -351,9 +353,12 @@ contract XBRNetwork is XBRMaintained {
      * @param registered Block number at which the registering member has created the signature.
      * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
      * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-     * @param signature EIP712 signature (using private key of member) over `(chain_id, contract_adr, register_at, eula_hash, profile_hash)`.
+     * @param signature EIP712 signature (using private key of member) over
+     *                  `(chain_id, contract_adr, register_at, eula_hash, profile_hash)`.
      */
-    function register_for (address member, uint256 registered, string memory eula_, string memory profile_, bytes memory signature) public {
+    function register_for (address member, uint256 registered, string memory eula_,
+        string memory profile_, bytes memory signature) public {
+
         // check that sender is not already a member
         require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
@@ -364,7 +369,9 @@ contract XBRNetwork is XBRMaintained {
                 keccak256(abi.encode(eula)), "INVALID_EULA");
 
         // FIXME: check profile
-        // FIXME: check signature
+
+        require(verify(member, registered, eula_, profile_, signature),
+            "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
         members[member] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
