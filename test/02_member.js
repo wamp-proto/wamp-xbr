@@ -256,7 +256,7 @@ contract('XBRNetwork', accounts => {
         const signature = create_sig(member_key, msg);
         console.log('SIGNATURE', signature);
 
-        const txn = await network.register_for(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
+        const txn = await network.registerFor(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
 
         const _member = await network.members(member);
         const _member_eula = _member.eula;

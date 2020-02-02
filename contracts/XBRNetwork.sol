@@ -192,6 +192,17 @@ contract XBRNetwork is XBRMaintained {
         string profile;
     }
 
+    /// EIP712 type.
+    struct EIP712MarketJoin {
+        uint256 chainId;
+        uint256 blockNumber;
+        address verifyingContract;
+        address member;
+        bytes16 marketId;
+        uint8 actorType;
+        string meta;
+    }
+
     /// EIP712 type data.
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -200,6 +211,11 @@ contract XBRNetwork is XBRMaintained {
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
         "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+    );
+
+    /// EIP712 type data.
+    bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
+        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
     );
 
     /// EIP712 type data.
@@ -326,7 +342,34 @@ contract XBRNetwork is XBRMaintained {
         ));
     }
 
+    function hash (EIP712MarketJoin memory obj) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_REGISTER_TYPEHASH,
+            obj.chainId,
+            obj.blockNumber,
+            obj.verifyingContract,
+            obj.member,
+            obj.marketId,
+            obj.actorType,
+            keccak256(bytes(obj.meta))
+        ));
+    }
+
     function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712MarketJoin memory obj,
         bytes memory signature) public view returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
@@ -355,7 +398,7 @@ contract XBRNetwork is XBRMaintained {
      * @param signature EIP712 signature (using private key of member) over
      *                  `(chain_id, contract_adr, register_at, eula_hash, profile_hash)`.
      */
-    function register_for (address member, uint256 registered, string memory eula_,
+    function registerFor (address member, uint256 registered, string memory eula_,
         string memory profile_, bytes memory signature) public {
 
         // check that sender is not already a member
@@ -645,6 +688,63 @@ contract XBRNetwork is XBRMaintained {
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
         //                        uint256 security, string meta)
         emit ActorJoined(marketId, msg.sender, actorType, joined, security, meta);
+
+        // return effective security transferred
+        return security;
+    }
+
+    function joinMarketFor (address member, bytes16 marketId, uint8 actorType,
+        string memory meta, bytes memory signature) public returns (uint256) {
+
+        // the joining member must be a registered member
+        require(members[member].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the market to join must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the market owner cannot join as an actor (provider/consumer) in the market
+        require(markets[marketId].owner != member, "SENDER_IS_OWNER");
+
+        // the joining member must join as a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(ActorType.PROVIDER) ||
+                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+
+        // get the security amount required for joining the market (if any)
+        uint256 security;
+
+        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
+        if (actorType == uint8(ActorType.PROVIDER)) {
+            // the joining member must not be joined as a provider already
+            require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
+            security = markets[marketId].providerSecurity;
+        } else  {
+            // the joining member must not be joined as a consumer already
+            require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
+            security = markets[marketId].consumerSecurity;
+        }
+
+        require(verify(member, EIP712MarketJoin(1, 1, address(this), member, marketId, actorType, meta), signature),
+            "INVALID_MARKET_JOIN_SIGNATURE");
+
+        if (security > 0) {
+            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
+            bool success = token.transferFrom(member, markets[marketId].owner, security);
+            require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        }
+
+        // remember actor (by actor address) within market
+        uint joined = block.timestamp;
+        if (actorType == uint8(ActorType.PROVIDER)) {
+            markets[marketId].providerActors[member] = Actor(joined, security, meta, new address[](0));
+            markets[marketId].providerActorAdrs.push(member);
+        } else {
+            markets[marketId].consumerActors[member] = Actor(joined, security, meta, new address[](0));
+            markets[marketId].consumerActorAdrs.push(member);
+        }
+
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
+        //                        uint256 security, string meta)
+        emit ActorJoined(marketId, member, actorType, joined, security, meta);
 
         // return effective security transferred
         return security;

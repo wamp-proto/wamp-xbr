@@ -2,10 +2,8 @@ version: '3'
 services:
 
     ganache:
-        # https://github.com/trufflesuite/ganache-cli/issues/593
-        # image: trufflesuite/ganache-cli:v6.2.4
-        # image: trufflesuite/ganache-cli:v6.5.1
-        image: trufflesuite/ganache-cli:v6.7.0
+        # image: trufflesuite/ganache-cli:v6.7.0
+        image: trufflesuite/ganache-cli:v6.9.0
         # UID:GID => id -u, id -g
         user: "1000:1000"
         network_mode: host
@@ -42,7 +40,8 @@ services:
     # this is for temporarily running a new blockchain, deploying xbr contracts into
     # and creating a docker image from the pre-initialized blockchain
     ganache_blockchain:
-        image: trufflesuite/ganache-cli:v6.7.0
+        #image: trufflesuite/ganache-cli:v6.7.0
+        image: trufflesuite/ganache-cli:v6.9.0
         user: "1000:1000"
         network_mode: host
         volumes:
@@ -55,10 +54,14 @@ services:
             - "--mnemonic"
             #- "${XBR_HDWALLET_SEED}"
             - "myth like bonus scare over problem client lizard pioneer submit female collect"
+
+            # https://ethereum.stackexchange.com/questions/62466/how-to-set-maximum-block-gas-in-ganache-cli
             - "--gasLimit"
-            - "0xfffffffffff"
+            #- "0xfffffffffff"
+            - "0x1fffffffffffff"
             - "--gasPrice"
             - "1"
+
             - "--port"
             - "1545"
             - "--networkId"
