@@ -308,7 +308,7 @@ contract XBRNetwork is XBRMaintained {
             keccak256(bytes(obj.meta))
         ));
     }
-/*
+
     function verify (address signer, EIP712Domain memory obj,
         bytes memory signature) public view returns (bool) {
 
@@ -322,7 +322,7 @@ contract XBRNetwork is XBRMaintained {
 
         return ecrecover(digest, v, r, s) == signer;
     }
-*/
+
     function verify (address signer, EIP712MemberRegister memory obj,
         bytes memory signature) public view returns (bool) {
 
