@@ -184,8 +184,8 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type.
     struct EIP712MemberRegister {
-        uint256 chainId;
-        uint256 blockNumber;
+        //uint256 chainId;
+        //uint256 blockNumber;
         //address verifyingContract;
         address member;
         string eula;
@@ -213,13 +213,13 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+        //"EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+        "EIP712MemberRegister(address member,string eula,string profile)"
     );
 
     /// EIP712 type data.
     bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
-        //"EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
-        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address member,bytes16 marketId,uint8 actorType,string meta)"
+        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
     );
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
@@ -287,8 +287,8 @@ contract XBRNetwork is XBRMaintained {
     function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_MEMBER_REGISTER_TYPEHASH,
-            obj.chainId,
-            obj.blockNumber,
+            //obj.chainId,
+            //obj.blockNumber,
             //obj.verifyingContract,
             obj.member,
             keccak256(bytes(obj.eula)),
@@ -298,10 +298,10 @@ contract XBRNetwork is XBRMaintained {
 
     function hash (EIP712MarketJoin memory obj) internal pure returns (bytes32) {
         return keccak256(abi.encode(
-            EIP712_MEMBER_REGISTER_TYPEHASH,
+            EIP712_MARKET_JOIN_TYPEHASH,
             obj.chainId,
             obj.blockNumber,
-            //obj.verifyingContract,
+            obj.verifyingContract,
             obj.member,
             obj.marketId,
             obj.actorType,
@@ -364,7 +364,8 @@ contract XBRNetwork is XBRMaintained {
             version: "1",
             // FIXME: read chain ID at run-time (if possible)
             chainId: 1,
-            verifyingContract: address(this)
+            //verifyingContract: address(this)
+            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
         }));
 
         token = XBRToken(token_);
@@ -430,7 +431,7 @@ contract XBRNetwork is XBRMaintained {
         // FIXME:
         // require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
         //     "INVALID_MEMBER_REGISTER_SIGNATURE");
-        require(verify(member, EIP712MemberRegister(1, registered, member, eula_, profile_), signature),
+        require(verify(member, EIP712MemberRegister(member, eula_, profile_), signature),
             "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
