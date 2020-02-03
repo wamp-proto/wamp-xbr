@@ -33,9 +33,9 @@ const DomainData = {
             { name: 'verifyingContract', type: 'address' },
         ],
         EIP712MemberRegister: [
-            // {name: 'chainId', type: 'uint256'},
-            // {name: 'blockNumber', type: 'uint256'},
-            // {name: 'verifyingContract', type: 'address'},
+            {name: 'chainId', type: 'uint256'},
+            {name: 'blockNumber', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
             {name: 'member', type: 'address'},
             {name: 'eula', type: 'string'},
             {name: 'profile', type: 'string'},
@@ -252,11 +252,9 @@ contract('XBRNetwork', accounts => {
 
         const registered = 1;
         const msg = {
-            //'chainId': 1,
-            //'blockNumber': registered,
-            // FIXME
-            //'verifyingContract': network.address,
-            //'verifyingContract': '0x0',
+            'chainId': 1,
+            'blockNumber': registered,
+            'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
             'member': member,
             'eula': eula,
             'profile': profile,

@@ -184,9 +184,9 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type.
     struct EIP712MemberRegister {
-        //uint256 chainId;
-        //uint256 blockNumber;
-        //address verifyingContract;
+        uint256 chainId;
+        uint256 blockNumber;
+        address verifyingContract;
         address member;
         string eula;
         string profile;
@@ -207,14 +207,14 @@ contract XBRNetwork is XBRMaintained {
     bytes32 private DOMAIN_SEPARATOR;
 
     /// EIP712 type data.
+
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
     );
 
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        //"EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
-        "EIP712MemberRegister(address member,string eula,string profile)"
+        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
     );
 
     /// EIP712 type data.
@@ -287,9 +287,9 @@ contract XBRNetwork is XBRMaintained {
     function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_MEMBER_REGISTER_TYPEHASH,
-            //obj.chainId,
-            //obj.blockNumber,
-            //obj.verifyingContract,
+            obj.chainId,
+            obj.blockNumber,
+            obj.verifyingContract,
             obj.member,
             keccak256(bytes(obj.eula)),
             keccak256(bytes(obj.profile))
@@ -308,7 +308,7 @@ contract XBRNetwork is XBRMaintained {
             keccak256(bytes(obj.meta))
         ));
     }
-
+/*
     function verify (address signer, EIP712Domain memory obj,
         bytes memory signature) public view returns (bool) {
 
@@ -322,7 +322,7 @@ contract XBRNetwork is XBRMaintained {
 
         return ecrecover(digest, v, r, s) == signer;
     }
-
+*/
     function verify (address signer, EIP712MemberRegister memory obj,
         bytes memory signature) public view returns (bool) {
 
@@ -429,10 +429,8 @@ contract XBRNetwork is XBRMaintained {
         // FIXME: check profile
 
         // FIXME:
-        // require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
-        //     "INVALID_MEMBER_REGISTER_SIGNATURE");
-        require(verify(member, EIP712MemberRegister(member, eula_, profile_), signature),
-            "INVALID_MEMBER_REGISTER_SIGNATURE");
+        require(verify(member, EIP712MemberRegister(1, registered, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
+            member, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
         members[member] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
