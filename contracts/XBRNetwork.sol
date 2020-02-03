@@ -37,110 +37,10 @@ contract XBRNetwork is XBRMaintained {
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
 
-    // //////// enums
-
-    /// XBR Network membership levels
-    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
-
-    /// XBR Market Actor types
-    enum ActorType { NULL, PROVIDER, CONSUMER }
-
-    // //////// container types
-
-    /// Container type for holding XBR Network membership information.
-    struct Member {
-        /// Time (block.timestamp) when the member was (initially) registered.
-        uint registered;
-
-        /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
-        /// ZIP file archive on IPFS.
-        string eula;
-
-        /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-        string profile;
-
-        /// Current member level.
-        MemberLevel level;
-    }
-
-    /// Container type for holding XBR Market Actors information.
-    struct Actor {
-        /// Time (block.timestamp) when the actor has joined.
-        uint joined;
-
-        /// Security deposited by actor.
-        uint256 security;
-
-        /// Metadata attached to an actor in a market.
-        string meta;
-
-        /// All payment (paying) channels of the respective buyer (seller) actor.
-        address[] channels;
-    }
-
-    /// Container type for holding XBR Market information.
-    struct Market {
-        /// Time (block.timestamp) when the market was created.
-        uint created;
-
-        /// Market sequence number.
-        uint32 marketSeq;
-
-        /// Market owner (aka "market operator").
-        address owner;
-
-        /// Market terms (IPFS Multihash).
-        string terms;
-
-        /// Market metadata (IPFS Multihash)
-        string meta;
-
-        /// Current market maker address.
-        address maker;
-
-        /// Security deposit required by data providers (sellers) to join the market.
-        uint256 providerSecurity;
-
-        /// Security deposit required by data consumers (buyers) to join the market.
-        uint256 consumerSecurity;
-
-        /// Market fee rate for the market operator.
-        uint256 marketFee;
-
-        /// Adresses of provider (seller) actors joined in the market.
-        address[] providerActorAdrs;
-
-        /// Adresses of consumer (buyer) actors joined in the market.
-        address[] consumerActorAdrs;
-
-        /// Provider (seller) actors joined in the market by actor address.
-        mapping(address => Actor) providerActors;
-
-        /// Consumer (buyer) actors joined in the market by actor address.
-        mapping(address => Actor) consumerActors;
-
-        /// Current payment channel by (buyer) delegate.
-        mapping(address => address) currentPaymentChannelByDelegate;
-
-        /// Current paying channel by (seller) delegate.
-        mapping(address => address) currentPayingChannelByDelegate;
-
-    }
-
-    /// Container type for holding paying channel request information.
-    struct PayingChannelRequest {
-        bytes16 marketId;
-        address sender;
-        address delegate;
-        address recipient;
-        uint256 amount;
-        uint32 timeout;
-    }
-
     // //////// events for MEMBERS
 
     /// Event emitted when a new member joined the XBR Network.
-    event MemberCreated (address indexed member, uint registered, string eula, string profile, MemberLevel level);
+    event MemberCreated (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
@@ -175,6 +75,8 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
+    // Note: closing event of payment channels are emitted from XBRChannel (not from here)
+
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -188,10 +90,10 @@ contract XBRNetwork is XBRMaintained {
     address private organization;
 
     /// Current XBR Network members ("member directory").
-    mapping(address => Member) public members;
+    mapping(address => XBRTypes.Member) public members;
 
     /// Current XBR Markets ("market directory")
-    mapping(bytes16 => Market) public markets;
+    mapping(bytes16 => XBRTypes.Market) public markets;
 
     /// List of IDs of current XBR Markets.
     bytes16[] public marketIds;
@@ -214,7 +116,7 @@ contract XBRNetwork is XBRMaintained {
         organization = organization_;
 
         // Technical creator is XBR member (by definition).
-        members[msg.sender] = Member(block.timestamp, "", "", MemberLevel.VERIFIED);
+        members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED);
     }
 
     /**
@@ -235,10 +137,10 @@ contract XBRNetwork is XBRMaintained {
 
         // remember the member
         uint registered = block.timestamp;
-        members[msg.sender] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
+        members[msg.sender] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
 
         // notify observers of new member
-        emit MemberCreated(msg.sender, registered, eula_, profile_, MemberLevel.ACTIVE);
+        emit MemberCreated(msg.sender, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
     }
 
     /**
@@ -275,10 +177,10 @@ contract XBRNetwork is XBRMaintained {
             member, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
-        members[member] = Member(registered, eula_, profile_, MemberLevel.ACTIVE);
+        members[member] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
 
         // notify observers of new member
-        emit MemberCreated(member, registered, eula_, profile_, MemberLevel.ACTIVE);
+        emit MemberCreated(member, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
     }
 
     /**
@@ -286,13 +188,13 @@ contract XBRNetwork is XBRMaintained {
      */
     function unregister () public {
         require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-        require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
-                (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
+        require((uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.ACTIVE)) ||
+                (uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
         // FIXME: check that the member has no active objects associated anymore
         require(false, "NOT_IMPLEMENTED");
 
-        members[msg.sender].level = MemberLevel.RETIRED;
+        members[msg.sender].level = XBRTypes.MemberLevel.RETIRED;
 
         emit MemberRetired(msg.sender);
     }
@@ -307,7 +209,7 @@ contract XBRNetwork is XBRMaintained {
      * @param member The address of the XBR network member to override member level.
      * @param level The member level to set the member to.
      */
-    function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
+    function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
         members[member].level = level;
@@ -335,8 +237,8 @@ contract XBRNetwork is XBRMaintained {
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
         // the market operator (owner) must be a registered member
-        require(members[msg.sender].level == MemberLevel.ACTIVE ||
-                members[msg.sender].level == MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+        require(members[msg.sender].level == XBRTypes.MemberLevel.ACTIVE ||
+                members[msg.sender].level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
 
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
@@ -358,7 +260,7 @@ contract XBRNetwork is XBRMaintained {
 
         // now remember out new market ..
         uint created = block.timestamp;
-        markets[marketId] = Market(created, marketSeq, msg.sender, terms, meta, maker,
+        markets[marketId] = XBRTypes.Market(created, marketSeq, msg.sender, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, new address[](0), new address[](0));
 
         // .. and the market-maker-to-market mapping
@@ -375,7 +277,7 @@ contract XBRNetwork is XBRMaintained {
 
         // notify observers (eg a dormant market maker waiting to be associated)
         emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
-                                providerSecurity, consumerSecurity, marketFee);
+            providerSecurity, consumerSecurity, marketFee);
     }
 
     function countMarkets() public view returns (uint) {
@@ -398,14 +300,14 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
         // must ask for a data provider (seller) or data consumer (buyer)
-        require(actorType == uint8(ActorType.PROVIDER) ||
-                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        if (actorType == uint8(ActorType.CONSUMER)) {
-            Actor storage _actor = markets[marketId].consumerActors[actor];
+        if (actorType == uint8(XBRTypes.ActorType.CONSUMER)) {
+            XBRTypes.Actor storage _actor = markets[marketId].consumerActors[actor];
             return (_actor.joined, _actor.security, _actor.meta);
         } else {
-            Actor storage _actor = markets[marketId].providerActors[actor];
+            XBRTypes.Actor storage _actor = markets[marketId].providerActors[actor];
             return (_actor.joined, _actor.security, _actor.meta);
         }
     }
@@ -502,7 +404,7 @@ contract XBRNetwork is XBRMaintained {
     function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
         // the joining sender must be a registered member
-        require(members[msg.sender].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        require(members[msg.sender].level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -511,13 +413,13 @@ contract XBRNetwork is XBRMaintained {
         require(markets[marketId].owner != msg.sender, "SENDER_IS_OWNER");
 
         // the joining member must join as a data provider (seller) or data consumer (buyer)
-        require(actorType == uint8(ActorType.PROVIDER) ||
-                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
         // get the security amount required for joining the market (if any)
         uint256 security;
         // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
-        if (actorType == uint8(ActorType.PROVIDER)) {
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
             // the joining member must not be joined as a provider already
             require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
             security = markets[marketId].providerSecurity;
@@ -535,11 +437,11 @@ contract XBRNetwork is XBRMaintained {
 
         // remember actor (by actor address) within market
         uint joined = block.timestamp;
-        if (actorType == uint8(ActorType.PROVIDER)) {
-            markets[marketId].providerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
+            markets[marketId].providerActors[msg.sender] = XBRTypes.Actor(joined, security, meta, new address[](0));
             markets[marketId].providerActorAdrs.push(msg.sender);
         } else {
-            markets[marketId].consumerActors[msg.sender] = Actor(joined, security, meta, new address[](0));
+            markets[marketId].consumerActors[msg.sender] = XBRTypes.Actor(joined, security, meta, new address[](0));
             markets[marketId].consumerActorAdrs.push(msg.sender);
         }
 
