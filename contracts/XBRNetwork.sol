@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
@@ -186,7 +186,7 @@ contract XBRNetwork is XBRMaintained {
     struct EIP712MemberRegister {
         uint256 chainId;
         uint256 blockNumber;
-        address verifyingContract;
+        //address verifyingContract;
         address member;
         string eula;
         string profile;
@@ -204,6 +204,9 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /// EIP712 type data.
+    bytes32 private DOMAIN_SEPARATOR;
+
+    /// EIP712 type data.
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
     );
@@ -215,11 +218,9 @@ contract XBRNetwork is XBRMaintained {
 
     /// EIP712 type data.
     bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
-        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
+        //"EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
+        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address member,bytes16 marketId,uint8 actorType,string meta)"
     );
-
-    /// EIP712 type data.
-    bytes32 private DOMAIN_SEPARATOR;
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
@@ -248,6 +249,31 @@ contract XBRNetwork is XBRMaintained {
     /// Index: market owner address => [market ID]
     mapping(address => bytes16[]) public marketsByOwner;
 
+    /**
+     * Split a signature given as a bytes string into components.
+     */
+    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
+        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
+
+        //  // first 32 bytes, after the length prefix
+        //  r := mload(add(sig, 32))
+        //  // second 32 bytes
+        //  s := mload(add(sig, 64))
+        //  // final byte (first byte of the next 32 bytes)
+        //  v := byte(0, mload(add(sig, 96)))
+        assembly
+        {
+            r := mload(add(signature_rsv, 32))
+            s := mload(add(signature_rsv, 64))
+            v := and(mload(add(signature_rsv, 65)), 255)
+        }
+        if (v < 27) {
+            v += 27;
+        }
+
+        return (v, r, s);
+    }
+
     function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_DOMAIN_TYPEHASH,
@@ -258,6 +284,73 @@ contract XBRNetwork is XBRMaintained {
         ));
     }
 
+    function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_REGISTER_TYPEHASH,
+            obj.chainId,
+            obj.blockNumber,
+            //obj.verifyingContract,
+            obj.member,
+            keccak256(bytes(obj.eula)),
+            keccak256(bytes(obj.profile))
+        ));
+    }
+
+    function hash (EIP712MarketJoin memory obj) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_REGISTER_TYPEHASH,
+            obj.chainId,
+            obj.blockNumber,
+            //obj.verifyingContract,
+            obj.member,
+            obj.marketId,
+            obj.actorType,
+            keccak256(bytes(obj.meta))
+        ));
+    }
+
+    function verify (address signer, EIP712Domain memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712MarketJoin memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
     /**
      * Create a new network.
      *
@@ -266,12 +359,12 @@ contract XBRNetwork is XBRMaintained {
      */
     constructor (address token_, address organization_) public {
 
-        // FIXME
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "XBR",
             version: "1",
+            // FIXME: read chain ID at run-time (if possible)
             chainId: 1,
-            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+            verifyingContract: address(this)
         }));
 
         token = XBRToken(token_);
@@ -306,84 +399,6 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /**
-     * Split a signature given as a bytes string into components.
-     */
-    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
-        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
-
-        //  // first 32 bytes, after the length prefix
-        //  r := mload(add(sig, 32))
-        //  // second 32 bytes
-        //  s := mload(add(sig, 64))
-        //  // final byte (first byte of the next 32 bytes)
-        //  v := byte(0, mload(add(sig, 96)))
-        assembly
-        {
-            r := mload(add(signature_rsv, 32))
-            s := mload(add(signature_rsv, 64))
-            v := and(mload(add(signature_rsv, 65)), 255)
-        }
-        if (v < 27) {
-            v += 27;
-        }
-
-        return (v, r, s);
-    }
-
-    function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_MEMBER_REGISTER_TYPEHASH,
-            obj.chainId,
-            obj.blockNumber,
-            obj.verifyingContract,
-            obj.member,
-            keccak256(bytes(obj.eula)),
-            keccak256(bytes(obj.profile))
-        ));
-    }
-
-    function hash (EIP712MarketJoin memory obj) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_MEMBER_REGISTER_TYPEHASH,
-            obj.chainId,
-            obj.blockNumber,
-            obj.verifyingContract,
-            obj.member,
-            obj.marketId,
-            obj.actorType,
-            keccak256(bytes(obj.meta))
-        ));
-    }
-
-    function verify (address signer, EIP712MemberRegister memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-    }
-
-    function verify (address signer, EIP712MarketJoin memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-    }
-
-    /**
      * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
      * XBR Data Consumers and XBR Data Market Operators, must first register
      * with the XBR Network on the global blockchain by calling this function.
@@ -412,8 +427,10 @@ contract XBRNetwork is XBRMaintained {
 
         // FIXME: check profile
 
-        // FIXME: check signature:
-        require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
+        // FIXME:
+        // require(verify(member, EIP712MemberRegister(1, registered, address(this), member, eula_, profile_), signature),
+        //     "INVALID_MEMBER_REGISTER_SIGNATURE");
+        require(verify(member, EIP712MemberRegister(1, registered, member, eula_, profile_), signature),
             "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
@@ -423,37 +440,37 @@ contract XBRNetwork is XBRMaintained {
         emit MemberCreated(member, registered, eula_, profile_, MemberLevel.ACTIVE);
     }
 
-    // /**
-    //  * Leave the XBR Network.
-    //  */
-    // function unregister () public {
-    //     require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-    //     require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
-    //             (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
+    /**
+     * Leave the XBR Network.
+     */
+    function unregister () public {
+        require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+        require((uint8(members[msg.sender].level) == uint8(MemberLevel.ACTIVE)) ||
+                (uint8(members[msg.sender].level) == uint8(MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
-    //     // FIXME: check that the member has no active objects associated anymore
-    //     require(false, "NOT_IMPLEMENTED");
+        // FIXME: check that the member has no active objects associated anymore
+        require(false, "NOT_IMPLEMENTED");
 
-    //     members[msg.sender].level = MemberLevel.RETIRED;
+        members[msg.sender].level = MemberLevel.RETIRED;
 
-    //     emit MemberRetired(msg.sender);
-    // }
+        emit MemberRetired(msg.sender);
+    }
 
-    // /**
-    //  * Manually override the member level of a XBR Network member. Being able to do so
-    //  * currently serves two purposes:
-    //  *
-    //  * - having a last resort to handle situation where members violated the EULA
-    //  * - being able to manually patch things in error/bug cases
-    //  *
-    //  * @param member The address of the XBR network member to override member level.
-    //  * @param level The member level to set the member to.
-    //  */
-    // function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
-    //     require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    /**
+     * Manually override the member level of a XBR Network member. Being able to do so
+     * currently serves two purposes:
+     *
+     * - having a last resort to handle situation where members violated the EULA
+     * - being able to manually patch things in error/bug cases
+     *
+     * @param member The address of the XBR network member to override member level.
+     * @param level The member level to set the member to.
+     */
+    function setMemberLevel (address member, MemberLevel level) public onlyMaintainer {
+        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
-    //     members[member].level = level;
-    // }
+        members[member].level = level;
+    }
 
     /**
      * Create a new XBR market. The sender of the transaction must be XBR network member
@@ -693,62 +710,72 @@ contract XBRNetwork is XBRMaintained {
         return security;
     }
 
+    // FIXME: adding the following (empty!) function runs into "out of gas" during deployment, even though
+    // deployment without that function succeeds with:
+    //
+    //    > gas used:            5502038
+    //
+    // function joinMarketFor (address member, bytes16 marketId, uint8 actorType,
+    //     string memory meta, bytes memory signature) public returns (uint256) {
+    //         return 0;
+    // }
+
+/*
+
     function joinMarketFor (address member, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 
-        // the joining member must be a registered member
-        require(members[member].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        // // the joining member must be a registered member
+        // require(members[member].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
-        // the market to join must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        // // the market to join must exist
+        // require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
-        // the market owner cannot join as an actor (provider/consumer) in the market
-        require(markets[marketId].owner != member, "SENDER_IS_OWNER");
+        // // the market owner cannot join as an actor (provider/consumer) in the market
+        // require(markets[marketId].owner != member, "SENDER_IS_OWNER");
 
-        // the joining member must join as a data provider (seller) or data consumer (buyer)
-        require(actorType == uint8(ActorType.PROVIDER) ||
-                actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        // // the joining member must join as a data provider (seller) or data consumer (buyer)
+        // require(actorType == uint8(ActorType.PROVIDER) ||
+        //         actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        // get the security amount required for joining the market (if any)
-        uint256 security;
+        // // get the security amount required for joining the market (if any)
+        uint256 security = 0;
 
-        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
-        if (actorType == uint8(ActorType.PROVIDER)) {
-            // the joining member must not be joined as a provider already
-            require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
-            security = markets[marketId].providerSecurity;
-        } else  {
-            // the joining member must not be joined as a consumer already
-            require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
-            security = markets[marketId].consumerSecurity;
-        }
+        // if (actorType == uint8(ActorType.PROVIDER)) {
+        //     // the joining member must not be joined as a provider already
+        //     require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
+        //     security = markets[marketId].providerSecurity;
+        // } else  {
+        //     // the joining member must not be joined as a consumer already
+        //     require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
+        //     security = markets[marketId].consumerSecurity;
+        // }
 
-        require(verify(member, EIP712MarketJoin(1, 1, address(this), member, marketId, actorType, meta), signature),
-            "INVALID_MARKET_JOIN_SIGNATURE");
+        // require(verify(member, EIP712MarketJoin(1, 1, address(this), member, marketId, actorType, meta), signature),
+        //     "INVALID_MARKET_JOIN_SIGNATURE");
 
-        if (security > 0) {
-            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = token.transferFrom(member, markets[marketId].owner, security);
-            require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
-        }
+        // if (security > 0) {
+        //     // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
+        //     bool success = token.transferFrom(member, markets[marketId].owner, security);
+        //     require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        // }
 
-        // remember actor (by actor address) within market
-        uint joined = block.timestamp;
-        if (actorType == uint8(ActorType.PROVIDER)) {
-            markets[marketId].providerActors[member] = Actor(joined, security, meta, new address[](0));
-            markets[marketId].providerActorAdrs.push(member);
-        } else {
-            markets[marketId].consumerActors[member] = Actor(joined, security, meta, new address[](0));
-            markets[marketId].consumerActorAdrs.push(member);
-        }
+        // // remember actor (by actor address) within market
+        // uint joined = block.timestamp;
+        // if (actorType == uint8(ActorType.PROVIDER)) {
+        //     markets[marketId].providerActors[member] = Actor(joined, security, meta, new address[](0));
+        //     markets[marketId].providerActorAdrs.push(member);
+        // } else {
+        //     markets[marketId].consumerActors[member] = Actor(joined, security, meta, new address[](0));
+        //     markets[marketId].consumerActorAdrs.push(member);
+        // }
 
-        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
-        //                        uint256 security, string meta)
-        emit ActorJoined(marketId, member, actorType, joined, security, meta);
+        // emit ActorJoined(marketId, member, actorType, joined, security, meta);
 
         // return effective security transferred
         return security;
     }
+*/
 
     // /**
     //  * As a market actor (participant) currently member of a market, leave that market.
@@ -872,7 +899,6 @@ contract XBRNetwork is XBRMaintained {
      * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
      * @param timeout Channel timeout which will apply.
      */
-     /*
     function openPayingChannel (bytes16 marketId, address recipient, address delegate,
         uint256 amount, uint32 timeout) public returns (address paymentChannel) {
 
@@ -915,7 +941,6 @@ contract XBRNetwork is XBRMaintained {
 
         return address(channel);
     }
-    */
 
     /**
      * Lookup all provider actors in a XBR Market.

@@ -30,8 +30,8 @@ module.exports = function (deployer, network, accounts) {
         gas = 0xfffffffffff;
     } else {
         // gas = 6900000;
-        // gas = 0x1fffffffffffff;
-        gas = 9800000;
+        // gas = "9999900858070000000000";
+        gas = 10000000;
     }
 
     const organization = accounts[0];

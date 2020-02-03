@@ -234,19 +234,29 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-    it('XBRNetwork.register_for() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
+    it('XBRNetwork.registerFor() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
 
         const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
-        const member = w3_utils.toChecksumAddress('0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9');
-        const member_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
+        //const member = accounts[5].address;
+        //const member_key = accounts[5].privateKey;
+
+        //const member = w3_utils.toChecksumAddress('0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9');
+        //const member_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
+
+        const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
+        const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
+
+        console.log('XBRNetwork.registerFor(): member=' + member + ', member_key=' + member_key);
 
         const registered = 1;
         const msg = {
             'chainId': 1,
             'blockNumber': registered,
-            'verifyingContract': network.address,
+            // FIXME
+            //'verifyingContract': network.address,
+            //'verifyingContract': '0x0',
             'member': member,
             'eula': eula,
             'profile': profile,
