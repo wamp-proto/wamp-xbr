@@ -23,6 +23,7 @@ pragma experimental ABIEncoderV2;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./XBRToken.sol";
+import "./XBRTypes.sol";
 import "./XBRMaintained.sol";
 import "./XBRChannel.sol";
 
@@ -174,54 +175,6 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    /// EIP712 type.
-    struct EIP712Domain {
-        string  name;
-        string  version;
-        uint256 chainId;
-        address verifyingContract;
-    }
-
-    /// EIP712 type.
-    struct EIP712MemberRegister {
-        uint256 chainId;
-        uint256 blockNumber;
-        address verifyingContract;
-        address member;
-        string eula;
-        string profile;
-    }
-
-    /// EIP712 type.
-    struct EIP712MarketJoin {
-        uint256 chainId;
-        uint256 blockNumber;
-        address verifyingContract;
-        address member;
-        bytes16 marketId;
-        uint8 actorType;
-        string meta;
-    }
-
-    /// EIP712 type data.
-    bytes32 private DOMAIN_SEPARATOR;
-
-    /// EIP712 type data.
-
-    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-    );
-
-    /// EIP712 type data.
-    bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
-    );
-
-    /// EIP712 type data.
-    bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
-        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
-    );
-
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -250,123 +203,12 @@ contract XBRNetwork is XBRMaintained {
     mapping(address => bytes16[]) public marketsByOwner;
 
     /**
-     * Split a signature given as a bytes string into components.
-     */
-    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
-        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
-
-        //  // first 32 bytes, after the length prefix
-        //  r := mload(add(sig, 32))
-        //  // second 32 bytes
-        //  s := mload(add(sig, 64))
-        //  // final byte (first byte of the next 32 bytes)
-        //  v := byte(0, mload(add(sig, 96)))
-        assembly
-        {
-            r := mload(add(signature_rsv, 32))
-            s := mload(add(signature_rsv, 64))
-            v := and(mload(add(signature_rsv, 65)), 255)
-        }
-        if (v < 27) {
-            v += 27;
-        }
-
-        return (v, r, s);
-    }
-
-    function hash(EIP712Domain memory domain_) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_DOMAIN_TYPEHASH,
-            keccak256(bytes(domain_.name)),
-            keccak256(bytes(domain_.version)),
-            domain_.chainId,
-            domain_.verifyingContract
-        ));
-    }
-
-    function hash (EIP712MemberRegister memory obj) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_MEMBER_REGISTER_TYPEHASH,
-            obj.chainId,
-            obj.blockNumber,
-            obj.verifyingContract,
-            obj.member,
-            keccak256(bytes(obj.eula)),
-            keccak256(bytes(obj.profile))
-        ));
-    }
-
-    function hash (EIP712MarketJoin memory obj) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_MARKET_JOIN_TYPEHASH,
-            obj.chainId,
-            obj.blockNumber,
-            obj.verifyingContract,
-            obj.member,
-            obj.marketId,
-            obj.actorType,
-            keccak256(bytes(obj.meta))
-        ));
-    }
-/*
-    function verify (address signer, EIP712Domain memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-    }
-*/
-    function verify (address signer, EIP712MemberRegister memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-    }
-
-    function verify (address signer, EIP712MarketJoin memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-    }
-
-    /**
      * Create a new network.
      *
      * @param token_ The token to run this network on.
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
-
-        DOMAIN_SEPARATOR = hash(EIP712Domain({
-            name: "XBR",
-            version: "1",
-            // FIXME: read chain ID at run-time (if possible)
-            chainId: 1,
-            //verifyingContract: address(this)
-            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
-        }));
 
         token = XBRToken(token_);
         organization = organization_;
@@ -429,7 +271,7 @@ contract XBRNetwork is XBRMaintained {
         // FIXME: check profile
 
         // FIXME:
-        require(verify(member, EIP712MemberRegister(1, registered, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
+        require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(1, registered, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
             member, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
