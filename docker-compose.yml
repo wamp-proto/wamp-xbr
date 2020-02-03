@@ -2,51 +2,14 @@ version: '3'
 services:
 
     ganache:
-        # https://github.com/trufflesuite/ganache-cli/issues/593
-        # image: trufflesuite/ganache-cli:v6.2.4
-        # image: trufflesuite/ganache-cli:v6.5.1
-        image: trufflesuite/ganache-cli:v6.7.0
-        # UID:GID => id -u, id -g
-        user: "1000:1000"
-        network_mode: host
-        #ports:
-        #    - "8545:8545"
-        #    - "7545:8545"
-        volumes:
-            # mount a data location from the host into the container - read-write
-            - "${PWD}/teststack/ganache/.data:/ganache:rw"
-        command:
-            # https://github.com/trufflesuite/ganache-cli#using-ganache-cli
-            - "--accounts"
-            - "20"
-            - "--defaultBalanceEther"
-            - "10000"
-            # - "--deterministic"
-            - "--mnemonic"
-            - "myth like bonus scare over problem client lizard pioneer submit female collect"
-            #- "--gasLimit"
-            #- "0xfffffffffff"
-            #- "--gasPrice"
-            #- "1"
-            - "--gasLimit"
-            - "8000000"
-            - "--gasPrice"
-            - "9000000000"
-            - "--port"
-            - "1545"
-            - "--networkId"
-            - "5777"
-            - "--db"
-            - "/ganache"
+        #image: trufflesuite/ganache-cli:v6.7.0
+        #volumes:
+        #    - "${PWD}/docker/data:/ganache:rw"
 
-    # this is for temporarily running a new blockchain, deploying xbr contracts into
-    # and creating a docker image from the pre-initialized blockchain
-    ganache_blockchain:
-        image: trufflesuite/ganache-cli:v6.7.0
+        image: trufflesuite/ganache-cli:v6.9.0
+
         user: "1000:1000"
         network_mode: host
-        volumes:
-            - "${PWD}/docker/data:/ganache:rw"
         command:
             - "--accounts"
             - "20"
@@ -55,16 +18,25 @@ services:
             - "--mnemonic"
             #- "${XBR_HDWALLET_SEED}"
             - "myth like bonus scare over problem client lizard pioneer submit female collect"
+
+            # https://ethereum.stackexchange.com/questions/62466/how-to-set-maximum-block-gas-in-ganache-cli
+            #- "--gasLimit"
+            #- "0xfffffffffff"
+            #- "0x1fffffffffffff"
+            #- "--gasPrice"
+            #- "1"
+
             - "--gasLimit"
-            - "0xfffffffffff"
-            - "--gasPrice"
-            - "1"
+            - "10000000"
+            #- "--gasPrice"
+            #- "9000000000"
+
             - "--port"
             - "1545"
             - "--networkId"
             - "5777"
-            - "--db"
-            - "/ganache"
+            #- "--db"
+            #- "/ganache"
 
     # docker attach
     truffle:

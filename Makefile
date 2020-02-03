@@ -149,14 +149,6 @@ publish_ipfs_members:
 #
 # Ganache test blockchain as docker container "xbr-protocol_ganache_1"
 #
-run_ganache:
-	docker-compose up --force-recreate ganache
-
-clean_ganache:
-	-docker rm xbr-protocol_ganache_1
-	-rm -rf ./teststack/ganache/.data
-	mkdir -p ./teststack/ganache/.data
-
 
 # The following is for building our development blockchain docker image, which is
 # Ganache + deployed XBR smart contracts + initial balances for testaccounts (both ETH and XBR).
@@ -184,30 +176,31 @@ clean_ganache:
 #
 
 # clean file staging area to create blockchain docker image
-clean_ganache_blockchain:
-	-rm -rf docker/data/*
+clean_ganache:
+	-rm -rf ./docker/data/
+	mkdir ./docker/data/
 
 # run a blockchain from the empty staging area
-run_ganache_blockchain:
+run_ganache:
 	# sudo chown -R 1000:1000 docker/data/
-	docker-compose up --force-recreate ganache_blockchain
+	docker-compose up --force-recreate ganache
 
 # deploy xbr smart contract to blockchain
-deploy_ganache_blockchain:
+deploy_ganache:
 	$(TRUFFLE) migrate --reset --network ganache
 
 # initialize blockchain data
-init_ganache_blockchain:
+init_ganache:
 	XBR_DEBUG_TOKEN_ADDR=0xcfeb869f69431e42cdb54a4f4f105c19c080a601 \
 	XBR_DEBUG_NETWORK_ADDR=0x254dffcd3277c0b1660f6d42efbb754edababc2b \
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
 # build a blockchain (ganache based) docker image using the initialized data from the staging area
-build_ganache_blockchain:
+build_ganache:
 	cd docker && docker build -t crossbario/crossbarfx-blockchain:latest -f Dockerfile.ganache .
 
 # publish locally created docker image with xbr-preinitialized ganache blockchain
-publish_ganache_blockchain:
+publish_ganache:
 	docker push crossbario/crossbarfx-blockchain:latest
 
 

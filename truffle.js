@@ -59,16 +59,19 @@ module.exports = {
         }
     },
 
+    // https://www.trufflesuite.com/docs/truffle/reference/configuration#solc
+    // https://github.com/trufflesuite/truffle-compile/issues/7#issuecomment-449629758
     compilers: {
         solc: {
-            version: "0.5.2"
-        }
-    },
-
-    solc: {
-        optimizer: {
-            enabled: true,
-            runs: 200
+            version: "0.5.16",
+            settings: {
+                optimizer: {
+                    enabled: true,
+                    runs: 200
+                }
+                // Can be homestead, tangerineWhistle, spuriousDragon, byzantium, constantinople, petersburg, istanbul or berlin
+                // evmVersion: "constantinople"
+            }
         }
     },
 
