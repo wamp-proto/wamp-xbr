@@ -95,10 +95,16 @@ coverage:
 	truffle run coverage
 
 compile:
+	$(TRUFFLE) compile --all
+	cp build/contracts/*.json ./abi/
+	python ./check-abi-files.py
+
+compile_dist:
 	-rm ./abi/*.json
 	-rm ./build/contracts/*.json
 	$(TRUFFLE) compile --all
 	cp build/contracts/*.json ./abi/
+	python ./check-abi-files.py
 	rm ./abi/XBRTest.json
 	find ./abi
 	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
