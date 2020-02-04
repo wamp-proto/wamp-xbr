@@ -168,6 +168,12 @@ contract('XBRNetwork', accounts => {
             await network.register(eula, profile, {from: donald, gasLimit: gasLimit});
         }
 
+        const _edith = await network.members(edith);
+        const _edith_level = _edith.level.toNumber();
+        if (_edith_level == MemberLevel_NULL) {
+            await network.register(eula, profile, {from: edith, gasLimit: gasLimit});
+        }
+
         const _frank = await network.members(frank);
         const _frank_level = _frank.level.toNumber();
         if (_frank_level == MemberLevel_NULL) {
@@ -417,9 +423,10 @@ contract('XBRNetwork', accounts => {
         // "donald" is accounts[7], and the private key for that is:
         //const member = donald;
         //const member_key = '0xa453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3';
-        const member = frank;
-        const member_key = '0xd99b5b29e6da2528bf458b26237a6cf8655a3e3276c1cdc0de1f98cefee81c01';
-        // account[10]
+        //const member = frank;
+        //const member_key = '0xd99b5b29e6da2528bf458b26237a6cf8655a3e3276c1cdc0de1f98cefee81c01';
+        const member = edith;
+        const member_key = '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773';
         // const member = w3_utils.toChecksumAddress('0x610Bb1573d1046FCb8A70Bbbd395754cD57C2b60');
         // const member_key = '0x77c5495fbb039eed474fc940f29955ed0531693cc9212911efd35dff0373153f';
 
