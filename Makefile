@@ -114,7 +114,10 @@ compile_dist:
 	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
 deploy:
-	$(TRUFFLE) migrate --reset --network ganache
+	@echo
+	@python ./check-abi-files.py
+	@echo
+	@$(TRUFFLE) migrate --reset --network ganache
 
 deploy_ropsten_dryrun:
 	$(TRUFFLE) migrate --reset --network ropsten --dry-run

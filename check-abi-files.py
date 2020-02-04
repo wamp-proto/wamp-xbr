@@ -16,5 +16,5 @@ for fn in os.listdir('abi'):
             warn = True
         else:
             warn = False
-        print('ABI file "{:<30}" bytecode= {:<6} bytes, deployedBytecode= {:<6} bytes {}'.format(
-            fn, bytecode, deployedBytecode, '  WARNING - maximum deployed contract size of 24kB exceeded' if warn else ''))
+        print('ABI file {:<30} bytecode= {:<6} bytes, deployedBytecode= {:<6} bytes {}'.format(
+            '"' + fn + '"', bytecode, deployedBytecode, '  WARNING - maximum deployed contract size of 24kB exceeded' if warn else ''))

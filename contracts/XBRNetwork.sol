@@ -75,8 +75,6 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    // Note: closing event of payment channels are emitted from XBRChannel (not from here)
-
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -186,18 +184,18 @@ contract XBRNetwork is XBRMaintained {
     /**
      * Leave the XBR Network.
      */
-    function unregister () public {
-        require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-        require((uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.ACTIVE)) ||
-                (uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
+    // function unregister () public {
+    //     require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    //     require((uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.ACTIVE)) ||
+    //             (uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
 
-        // FIXME: check that the member has no active objects associated anymore
-        require(false, "NOT_IMPLEMENTED");
+    //     // FIXME: check that the member has no active objects associated anymore
+    //     require(false, "NOT_IMPLEMENTED");
 
-        members[msg.sender].level = XBRTypes.MemberLevel.RETIRED;
+    //     members[msg.sender].level = XBRTypes.MemberLevel.RETIRED;
 
-        emit MemberRetired(msg.sender);
-    }
+    //     emit MemberRetired(msg.sender);
+    // }
 
     /**
      * Manually override the member level of a XBR Network member. Being able to do so
@@ -209,11 +207,11 @@ contract XBRNetwork is XBRMaintained {
      * @param member The address of the XBR network member to override member level.
      * @param level The member level to set the member to.
      */
-    function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
-        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    // function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
+    //     require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
-        members[member].level = level;
-    }
+    //     members[member].level = level;
+    // }
 
     /**
      * Create a new XBR market. The sender of the transaction must be XBR network member
@@ -453,72 +451,61 @@ contract XBRNetwork is XBRMaintained {
         return security;
     }
 
-    // FIXME: adding the following (empty!) function runs into "out of gas" during deployment, even though
-    // deployment without that function succeeds with:
-    //
-    //    > gas used:            5502038
-    //
-    // function joinMarketFor (address member, bytes16 marketId, uint8 actorType,
-    //     string memory meta, bytes memory signature) public returns (uint256) {
-    //         return 0;
-    // }
-
-/*
-
-    function joinMarketFor (address member, bytes16 marketId, uint8 actorType,
+    function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 
-        // // the joining member must be a registered member
-        // require(members[member].level == MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        // the joining member must be a registered member
+        require(members[member].level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
-        // // the market to join must exist
-        // require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+        // the market to join must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
-        // // the market owner cannot join as an actor (provider/consumer) in the market
-        // require(markets[marketId].owner != member, "SENDER_IS_OWNER");
+        // the market owner cannot join as an actor (provider/consumer) in the market
+        require(markets[marketId].owner != member, "SENDER_IS_OWNER");
 
-        // // the joining member must join as a data provider (seller) or data consumer (buyer)
-        // require(actorType == uint8(ActorType.PROVIDER) ||
-        //         actorType == uint8(ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+        // the joining member must join as a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        // // get the security amount required for joining the market (if any)
+        // FIXME: check "joined"
+
+        // get the security amount required for joining the market (if any)
         uint256 security = 0;
 
-        // if (actorType == uint8(ActorType.PROVIDER)) {
-        //     // the joining member must not be joined as a provider already
-        //     require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
-        //     security = markets[marketId].providerSecurity;
-        // } else  {
-        //     // the joining member must not be joined as a consumer already
-        //     require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
-        //     security = markets[marketId].consumerSecurity;
-        // }
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
+            // the joining member must not be joined as a provider already
+            require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
+            security = markets[marketId].providerSecurity;
+        } else  {
+            // the joining member must not be joined as a consumer already
+            require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
+            security = markets[marketId].consumerSecurity;
+        }
 
-        // require(verify(member, EIP712MarketJoin(1, 1, address(this), member, marketId, actorType, meta), signature),
-        //     "INVALID_MARKET_JOIN_SIGNATURE");
+        // FIXME:
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(1, joined, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
+            member, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
-        // if (security > 0) {
-        //     // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-        //     bool success = token.transferFrom(member, markets[marketId].owner, security);
-        //     require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
-        // }
+        if (security > 0) {
+            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
+            bool success = token.transferFrom(member, markets[marketId].owner, security);
+            require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
+        }
 
-        // // remember actor (by actor address) within market
-        // uint joined = block.timestamp;
-        // if (actorType == uint8(ActorType.PROVIDER)) {
-        //     markets[marketId].providerActors[member] = Actor(joined, security, meta, new address[](0));
-        //     markets[marketId].providerActorAdrs.push(member);
-        // } else {
-        //     markets[marketId].consumerActors[member] = Actor(joined, security, meta, new address[](0));
-        //     markets[marketId].consumerActorAdrs.push(member);
-        // }
+        // remember actor (by actor address) within market
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
+            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, security, meta, new address[](0));
+            markets[marketId].providerActorAdrs.push(member);
+        } else {
+            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, security, meta, new address[](0));
+            markets[marketId].consumerActorAdrs.push(member);
+        }
 
-        // emit ActorJoined(marketId, member, actorType, joined, security, meta);
+        emit ActorJoined(marketId, member, actorType, joined, security, meta);
 
         // return effective security transferred
         return security;
     }
-*/
 
     // /**
     //  * As a market actor (participant) currently member of a market, leave that market.
