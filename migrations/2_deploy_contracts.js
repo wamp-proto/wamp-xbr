@@ -14,6 +14,7 @@
 var XBRToken = artifacts.require("./XBRToken.sol");
 var XBRNetwork = artifacts.require("./XBRNetwork.sol");
 var XBRTest = artifacts.require("./XBRTest.sol");
+var XBRTypes = artifacts.require("./XBRTypes.sol");
 // var XBRPaymentChannel = artifacts.require("./XBRPaymentChannel.sol");
 // var XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
 
@@ -38,7 +39,15 @@ module.exports = function (deployer, network, accounts) {
 
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
+    deployer.deploy(XBRTypes);
+    deployer.link(XBRTypes, XBRNetwork);
+
     // Deploy XBRToken, then deploy XBRNetwork, passing in XBRToken's newly deployed address
+    /*
+    deployer.deploy(XBRToken);
+    deployer.link(XBRToken, XBRNetwork);
+    deployer.deploy(XBRNetwork, XBRToken.address, organization);
+    */
     deployer.deploy(XBRToken, {gas: gas, from: organization}).then(function() {
         return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
     });

@@ -25,3 +25,5 @@ scTopics
 package-lock.json
 geth/privchain
 docker/data
+.coverage_contracts/
+.coverage_artifacts/

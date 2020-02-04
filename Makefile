@@ -95,10 +95,17 @@ coverage:
 	truffle run coverage
 
 compile:
+	$(TRUFFLE) compile --all
+	cp build/contracts/*.json ./abi/
+	rm -f ./abi/XBRTest.json
+	python ./check-abi-files.py
+
+compile_dist:
 	-rm ./abi/*.json
 	-rm ./build/contracts/*.json
 	$(TRUFFLE) compile --all
 	cp build/contracts/*.json ./abi/
+	python ./check-abi-files.py
 	rm ./abi/XBRTest.json
 	find ./abi
 	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
@@ -107,7 +114,10 @@ compile:
 	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
 deploy:
-	$(TRUFFLE) migrate --reset --network ganache
+	@echo
+	@python ./check-abi-files.py
+	@echo
+	@$(TRUFFLE) migrate --reset --network ganache
 
 deploy_ropsten_dryrun:
 	$(TRUFFLE) migrate --reset --network ropsten --dry-run
