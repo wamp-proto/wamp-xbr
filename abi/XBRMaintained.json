@@ -2492,7 +2492,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-02-03T17:41:07.429Z",
+  "updatedAt": "2020-02-04T06:37:41.966Z",
   "devdoc": {
     "methods": {
       "addMaintainer(address)": {
