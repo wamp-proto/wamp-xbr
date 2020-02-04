@@ -24,7 +24,43 @@ const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 
 
-const DomainData = {
+const EIP712MemberRegisterData = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+        ],
+        EIP712MemberRegister: [
+            {name: 'chainId', type: 'uint256'},
+            {name: 'blockNumber', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'member', type: 'address'},
+            {name: 'eula', type: 'string'},
+            {name: 'profile', type: 'string'},
+        ]
+    },
+    primaryType: 'EIP712MemberRegister',
+    domain: {
+        name: 'XBR',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+    },
+    message: null
+};
+
+
+function create_sig_register(key_, data_) {
+    EIP712MemberRegisterData['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: EIP712MemberRegisterData})
+    return sig;
+}
+
+
+const EIP712MarketJoinData = {
     types: {
         EIP712Domain: [
             { name: 'name', type: 'string' },
@@ -53,13 +89,13 @@ const DomainData = {
 };
 
 
-
-function create_sig(key_, data_) {
-    DomainData['message'] = data_;
+function create_sig_join_market(key_, data_) {
+    EIP712MarketJoinData['message'] = data_;
     var key = eth_util.toBuffer(key_);
-    var sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+    var sig = eth_sig_utils.signTypedData(key, {data: EIP712MarketJoinData})
     return sig;
 }
+
 
 contract('XBRNetwork', accounts => {
 
@@ -173,19 +209,6 @@ contract('XBRNetwork', accounts => {
         if (_edith_level == MemberLevel_NULL) {
             await network.register(eula, profile, {from: edith, gasLimit: gasLimit});
         }
-
-        const _frank = await network.members(frank);
-        const _frank_level = _frank.level.toNumber();
-        if (_frank_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: frank, gasLimit: gasLimit});
-        }
-
-        // const member = w3_utils.toChecksumAddress('0x610Bb1573d1046FCb8A70Bbbd395754cD57C2b60');
-        // const _member = await network.members(member);
-        // const _member_level = _member.level.toNumber();
-        // if (_member_level == MemberLevel_NULL) {
-        //     await network.register(eula, profile, {from: member, gasLimit: gasLimit});
-        // }
     });
 
     /*
@@ -416,21 +439,45 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.joinMarketFor() : provider should join existing market', async () => {
 
-        // the XBR provider we use here
-        const provider = donald;
-
         // FIXME: get private key for account
         // "donald" is accounts[7], and the private key for that is:
         //const member = donald;
         //const member_key = '0xa453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3';
         //const member = frank;
         //const member_key = '0xd99b5b29e6da2528bf458b26237a6cf8655a3e3276c1cdc0de1f98cefee81c01';
-        const member = edith;
-        const member_key = '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773';
+        //const member = edith;
+        //const member_key = '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773';
         // const member = w3_utils.toChecksumAddress('0x610Bb1573d1046FCb8A70Bbbd395754cD57C2b60');
         // const member_key = '0x77c5495fbb039eed474fc940f29955ed0531693cc9212911efd35dff0373153f';
 
-        // XBR market to join
+        const member = w3_utils.toChecksumAddress('0x28a8746e75304c0780E011BEd21C72cD78cd535E');
+        const member_key = '0xa453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3';
+
+        //
+        // Register in network
+        //
+        const _member = await network.members(member);
+        const _member_level = _member.level.toNumber();
+
+        if (_member_level == MemberLevel_NULL) {
+            const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+            const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
+            const registered = 1;
+            const msg_register = {
+                'chainId': 1,
+                'blockNumber': registered,
+                'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+                'member': member,
+                'eula': eula,
+                'profile': profile,
+            };
+            const signature_register = create_sig_register(member_key, msg_register);
+            await network.registerFor(member, registered, eula, profile, signature_register, {from: alice, gasLimit: gasLimit});
+        }
+
+        //
+        // Join the market
+        //
         const meta = "";
 
         // FIXME
@@ -448,7 +495,7 @@ contract('XBRNetwork', accounts => {
         // FIXME
         const joined = 1;
 
-        const msg = {
+        const msg_join_market = {
             'chainId': 1,
             'blockNumber': joined,
             'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
@@ -457,14 +504,14 @@ contract('XBRNetwork', accounts => {
             'actorType': ActorType_PROVIDER,
             'meta': meta,
         }
-        console.log('MESSAGE', msg);
+        console.log('MESSAGE', msg_join_market);
 
         // sign transaction data from "donald" ..
-        const signature = create_sig(member_key, msg);
-        console.log('SIGNATURE', signature);
+        const signature_join_market = create_sig_join_market(member_key, msg_join_market);
+        console.log('SIGNATURE', signature_join_market);
 
         // .. but send transaction from "alice"!
-        const txn = await network.joinMarketFor(member, joined, marketId, ActorType_PROVIDER, meta, signature,
+        const txn = await network.joinMarketFor(member, joined, marketId, ActorType_PROVIDER, meta, signature_join_market,
             {from: alice, gasLimit: gasLimit});
 
         // // check event logs
