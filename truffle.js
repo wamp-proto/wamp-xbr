@@ -55,7 +55,7 @@ module.exports = {
             },
             network_id: 4,
             // https://www.rinkeby.io/#stats
-            gas: 6900000
+            gas: 10000000
         }
     },
 

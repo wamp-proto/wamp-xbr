@@ -167,6 +167,19 @@ contract('XBRNetwork', accounts => {
         if (_donald_level == MemberLevel_NULL) {
             await network.register(eula, profile, {from: donald, gasLimit: gasLimit});
         }
+
+        const _frank = await network.members(frank);
+        const _frank_level = _frank.level.toNumber();
+        if (_frank_level == MemberLevel_NULL) {
+            await network.register(eula, profile, {from: frank, gasLimit: gasLimit});
+        }
+
+        // const member = w3_utils.toChecksumAddress('0x610Bb1573d1046FCb8A70Bbbd395754cD57C2b60');
+        // const _member = await network.members(member);
+        // const _member_level = _member.level.toNumber();
+        // if (_member_level == MemberLevel_NULL) {
+        //     await network.register(eula, profile, {from: member, gasLimit: gasLimit});
+        // }
     });
 
     /*
@@ -402,12 +415,18 @@ contract('XBRNetwork', accounts => {
 
         // FIXME: get private key for account
         // "donald" is accounts[7], and the private key for that is:
-        const provider_key = '0xa453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3';
-        // const provider_key = bob.privateKey;
+        //const member = donald;
+        //const member_key = '0xa453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3';
+        const member = frank;
+        const member_key = '0xd99b5b29e6da2528bf458b26237a6cf8655a3e3276c1cdc0de1f98cefee81c01';
+        // account[10]
+        // const member = w3_utils.toChecksumAddress('0x610Bb1573d1046FCb8A70Bbbd395754cD57C2b60');
+        // const member_key = '0x77c5495fbb039eed474fc940f29955ed0531693cc9212911efd35dff0373153f';
 
         // XBR market to join
         const meta = "";
 
+        // FIXME
         if (false) {
             // remember XBR token balance of network contract before joining market
             const _balance_network_before = await token.balanceOf(network.address);
@@ -416,7 +435,7 @@ contract('XBRNetwork', accounts => {
             await token.transfer(provider, providerSecurity, {from: owner, gasLimit: gasLimit});
 
             // approve transfer of tokens to join market
-            await token.approve(network.address, providerSecurity, {from: provider, gasLimit: gasLimit});
+            await token.approve(network.address, providerSecurity, {from: member, gasLimit: gasLimit});
         }
 
         // FIXME
@@ -426,18 +445,19 @@ contract('XBRNetwork', accounts => {
             'chainId': 1,
             'blockNumber': joined,
             'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
-            'member': provider,
+            'member': member,
             'marketId': marketId,
             'actorType': ActorType_PROVIDER,
             'meta': meta,
         }
         console.log('MESSAGE', msg);
 
-        const signature = create_sig(provider_key, msg);
+        // sign transaction data from "donald" ..
+        const signature = create_sig(member_key, msg);
         console.log('SIGNATURE', signature);
 
-        // XBR provider joins market
-        const txn = await network.joinMarketFor(provider, joined, marketId, ActorType_PROVIDER, meta, signature,
+        // .. but send transaction from "alice"!
+        const txn = await network.joinMarketFor(member, joined, marketId, ActorType_PROVIDER, meta, signature,
             {from: alice, gasLimit: gasLimit});
 
         // // check event logs
@@ -449,20 +469,20 @@ contract('XBRNetwork', accounts => {
 
         // // FIXME
         // // assert.equal(result.args.marketId, marketId, "wrong marketId in event");
-        assert.equal(result.args.actor, provider, "wrong provider address in event");
+        assert.equal(result.args.actor, member, "wrong provider address in event");
         assert.equal(result.args.actorType, ActorType_PROVIDER, "wrong actorType in event");
         assert.equal(result.args.security, providerSecurity, "wrong providerSecurity in event");
 
         const market = await network.markets(marketId);
         // console.log('market', market);
 
-        // const actor = await market.providerActors(provider);
+        // const actor = await market.providerActors(member);
         // console.log('ACTOR', actor);
 
         // const _actorType = await network.getMarketActorType(marketId, network);
         // assert.equal(_actorType.toNumber(), ActorType_PROVIDER, "wrong actorType " + _actorType);
 
-        // const _security = await network.getMarketActorSecurity(marketId, provider);
+        // const _security = await network.getMarketActorSecurity(marketId, member);
         // assert.equal(_security, providerSecurity, "wrong providerSecurity " + _security);
 
         // const _balance_actor = await token.balanceOf(provider);
