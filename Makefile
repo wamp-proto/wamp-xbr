@@ -197,12 +197,12 @@ run_ganache:
 
 # deploy xbr smart contract to blockchain
 deploy_ganache:
+	cp build/contracts/*.json ./abi/
+	python ./check-abi-files.py
 	$(TRUFFLE) migrate --reset --network ganache
 
 # initialize blockchain data
 init_ganache:
-	XBR_DEBUG_TOKEN_ADDR=0xcfeb869f69431e42cdb54a4f4f105c19c080a601 \
-	XBR_DEBUG_NETWORK_ADDR=0x254dffcd3277c0b1660f6d42efbb754edababc2b \
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
 # build a blockchain (ganache based) docker image using the initialized data from the staging area

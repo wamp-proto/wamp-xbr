@@ -2,12 +2,11 @@ version: '3'
 services:
 
     ganache:
-        #image: trufflesuite/ganache-cli:v6.7.0
-        #volumes:
-        #    - "${PWD}/docker/data:/ganache:rw"
-
-        image: trufflesuite/ganache-cli:v6.9.0
-
+        # FIXME: ganache_1   | Error: EXDEV: cross-device link not permitted, rename '/tmp/tmp-1g6J0UVLVMW56' -> '/ganache/!trie_db!0x41c488877f4bd7f076e7a46574f86eb2e58bb101aad9fd4da0dbf9b60ec8c949'
+        # image: trufflesuite/ganache-cli:v6.9.0
+        image: trufflesuite/ganache-cli:v6.7.0
+        volumes:
+            - "${PWD}/docker/data:/ganache:rw"
         user: "1000:1000"
         network_mode: host
         command:
@@ -16,29 +15,18 @@ services:
             - "--defaultBalanceEther"
             - "10000"
             - "--mnemonic"
-            #- "${XBR_HDWALLET_SEED}"
-            - "myth like bonus scare over problem client lizard pioneer submit female collect"
-
-            # https://ethereum.stackexchange.com/questions/62466/how-to-set-maximum-block-gas-in-ganache-cli
-            #- "--gasLimit"
-            #- "0xfffffffffff"
-            #- "0x1fffffffffffff"
-            #- "--gasPrice"
-            #- "1"
-
+            - "${XBR_HDWALLET_SEED}"
             - "--gasLimit"
             - "10000000"
-            #- "--gasPrice"
-            #- "9000000000"
-
+            - "--gasPrice"
+            - "8000000000"
             - "--port"
             - "1545"
             - "--networkId"
             - "5777"
-            #- "--db"
-            #- "/ganache"
+            - "--db"
+            - "/ganache"
 
-    # docker attach
     truffle:
         depends_on:
           - ganache

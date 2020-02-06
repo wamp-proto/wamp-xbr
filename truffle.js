@@ -31,8 +31,8 @@ module.exports = {
             host: "localhost",
 	        port: 1545,
             network_id: "5777",
-            gas: 8000000,
-            gasPrice: 9000000000
+            gas: 10000000,
+            gasPrice: 8000000000,   // 8 gwei
         },
 
         // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e

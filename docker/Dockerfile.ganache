@@ -2,11 +2,13 @@ FROM trufflesuite/ganache-cli:v6.7.0
 
 COPY ./data /blockchain
 
+# gasPrice: 8000000000 // 8 Gwei
+
 ENTRYPOINT [ \
     "node", "/app/ganache-core.docker.cli.js", \
     "--accounts", "20", "--defaultBalanceEther", "10000", \
     "--mnemonic", "myth like bonus scare over problem client lizard pioneer submit female collect", \
-    "--gasLimit", "0xfffffffffff", "--gasPrice", "1", \
+    "--gasLimit", "10000000000", "--gasPrice", "8000000000", \
     "--port", "1545", "--networkId", "5777", \
     "--db", "/blockchain" \
 ]

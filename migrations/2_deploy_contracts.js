@@ -30,13 +30,10 @@ module.exports = function (deployer, network, accounts) {
     if (network === "soliditycoverage") {
         gas = 0xfffffffffff;
     } else {
-        // gas = 6900000;
-        // gas = "9999900858070000000000";
         gas = 10000000;
     }
 
     const organization = accounts[0];
-
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
     deployer.deploy(XBRTypes);
