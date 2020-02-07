@@ -1,3 +1,4 @@
+import os
 import sys
 import web3
 
@@ -9,11 +10,13 @@ import argparse
 
 from autobahn.xbr import generate_seedphrase, check_seedphrase, account_from_seedphrase
 
+if 'XBR_HDWALLET_SEED' not in os.environ:
+    raise RuntimeError('XBR_HDWALLET_SEED not set!')
+_XBR_HDWALLET_SEED = os.environ['XBR_HDWALLET_SEED']
 
-SEEDPHRASE = "myth like bonus scare over problem client lizard pioneer submit female collect"
 ACCOUNTS = []
 for i in range(20):
-    account = account_from_seedphrase(SEEDPHRASE, i)
+    account = account_from_seedphrase(_XBR_HDWALLET_SEED, i)
     ACCOUNTS.append(account)
 
 

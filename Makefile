@@ -10,10 +10,6 @@ SCOUR_FLAGS = --remove-descriptive-elements --enable-comment-stripping --enable-
 AWS_DEFAULT_REGION = eu-central-1
 AWS_S3_BUCKET_NAME = xbr.foundation
 
-XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576"
-XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c"
-
-
 default:
 	@echo 'Targets:'
 	@echo
