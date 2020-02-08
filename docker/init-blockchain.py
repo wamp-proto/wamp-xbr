@@ -85,7 +85,7 @@ def main(w3, eth_target, xbr_target):
     total_eth_transferred = w3.fromWei(total_eth_transferred, 'ether')
     total_xbr_transferred = float(total_xbr_transferred / 10**18)
 
-    print('\nAccounts have been topped up by {} ETH and {} XBR!\n'.format(total_eth_transferred, total_xbr_transferred))
+    print('\nAccounts have been topped up by a total amount of {} ETH and {} XBR!\n'.format(total_eth_transferred, total_xbr_transferred))
 
     _print_balances(w3)
 

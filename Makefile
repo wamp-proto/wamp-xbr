@@ -164,48 +164,41 @@ publish_ipfs_members:
 #
 # The deploying onwer is derived from a seedphrase read from an env var:
 #
-# 	export XBR_HDWALLET_SEED="..."
+# 	export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pioneer submit female collect"
 #
 # and results in contract addresses:
 #
-# 	export XBR_DEBUG_TOKEN_ADDR="0x78890bF748639B82D225FA804553FcDBe5819576"
-# 	export XBR_DEBUG_NETWORK_ADDR="0x96f2b95733066aD7982a7E8ce58FC91d12bfbB2c"
-#
-# Then, 20 test accounts are setup from this seed phrase:
-#
-# 	"myth like bonus scare over problem client lizard pioneer submit female collect"
-#
-# The resulting XBR blockchain docker image is published to:
+# 	export XBR_DEBUG_TOKEN_ADDR=0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+# 	export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
 #
 # public: 	https://hub.docker.com/r/crossbario/crossbarfx-blockchain
 # admin:  	https://cloud.docker.com/u/crossbario/repository/docker/crossbario/crossbarfx-blockchain
-#
 
-# clean file staging area to create blockchain docker image
+# 1) clean file staging area to create blockchain docker image
 clean_ganache:
 	-rm -rf ./docker/data/
 	mkdir ./docker/data/
 
-# run a blockchain from the empty staging area
+# 2) run a blockchain from the empty staging area
 run_ganache:
 	# sudo chown -R 1000:1000 docker/data/
 	docker-compose up --force-recreate ganache
 
-# deploy xbr smart contract to blockchain
+# 3) deploy xbr smart contract to blockchain
 deploy_ganache:
 	cp build/contracts/*.json ./abi/
 	python ./check-abi-files.py
 	$(TRUFFLE) migrate --reset --network ganache
 
-# initialize blockchain data
+# 4) initialize blockchain data
 init_ganache:
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
-# build a blockchain (ganache based) docker image using the initialized data from the staging area
+# 5) build a blockchain (ganache based) docker image using the initialized data from the staging area
 build_ganache:
 	cd docker && docker build -t crossbario/crossbarfx-blockchain:latest -f Dockerfile.ganache .
 
-# publish locally created docker image with xbr-preinitialized ganache blockchain
+# 6) publish locally created docker image with xbr-preinitialized ganache blockchain
 publish_ganache:
 	docker push crossbario/crossbarfx-blockchain:latest
 
