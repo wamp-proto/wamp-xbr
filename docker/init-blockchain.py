@@ -71,23 +71,24 @@ def _top_up(w3, accounts, eth_amount, xbr_amount):
     return total_eth_transferred, total_xbr_transferred
 
 
-def main(w3, eth_target, xbr_target):
+def main(w3, eth_target, xbr_target, showonly=False):
     print('Using XBR token contract address: {}'.format(xbr.xbrtoken.address))
     print('Using XBR network contract address: {}'.format(xbr.xbrnetwork.address))
 
     _print_balances(w3)
 
-    total_eth_transferred, total_xbr_transferred = _top_up(w3,
-                                                           ACCOUNTS,
-                                                           w3.toWei(eth_target, 'ether'),
-                                                           xbr_target * 10**18)
+    if not showonly:
+        total_eth_transferred, total_xbr_transferred = _top_up(w3,
+                                                            ACCOUNTS,
+                                                            w3.toWei(eth_target, 'ether'),
+                                                            xbr_target * 10**18)
 
-    total_eth_transferred = w3.fromWei(total_eth_transferred, 'ether')
-    total_xbr_transferred = float(total_xbr_transferred / 10**18)
+        total_eth_transferred = w3.fromWei(total_eth_transferred, 'ether')
+        total_xbr_transferred = float(total_xbr_transferred / 10**18)
 
-    print('\nAccounts have been topped up by a total amount of {} ETH and {} XBR!\n'.format(total_eth_transferred, total_xbr_transferred))
+        print('\nAccounts have been topped up by a total amount of {} ETH and {} XBR!\n'.format(total_eth_transferred, total_xbr_transferred))
 
-    _print_balances(w3)
+        _print_balances(w3)
 
 
 
@@ -101,6 +102,12 @@ if __name__ == '__main__':
                         type=str,
                         default=None,
                         help='Ethereum HTTP gateway URL or None for auto-select (default: -, means let web3 auto-select).')
+
+    parser.add_argument('--showonly',
+                        dest='showonly',
+                        action='store_true',
+                        default=False,
+                        help='Do not top up accounts, but only show current ETH and XBR balances of accounts.')
 
     args = parser.parse_args()
 
@@ -120,5 +127,5 @@ if __name__ == '__main__':
     # set new provider on XBR library
     xbr.setProvider(w3)
 
-    # now enter main ..
-    main(w3, 20, 20000)
+    # now enter main, topping up accounts to 20 ETH and 20,000 XBR
+    main(w3, 20, 20000, showonly=args.showonly)

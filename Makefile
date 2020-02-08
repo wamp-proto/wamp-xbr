@@ -195,12 +195,29 @@ init_ganache:
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
 # 5) build a blockchain (ganache based) docker image using the initialized data from the staging area
-build_ganache:
-	cd docker && docker build -t crossbario/crossbarfx-blockchain:latest -f Dockerfile.ganache .
+build_ganache_docker:
+	cd docker && \
+	docker build \
+		-t crossbario/crossbarfx-blockchain:${XBR_PROTOCOL_VERSION} \
+		-t crossbario/crossbarfx-blockchain:latest \
+		-f Dockerfile.ganache \
+		.
 
 # 6) publish locally created docker image with xbr-preinitialized ganache blockchain
-publish_ganache:
+publish_ganache_docker:
+	docker push crossbario/crossbarfx-blockchain:${XBR_PROTOCOL_VERSION}
 	docker push crossbario/crossbarfx-blockchain:latest
+
+###########
+
+# run the built "ganache with XBR" image
+run_ganache_docker:
+	# sudo chown -R 1000:1000 docker/data/
+	docker-compose up --force-recreate ganache_xbr
+
+# show balances of ETH and XBR on test accounts in ganache
+check_ganache:
+	python docker/init-blockchain.py --showonly --gateway http://localhost:1545
 
 
 #
