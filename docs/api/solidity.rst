@@ -2,7 +2,7 @@ Solidity API
 ============
 
 This is the XBR smart contracts API reference documentation, generated from the Solidity source code
-using `Sphinx <http://www.sphinx-doc.org>`_ and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`_.
+using `Sphinx <http://www.sphinx-doc.org>`__ and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`__.
 
 .. contents:: :local:
 

@@ -49,6 +49,39 @@ Testing and Development
 This section outlines some basic action for testing and development on the XBR smart contracts themself (not
 applications using XBR).
 
+Local development
+.................
+
+To install development tools and the XBR smart contract development environment on the host, run:
+
+.. code-block:: console
+
+    make install
+
+To compile the XBR smart contract in the development environment on the host, run:
+
+.. code-block:: console
+
+    make install
+
+To compile and deploy the XBR smart contracts to the locally running blockchain, run:
+
+.. code-block:: console
+
+    make deploy
+
+To compile and deploy the XBR smart contracts to a public Ethereum network, run one of the following:
+
+.. code-block:: console
+
+    make deploy_rinkeby
+    make deploy_rinkeby_dryrun
+    make deploy_ropsten
+    make deploy_ropsten_dryrun
+
+Full CI test run
+................
+
 To test XBR smart contracts, open a first shell and run:
 
 .. code-block:: console
@@ -72,6 +105,49 @@ This should run all test and CI steps locally, eg here is sample summary output 
     sphinx: commands succeeded
     xbr-js: commands succeeded
     congratulations :)
+
+Building the documentation
+..........................
+
+For a complete rebuild with all steps:
+
+.. code-block:: console
+
+    make clean_docs images docs run_docs
+
+The individual steps are described in the following.
+
+To optimize image files for the web and build the documentation on the host:
+
+.. code-block:: console
+
+    make images
+    make clean_docs
+    make docs
+
+To run a local Web server from the built docs:
+
+.. code-block:: console
+
+    make run_docs
+
+and open `http://localhost:8090/ <http://localhost:8090/>`__.
+
+To spellcheck the docs and code docstrings:
+
+.. code-block:: console
+
+    make spellcheck_docs
+
+To publish the docs to AWS S3:
+
+.. code-block:: console
+
+    make publish_docs
+
+.. note::
+
+    The docs cached on AWS Cloudfront are automatically updated (after some time lag).
 
 
 Development Blockchain

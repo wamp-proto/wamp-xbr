@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# build docs/website and upload to "xbr.foundation" S3 bucket
+# build docs/website and upload to "xbr.network" S3 bucket
 
 export AWS_DEFAULT_REGION=eu-central-1
-export AWS_S3_BUCKET_NAME=xbr.foundation
+export AWS_S3_BUCKET_NAME=xbr.network
 # AWS_ACCESS_KEY_ID         : must be set in Travis CI build context
 # AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context
 
@@ -44,13 +44,13 @@ aws --version
 aws s3 ls ${AWS_S3_BUCKET_NAME}
 
 # deploy latest XBR Lib ABIs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/
+#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/
 #   => https://xbr.network/lib/abi/
 tox -c tox.ini -e truffle-build
 aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/
 
 # deploy latest XBR Lib for JS:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/js/
+#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/js/
 #   => https://xbr.network/lib/js/
 tox -c tox.ini -e xbr-js
 aws s3 cp --acl public-read ./build/xbr.js      s3://${AWS_S3_BUCKET_NAME}/lib/js/
@@ -62,7 +62,7 @@ aws s3 cp --acl public-read ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/j
 # https://packaging.python.org/guides/hosting-your-own-index/
 # tox -c tox.ini -e xbr-python
 
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/python/xbr/
+#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/python/xbr/
 #   => https://xbr.network/lib/python/xbr/
 # aws s3 cp --recursive --acl public-read ./dist s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
 
@@ -70,7 +70,11 @@ aws s3 cp --acl public-read ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/j
 # aws s3 cp --recursive ./dist s3://crossbarbuilder/wheels
 
 # deploy latest docs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html
+#   => https://s3.eu-central-1.amazonaws.com/xbr.network/docs/index.html
 #   => https://xbr.network/docs/index.html
 tox -c tox.ini -e sphinx
 aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
+
+# invalidate cloudfront distribution:
+#   => https://xbr.network/index.html
+aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/*"
