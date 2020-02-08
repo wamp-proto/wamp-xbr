@@ -172,7 +172,7 @@ publish_ipfs_members:
 # 	export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
 #
 # public: 	https://hub.docker.com/r/crossbario/crossbarfx-blockchain
-# admin:  	https://cloud.docker.com/u/crossbario/repository/docker/crossbario/crossbarfx-blockchain
+# admin:  	https://hub.docker.com/repository/docker/crossbario/crossbarfx-blockchain
 
 # 1) clean file staging area to create blockchain docker image
 clean_ganache:
