@@ -15,8 +15,14 @@ open-source MIT licensed and running on the Ethereum blockchain. All source code
 in contained and developed in this Git repository.
 
 
-XBR Client Libraries
---------------------
+Documentation
+-------------
+
+You can find the XBR Protocol and (general) application developer documentation `here <https://xbr.network/docs/network/index.html>`__.
+
+
+Application Development
+-----------------------
 
 The XBR smart contracts primary build artifacts are the contract ABIs JSON files in [abi/contracts](abi/contracts).
 
@@ -37,21 +43,52 @@ XBR support can be added to any `WAMP client library <https://wamp-proto.org/imp
 with a language run-time that has packages for Ethereum application development.
 
 
-Ganache development blockchain
-------------------------------
+Testing and Development
+-----------------------
+
+This section outlines some basic action for testing and development on the XBR smart contracts themself (not
+applications using XBR).
+
+To test XBR smart contracts, open a first shell and run:
+
+.. code-block:: console
+
+    make run_ganache_docker
+
+Open a second shell and run:
+
+.. code-block:: console
+
+    tox
+
+This should run all test and CI steps locally, eg here is sample summary output for a successful run:
+
+.. code-block:: console
+
+    truffle-build: commands succeeded
+    truffle-test: commands succeeded
+    solhint: commands succeeded
+    coverage: commands succeeded
+    sphinx: commands succeeded
+    xbr-js: commands succeeded
+    congratulations :)
+
+
+Development Blockchain
+......................
 
 For development of XBR Protocol compliant software components, such as Crossbar.io FX, community projects
 or third party systems, we provide a Docker image that contains a locally running Ganache blockchain
 that has all XBR smart contracts already installed, and test accounts with some ETH and XBR (tokens) filled up.
 
-Using the CrossbarFX Blockchain image
-.....................................
+Using the development blockchain
+................................
 
 For further information, please see `CrossbarFX Blockchain on Dockerhub <https://hub.docker.com/r/crossbario/crossbarfx-blockchain>`__.
 
 
-Building the CrossbarFX Blockchain image
-........................................
+Building the development blockchain image
+.........................................
 
 The CrossbarFX Blockchain Docker image is published to DockerHub, and the administration of the respective
 area can be done `here <https://hub.docker.com/repository/docker/crossbario/crossbarfx-blockchain>`__.
@@ -101,7 +138,7 @@ To **build and publish the CrossbarFX Blockchain image**, run the following comm
 
 **Testing**
 
-To run a container from the built image locally:
+To run a Docker container locally from the built blockchain development image:
 
 .. code-block:: console
 
@@ -114,45 +151,8 @@ Show balances of ETH and XBR on test accounts (on either a host- or Docker-based
     make check_ganache
 
 
-
-Testing
--------
-
-To test, open a first shell and run:
-
-.. code-block:: console
-
-    make run_ganache
-
-Open a second shell and run:
-
-.. code-block:: console
-
-    tox
-
-This should run all CI steps locally, eg here is sample output:
-
-.. code-block:: console
-
-    truffle-build: commands succeeded
-    truffle-test: commands succeeded
-    solhint: commands succeeded
-    coverage: commands succeeded
-    sphinx: commands succeeded
-    xbr-js: commands succeeded
-    congratulations :)
-
-
-Please see the `documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__
-for more information.
-
-.. note::
-
-    * `The XBR Protocol documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__) (THIS)
-    * `The XBR Network documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__)
-
-
 --------------
+
 
 Copyright Crossbar.io Technologies GmbH. Licensed under the `Apache 2.0
 license <https://www.apache.org/licenses/LICENSE-2.0>`__.
