@@ -18,7 +18,7 @@ Smart contracts are designed to run on the `Ethereum blockchain <https://ethereu
 All source code for the XBR smart contracts is developed and hosted in the
 project main `GitHub repository <https://github.com/crossbario/xbr-protocol>`__.
 
-The XBR Protocol and reference documentation can be found `here <https://xbr.network/docs/network/index.html>`__.
+The XBR Protocol and reference documentation can be found `here <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__.
 
 **Application development with XBR**
 
@@ -28,7 +28,7 @@ Technically, the ABI files are all you need to interact and talk to the XBR smar
 from any (client side) language or run-time that supports Ethereum, such as
 `web3.js <https://web3js.readthedocs.io>`__ or `web3.py <https://web3py.readthedocs.io>`__.
 
-However, this approach (using the raw ABI files and presumably some generic Ethereum library) can be cumbersome
+However, this approach (using the raw XBR ABI files directly from a "generic" Ethereum client library) can be cumbersome
 and error prone to maintain. An alternative way is using a client library with built-in XBR support.
 
 The XBR project currently maintains the following **XBR-enabled client libraries**:
@@ -42,9 +42,9 @@ XBR support can be added to any `WAMP client library <https://wamp-proto.org/imp
 with a language run-time that has packages for Ethereum application development.
 
 .. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-brightgreen.svg?style=flat
-   :target: https://xbr.network/docs/network/index.html
+   :target: https://xbr.network/docs/protocol/index.html
 .. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
-   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
 .. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.org/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
