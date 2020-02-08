@@ -12,6 +12,7 @@ Python that bundles everything you need for a browser or NodeJS application.
     :maxdepth: 2
     :caption: Contents
 
+    quickstart
     overview
     requirements
     connecting
