@@ -1,5 +1,5 @@
-XBR Overview
-============
+Overview
+========
 
 XBR contains many moving parts. The following is a high-level overview of these parts and how they interact to provide the functionality for XBR data markets.
 

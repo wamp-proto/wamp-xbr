@@ -20,6 +20,7 @@ We build on the following toolset:
     :maxdepth: 1
     :caption: Contents:
 
+    quickstart
     setup
     ganache
     metamask
@@ -27,9 +28,6 @@ We build on the following toolset:
     remixide
     ipfs
     bip39
-
-
-
 
 
 Build, Test and Deploy

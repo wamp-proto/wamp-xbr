@@ -1,79 +1,50 @@
 The XBR Protocol
 ================
 
-|Docs (on CDN)| |Docs (on S3)| |Travis| |Coverage|
+|Travis| |Coverage| |Docs (on CDN)| |Docs (on S3)|
 
-This repository contains the XBR smart contracts, with Ethereum as
-target blockchain, and Solidity as implementation language for the **XBR
-Protocol**.
+The **XBR Protocol** enables secure peer-to-peer data-trading and -service microtransactions in
+`Open Data Markets <https://xbr.network>`__ between multiple independent entities.
 
-Please see the `documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__
-for more information.
+XBR as a protocol sits on top of `WAMP <https://wamp-proto.org>`__, an open messaging middleware and service mesh technology,
+and enables secure integration, trusted sharing and monetization of data and data-driven microservices
+between different parties and users.
 
-.. note::
+The XBR Protocol specification is openly developed and freely usable.
 
-    * `The XBR Protocol documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__) (THIS)
-    * `The XBR Network documentation <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html>`__)
+The protocol is implemented in *smart contracts* written in `Solidity <https://solidity.readthedocs.io>`__
+and open-source licensed (`Apache 2.0 <https://github.com/crossbario/xbr-protocol/blob/master/LICENSE>`__).
+Smart contracts are designed to run on the `Ethereum blockchain <https://ethereum.org/>`__.
+All source code for the XBR smart contracts is developed and hosted in the
+project main `GitHub repository <https://github.com/crossbario/xbr-protocol>`__.
 
+The XBR Protocol and reference documentation can be found `here <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__.
 
-XBR Client Libraries
---------------------
+**Application development with XBR**
 
-The XBR Protocol - at its core - is made of the XBR smart contracts, and
-the primary artifacts built are the contract ABI files (in
-``./build/contracts/*.json``).
+The XBR smart contracts primary build artifacts are the `contract ABIs JSON files <https://github.com/crossbario/xbr-protocol/tree/master/abi>`__.
+The ABI files are built during compiling the `contract sources <https://github.com/crossbario/xbr-protocol/tree/master/contracts>`__.
+Technically, the ABI files are all you need to interact and talk to the XBR smart contracts deployed to a blockchain
+from any (client side) language or run-time that supports Ethereum, such as
+`web3.js <https://web3js.readthedocs.io>`__ or `web3.py <https://web3py.readthedocs.io>`__.
 
-Technically, these files are all you need to interact and talk to the
-XBR smart contracts.
+However, this approach (using the raw XBR ABI files directly from a "generic" Ethereum client library) can be cumbersome
+and error prone to maintain. An alternative way is using a client library with built-in XBR support.
 
-However, doing it that way (using the raw ABI files and presumably some
-generic Ethereum library) is cumbersome and error prone to maintain.
+The XBR project currently maintains the following **XBR-enabled client libraries**:
 
-Therefore, we create wrapper libraries for XBR, currently for Python and
-JavaScript, that make interaction with XBR contract super easy.
+-  `Autobahn|Python <https://github.com/crossbario/autobahn-python>`__ for Python 3.5+
+-  `Autobahn|JavaScript <https://github.com/crossbario/autobahn-js>`__ for JavaScript, in browser and NodeJS
+-  `Autobahn|Java <https://github.com/crossbario/autobahn-java>`__ (*beta XBR support*) for Java on Android and Java 8 / Netty
+-  `Autobahn|C++ <https://github.com/crossbario/autobahn-cpp>`__ (*XBR support planned*) for C++ 11+ and Boost/ASIO
 
-The libraries are available here:
-
--  `XBR client library for Python <https://github.com/crossbario/autobahn-python>`__
--  `XBR client library for JavaScript (Browser and Node) <https://github.com/crossbario/autobahn-js>`__
-
-Testing
--------
-
-To test, open a first shell and run:
-
-.. code-block:: console
-
-    make run_ganache
-
-Open a second shell and run:
-
-.. code-block:: console
-
-    tox
-
-This should run all CI steps locally, eg here is sample output:
-
-.. code-block:: console
-
-    truffle-build: commands succeeded
-    truffle-test: commands succeeded
-    solhint: commands succeeded
-    coverage: commands succeeded
-    sphinx: commands succeeded
-    xbr-js: commands succeeded
-    congratulations :)
-
-
---------------
-
-Copyright Crossbar.io Technologies GmbH. Licensed under the `Apache 2.0
-license <https://www.apache.org/licenses/LICENSE-2.0>`__.
+XBR support can be added to any `WAMP client library <https://wamp-proto.org/implementations.html#libraries>`__
+with a language run-time that has packages for Ethereum application development.
 
 .. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-brightgreen.svg?style=flat
-   :target: https://xbr.network/docs/network/index.html
+   :target: https://xbr.network/docs/protocol/index.html
 .. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
-   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/network/index.html
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
 .. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.org/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
