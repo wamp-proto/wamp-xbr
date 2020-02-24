@@ -12,6 +12,8 @@
  *   },
  */
 
+const web3 = require("web3");
+
 const XBR_HDWALLET_SEED = process.env.XBR_HDWALLET_SEED;
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
@@ -32,7 +34,7 @@ module.exports = {
 	        port: 1545,
             network_id: "5777",
             gas: 10000000,
-            gasPrice: 8000000000,   // 8 gwei
+            gasPrice: web3.utils.toWei("8", "gwei")
         },
 
         // https://medium.com/coinmonks/5-minute-guide-to-deploying-smart-contracts-with-truffle-and-ropsten-b3e30d5ee1e
@@ -43,7 +45,8 @@ module.exports = {
                 return new HDWalletProvider(XBR_HDWALLET_SEED, XBR_INFURA_ENDPOINT)
             },
             network_id: 3,
-            gas: 2900000
+            gas: 10000000,
+            gasPrice: web3.utils.toWei("50", "gwei")
         },
 
         // https://ethereum.stackexchange.com/a/17101/17806
@@ -55,7 +58,8 @@ module.exports = {
             },
             network_id: 4,
             // https://www.rinkeby.io/#stats
-            gas: 10000000
+            gas: 10000000,
+            gasPrice: web3.utils.toWei("50", "gwei")
         }
     },
 

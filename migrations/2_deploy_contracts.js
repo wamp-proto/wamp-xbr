@@ -30,6 +30,11 @@ module.exports = function (deployer, network, accounts) {
     if (network === "soliditycoverage") {
         gas = 0xfffffffffff;
     } else {
+        // the block gas limit on Rinkeby and Mainnet hovers _around_ 10m (!)
+        // eg on Mainnet: Min. 9,955,619 - gas Max. 9,999,175 gas
+        // so we use (10m - sth) as limit (not outright 10m)
+        // gas = 9950000;
+        // gas = 10000000 - 100;
         gas = 10000000;
     }
 
