@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-2019 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2020 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.12;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
@@ -75,6 +75,12 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
+    /// Used for EIP712 verification: network ID of the blockchain this contract is running on.
+    uint256 public verifyingChain;
+
+    /// Used for EIP712 verification: verifying contract address.
+    address public verifyingContract;
+
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -109,6 +115,15 @@ contract XBRNetwork is XBRMaintained {
      * @param organization_ The network technology provider and ecosystem sponsor.
      */
     constructor (address token_, address organization_) public {
+
+        // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
+        // FIXME
+        uint256 _chainId;
+        assembly {
+            _chainId := chainid()
+        }
+        verifyingChain = _chainId;
+        verifyingContract = address(this);
 
         token = XBRToken(token_);
         organization = organization_;
@@ -162,8 +177,6 @@ contract XBRNetwork is XBRMaintained {
         // check that sender is not already a member
         require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
-        // FIXME: check registered
-
         // check that the EULA the member accepted is the one we expect
         require(keccak256(abi.encode(eula_)) ==
                 keccak256(abi.encode(eula)), "INVALID_EULA");
@@ -171,8 +184,8 @@ contract XBRNetwork is XBRMaintained {
         // FIXME: check profile
 
         // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(1, registered, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
-            member, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
+        require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
+            member, registered, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
         members[member] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
@@ -483,8 +496,8 @@ contract XBRNetwork is XBRMaintained {
         }
 
         // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(1, joined, 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,
-            member, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(verifyingChain, verifyingContract,
+            member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
         if (security > 0) {
             // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)

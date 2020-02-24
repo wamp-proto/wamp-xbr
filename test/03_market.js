@@ -29,14 +29,12 @@ const EIP712MemberRegisterData = {
         EIP712Domain: [
             { name: 'name', type: 'string' },
             { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
         ],
         EIP712MemberRegister: [
             {name: 'chainId', type: 'uint256'},
-            {name: 'blockNumber', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
             {name: 'member', type: 'address'},
+            {name: 'registered', type: 'uint256'},
             {name: 'eula', type: 'string'},
             {name: 'profile', type: 'string'},
         ]
@@ -44,9 +42,7 @@ const EIP712MemberRegisterData = {
     primaryType: 'EIP712MemberRegister',
     domain: {
         name: 'XBR',
-        version: '1',
-        chainId: 1,
-        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+        version: '1'
     },
     message: null
 };
@@ -64,15 +60,13 @@ const EIP712MarketJoinData = {
     types: {
         EIP712Domain: [
             { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
+            { name: 'version', type: 'string' }
         ],
         EIP712MarketJoin: [
             {name: 'chainId', type: 'uint256'},
-            {name: 'blockNumber', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
             {name: 'member', type: 'address'},
+            {name: 'joined', type: 'uint256'},
             {name: 'marketId', type: 'bytes16'},
             {name: 'actorType', type: 'uint8'},
             {name: 'meta', type: 'string'},
@@ -82,8 +76,6 @@ const EIP712MarketJoinData = {
     domain: {
         name: 'XBR',
         version: '1',
-        chainId: 1,
-        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
     },
     message: null
 };
@@ -108,6 +100,9 @@ contract('XBRNetwork', accounts => {
 
     // deployed instance of XBRNetwork
     var token;
+
+    var chainId;
+    var verifyingContract;
 
     // https://solidity.readthedocs.io/en/latest/frequently-asked-questions.html#if-i-return-an-enum-i-only-get-integer-values-in-web3-js-how-to-get-the-named-values
 
@@ -177,7 +172,26 @@ contract('XBRNetwork', accounts => {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        console.log('Using XBRNetwork         : ' + network.address);
+        console.log('Using XBRToken           : ' + token.address);
+
+        // FIXME: none of the following works on Ganache v6.9.1 ..
+
+        // TypeError: Cannot read property 'getChainId' of undefined
+        // https://web3js.readthedocs.io/en/v1.2.6/web3-eth.html#getchainid
+        // const _chainId1 = await web3.eth.getChainId();
+
+        // DEBUG: _chainId2 undefined
+        // const _chainId2 = web3.version.network;
+        // console.log('DEBUG: _chainId2', _chainId2);
+
+        chainId = await network.verifyingChain();
+        verifyingContract = await network.verifyingContract();
+
+        console.log('Using chainId            : ' + chainId);
+        console.log('Using verifyingContract  : ' + verifyingContract);
+
+        const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
         const _alice = await network.members(alice);
@@ -460,14 +474,20 @@ contract('XBRNetwork', accounts => {
         const _member_level = _member.level.toNumber();
 
         if (_member_level == MemberLevel_NULL) {
-            const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+
+            const eula = await network.eula();
             const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
+
+            // FIXME: none of the following works on Ganache
+            // const registered = await web3.eth.getBlockNumber();
+            // const registered = web3.eth.blockNumber;
             const registered = 1;
+
             const msg_register = {
-                'chainId': 1,
-                'blockNumber': registered,
-                'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+                'chainId': chainId,
+                'verifyingContract': verifyingContract,
                 'member': member,
+                'registered': registered,
                 'eula': eula,
                 'profile': profile,
             };
@@ -492,14 +512,16 @@ contract('XBRNetwork', accounts => {
             await token.approve(network.address, providerSecurity, {from: member, gasLimit: gasLimit});
         }
 
-        // FIXME
+        // FIXME: none of the following works on Ganache
+        // const joined = await web3.eth.getBlockNumber();
+        // const joined = web3.eth.blockNumber;
         const joined = 1;
 
         const msg_join_market = {
-            'chainId': 1,
-            'blockNumber': joined,
-            'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+            'chainId': chainId,
+            'verifyingContract': verifyingContract,
             'member': member,
+            'joined': joined,
             'marketId': marketId,
             'actorType': ActorType_PROVIDER,
             'meta': meta,
