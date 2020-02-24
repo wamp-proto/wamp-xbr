@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.12;
 
 import "openzeppelin-solidity/contracts/access/Roles.sol";
 

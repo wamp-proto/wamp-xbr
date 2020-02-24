@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.12;
 pragma experimental ABIEncoderV2;
 
 import "./XBRToken.sol";
@@ -138,9 +138,9 @@ library XBRTypes {
     /// EIP712 type.
     struct EIP712MemberRegister {
         uint256 chainId;
-        uint256 blockNumber;
         address verifyingContract;
         address member;
+        uint256 registered;
         string eula;
         string profile;
     }
@@ -148,9 +148,9 @@ library XBRTypes {
     /// EIP712 type.
     struct EIP712MarketJoin {
         uint256 chainId;
-        uint256 blockNumber;
         address verifyingContract;
         address member;
+        uint256 joined;
         bytes16 marketId;
         uint8 actorType;
         string meta;
@@ -221,9 +221,9 @@ library XBRTypes {
         return keccak256(abi.encode(
             EIP712_MEMBER_REGISTER_TYPEHASH,
             obj.chainId,
-            obj.blockNumber,
             obj.verifyingContract,
             obj.member,
+            obj.registered,
             keccak256(bytes(obj.eula)),
             keccak256(bytes(obj.profile))
         ));
@@ -233,9 +233,9 @@ library XBRTypes {
         return keccak256(abi.encode(
             EIP712_MARKET_JOIN_TYPEHASH,
             obj.chainId,
-            obj.blockNumber,
             obj.verifyingContract,
             obj.member,
+            obj.joined,
             obj.marketId,
             obj.actorType,
             keccak256(bytes(obj.meta))
