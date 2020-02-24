@@ -76,10 +76,10 @@ contract XBRNetwork is XBRMaintained {
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
     /// Used for EIP712 verification: network ID of the blockchain this contract is running on.
-    uint256 public constant verifyingChain = 1;  // FIXME: Ganache/CLI issues ..
+    uint256 public verifyingChain;
 
     /// Used for EIP712 verification: verifying contract address.
-    address public constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;  // FIXME: Ganache/CLI issues ..
+    address public verifyingContract;
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
@@ -118,13 +118,12 @@ contract XBRNetwork is XBRMaintained {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
         // FIXME
-        /*
         uint256 _chainId;
         assembly {
             _chainId := chainid()
         }
         verifyingChain = _chainId;
-        */
+        verifyingContract = address(this);
 
         token = XBRToken(token_);
         organization = organization_;

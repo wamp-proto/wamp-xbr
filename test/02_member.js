@@ -124,12 +124,8 @@ contract('XBRNetwork', accounts => {
         // FIXME: none of the following works on Ganache v6.9.1 ..
         // const chainId = await web3.eth.getChainId();
         // const chainId = web3.version.network;
-        // .. so we hard-code it here for CI
-        chainId = 1;
-
-        // FIXME:
-        // const verifyingContract = network.address;
-        verifyingContract = '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B';
+        chainId = await network.verifyingChain()
+        verifyingContract = await network.verifyingContract()
     });
 
     /*
