@@ -172,13 +172,26 @@ contract('XBRNetwork', accounts => {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
 
-        // FIXME: none of the following works on Ganache v6.9.1 ..
-        // const chainId = await web3.eth.getChainId();
-        // const chainId = web3.version.network;
-        chainId = await network.verifyingChain()
-        verifyingContract = await network.verifyingContract()
+        console.log('Using XBRNetwork         : ' + network.address);
+        console.log('Using XBRToken           : ' + token.address);
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        // FIXME: none of the following works on Ganache v6.9.1 ..
+
+        // TypeError: Cannot read property 'getChainId' of undefined
+        // https://web3js.readthedocs.io/en/v1.2.6/web3-eth.html#getchainid
+        // const _chainId1 = await web3.eth.getChainId();
+
+        // DEBUG: _chainId2 undefined
+        // const _chainId2 = web3.version.network;
+        // console.log('DEBUG: _chainId2', _chainId2);
+
+        chainId = await network.verifyingChain();
+        verifyingContract = await network.verifyingContract();
+
+        console.log('Using chainId            : ' + chainId);
+        console.log('Using verifyingContract  : ' + verifyingContract);
+
+        const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
         const _alice = await network.members(alice);
