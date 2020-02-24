@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-2019 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2020 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -75,8 +75,11 @@ contract XBRNetwork is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
-    /// Network ID of the blockchain this contract is running on.
-    uint256 private chainId;
+    /// Used for EIP712 verification: network ID of the blockchain this contract is running on.
+    uint256 public constant verifyingChain = 1;  // FIXME: Ganache/CLI issues ..
+
+    /// Used for EIP712 verification: verifying contract address.
+    address public constant verifyingContract = 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B;  // FIXME: Ganache/CLI issues ..
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
@@ -114,11 +117,14 @@ contract XBRNetwork is XBRMaintained {
     constructor (address token_, address organization_) public {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
+        // FIXME
+        /*
         uint256 _chainId;
         assembly {
             _chainId := chainid()
         }
-        chainId = _chainId;
+        verifyingChain = _chainId;
+        */
 
         token = XBRToken(token_);
         organization = organization_;
@@ -179,7 +185,7 @@ contract XBRNetwork is XBRMaintained {
         // FIXME: check profile
 
         // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(chainId, address(this),
+        require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
             member, registered, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // remember the member
@@ -491,7 +497,7 @@ contract XBRNetwork is XBRMaintained {
         }
 
         // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(chainId, address(this),
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(verifyingChain, verifyingContract,
             member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
         if (security > 0) {

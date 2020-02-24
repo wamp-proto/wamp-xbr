@@ -29,14 +29,12 @@ const DomainData = {
         EIP712Domain: [
             { name: 'name', type: 'string' },
             { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
         ],
         EIP712MemberRegister: [
             {name: 'chainId', type: 'uint256'},
-            {name: 'blockNumber', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
             {name: 'member', type: 'address'},
+            {name: 'registered', type: 'uint256'},
             {name: 'eula', type: 'string'},
             {name: 'profile', type: 'string'},
         ]
@@ -45,8 +43,6 @@ const DomainData = {
     domain: {
         name: 'XBR',
         version: '1',
-        chainId: 1,
-        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
     },
     message: null
 };
@@ -72,6 +68,9 @@ contract('XBRNetwork', accounts => {
 
     // deployed instance of XBRNetwork
     var token;
+
+    var chainId;
+    var verifyingContract;
 
     // https://solidity.readthedocs.io/en/latest/frequently-asked-questions.html#if-i-return-an-enum-i-only-get-integer-values-in-web3-js-how-to-get-the-named-values
 
@@ -121,6 +120,16 @@ contract('XBRNetwork', accounts => {
     beforeEach('setup contract for each test', async function () {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
+
+        // FIXME: none of the following works on Ganache v6.9.1 ..
+        // const chainId = await web3.eth.getChainId();
+        // const chainId = web3.version.network;
+        // .. so we hard-code it here for CI
+        chainId = 1;
+
+        // FIXME:
+        // const verifyingContract = network.address;
+        verifyingContract = '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B';
     });
 
     /*
@@ -223,7 +232,7 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.register() : registering a member twice should throw', async () => {
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        const eula = await network.eula();
         const profile = "";
 
         try {
@@ -236,9 +245,6 @@ contract('XBRNetwork', accounts => {
 
     it('XBRNetwork.registerFor() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
-        const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
-
         //const member = accounts[5].address;
         //const member_key = accounts[5].privateKey;
 
@@ -248,14 +254,21 @@ contract('XBRNetwork', accounts => {
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
         const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
 
+        const eula = await network.eula();
+        const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
+
+        // FIXME: none of the following works on Ganache v6.9.1 ..
+        // const registered = await web3.eth.getBlockNumber();
+        // const registered = web3.eth.blockNumber;
+        const registered = 1;
+
         console.log('XBRNetwork.registerFor(): member=' + member + ', member_key=' + member_key);
 
-        const registered = 1;
         const msg = {
-            'chainId': 1,
-            'blockNumber': registered,
-            'verifyingContract': '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+            'chainId': chainId,
+            'verifyingContract': verifyingContract,
             'member': member,
+            'registered': registered,
             'eula': eula,
             'profile': profile,
         }

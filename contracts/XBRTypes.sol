@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-2019 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2020 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -127,28 +127,33 @@ library XBRTypes {
         uint32 timeout;
     }
 
-    /// EIP712 type.
+    /// EIP712 type for XBR as a type domain.
     struct EIP712Domain {
+        // make signatures from different domains incompatible
         string  name;
         string  version;
-        uint256 chainId;
-        address verifyingContract;
     }
 
-    /// EIP712 type.
+    /// EIP712 type for use in XBRNetwork.registerFor.
     struct EIP712MemberRegister {
+        // replay attack protection
         uint256 chainId;
         address verifyingContract;
+
+        // actual data attributes
         address member;
         uint256 registered;
         string eula;
         string profile;
     }
 
-    /// EIP712 type.
+    /// EIP712 type for use in XBRNetwork.joinMarketFor.
     struct EIP712MarketJoin {
+        // replay attack protection
         uint256 chainId;
         address verifyingContract;
+
+        // actual data attributes
         address member;
         uint256 joined;
         bytes16 marketId;
@@ -158,17 +163,17 @@ library XBRTypes {
 
     /// EIP712 type data.
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+        "EIP712Domain(string name,string version)"
     );
 
     /// EIP712 type data.
     bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,string eula,string profile)"
+        "EIP712MemberRegister(uint256 chainId,address verifyingContract,address member,uint256 registered,string eula,string profile)"
     );
 
     /// EIP712 type data.
     bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
-        "EIP712MarketJoin(uint256 chainId,uint256 blockNumber,address verifyingContract,address member,bytes16 marketId,uint8 actorType,string meta)"
+        "EIP712MarketJoin(uint256 chainId,address verifyingContract,address member,uint256 joined,bytes16 marketId,uint8 actorType,string meta)"
     );
 
     /**
@@ -200,20 +205,16 @@ library XBRTypes {
         return keccak256(abi.encode(
             EIP712_DOMAIN_TYPEHASH,
             keccak256(bytes(domain_.name)),
-            keccak256(bytes(domain_.version)),
-            domain_.chainId,
-            domain_.verifyingContract
+            keccak256(bytes(domain_.version))
         ));
     }
 
     function domainSeparator () private pure returns (bytes32) {
+        // makes signatures from different domains incompatible.
+        // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md#arbitrary-messages
         return hash(EIP712Domain({
             name: "XBR",
-            version: "1",
-            // FIXME: read chain ID at run-time (if possible)
-            chainId: 1,
-            //verifyingContract: address(this)
-            verifyingContract: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+            version: "1"
         }));
     }
 
@@ -240,20 +241,6 @@ library XBRTypes {
             obj.actorType,
             keccak256(bytes(obj.meta))
         ));
-    }
-
-    function verify (address signer, EIP712Domain memory obj,
-        bytes memory signature) public pure returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            domainSeparator(),
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
     }
 
     function verify (address signer, EIP712MemberRegister memory obj,
