@@ -1,4 +1,4 @@
-FROM trufflesuite/ganache-cli:v6.7.0
+FROM trufflesuite/ganache-cli:v6.9.1
 
 COPY ./data /blockchain
 
