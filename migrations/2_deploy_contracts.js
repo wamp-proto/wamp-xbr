@@ -11,22 +11,22 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-var XBRToken = artifacts.require("./XBRToken.sol");
-var XBRNetwork = artifacts.require("./XBRNetwork.sol");
-var XBRTest = artifacts.require("./XBRTest.sol");
-var XBRTypes = artifacts.require("./XBRTypes.sol");
-// var XBRPaymentChannel = artifacts.require("./XBRPaymentChannel.sol");
-// var XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
+const XBRToken = artifacts.require("./XBRToken.sol");
+const XBRNetwork = artifacts.require("./XBRNetwork.sol");
+const XBRTest = artifacts.require("./XBRTest.sol");
+const XBRTypes = artifacts.require("./XBRTypes.sol");
+const XBRMarket = artifacts.require("./XBRMarket.sol");
+// const XBRPaymentChannel = artifacts.require("./XBRPaymentChannel.sol");
+// const XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
 
 // https://truffleframework.com/docs/truffle/getting-started/running-migrations#deployer
 module.exports = function (deployer, network, accounts) {
-
-    var self = this;
 
     // https://etherscan.io/chart/gaslimit
     // https://www.rinkeby.io/#stats
     // https://ropsten.etherscan.io/blocks
 
+    var gas;
     if (network === "soliditycoverage") {
         gas = 0xfffffffffff;
     } else {
@@ -41,20 +41,30 @@ module.exports = function (deployer, network, accounts) {
     const organization = accounts[0];
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
-    deployer.deploy(XBRTypes);
-    deployer.link(XBRTypes, XBRNetwork);
+    deployer.then(async () => {
+        await deployer.deploy(XBRToken, {gas: gas, from: organization});
+        console.log('>>>> XBRToken deployed at ' + XBRToken.address);
 
-    // Deploy XBRToken, then deploy XBRNetwork, passing in XBRToken's newly deployed address
-    /*
-    deployer.deploy(XBRToken);
-    deployer.link(XBRToken, XBRNetwork);
-    deployer.deploy(XBRNetwork, XBRToken.address, organization);
-    */
-    deployer.deploy(XBRToken, {gas: gas, from: organization}).then(function() {
-        return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
+        await deployer.deploy(XBRTypes);
+        console.log('>>>> XBRTypes deployed at ' + XBRTypes.address);
+
+        await deployer.link(XBRTypes, XBRNetwork);
+        await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
+        console.log('>>>> XBRNetwork deployed at ' + XBRNetwork.address);
+
+        await deployer.link(XBRTypes, XBRMarket);
+        await deployer.link(XBRNetwork, XBRMarket);
+        await deployer.deploy(XBRMarket, XBRNetwork.address, {gas: gas, from: organization});
+        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+
+        if (network === "ganache" || network === "soliditycoverage") {
+            await deployer.deploy(XBRTest, {gas: gas, from: organization});
+        }
+
+        console.log('\nDeployed XBR contract addresses:\n');
+        console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
+        console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
+        console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
+        console.log('\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n');
     });
-
-    if (network === "ganache" || network === "soliditycoverage") {
-        deployer.deploy(XBRTest, {gas: gas, from: organization});
-    }
 };
