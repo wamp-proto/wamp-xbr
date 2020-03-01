@@ -59,7 +59,7 @@ contract XBRNetwork is XBRMaintained {
     XBRToken public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`_
-    address private organization;
+    address public organization;
 
     /// Current XBR Network members ("member directory").
     mapping(address => XBRTypes.Member) public members;

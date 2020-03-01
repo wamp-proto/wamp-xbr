@@ -443,7 +443,7 @@ contract XBRMarket is XBRMaintained {
             XBRChannel.ChannelType.PAYMENT);
 
         // transfer tokens (initial balance) into payment channel contract
-        bool success = network.token.transferFrom(msg.sender, address(channel), amount);
+        bool success = network.token().transferFrom(msg.sender, address(channel), amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
@@ -493,7 +493,7 @@ contract XBRMarket is XBRMaintained {
         require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
 
         // paying channel amount must be positive
-        require(amount > 0 && amount <= network.token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // paying channel timeout can be [0 seconds - 10 days[
         require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
@@ -529,18 +529,18 @@ contract XBRMarket is XBRMaintained {
         require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
 
         // payment channel amount must be positive
-        require(amount > 0 && amount <= network.token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // payment channel timeout can be [0 seconds - 10 days[
         require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
 
         // create new paying channel contract
-        XBRChannel channel = new XBRChannel(network.organization, address(network.token), address(this),
+        XBRChannel channel = new XBRChannel(network.organization(), address(network.token), address(this),
             marketId, markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYING);
 
         // transfer tokens (initial balance) into payment channel contract
-        bool success = network.token.transferFrom(msg.sender, address(channel), amount);
+        bool success = network.token().transferFrom(msg.sender, address(channel), amount);
         require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
 
         // remember the new payment channel associated with the market
