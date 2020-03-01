@@ -18,6 +18,7 @@ const ethUtil = require('ethereumjs-util');
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRChannel = artifacts.require("./XBRChannel.sol");
+const XBRMarket = artifacts.require("./XBRMarket.sol");
 
 
 // dicether/eip712
@@ -97,6 +98,9 @@ contract('XBRNetwork', accounts => {
     // deployed instance of XBRNetwork
     var token;
 
+    // deployed instance of XBRMarket
+    var market;
+
     // https://solidity.readthedocs.io/en/latest/frequently-asked-questions.html#if-i-return-an-enum-i-only-get-integer-values-in-web3-js-how-to-get-the-named-values
 
     // enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
@@ -151,6 +155,7 @@ contract('XBRNetwork', accounts => {
     beforeEach('setup contract for each test', async function () {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
+        market = await XBRMarket.deployed();
 
         const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
@@ -174,9 +179,9 @@ contract('XBRNetwork', accounts => {
         }
 
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
-        if (market.created.toNumber() == 0) {
+        if (market_.created.toNumber() == 0) {
             /////////// market operator and market maker
             const operator = alice;
             const maker = alice_market_maker1;
@@ -189,7 +194,7 @@ contract('XBRNetwork', accounts => {
             // const marketFee = '' + Math.trunc(0.05 * 10**9 * 10**18);
             const marketFee = 0;
 
-            await network.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
+            await market.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
 
             /////////// the XBR provider we use here
             const provider = bob;
@@ -206,7 +211,7 @@ contract('XBRNetwork', accounts => {
             }
 
             // XBR provider joins market
-            await network.joinMarket(marketId, ActorType_PROVIDER, meta, {from: provider, gasLimit: gasLimit});
+            await market.joinMarket(marketId, ActorType_PROVIDER, meta, {from: provider, gasLimit: gasLimit});
 
             /////////// the XBR consumer we use here
             const consumer = charlie;
@@ -223,12 +228,12 @@ contract('XBRNetwork', accounts => {
             }
 
             // XBR consumer joins market
-            await network.joinMarket(marketId, ActorType_CONSUMER, meta, {from: consumer, gasLimit: gasLimit});
+            await market.joinMarket(marketId, ActorType_CONSUMER, meta, {from: consumer, gasLimit: gasLimit});
         }
     });
 
 
-    it('XBRNetwork.openPaymentChannel() : consumer should open payment channel', async () => {
+    it('XBRMarket.openPaymentChannel() : consumer should open payment channel', async () => {
 
         // the XBR consumer we use here
         const market_operator = alice;
@@ -237,7 +242,7 @@ contract('XBRNetwork', accounts => {
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
         // console.log('MARKET OWNER', market_operator, market);
 
@@ -249,10 +254,10 @@ contract('XBRNetwork', accounts => {
         await token.transfer(consumer, amount, {from: owner, gasLimit: gasLimit});
 
         // approve transfer of tokens to open payment channel
-        await token.approve(network.address, amount, {from: consumer, gasLimit: gasLimit});
+        await token.approve(market.address, amount, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer opens a payment channel in the market
-        const txn = await network.openPaymentChannel(marketId, market.owner, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
+        const txn = await market.openPaymentChannel(marketId, market_.owner, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
         //console.log('result1 txn', txn);
         //const result1 = txn.receipt.logs[0];
         //console.log('result1', result1);
@@ -298,7 +303,7 @@ contract('XBRNetwork', accounts => {
         console.log('CHANNEL_closedAt', _closedAt.toNumber());
     });
 
-    it('XBRNetwork.requestPayingChannel() : provider should request paying channel', async () => {
+    it('XBRMarket.requestPayingChannel() : provider should request paying channel', async () => {
 
         // the XBR provider we use here
         const market_operator = alice;
@@ -308,7 +313,7 @@ contract('XBRNetwork', accounts => {
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
         // console.log('MARKET OWNER', market_operator, market);
 
@@ -323,7 +328,7 @@ contract('XBRNetwork', accounts => {
         await token.approve(maker, amount, {from: provider, gasLimit: gasLimit});
 
         // XBR provider requests a paying channel in the market
-        const txn = await network.requestPayingChannel(marketId, provider, delegate, amount, timeout, {from: provider, gasLimit: gasLimit});
+        const txn = await market.requestPayingChannel(marketId, provider, delegate, amount, timeout, {from: provider, gasLimit: gasLimit});
         //console.log('result1 txn', txn);
         //const result1 = txn.receipt.logs[0];
         //console.log('result1', result1);
@@ -345,7 +350,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(result2.args.timeout, timeout, "wrong timeout in event");
     });
 
-    it('XBRNetwork.openPayingChannel() : maker should open paying channel', async () => {
+    it('XBRMarket.openPayingChannel() : maker should open paying channel', async () => {
 
         // the XBR provider we use here
         const market_operator = alice;
@@ -355,7 +360,7 @@ contract('XBRNetwork', accounts => {
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
         // console.log('MARKET OWNER', market_operator, market);
 
@@ -368,11 +373,11 @@ contract('XBRNetwork', accounts => {
             await token.transfer(maker, amount, {from: owner, gasLimit: gasLimit});
 
             // approve transfer of tokens to open paying channel
-            await token.approve(network.address, amount, {from: maker, gasLimit: gasLimit});
+            await token.approve(market.address, amount, {from: maker, gasLimit: gasLimit});
         }
 
         // XBR consumer opens a payment channel in the market
-        const txn = await network.openPayingChannel(marketId, provider, delegate, amount, timeout, {from: maker, gasLimit: gasLimit});
+        const txn = await market.openPayingChannel(marketId, provider, delegate, amount, timeout, {from: maker, gasLimit: gasLimit});
         //console.log('result1 txn', txn);
         //const result1 = txn.receipt.logs[0];
         //console.log('result1', result1);
@@ -438,7 +443,7 @@ contract('XBRNetwork', accounts => {
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
         // 50 XBR channel deposit
         const amount = '' + 50 * 10**18;
@@ -448,10 +453,10 @@ contract('XBRNetwork', accounts => {
         await token.transfer(consumer, amount, {from: owner, gasLimit: gasLimit});
 
         // approve transfer of tokens to open payment channel
-        await token.approve(network.address, amount, {from: consumer, gasLimit: gasLimit});
+        await token.approve(market.address, amount, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer opens a payment channel in the market
-        const txn = await network.openPaymentChannel(marketId, market.owner, delegate,
+        const txn = await market.openPaymentChannel(marketId, market.owner, delegate,
             amount, timeout, {from: consumer, gasLimit: gasLimit});
         const channel_adr = txn.receipt.logs[0].args.channel;
         const channel = await XBRChannel.at(channel_adr);
@@ -551,7 +556,7 @@ contract('XBRNetwork', accounts => {
 
         // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market = await network.markets(marketId);
+        const market_ = await market.markets(marketId);
 
         // console.log('MARKET OWNER', market_operator, market);
 
@@ -563,10 +568,10 @@ contract('XBRNetwork', accounts => {
         await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
 
         // approve transfer of tokens to open paying channel
-        await token.approve(network.address, amount, {from: marketmaker, gasLimit: gasLimit});
+        await token.approve(market.address, amount, {from: marketmaker, gasLimit: gasLimit});
 
         // XBR market maker opens paying channel in the market
-        const txn = await network.openPayingChannel(marketId, provider, delegate,
+        const txn = await market.openPayingChannel(marketId, provider, delegate,
             amount, timeout, {from: marketmaker, gasLimit: gasLimit});
         const channel_adr = txn.receipt.logs[0].args.channel;
         const channel = await XBRChannel.at(channel_adr);
