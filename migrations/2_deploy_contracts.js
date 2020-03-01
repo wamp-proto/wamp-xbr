@@ -50,8 +50,11 @@ module.exports = function (deployer, network, accounts) {
     deployer.link(XBRToken, XBRNetwork);
     deployer.deploy(XBRNetwork, XBRToken.address, organization);
     */
-    deployer.deploy(XBRToken, {gas: gas, from: organization}).then(function() {
-        return deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
+    deployer.deploy(XBRToken, {gas: gas, from: organization}).then(function () {
+        deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization}).then(function () {
+            deployer.deploy(XBRMarket, XBRNetwork.address, {gas: gas, from: organization}).then(function () {
+            });
+        });
     });
 
     if (network === "ganache" || network === "soliditycoverage") {
