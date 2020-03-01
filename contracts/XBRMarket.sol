@@ -112,9 +112,11 @@ contract XBRMarket is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
+        XBRTypes.Member memory member = network.members(msg.sender);
+
         // the market operator (owner) must be a registered member
-        require(network.members[msg.sender].level == XBRTypes.MemberLevel.ACTIVE ||
-                network.members[msg.sender].level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+        require(member.level == XBRTypes.MemberLevel.ACTIVE ||
+                member.level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
 
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
@@ -126,13 +128,13 @@ contract XBRMarket is XBRMaintained {
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
         // provider security must be non-negative (and obviously smaller than the total token supply)
-        require(providerSecurity >= 0 && providerSecurity <= network.token.totalSupply(), "INVALID_PROVIDER_SECURITY");
+        require(providerSecurity >= 0 && providerSecurity <= network.token().totalSupply(), "INVALID_PROVIDER_SECURITY");
 
         // consumer security must be non-negative (and obviously smaller than the total token supply)
-        require(consumerSecurity >= 0 && consumerSecurity <= network.token.totalSupply(), "INVALID_CONSUMER_SECURITY");
+        require(consumerSecurity >= 0 && consumerSecurity <= network.token().totalSupply(), "INVALID_CONSUMER_SECURITY");
 
         // FIXME: treat market fee
-        require(marketFee >= 0 && marketFee < (network.token.totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        require(marketFee >= 0 && marketFee < (network.token().totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         // now remember out new market ..
         uint created = block.timestamp;
@@ -279,8 +281,10 @@ contract XBRMarket is XBRMaintained {
      */
     function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
+        XBRTypes.Member memory member = network.members(msg.sender);
+
         // the joining sender must be a registered member
-        require(network.members[msg.sender].level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        require(member.level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -307,7 +311,7 @@ contract XBRMarket is XBRMaintained {
 
         if (security > 0) {
             // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = network.token.transferFrom(msg.sender, markets[marketId].owner, security);
+            bool success = network.token().transferFrom(msg.sender, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
@@ -332,8 +336,10 @@ contract XBRMarket is XBRMaintained {
     function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 
+        XBRTypes.Member memory member_ = network.members(member);
+
         // the joining member must be a registered member
-        require(network.members[member].level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        require(member_.level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -361,12 +367,12 @@ contract XBRMarket is XBRMaintained {
         }
 
         // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain, network.verifyingContract,
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
             member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
         if (security > 0) {
             // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = network.token.transferFrom(member, markets[marketId].owner, security);
+            bool success = network.token().transferFrom(member, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
@@ -426,13 +432,13 @@ contract XBRMarket is XBRMaintained {
         require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
 
         // payment channel amount must be positive
-        require(amount > 0 && amount <= network.token.totalSupply(), "INVALID_CHANNEL_AMOUNT");
+        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
         // payment channel timeout can be [0 seconds - 10 days[
         require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
 
         // create new payment channel contract
-        XBRChannel channel = new XBRChannel(network.organization, address(network.token), address(this), marketId,
+        XBRChannel channel = new XBRChannel(network.organization(), address(network.token()), address(this), marketId,
             markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
             XBRChannel.ChannelType.PAYMENT);
 
