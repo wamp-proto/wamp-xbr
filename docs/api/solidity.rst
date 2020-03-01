@@ -18,20 +18,34 @@ XBRToken
         constructor
 
 
+XBRTypes
+--------
+
+.. autosollibrary:: XBRTypes
+    :members:
+
+
 XBRNetwork
 ----------
 
 .. autosolcontract:: XBRNetwork
     :members:
     :exclude-members:
-        marketSeq,
-        domainSeq,
-        members,
-        domains,
-        nodes,
-        nodesByKey,
-        markets,
+        _register
+
+
+XBRMarket
+-----------------
+
+.. autosolcontract:: XBRMarket
+    :members:
+    :exclude-members:
+        marketSeq
+        marketIds
         marketsByMaker
+        marketsByOwner
+        _createMarket
+        _joinMarket
 
 
 XBRChannel

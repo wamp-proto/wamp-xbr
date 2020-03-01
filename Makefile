@@ -91,6 +91,8 @@ coverage:
 	truffle run coverage
 
 compile:
+	wc -l contracts/*.sol
+	grep "struct EIP712" contracts/XBRTypes.sol
 	$(TRUFFLE) compile --all
 	cp build/contracts/*.json ./abi/
 	rm -f ./abi/XBRTest.json
