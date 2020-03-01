@@ -24,6 +24,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
+import "./XBRToken.sol";
 import "./XBRNetwork.sol";
 import "./XBRChannel.sol";
 
