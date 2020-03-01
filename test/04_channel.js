@@ -232,7 +232,7 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-
+/*
     it('XBRMarket.openPaymentChannel() : consumer should open payment channel', async () => {
 
         // the XBR consumer we use here
@@ -421,6 +421,7 @@ contract('XBRNetwork', accounts => {
         console.log('CHANNEL_openedAt', _openedAt.toNumber());
         console.log('CHANNEL_closedAt', _closedAt.toNumber());
     });
+*/
 /*
     it('XBRChannel.close() : consumer should close payment channel', async () => {
 
