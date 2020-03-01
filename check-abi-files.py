@@ -4,7 +4,7 @@ import json
 # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-170.md
 MAX_CONTRACT_BYTECODE_SIZE = 24 * 1024
 
-
+print('\nCompiled (deployed) contract size - the maximum allowed (per-contract) is {} bytes!\n\n'.format(MAX_CONTRACT_BYTECODE_SIZE))
 for fn in os.listdir('abi'):
     fn = os.path.join('abi', fn)
     with open(fn, 'rb') as f:
@@ -18,3 +18,4 @@ for fn in os.listdir('abi'):
             warn = False
         print('ABI file {:<30} bytecode= {:<6} bytes, deployedBytecode= {:<6} bytes {}'.format(
             '"' + fn + '"', bytecode, deployedBytecode, '  WARNING - maximum deployed contract size of 24kB exceeded' if warn else ''))
+print('\n')

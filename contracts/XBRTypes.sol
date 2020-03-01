@@ -185,6 +185,26 @@ library XBRTypes {
         string meta;
     }
 
+    /// EIP712 type for use in XBRChannel.openFor.
+    struct EIP712ChannelOpen {
+        // replay attack protection
+        uint256 chainId;
+        address verifyingContract;
+    }
+
+    /// EIP712 type for use in XBRChannel.closeFor.
+    struct EIP712ChannelClose {
+        // replay attack protection
+        uint256 chainId;
+        address verifyingContract;
+
+        // actual data attributes
+        address channel_adr;
+        uint32 channel_seq;
+        uint256 balance;
+        bool is_final;
+    }
+
     /// EIP712 type data.
     // solhint-disable-next-line
     bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version)");
@@ -200,6 +220,14 @@ library XBRTypes {
     /// EIP712 type data.
     // solhint-disable-next-line
     bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256("EIP712MarketJoin(uint256 chainId,address verifyingContract,address member,uint256 joined,bytes16 marketId,uint8 actorType,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,address channel_adr,uint32 channel_seq,uint256 balance,bool is_final)");
 
     /**
      * Split a signature given as a bytes string into components.
@@ -284,6 +312,26 @@ library XBRTypes {
         ));
     }
 
+    function hash (EIP712ChannelOpen memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_CHANNEL_OPEN_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract
+        ));
+    }
+
+    function hash (EIP712ChannelClose memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_CHANNEL_CLOSE_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.channel_adr,
+            obj.channel_seq,
+            obj.balance,
+            obj.is_final
+        ));
+    }
+
     function verify (address signer, EIP712MemberRegister memory obj,
         bytes memory signature) public pure returns (bool) {
 
@@ -313,6 +361,34 @@ library XBRTypes {
     }
 
     function verify (address signer, EIP712MarketJoin memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712ChannelOpen memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712ChannelClose memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);

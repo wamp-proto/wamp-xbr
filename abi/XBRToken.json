@@ -349,7 +349,7 @@
         "id": 2856,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4281,
+        "sourceUnit": 4445,
         "src": "836:64:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -360,7 +360,7 @@
         "id": 2857,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4154,
+        "sourceUnit": 4318,
         "src": "901:63:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -371,7 +371,7 @@
         "id": 2858,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4212,
+        "sourceUnit": 4376,
         "src": "965:71:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -385,10 +385,10 @@
               "id": 2859,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4153,
+              "referencedDeclaration": 4317,
               "src": "1422:5:7",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$4153",
+                "typeIdentifier": "t_contract$_ERC20_$4317",
                 "typeString": "contract ERC20"
               }
             },
@@ -403,10 +403,10 @@
               "id": 2861,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4211,
+              "referencedDeclaration": 4375,
               "src": "1429:13:7",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$4211",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$4375",
                 "typeString": "contract ERC20Detailed"
               }
             },
@@ -416,10 +416,10 @@
           }
         ],
         "contractDependencies": [
-          3399,
-          4153,
-          4211,
-          4280
+          3563,
+          4317,
+          4375,
+          4444
         ],
         "contractKind": "contract",
         "documentation": "The XBR Token is a `ERC20` compatible token using (with no modifications)\nthe OpenZeppelin (https://openzeppelin.org/) reference implementation.\n * For API, please see\n *   * https://docs.openzeppelin.com/contracts/2.x/api/token/erc20\n  * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol",
@@ -427,10 +427,10 @@
         "id": 2887,
         "linearizedBaseContracts": [
           2887,
-          4211,
-          4153,
-          4280,
-          3399
+          4375,
+          4317,
+          4444,
+          3563
         ],
         "name": "XBRToken",
         "nodeType": "ContractDefinition",
@@ -607,7 +607,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4295,
+                          "referencedDeclaration": 4459,
                           "src": "1834:3:7",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -657,7 +657,7 @@
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4037,
+                      "referencedDeclaration": 4201,
                       "src": "1828:5:7",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -753,10 +753,10 @@
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 4211,
+                  "referencedDeclaration": 4375,
                   "src": "1781:13:7",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$4211_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$4375_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -818,7 +818,7 @@
         "id": 2856,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4281,
+        "sourceUnit": 4445,
         "src": "836:64:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -829,7 +829,7 @@
         "id": 2857,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4154,
+        "sourceUnit": 4318,
         "src": "901:63:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -840,7 +840,7 @@
         "id": 2858,
         "nodeType": "ImportDirective",
         "scope": 2888,
-        "sourceUnit": 4212,
+        "sourceUnit": 4376,
         "src": "965:71:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -854,10 +854,10 @@
               "id": 2859,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4153,
+              "referencedDeclaration": 4317,
               "src": "1422:5:7",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$4153",
+                "typeIdentifier": "t_contract$_ERC20_$4317",
                 "typeString": "contract ERC20"
               }
             },
@@ -872,10 +872,10 @@
               "id": 2861,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4211,
+              "referencedDeclaration": 4375,
               "src": "1429:13:7",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$4211",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$4375",
                 "typeString": "contract ERC20Detailed"
               }
             },
@@ -885,10 +885,10 @@
           }
         ],
         "contractDependencies": [
-          3399,
-          4153,
-          4211,
-          4280
+          3563,
+          4317,
+          4375,
+          4444
         ],
         "contractKind": "contract",
         "documentation": "The XBR Token is a `ERC20` compatible token using (with no modifications)\nthe OpenZeppelin (https://openzeppelin.org/) reference implementation.\n * For API, please see\n *   * https://docs.openzeppelin.com/contracts/2.x/api/token/erc20\n  * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol",
@@ -896,10 +896,10 @@
         "id": 2887,
         "linearizedBaseContracts": [
           2887,
-          4211,
-          4153,
-          4280,
-          3399
+          4375,
+          4317,
+          4444,
+          3563
         ],
         "name": "XBRToken",
         "nodeType": "ContractDefinition",
@@ -1076,7 +1076,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4295,
+                          "referencedDeclaration": 4459,
                           "src": "1834:3:7",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -1126,7 +1126,7 @@
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4037,
+                      "referencedDeclaration": 4201,
                       "src": "1828:5:7",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -1222,10 +1222,10 @@
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 4211,
+                  "referencedDeclaration": 4375,
                   "src": "1781:13:7",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$4211_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$4375_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -1324,7 +1324,7 @@
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-01T12:14:55.736Z",
+  "updatedAt": "2020-03-01T13:02:21.488Z",
   "devdoc": {
     "methods": {
       "allowance(address,address)": {
