@@ -62,7 +62,7 @@ after_script:
 stages:
   - test
   - name: deploy
-    if: repo = xbr/xbr-protocol AND branch = master AND type != pull_request
+    if: repo = crossbario/xbr-protocol AND branch = master AND type != pull_request
 
 matrix:
   fast_finish: true
@@ -89,7 +89,7 @@ matrix:
     # https://docs.travis-ci.com/user/build-stages/matrix-expansion/
     - stage: deploy
       python: "3.7"
-      if: repo = xbr/xbr-protocol AND branch = master AND type != pull_request
+      if: repo = crossbario/xbr-protocol AND branch = master AND type != pull_request
       #on:
       #  repo: crossbario/crossbar
       #  branch: master
@@ -127,7 +127,7 @@ notifications:
     on_failure: always  # options: [always|never|change] default: always
     on_start: always    # options: [always|never|change] default: always
     urls:
-      # travis encrypt --org --repo xbr/xbr-protocol "https://webhooks.gitter.im/e/7ef..."
+      # travis encrypt --org --repo crossbario/xbr-protocol "https://webhooks.gitter.im/e/7ef..."
       - secure: "Cl2DQqcw3HHaEZ1q5mX5A5FtevcwZnFhq1gESchHygRJAlRDMkek2ErUQkbjrfVtuDXWmF/4A2XqXclUvcl9LqWFHuQlnEI311EZnIAMqLSjw5aP7gC6UQ3UM0efiMhNOE2GW88tfh0TNjWCe+8pMcSLijK7rH2lDsiw0BsDrxixxrnK5BGDALzKOABt8gg+4mustqL+KelfzaJV+B3IgAsSSEmEp1TUo9PpBn2VKmNLzProZGm3tP450DRVJAZ0RPXCy/gcYGYCZfj+rIDHfU+reDINQt+23q20T9AcuTLNZDbZSCa1KG6PwFJvayBtN2PBhGdOp2YnqXzj/E+HVOeG70X1bF2uIMALp8RWTTC7UinrE5zYXM4TX8HAmu8OiHvEAqCCKg3bDGv1gFwFTPoGZdPXLn5k0cezAc5R7kmUZxjLmE4HHeT4rjEib4T7v8R0dLww8Fapt+2uBA6u4y04VQJSxIKWUMzOlc8JdTQNcB5hqbF9YBVYKFe4aSxwXOTbSpsQcCeMqvZyBEoGlvTqOM/DQa5NlFWI6P+Gu6nOTDdnQseQXSgylKgGTNrM5LSSBP7+HthQyyoPOVEU/HLA/2KFGMVGuOSwz9o60TthTFmA+iAWi7xPJ+yhuxCCEJOa9l1CkfnTiXOo/2MDkxT+xhorHNzdRX0EYg+U/Q4="
 
   # Slack: post feed on https://crossbario.slack.com/ in channel #ci
@@ -136,5 +136,5 @@ notifications:
     on_failure: always  # options: [always|never|change] default: always
     on_start: always    # options: [always|never|change] default: always
     rooms:
-      # travis encrypt --org --repo xbr/xbr-protocol "crossbario:FYg..."
+      # travis encrypt --org --repo crossbario/xbr-protocol "crossbario:FYg..."
       - secure: "QTk6U2Vict9BAeFjnz9ddPLl5Xx7HMVC86jsqYx3wUCu9lMgM1yQynoRTKPruXqdJ8luE/Vm8iiMUqehDTbBF9f664m7SZA55WZ84Pi8TjOuDF1KZDiX/MH/OaC8Dl26mc4p8aMrqNHqVH6AiPnsGi8zrSPOcn/WlnN9I4m2kv/xkl3YO+8SsKb2brWeV0NsREGASLDiA3F/0hIm/4gBaWwMdPa11LgDMt5hRopqEVqC+E7nIeOh+UiI5jvUh9/ILyIdTtX1/90lxGR8Xog2fXLJslJOGq/CXvtlk8DICew/yGbdrlWwv7Cb/F6+3P2O85PHDkNeVHW9BgXMdUZoom+6lqoGYsUar5h2j1CY/gVQt+pLdP4BeyhkJ7meqsW63SaoR13Ql8lwFVf2QcYTc6oruF/aeSg8GG4Dpe/kHFV/z9Cpc3Ingu2LdTAcHbzpzwnleguHg9rGeDXXTUc4e1A0TsMhfmbwKtr452wPIgOrtmT3ZeZ3rImwvvLmg672hicuZAMzg1HkUOaAGbGWxUSKJomlfWGbZxRjfMPSkAiQbK1487ImgGieRKxZX3IpPJQ2pZP4w4WMWd56ab9ErJGrhW6w3VviaSP5zj/CcLiNMgC4mCRQLmjntIh9cVPpqlxCCho6EHA731jc+mf8v8huxHiLJ5MInFodldu8XlU="
