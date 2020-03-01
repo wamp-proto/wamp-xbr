@@ -92,28 +92,10 @@ contract XBRMarket is XBRMaintained {
         network = XBRNetwork(network_);
     }
 
-    /**
-     * Create a new XBR market. The sender of the transaction must be XBR network member
-     * and automatically becomes owner of the new market.
-     *
-     * @param marketId The ID of the market to create. Must be unique (not yet existing).
-                       To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-     * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-     *              to a ZIP archive file with market documents.
-     * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-     *             to a RDF/Turtle file with market metadata.
-     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
-     * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
-     * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
-     * @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
-     *                  the revenue of the XBR Provider that receives XBR Token paid for transactions.
-     *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
-     *                  a fraction of the total supply of XBR tokens.
-     */
-    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
+    function _createMarket (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) private {
 
-        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
         // the market operator (owner) must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE ||
@@ -139,14 +121,14 @@ contract XBRMarket is XBRMaintained {
 
         // now remember out new market ..
         uint created = block.timestamp;
-        markets[marketId] = XBRTypes.Market(created, marketSeq, msg.sender, terms, meta, maker,
-            providerSecurity, consumerSecurity, marketFee, new address[](0), new address[](0));
+        markets[marketId] = XBRTypes.Market(created, marketSeq, member, terms, meta, maker,
+            providerSecurity, consumerSecurity, marketFee, signature, new address[](0), new address[](0));
 
         // .. and the market-maker-to-market mapping
         marketsByMaker[maker] = marketId;
 
         // .. and the market-owner-to-market mapping
-        marketsByOwner[msg.sender].push(marketId);
+        marketsByOwner[member].push(marketId);
 
         // .. and list of markst IDs
         marketIds.push(marketId);
@@ -155,8 +137,42 @@ contract XBRMarket is XBRMaintained {
         marketSeq = marketSeq + 1;
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        emit MarketCreated(marketId, created, marketSeq, msg.sender, terms, meta, maker,
+        emit MarketCreated(marketId, created, marketSeq, member, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee);
+    }
+
+    /**
+     * Create a new XBR market. The sender of the transaction must be XBR network member
+     * and automatically becomes owner of the new market.
+     *
+     * @param marketId The ID of the market to create. Must be unique (not yet existing).
+                       To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
+     * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
+     *              to a ZIP archive file with market documents.
+     * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
+     *             to a RDF/Turtle file with market metadata.
+     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
+     * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
+     * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
+     * @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
+     *                  the revenue of the XBR Provider that receives XBR Token paid for transactions.
+     *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
+     *                  a fraction of the total supply of XBR tokens.
+     */
+    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
+
+        _createMarket(msg.sender, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, "");
+    }
+
+    function createMarketFor (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) public {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
+            marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
+            "INVALID_MARKET_CREATE_SIGNATURE");
+
+        _createMarket(msg.sender, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
     }
 
     function countMarkets() public view returns (uint) {
@@ -273,73 +289,11 @@ contract XBRMarket is XBRMaintained {
     //     require(false, "NOT_IMPLEMENTED");
     // }
 
-    /**
-     * Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
-     *
-     * @param marketId The ID of the XBR data market to join.
-     * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
-     * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
-     */
-    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
+    function _joinMarket (address member, bytes16 marketId, uint8 actorType, string memory meta, bytes memory signature) private returns (uint256) {
 
-        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
         // the joining sender must be a registered member
-        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
-
-        // the market to join must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-
-        // the market owner cannot join as an actor (provider/consumer) in the market
-        require(markets[marketId].owner != msg.sender, "SENDER_IS_OWNER");
-
-        // the joining member must join as a data provider (seller) or data consumer (buyer)
-        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
-                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
-
-        // get the security amount required for joining the market (if any)
-        uint256 security;
-        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
-        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
-            // the joining member must not be joined as a provider already
-            require(uint8(markets[marketId].providerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
-            security = markets[marketId].providerSecurity;
-        } else  {
-            // the joining member must not be joined as a consumer already
-            require(uint8(markets[marketId].consumerActors[msg.sender].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
-            security = markets[marketId].consumerSecurity;
-        }
-
-        if (security > 0) {
-            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = network.token().transferFrom(msg.sender, markets[marketId].owner, security);
-            require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
-        }
-
-        // remember actor (by actor address) within market
-        uint joined = block.timestamp;
-        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
-            markets[marketId].providerActors[msg.sender] = XBRTypes.Actor(joined, security, meta, new address[](0));
-            markets[marketId].providerActorAdrs.push(msg.sender);
-        } else {
-            markets[marketId].consumerActors[msg.sender] = XBRTypes.Actor(joined, security, meta, new address[](0));
-            markets[marketId].consumerActorAdrs.push(msg.sender);
-        }
-
-        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
-        //                        uint256 security, string meta)
-        emit ActorJoined(marketId, msg.sender, actorType, joined, security, meta);
-
-        // return effective security transferred
-        return security;
-    }
-
-    function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
-        string memory meta, bytes memory signature) public returns (uint256) {
-
-        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
-
-        // the joining member must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
@@ -352,11 +306,9 @@ contract XBRMarket is XBRMaintained {
         require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
                 actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        // FIXME: check "joined"
-
         // get the security amount required for joining the market (if any)
-        uint256 security = 0;
-
+        uint256 security;
+        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
         if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
             // the joining member must not be joined as a provider already
             require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
@@ -367,10 +319,6 @@ contract XBRMarket is XBRMaintained {
             security = markets[marketId].consumerSecurity;
         }
 
-        // FIXME:
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
-            member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
-
         if (security > 0) {
             // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
             bool success = network.token().transferFrom(member, markets[marketId].owner, security);
@@ -378,18 +326,42 @@ contract XBRMarket is XBRMaintained {
         }
 
         // remember actor (by actor address) within market
+        uint joined = block.timestamp;
         if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
-            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, security, meta, new address[](0));
+            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, security, meta, signature, new address[](0));
             markets[marketId].providerActorAdrs.push(member);
         } else {
-            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, security, meta, new address[](0));
+            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, security, meta, signature, new address[](0));
             markets[marketId].consumerActorAdrs.push(member);
         }
 
+        // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
+        //                        uint256 security, string meta)
         emit ActorJoined(marketId, member, actorType, joined, security, meta);
 
         // return effective security transferred
         return security;
+    }
+
+    /**
+     * Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
+     *
+     * @param marketId The ID of the XBR data market to join.
+     * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+     * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+     */
+    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
+
+        return _joinMarket(msg.sender, marketId, actorType, meta, "");
+    }
+
+    function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
+        string memory meta, bytes memory signature) public returns (uint256) {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
+            member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
+
+        return _joinMarket(member, marketId, actorType, meta, signature);
     }
 
     // /**

@@ -67,6 +67,9 @@ library XBRTypes {
         /// Metadata attached to an actor in a market.
         string meta;
 
+        /// If the transaction was pre-signed, this is the signature the user supplied
+        bytes signature;
+
         /// All payment (paying) channels of the respective buyer (seller) actor.
         address[] channels;
     }
@@ -100,6 +103,9 @@ library XBRTypes {
         /// Market fee rate for the market operator.
         uint256 marketFee;
 
+        /// If the transaction was pre-signed, this is the signature the user supplied
+        bytes signature;
+
         /// Adresses of provider (seller) actors joined in the market.
         address[] providerActorAdrs;
 
@@ -117,7 +123,6 @@ library XBRTypes {
 
         /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
-
     }
 
     /// Container type for holding paying channel request information.
