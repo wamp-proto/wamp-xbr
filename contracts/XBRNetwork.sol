@@ -85,7 +85,23 @@ contract XBRNetwork is XBRMaintained {
         organization = organization_;
 
         // Technical creator is XBR member (by definition).
-        members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED);
+        members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
+    }
+
+    function _register (address member_, string memory eula_, string memory profile_, bytes memory signature) private {
+        // check that sender is not already a member
+        require(uint8(members[member_].level) == 0, "MEMBER_ALREADY_REGISTERED");
+
+        // check that the EULA the member accepted is the one we expect
+        require(keccak256(abi.encode(eula_)) ==
+                keccak256(abi.encode(eula)), "INVALID_EULA");
+
+        // remember the member
+        uint registered = block.timestamp;
+        members[member_] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE, signature);
+
+        // notify observers of new member
+        emit MemberCreated(member_, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
     }
 
     /**
@@ -97,19 +113,7 @@ contract XBRNetwork is XBRMaintained {
      * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
      */
     function register (string memory eula_, string memory profile_) public {
-        // check that sender is not already a member
-        require(uint8(members[msg.sender].level) == 0, "MEMBER_ALREADY_REGISTERED");
-
-        // check that the EULA the member accepted is the one we expect
-        require(keccak256(abi.encode(eula_)) ==
-                keccak256(abi.encode(eula)), "INVALID_EULA");
-
-        // remember the member
-        uint registered = block.timestamp;
-        members[msg.sender] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
-
-        // notify observers of new member
-        emit MemberCreated(msg.sender, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
+        _register(msg.sender, eula_, profile_, "");
     }
 
     /**
@@ -130,24 +134,10 @@ contract XBRNetwork is XBRMaintained {
     function registerFor (address member, uint256 registered, string memory eula_,
         string memory profile_, bytes memory signature) public {
 
-        // check that sender is not already a member
-        require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
-
-        // check that the EULA the member accepted is the one we expect
-        require(keccak256(abi.encode(eula_)) ==
-                keccak256(abi.encode(eula)), "INVALID_EULA");
-
-        // FIXME: check profile
-
-        // FIXME:
         require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
             member, registered, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
-        // remember the member
-        members[member] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
-
-        // notify observers of new member
-        emit MemberCreated(member, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
+        _register(member, eula_, profile_, signature);
     }
 
     /**
@@ -176,10 +166,9 @@ contract XBRNetwork is XBRMaintained {
      * @param member The address of the XBR network member to override member level.
      * @param level The member level to set the member to.
      */
-    // function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
-    //     require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
+    function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
+        require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
-    //     members[member].level = level;
-    // }
-
+        members[member].level = level;
+    }
 }

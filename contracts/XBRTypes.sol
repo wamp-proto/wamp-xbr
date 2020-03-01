@@ -51,6 +51,9 @@ library XBRTypes {
 
         /// Current member level.
         MemberLevel level;
+
+        /// If the transaction was pre-signed, this is the signature the user supplied
+        bytes signature;
     }
 
     /// Container type for holding XBR Market Actors information.
@@ -147,7 +150,23 @@ library XBRTypes {
         string profile;
     }
 
-    /// EIP712 type for use in XBRNetwork.joinMarketFor.
+    /// EIP712 type for use in XBRMarket.createMarketFor.
+    struct EIP712MarketCreate {
+        // replay attack protection
+        uint256 chainId;
+        address verifyingContract;
+
+        // actual data attributes
+        bytes16 marketId;
+        string terms;
+        string meta;
+        address maker;
+        uint256 providerSecurity;
+        uint256 consumerSecurity;
+        uint256 marketFee;
+    }
+
+    /// EIP712 type for use in XBRMarket.joinMarketFor.
     struct EIP712MarketJoin {
         // replay attack protection
         uint256 chainId;
@@ -162,19 +181,20 @@ library XBRTypes {
     }
 
     /// EIP712 type data.
-    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version)"
-    );
+    // solhint-disable-next-line
+    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version)");
 
     /// EIP712 type data.
-    bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256(
-        "EIP712MemberRegister(uint256 chainId,address verifyingContract,address member,uint256 registered,string eula,string profile)"
-    );
+    // solhint-disable-next-line
+    bytes32 constant EIP712_MEMBER_REGISTER_TYPEHASH = keccak256("EIP712MemberRegister(uint256 chainId,address verifyingContract,address member,uint256 registered,string eula,string profile)");
 
     /// EIP712 type data.
-    bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256(
-        "EIP712MarketJoin(uint256 chainId,address verifyingContract,address member,uint256 joined,bytes16 marketId,uint8 actorType,string meta)"
-    );
+    // solhint-disable-next-line
+    bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,bytes16 marketId,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256("EIP712MarketJoin(uint256 chainId,address verifyingContract,address member,uint256 joined,bytes16 marketId,uint8 actorType,string meta)");
 
     /**
      * Split a signature given as a bytes string into components.
@@ -230,6 +250,22 @@ library XBRTypes {
         ));
     }
 
+    function hash (EIP712MarketCreate memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MARKET_CREATE_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.marketId,
+            obj.terms,
+            obj.meta,
+            obj.maker,
+            obj.providerSecurity,
+            obj.consumerSecurity,
+            obj.marketFee,
+            keccak256(bytes(obj.meta))
+        ));
+    }
+
     function hash (EIP712MarketJoin memory obj) private pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_MARKET_JOIN_TYPEHASH,
@@ -244,6 +280,20 @@ library XBRTypes {
     }
 
     function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    function verify (address signer, EIP712MarketCreate memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);

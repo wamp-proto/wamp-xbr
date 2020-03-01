@@ -113,7 +113,7 @@ contract XBRMarket is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
 
         // the market operator (owner) must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE ||
@@ -282,7 +282,7 @@ contract XBRMarket is XBRMaintained {
      */
     function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
-        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
 
         // the joining sender must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
@@ -337,7 +337,7 @@ contract XBRMarket is XBRMaintained {
     function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 
-        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(msg.sender);
 
         // the joining member must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
