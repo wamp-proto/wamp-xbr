@@ -112,11 +112,11 @@ contract XBRMarket is XBRMaintained {
     function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        XBRTypes.Member memory member = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
 
         // the market operator (owner) must be a registered member
-        require(member.level == XBRTypes.MemberLevel.ACTIVE ||
-                member.level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+        require(member_level == XBRTypes.MemberLevel.ACTIVE ||
+                member_level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
 
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
@@ -281,10 +281,10 @@ contract XBRMarket is XBRMaintained {
      */
     function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
-        XBRTypes.Member memory member = network.members(msg.sender);
+        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
 
         // the joining sender must be a registered member
-        require(member.level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
@@ -336,10 +336,10 @@ contract XBRMarket is XBRMaintained {
     function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 
-        XBRTypes.Member memory member_ = network.members(member);
+        (, , , XBRTypes.MemberLevel member_level) = network.members(msg.sender);
 
         // the joining member must be a registered member
-        require(member_.level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
 
         // the market to join must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
