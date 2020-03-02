@@ -3,7 +3,7 @@
 # build docs/website and upload to "xbr.network" S3 bucket
 
 export AWS_DEFAULT_REGION=eu-central-1
-export AWS_S3_BUCKET_NAME=xbr.network
+export AWS_S3_BUCKET_NAME=xbr.foundation
 # AWS_ACCESS_KEY_ID         : must be set in Travis CI build context
 # AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context
 
