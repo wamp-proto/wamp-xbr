@@ -172,7 +172,7 @@ contract XBRMarket is XBRMaintained {
             marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
 
-        _createMarket(msg.sender, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
+        _createMarket(member, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
     }
 
     function countMarkets() public view returns (uint) {

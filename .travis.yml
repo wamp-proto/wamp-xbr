@@ -24,8 +24,14 @@ addons:
 before_install:
   - export PATH=$PATH:$HOME/.local/bin
 
-  # build ID (eg, "20180513-28114a1")
-  - export XBR_BUILD_ID="$(date --utc "+%Y%m%d")-$(git rev-parse --short ${TRAVIS_COMMIT})"
+  # BUILD_DATE, eg "20180513"
+  - export BUILD_DATE=`date --utc "+%Y%m%d"`
+
+  # XBR_PROTOCOL_VERSION, eg "20.3.1"
+  - export XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4`
+
+  # XBR_PROTOCOL_VCS_REF, eg "7b5de7e"
+  - export XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit`
 
   - npm install -g google-closure-compiler
   - npm install -g node-buffer
