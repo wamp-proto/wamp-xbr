@@ -1,42 +1,41 @@
 {
-  "name": "xbr",
-  "version": "20.3.1",
-  "description": "The XBR Protocol (smart contracts package)",
-  "keywords": [
-    "ethereum",
-    "solidity",
-    "xbr",
-    "crossbar",
-    "autobahn",
-    "wamp",
-    "data-service",
-    "data-monetization"
-  ],
-  "author": "Crossbar.io Technologies GmbH",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/xbr/xbr-protocol.git"
-  },
-  "dependencies": {
-    "bindings": "^1.5.0",
-    "eth-sig-util": "^2.5.2",
-    "ethereumjs-util": "^6.2.0",
-    "openzeppelin-solidity": "^2.5.0"
-  },
-  "devDependencies": {
-    "solhint": "^2.3.0",
-    "solidity-coverage": "^0.7.2",
-    "truffle": "^5.1.14",
-    "truffle-contract": "^4.0.31",
-    "truffle-hdwallet-provider": "^1.0.17"
-  },
-  "main": "index.js",
-  "scripts": {
-    "test": "truffle test --network ganache",
-    "coverage": "truffle run coverage"
-  },
-  "directories": {
-    "test": "test"
+    "name": "xbr",
+    "version": "20.3.2",
+    "description": "The XBR Protocol (smart contracts package)",
+    "keywords": [
+        "ethereum",
+        "solidity",
+        "xbr",
+        "crossbar",
+        "autobahn",
+        "wamp",
+        "data-service",
+        "data-monetization"
+    ],
+    "author": "Crossbar.io Technologies GmbH",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/crossbario/xbr-protocol.git"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "bindings": "^1.5.0",
+        "eth-sig-util": "^2.5.2",
+        "ethereumjs-util": "^6.2.0",
+        "openzeppelin-solidity": "^2.5.0",
+        "solhint": "^2.3.0",
+        "solidity-coverage": "^0.7.2",
+        "truffle": "^5.1.14",
+        "truffle-contract": "^4.0.31",
+        "truffle-hdwallet-provider": "^1.0.17"
+    },
+    "scripts": {
+        "test": "truffle test --network ganache",
+        "coverage": "truffle run coverage"
+    },
+    "directories": {
+        "test": "test"
+    }
   }
-}
