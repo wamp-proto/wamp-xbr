@@ -51,6 +51,7 @@ list_targets:
 	@grep '^[^#[:space:]].*:' Makefile
 
 clean: clean_docs
+	-rm -rf ./abi/
 	-rm -rf ./build/
 	-rm -rf ./dist/
 	-rm -rf ./*.egg-info/
@@ -94,22 +95,16 @@ compile:
 	wc -l contracts/*.sol
 	grep "struct EIP712" contracts/XBRTypes.sol
 	$(TRUFFLE) compile --all
-	cp build/contracts/*.json ./abi/
-	rm -f ./abi/XBRTest.json
 	python ./check-abi-files.py
 
 compile_dist:
-	-rm ./abi/*.json
 	-rm ./build/contracts/*.json
 	$(TRUFFLE) compile --all
-	cp build/contracts/*.json ./abi/
 	python ./check-abi-files.py
-	rm ./abi/XBRTest.json
-	find ./abi
 	-rm ../../crossbario/autobahn-python/autobahn/xbr/contracts/*.json
-	cp -r abi/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/
+	cp -r ./build/contracts/*.json ../../crossbario/autobahn-python/autobahn/xbr/contracts/
 	-rm ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/*.json
-	cp -r abi/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
+	cp -r ./build/contracts/*.json ../../crossbario/autobahn-js/packages/autobahn-xbr/lib/contracts/
 
 deploy:
 	@echo
@@ -188,7 +183,6 @@ run_ganache:
 
 # 3) deploy xbr smart contract to blockchain
 deploy_ganache:
-	cp build/contracts/*.json ./abi/
 	python ./check-abi-files.py
 	$(TRUFFLE) migrate --reset --network ganache
 

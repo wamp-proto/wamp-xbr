@@ -289,13 +289,12 @@ library XBRTypes {
             obj.chainId,
             obj.verifyingContract,
             obj.marketId,
-            obj.terms,
-            obj.meta,
+            keccak256(bytes(obj.terms)),
+            keccak256(bytes(obj.meta)),
             obj.maker,
             obj.providerSecurity,
             obj.consumerSecurity,
-            obj.marketFee,
-            keccak256(bytes(obj.meta))
+            obj.marketFee
         ));
     }
 

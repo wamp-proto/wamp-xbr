@@ -5,8 +5,8 @@ import json
 MAX_CONTRACT_BYTECODE_SIZE = 24 * 1024
 
 print('\nCompiled (deployed) contract size - the maximum allowed (per-contract) is {} bytes!\n\n'.format(MAX_CONTRACT_BYTECODE_SIZE))
-for fn in os.listdir('abi'):
-    fn = os.path.join('abi', fn)
+for fn in os.listdir('build/contracts'):
+    fn = os.path.join('build/contracts', fn)
     with open(fn, 'rb') as f:
         data = f.read()
         obj = json.loads(data)
