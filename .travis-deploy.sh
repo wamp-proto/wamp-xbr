@@ -47,30 +47,10 @@ aws s3 ls ${AWS_S3_BUCKET_NAME}
 #   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/${XBR_PROTOCOL_VERSION}/
 #   => https://xbr.network/lib/abi/${XBR_PROTOCOL_VERSION}/
 tox -c tox.ini -e truffle-build
-aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/${XBR_PROTOCOL_VERSION}/
+aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}/
 
 cd ./build/contracts/ && zip ../../xbr-protocol-${XBR_PROTOCOL_VERSION}.zip *.json && cd ../..
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/js/
-
-# deploy latest XBR Lib for JS:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/js/
-#   => https://xbr.network/lib/js/
-tox -c tox.ini -e xbr-js
-aws s3 cp --acl public-read ./build/xbr.js      s3://${AWS_S3_BUCKET_NAME}/lib/js/xbr-${XBR_PROTOCOL_VERSION}.js
-aws s3 cp --acl public-read ./build/xbr.min.js  s3://${AWS_S3_BUCKET_NAME}/lib/js/xbr-${XBR_PROTOCOL_VERSION}.min.js
-aws s3 cp --acl public-read ./build/xbr.min.jgz s3://${AWS_S3_BUCKET_NAME}/lib/js/xbr-${XBR_PROTOCOL_VERSION}.min.jgz
-
-# deploy latest XBR Lib for Python:
-# https://www.python.org/dev/peps/pep-0503/
-# https://packaging.python.org/guides/hosting-your-own-index/
-# tox -c tox.ini -e xbr-python
-
-#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/python/xbr/
-#   => https://xbr.network/lib/python/xbr/
-# aws s3 cp --recursive --acl public-read ./dist s3://${AWS_S3_BUCKET_NAME}/lib/python/xbr/
-
-#   => https://s3.eu-central-1.amazonaws.com/crossbarbuilder/wheels/
-# aws s3 cp --recursive ./dist s3://crossbarbuilder/wheels
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/
 
 # deploy latest docs:
 #   => https://s3.eu-central-1.amazonaws.com/xbr.network/docs/index.html

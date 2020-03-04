@@ -18,8 +18,7 @@
         "type": "git",
         "url": "git://github.com/crossbario/xbr-protocol.git"
     },
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "bindings": "^1.5.0",
         "eth-sig-util": "^2.5.2",
@@ -38,4 +37,4 @@
     "directories": {
         "test": "test"
     }
-  }
+}
