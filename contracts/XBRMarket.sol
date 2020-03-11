@@ -26,7 +26,6 @@ import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
 import "./XBRToken.sol";
 import "./XBRNetwork.sol";
-import "./XBRChannel.sol";
 
 
 /**
@@ -66,6 +65,7 @@ contract XBRMarket is XBRMaintained {
 
     // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
+    /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)

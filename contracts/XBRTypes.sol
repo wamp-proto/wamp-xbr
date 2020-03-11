@@ -29,11 +29,17 @@ import "./XBRChannel.sol";
  */
 library XBRTypes {
 
-    /// XBR Network membership levels
+    /// All XBR Member levels.
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
-    /// XBR Market Actor types
+    /// All XBR Actor types.
     enum ActorType { NULL, PROVIDER, CONSUMER }
+
+    /// All XBR Channel types.
+    enum ChannelType { NONE, PAYMENT, PAYING }
+
+    /// All XBR Channel states.
+    enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
 
     // //////// container types
 
@@ -123,6 +129,72 @@ library XBRTypes {
 
         /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
+    }
+
+    /// Container type for holding XBR Channel information.
+    struct Channel {
+        /// Channel sequence number.
+        uint32 channelSeq;
+
+        /// Block timestamp when the channel was created.
+        uint256 openedAt;
+
+        /// Current payment channel type (either payment or paying channel).
+        ChannelType ctype;
+
+        /// Current payment channel state.
+        ChannelState state;
+
+        /// The XBR Market ID this channel is operating payments (or payouts) for.
+        bytes16 marketId;
+
+        /**
+        * The off-chain market maker that operates this payment or paying channel.
+        */
+        address marketmaker;
+
+        /**
+        * The sender of the payments in this channel. Either a XBR Consumer (payment channels) or
+        * the XBR Market Maker (paying channels).
+        */
+        address actor;
+
+        /**
+        * The delegate of the channel, e.g. the XBR Consumer delegate in case of a payment channel
+        * or the XBR Provider (delegate) in case of a paying channel that is allowed to consume or
+        * provide data with payment therefor running under this channel.
+        */
+        address delegate;
+
+        /**
+        * Recipient of the payments in this channel. Either the XBR Market Operator (payment
+        * channels) or a XBR Provider (paying channels) in the market.
+        */
+        address recipient;
+
+        /// Amount of XBR held in the channel.
+        uint256 amount;
+
+        /**
+        * Timeout with which the channel will be closed (the grace period during which the
+        * channel will wait for participants to submit their last signed transaction).
+        */
+        uint32 timeout;
+
+        /// Signature supplied when opening the channel.
+        bytes openedSignature;
+
+        /// Block timestamp when the channel was closed (finally, after the timeout).
+        uint256 closingAt;
+
+        /// Block timestamp when the channel was closed (finally, after the timeout).
+        uint256 closedAt;
+
+        /// When this channel is closing, the sequence number of the closing transaction.
+        uint32 closing_channel_seq;
+
+        /// When this channel is closing, the off-chain closing balance of the closing transaction.
+        uint256 closing_balance;
     }
 
     /// Container type for holding paying channel request information.
