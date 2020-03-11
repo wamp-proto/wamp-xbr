@@ -63,12 +63,6 @@ contract XBRChannel is XBRMaintained {
     event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
         uint256 refund, uint256 closedAt);
 
-    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
-    XBRToken private _token;
-
-    /// Instance of XBRMarket contract this contract is linked to.
-    XBRNetwork public network;
-
     /// Instance of XBRMarket contract this contract is linked to.
     XBRMarket public market;
 
@@ -78,10 +72,13 @@ contract XBRChannel is XBRMaintained {
     /// Table of all XBR Channels.
     mapping(bytes16 => XBRTypes.Channel) public channels;
 
-    constructor (address token_, address network_, address market_) {
-        token = token_;
-        network = network_;
-        market = market_;
+    /**
+     * Constructor for this contract, only called once (when deploying the network).
+     *
+     * @param market_ The XBR markets contract this instance is associated with.
+     */
+    constructor (address market_) public {
+        market = XBRMarket(market_);
     }
 
     /**
@@ -112,18 +109,8 @@ contract XBRChannel is XBRMaintained {
             network.verifyingContract(), marketId, marketmaker, actor, delegate, recipient,
             amount, timeout, ctype), signature), "INVALID_CHANNEL_SIGNATURE");
 
-        // the actor (buyer/seller in the market) must be a registered member
-        (, , , XBRTypes.MemberLevel actor_member_level, ) = network.members(actor);
-        require(actor_member_level == XBRTypes.MemberLevel.ACTIVE ||
-                actor_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_ACTOR");
-
-        // the recepient must be a registered member
-        (, , , XBRTypes.MemberLevel recipient_member_level, ) = network.members(recipient);
-        require(recipient_member_level == XBRTypes.MemberLevel.ACTIVE ||
-                recipient_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_RECIPIENT");
-
         // market must exist
-        require(markets[marketId].owner != address(0), "INVALID_CHANNEL_MARKET");
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
         // channel must not yet exist
         require(channels[channelId].actor == address(0), "INVALID_CHANNEL_ALREADY_EXISTS");
@@ -134,11 +121,43 @@ contract XBRChannel is XBRMaintained {
         // must provide the sam market maker address as set in the market
         require(marketmaker != markets[marketId].maker, "INVALID_CHANNEL_MAKER");
 
+        // the actor (buyer/seller in the market) must be a registered member
+        (, , , XBRTypes.MemberLevel actor_member_level, ) = network.members(actor);
+        require(actor_member_level == XBRTypes.MemberLevel.ACTIVE ||
+                actor_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_ACTOR");
+
         // must provide a valid delegate address
         require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
 
-        // amount must be positive (and obviously smaller than the total token supply)
-        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
+        // the recepient must be a registered member
+        (, , , XBRTypes.MemberLevel recipient_member_level, ) = network.members(recipient);
+        require(recipient_member_level == XBRTypes.MemberLevel.ACTIVE ||
+                recipient_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_RECIPIENT");
+
+        if (ctype == XBRTypes.ChannelType.PAYMENT) {
+            // actor must be consumer in the market
+            require(uint8(markets[marketId].consumerActors[msg.sender].joined) != 0, "ACTOR_NOT_CONSUMER");
+
+            // technical recipient of the unidirectional, half-legged channel must be the
+            // owner (operator) of the market
+            require(recipient == markets[marketId].owner, "RECIPIENT_NOT_MARKET");
+
+        } else if (ctype == XBRTypes.ChannelType.PAYING) {
+            // actor must be market maker for market
+            require(markets[marketId].maker == msg.sender, "ACTOR_NOT_MAKER");
+
+            // recipient must be provider in the market
+            require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
+
+        } else {
+            require(false, "INVALID_CHANNEL_TYPE");
+        }
+
+        // payment channel amount must be positive
+        require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
+
+        // payment channel timeout can be [0 seconds - 10 days[
+        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
 
         // channel creation time
         uint256 openedAt = block.timestamp;
@@ -248,3 +267,54 @@ contract XBRChannel is XBRMaintained {
         }
     }
 }
+
+/*
+function openPaymentChannel (bytes16 marketId, address recipient, address delegate,
+    uint256 amount, uint32 timeout) public returns (address paymentChannel) {
+
+    // create new payment channel contract
+    XBRChannel channel = new XBRChannel(network.organization(), address(network.token()), address(this), marketId,
+        markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+        XBRChannel.ChannelType.PAYMENT);
+
+    // transfer tokens (initial balance) into payment channel contract
+    bool success = network.token().transferFrom(msg.sender, address(channel), amount);
+    require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
+
+    // remember the new payment channel associated with the market
+    //markets[marketId].channels.push(address(channel));
+    markets[marketId].consumerActors[msg.sender].channels.push(address(channel));
+
+    // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
+    //      address recipient, address channel)
+    emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
+        address(channel), XBRChannel.ChannelType.PAYMENT);
+
+    // return address of new channel contract
+    return address(channel);
+}
+
+function openPayingChannel (bytes16 marketId, address recipient, address delegate,
+    uint256 amount, uint32 timeout) public returns (address paymentChannel) {
+
+    // create new paying channel contract
+    XBRChannel channel = new XBRChannel(network.organization(), address(network.token), address(this),
+        marketId, markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
+        XBRChannel.ChannelType.PAYING);
+
+    // transfer tokens (initial balance) into payment channel contract
+    bool success = network.token().transferFrom(msg.sender, address(channel), amount);
+    require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
+
+    // remember the new payment channel associated with the market
+    //markets[marketId].channels.push(address(channel));
+    markets[marketId].providerActors[recipient].channels.push(address(channel));
+
+    // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
+    //  address recipient, address channel)
+    emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
+        address(channel), XBRChannel.ChannelType.PAYING);
+
+    return address(channel);
+}
+*/
