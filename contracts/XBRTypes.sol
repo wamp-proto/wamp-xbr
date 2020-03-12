@@ -32,7 +32,7 @@ library XBRTypes {
     /// All XBR Member levels.
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
-    /// All XBR Actor types.
+    /// All XBR Actor types in a market.
     enum ActorType { NULL, PROVIDER, CONSUMER }
 
     /// All XBR Channel types.
@@ -197,16 +197,6 @@ library XBRTypes {
         uint256 closing_balance;
     }
 
-    /// Container type for holding paying channel request information.
-    struct PayingChannelRequest {
-        bytes16 marketId;
-        address sender;
-        address delegate;
-        address recipient;
-        uint256 amount;
-        uint32 timeout;
-    }
-
     /// EIP712 type for XBR as a type domain.
     struct EIP712Domain {
         // make signatures from different domains incompatible
@@ -262,6 +252,18 @@ library XBRTypes {
         // replay attack protection
         uint256 chainId;
         address verifyingContract;
+
+        // actual data attributes
+        uint8 ctype;
+        uint256 openedAt;
+        bytes16 marketId;
+        bytes16 channelId;
+        address actor;
+        address delegate;
+        address marketmaker;
+        address recipient;
+        uint256 amount;
+        uint32 timeout;
     }
 
     /// EIP712 type for use in XBRChannel.closeFor.
@@ -271,10 +273,11 @@ library XBRTypes {
         address verifyingContract;
 
         // actual data attributes
-        address channel_adr;
-        uint32 channel_seq;
+        bytes16 marketId;
+        bytes16 channelId;
+        uint32 channelSeq;
         uint256 balance;
-        bool is_final;
+        bool isFinal;
     }
 
     /// EIP712 type data.
@@ -295,11 +298,11 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract)");
+    bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract,uint8 ctype,uint256 openedAt,bytes16 marketId,bytes16 channelId,address actor,address delegate,address recipient,uint256 amount,uint32 timeout)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,address channel_adr,uint32 channel_seq,uint256 balance,bool is_final)");
+    bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,bytes16 marketId,bytes16 channelId,uint32 channelSeq,uint256 balance,bool isFinal)");
 
     /**
      * Split a signature given as a bytes string into components.
@@ -387,7 +390,16 @@ library XBRTypes {
         return keccak256(abi.encode(
             EIP712_CHANNEL_OPEN_TYPEHASH,
             obj.chainId,
-            obj.verifyingContract
+            obj.verifyingContract,
+            obj.ctype,
+            obj.openedAt,
+            obj.marketId,
+            obj.channelId,
+            obj.actor,
+            obj.delegate,
+            obj.recipient,
+            obj.amount,
+            obj.timeout
         ));
     }
 
@@ -396,10 +408,11 @@ library XBRTypes {
             EIP712_CHANNEL_CLOSE_TYPEHASH,
             obj.chainId,
             obj.verifyingContract,
-            obj.channel_adr,
-            obj.channel_seq,
+            obj.marketId,
+            obj.channelId,
+            obj.channelSeq,
             obj.balance,
-            obj.is_final
+            obj.isFinal
         ));
     }
 

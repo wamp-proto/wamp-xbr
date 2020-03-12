@@ -244,16 +244,37 @@ contract XBRMarket is XBRMaintained {
         return marketIds.length;
     }
 
+/*
+    // TypeError: Only libraries are allowed to use the mapping type in public or external functions.
+    function getMarket(bytes16 marketId) public view returns (XBRTypes.Market memory) {
+        return markets[marketId];
+    }
+*/
+
     function getMarketOwner(bytes16 marketId) public view returns (address) {
         return markets[marketId].owner;
     }
 
-    function getMarket(bytes16 marketId) public view returns (XBRTypes.Market memory) {
-        return markets[marketId];
+    function getMarketMaker(bytes16 marketId) public view returns (address) {
+        return markets[marketId].maker;
     }
 
     function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
         return marketsByOwner[owner][index];
+    }
+
+    function isActor(bytes16 marketId, address actor, XBRTypes.ActorType actorType) public view returns (bool) {
+        if (markets[marketId].owner == address(0)) {
+            return false;
+        } else {
+            if (actorType ==  XBRTypes.ActorType.CONSUMER) {
+                return markets[marketId].consumerActors[actor].joined > 0;
+            } else if (actorType ==  XBRTypes.ActorType.PROVIDER) {
+                return markets[marketId].providerActors[actor].joined > 0;
+            } else {
+                return false;
+            }
+        }
     }
 
     function countMarketsByOwner(address owner) public view returns (uint) {

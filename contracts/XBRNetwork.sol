@@ -73,12 +73,13 @@ contract XBRNetwork is XBRMaintained {
     constructor (address token_, address organization_) public {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
-        // FIXME
         uint256 _chainId;
         assembly {
             _chainId := chainid()
         }
         verifyingChain = _chainId;
+        verifyingChain = 4;
+
         verifyingContract = address(this);
 
         token = XBRToken(token_);

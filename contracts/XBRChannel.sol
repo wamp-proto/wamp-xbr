@@ -93,26 +93,14 @@ contract XBRChannel is XBRMaintained {
      * @param timeout The channel timeout period that begins with the first call to `close()`
      */
     function openChannel (XBRTypes.ChannelType ctype, bytes16 marketId, bytes16 channelId,
-        address marketmaker, address actor, address delegate, address recipient, uint256 amount,
+        address actor, address delegate, address recipient, uint256 amount,
         uint32 timeout, bytes memory signature) public {
 
-        // the data used to open the new channel must have a valid signature, signed by the
-        // actor (buyer/seller in the market)
-        require(XBRTypes.verify(actor, XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
-            market.network().verifyingContract(), marketId, marketmaker, actor, delegate, recipient,
-            amount, timeout, ctype), signature), "INVALID_CHANNEL_SIGNATURE");
-
         // market must exist
-        require(market.getMarket(marketId).owner != address(0), "NO_SUCH_MARKET");
+        require(market.getMarketOwner(marketId) != address(0), "NO_SUCH_MARKET");
 
         // channel must not yet exist
         require(channels[channelId].actor == address(0), "INVALID_CHANNEL_ALREADY_EXISTS");
-
-        // must provide a valid market maker address
-        require(marketmaker != address(0), "INVALID_CHANNEL_MAKER");
-
-        // must provide the sam market maker address as set in the market
-        require(marketmaker != market.getMarket(marketId).maker, "INVALID_CHANNEL_MAKER");
 
         // the actor (buyer/seller in the market) must be a registered member
         (, , , XBRTypes.MemberLevel actor_member_level, ) = market.network().members(actor);
@@ -128,19 +116,26 @@ contract XBRChannel is XBRMaintained {
                 recipient_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_RECIPIENT");
 
         if (ctype == XBRTypes.ChannelType.PAYMENT) {
+            // transaction sender must be a market buyer-actor or the market-maker (the piece of running software for the market)
+            require(msg.sender == market.getMarketMaker(marketId) || msg.sender == actor, "SENDER_NOT_MARKETMAKER_OR_BUYER");
+
             // actor must be consumer in the market
-            require(uint8(market.getMarket(marketId).consumerActors[msg.sender].joined) != 0, "ACTOR_NOT_CONSUMER");
+            require(market.isActor(marketId, actor, XBRTypes.ActorType.CONSUMER), "ACTOR_NOT_CONSUMER");
 
             // technical recipient of the unidirectional, half-legged channel must be the
             // owner (operator) of the market
             require(recipient == market.getMarketOwner(marketId), "RECIPIENT_NOT_MARKET");
 
+
         } else if (ctype == XBRTypes.ChannelType.PAYING) {
-            // actor must be market maker for market
-            require(market.getMarket(marketId).maker == msg.sender, "ACTOR_NOT_MAKER");
+            // transaction sender must be the market-owner (aka market-ooperator) or the market-maker (the piece of running software for the market)
+            require(msg.sender == market.getMarketMaker(marketId) || msg.sender == market.getMarketOwner(marketId), "SENDER_NOT_MARKETMAKER_OR_OWNER");
+
+            // transaction sender must be the market-owner (aka market-ooperator) or the market-maker (the piece of running software for the market)
+            require(actor == market.getMarketOwner(marketId), "ACTOR_NOT_MARKET");
 
             // recipient must be provider in the market
-            require(uint8(market.getMarket(marketId).providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
+            require(market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER), "RECIPIENT_NOT_PROVIDER");
 
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
@@ -152,17 +147,25 @@ contract XBRChannel is XBRMaintained {
         // payment channel timeout can be [0 seconds - 10 days[
         require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
 
+        // the data used to open the new channel must have a valid signature, signed by the
+        // actor (buyer/seller in the market)
+        require(XBRTypes.verify(actor, XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
+            market.network().verifyingContract(), uint8(ctype), block.number, marketId, channelId,
+            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout), signature),
+            "INVALID_CHANNEL_SIGNATURE");
+
+        // Everything is OK! Continue actually opening the channel ..
+
         // channel creation time
         uint256 openedAt = block.timestamp;
         channels[channelId] = XBRTypes.Channel(channelSeq, openedAt, ctype, XBRTypes.ChannelState.OPEN,
-            marketId, marketmaker, actor, delegate, recipient, amount, timeout, signature);
+            marketId, market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout, signature, 0, 0, 0, 0);
 
         // increment channel sequence for next channel
         channelSeq = channelSeq + 1;
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        emit Opened(ctype, marketId, channelId, marketmaker, actor, delegate, recipient,
-            amount, timeout, signature);
+        // emit Opened(ctype, marketId, channelId, marketmaker, actor, delegate, recipient, amount, timeout, signature);
     }
 
     /**
@@ -186,11 +189,13 @@ contract XBRChannel is XBRMaintained {
         address delegate = channels[channelId].delegate;
         address marketmaker = channels[channelId].marketmaker;
 
-        require(XBRTypes.verify(delegate, address(this), channelSeq, balance, isFinal, delegateSignature),
-            "INVALID_delegateSignatureNATURE");
+        require(XBRTypes.verify(delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
+            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            balance, isFinal), delegateSignature), "INVALID_DELEGATE_SIGNATURE");
 
-        require(XBRTypes.verify(marketmaker, address(this), channelSeq, balance, isFinal, marketmakerSignature),
-            "INVALID_marketmakerSignatureNATURE");
+        require(XBRTypes.verify(marketmaker, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
+            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            balance, isFinal), marketmakerSignature), "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid
         require(0 <= balance && balance <= channels[channelId].amount, "INVALID_CLOSING_BALANCE");
@@ -225,7 +230,7 @@ contract XBRChannel is XBRMaintained {
 
             // the closing balance of a newer transaction must be not greater than anyone we already know
             if (channels[channelId].closing_channel_seq > 0) {
-                require(balance <= channels[channelId].closing_balance, "TRANSACTION_balanceOUTDATED");
+                require(balance <= channels[channelId].closing_balance, "TRANSACTION_BALANCE_OUTDATED");
             }
 
             // note the closing transaction sequence number and closing off-chain balance
@@ -254,7 +259,7 @@ contract XBRChannel is XBRMaintained {
             }
 
             if (fee > 0) {
-                require(market.network().token().transfer(market.network().organization, fee), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
+                require(market.network().token().transfer(market.network().organization(), fee), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
             }
 
             // mark channel as closed (but do not selfdestruct)
@@ -262,7 +267,7 @@ contract XBRChannel is XBRMaintained {
             channels[channelId].state = XBRTypes.ChannelState.CLOSED;
 
             // notify channel observers
-            //emit Closed(marketId, sender, payout, fee, refund, closedAt);
+            // emit Closed(marketId, sender, payout, fee, refund, closedAt);
         }
     }
 }
