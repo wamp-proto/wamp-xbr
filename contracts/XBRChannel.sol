@@ -72,6 +72,9 @@ contract XBRChannel is XBRMaintained {
     /// Table of all XBR Channels.
     mapping(bytes16 => XBRTypes.Channel) public channels;
 
+    /// Table of all XBR Channel closing states.
+    mapping(bytes16 => XBRTypes.ChannelClosingState) public channelClosingStates;
+
     /**
      * Constructor for this contract, only called once (when deploying the network).
      *
@@ -158,8 +161,13 @@ contract XBRChannel is XBRMaintained {
 
         // channel creation time
         uint256 openedAt = block.timestamp;
-        channels[channelId] = XBRTypes.Channel(channelSeq, openedAt, ctype, XBRTypes.ChannelState.OPEN,
-            marketId, market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout);
+
+        // track channel static information
+        channels[channelId] = XBRTypes.Channel(channelSeq, openedAt, ctype, marketId,
+            market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout, signature);
+
+        // track channel closing (== modifiable) information
+        channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN, 0, 0, 0, 0, 0, 0, "", "");
 
         // increment channel sequence for next channel
         channelSeq = channelSeq + 1;
@@ -179,12 +187,16 @@ contract XBRChannel is XBRMaintained {
      */
     function closeChannel (bytes16 channelId, uint32 closingChannelSeq, uint256 balance, bool isFinal,
         bytes memory delegateSignature, bytes memory marketmakerSignature) public {
-    /*
+
         // channel must exist
         require(channels[channelId].actor != address(0), "NO_SUCH_CHANNEL");
 
+        // this should not happen if above succeeds, but better be paranoid
+        require(channelClosingStates[channelId].state != XBRTypes.ChannelState.NULL, "NO_SUCH_CHANNEL");
+
         // channel must be in correct state (OPEN or CLOSING)
-        require(channels[channelId].state == XBRTypes.ChannelState.OPEN || channels[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
+        require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
+                channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
         address delegate = channels[channelId].delegate;
         address marketmaker = channels[channelId].marketmaker;
@@ -204,13 +216,13 @@ contract XBRChannel is XBRMaintained {
         require(closingChannelSeq >= 1, "INVALID_CLOSING_SEQ");
 
         // if the channel is already closing ..
-        if (channels[channelId].state == XBRTypes.ChannelState.CLOSING) {
+        if (channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING) {
             // the channel must not yet be timed out
-            require(channels[channelId].closedAt == 0, "INTERNAL_ERROR_CLOSED_AT_NONZERO");
-            require(block.timestamp < channels[channelId].closingAt, "CHANNEL_TIMEOUT"); // solhint-disable-line
+            require(channelClosingStates[channelId].closedAt == 0, "INTERNAL_ERROR_CLOSED_AT_NONZERO");
+            require(block.timestamp < channelClosingStates[channelId].closingAt, "CHANNEL_TIMEOUT"); // solhint-disable-line
 
             // the submitted transaction must be more recent
-            require(channels[channelId].channelSeq < closingChannelSeq, "OUTDATED_TRANSACTION");
+            require(channelClosingStates[channelId].closingSeq < closingChannelSeq, "OUTDATED_TRANSACTION");
         }
 
         // the amount earned (by the recipient) is initial channel amount minus last off-chain balance
@@ -226,20 +238,20 @@ contract XBRChannel is XBRMaintained {
         uint256 payout = earned - fee;
 
         // if we got a newer closing transaction, process it ..
-        if (closingChannelSeq > channels[channelId].closing_channel_seq) {
+        if (closingChannelSeq > channelClosingStates[channelId].closingSeq) {
 
             // the closing balance of a newer transaction must be not greater than anyone we already know
-            if (channels[channelId].closing_channel_seq > 0) {
-                require(balance <= channels[channelId].closing_balance, "TRANSACTION_BALANCE_OUTDATED");
+            if (channelClosingStates[channelId].closingSeq > 0) {
+                require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
             }
 
             // note the closing transaction sequence number and closing off-chain balance
-            channels[channelId].state = XBRTypes.ChannelState.CLOSING;
-            channels[channelId].closing_channel_seq = closingChannelSeq;
-            channels[channelId].closing_balance = balance;
+            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSING;
+            channelClosingStates[channelId].closingSeq = closingChannelSeq;
+            channelClosingStates[channelId].closingBalance = balance;
 
             // note the new channel closing date
-            channels[channelId].closingAt = block.timestamp + channels[channelId].timeout; // solhint-disable-line
+            channelClosingStates[channelId].closingAt = block.timestamp + channels[channelId].timeout; // solhint-disable-line
 
             // notify channel observers
             //emit Closing(marketId, sender, payout, fee, refund, closingAt);
@@ -247,7 +259,7 @@ contract XBRChannel is XBRMaintained {
 
         // finally close the channel ..
         if (isFinal || balance == 0 ||
-            (channels[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channels[channelId].closingAt)) { // solhint-disable-line
+            (channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channelClosingStates[channelId].closingAt)) { // solhint-disable-line
 
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender
@@ -264,13 +276,12 @@ contract XBRChannel is XBRMaintained {
             }
 
             // mark channel as closed (but do not selfdestruct)
-            channels[channelId].closedAt = block.timestamp; // solhint-disable-line
-            channels[channelId].state = XBRTypes.ChannelState.CLOSED;
+            channelClosingStates[channelId].closedAt = block.timestamp; // solhint-disable-line
+            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
 
             // notify channel observers
             // emit Closed(marketId, sender, payout, fee, refund, closedAt);
         }
-    */
     }
 }
 

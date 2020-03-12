@@ -36,10 +36,10 @@ library XBRTypes {
     enum ActorType { NULL, PROVIDER, CONSUMER }
 
     /// All XBR Channel types.
-    enum ChannelType { NONE, PAYMENT, PAYING }
+    enum ChannelType { NULL, PAYMENT, PAYING }
 
     /// All XBR Channel states.
-    enum ChannelState { NONE, OPEN, CLOSING, CLOSED }
+    enum ChannelState { NULL, OPEN, CLOSING, CLOSED }
 
     // //////// container types
 
@@ -73,7 +73,7 @@ library XBRTypes {
         /// Metadata attached to an actor in a market.
         string meta;
 
-        /// If the transaction was pre-signed, this is the signature the user supplied
+        /// This is the signature the user (actor) supplied for joining a market.
         bytes signature;
 
         /// All payment (paying) channels of the respective buyer (seller) actor.
@@ -109,7 +109,7 @@ library XBRTypes {
         /// Market fee rate for the market operator.
         uint256 marketFee;
 
-        /// If the transaction was pre-signed, this is the signature the user supplied
+        /// This is the signature the user (market owner/operator) supplied for opening the market.
         bytes signature;
 
         /// Adresses of provider (seller) actors joined in the market.
@@ -131,7 +131,7 @@ library XBRTypes {
         mapping(address => address) currentPayingChannelByDelegate;
     }
 
-    /// Container type for holding XBR Channel information.
+    /// Container type for holding channel static information.
     struct Channel {
         /// Channel sequence number.
         uint32 channelSeq;
@@ -141,9 +141,6 @@ library XBRTypes {
 
         /// Current payment channel type (either payment or paying channel).
         ChannelType ctype;
-
-        /// Current payment channel state.
-        ChannelState state;
 
         /// The XBR Market ID this channel is operating payments (or payouts) for.
         bytes16 marketId;
@@ -181,20 +178,38 @@ library XBRTypes {
         */
         uint32 timeout;
 
-        /// Signature supplied when opening the channel.
-        // bytes openedSignature;
+        /// Signature supplied (by the actor) when opening the channel.
+        bytes signature;
+    }
 
-        /// Block timestamp when the channel was closed (finally, after the timeout).
-        // uint256 closingAt;
+    /// Container type for holding channel closing state information.
+    struct ChannelClosingState {
+        /// Current payment channel state.
+        ChannelState state;
 
-        /// Block timestamp when the channel was closed (finally, after the timeout).
-        // uint256 closedAt;
+        /// Block timestamp when the channel was requested to close (before timeout).
+        uint256 closingAt;
 
         /// When this channel is closing, the sequence number of the closing transaction.
-        // uint32 closing_channel_seq;
+        uint32 closingSeq;
 
         /// When this channel is closing, the off-chain closing balance of the closing transaction.
-        // uint256 closing_balance;
+        uint256 closingBalance;
+
+        /// Block timestamp when the channel was closed (finally, after the timeout).
+        uint256 closedAt;
+
+        /// When this channel has closed, the sequence number of the final accepted closing transaction.
+        uint32 closedSeq;
+
+        /// When this channel is closing, the closing balance of the final accepted closing transaction.
+        uint256 closedBalance;
+
+        /// Closing transaction signature by (buyer or seller) delegate supplied when requesting to close the channel.
+        bytes delegateSignature;
+
+        /// Closing transaction signature by market maker supplied when requesting to close the channel.
+        bytes marketmakerSignature;
     }
 
     /// EIP712 type for XBR as a type domain.
