@@ -244,12 +244,12 @@ contract XBRMarket is XBRMaintained {
         return marketIds.length;
     }
 
-/*
+    /*
     // TypeError: Only libraries are allowed to use the mapping type in public or external functions.
     function getMarket(bytes16 marketId) public view returns (XBRTypes.Market memory) {
         return markets[marketId];
     }
-*/
+    */
 
     function getMarketOwner(bytes16 marketId) public view returns (address) {
         return markets[marketId].owner;

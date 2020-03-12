@@ -149,17 +149,17 @@ contract XBRChannel is XBRMaintained {
 
         // the data used to open the new channel must have a valid signature, signed by the
         // actor (buyer/seller in the market)
-        require(XBRTypes.verify(actor, XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
+        XBRTypes.EIP712ChannelOpen memory eip712_obj = XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
             market.network().verifyingContract(), uint8(ctype), block.number, marketId, channelId,
-            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout), signature),
-            "INVALID_CHANNEL_SIGNATURE");
+            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout);
+        require(XBRTypes.verify(actor, eip712_obj, signature), "INVALID_CHANNEL_SIGNATURE");
 
         // Everything is OK! Continue actually opening the channel ..
 
         // channel creation time
         uint256 openedAt = block.timestamp;
         channels[channelId] = XBRTypes.Channel(channelSeq, openedAt, ctype, XBRTypes.ChannelState.OPEN,
-            marketId, market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout, signature, 0, 0, 0, 0);
+            marketId, market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout);
 
         // increment channel sequence for next channel
         channelSeq = channelSeq + 1;
@@ -179,7 +179,7 @@ contract XBRChannel is XBRMaintained {
      */
     function closeChannel (bytes16 channelId, uint32 closingChannelSeq, uint256 balance, bool isFinal,
         bytes memory delegateSignature, bytes memory marketmakerSignature) public {
-
+    /*
         // channel must exist
         require(channels[channelId].actor != address(0), "NO_SUCH_CHANNEL");
 
@@ -246,7 +246,8 @@ contract XBRChannel is XBRMaintained {
         }
 
         // finally close the channel ..
-        if (isFinal || balance == 0 || (channels[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channels[channelId].closingAt)) { // solhint-disable-line
+        if (isFinal || balance == 0 ||
+            (channels[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channels[channelId].closingAt)) { // solhint-disable-line
 
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender
@@ -269,6 +270,7 @@ contract XBRChannel is XBRMaintained {
             // notify channel observers
             // emit Closed(marketId, sender, payout, fee, refund, closedAt);
         }
+    */
     }
 }
 

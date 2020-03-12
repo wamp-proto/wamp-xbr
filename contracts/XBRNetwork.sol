@@ -78,7 +78,6 @@ contract XBRNetwork is XBRMaintained {
             _chainId := chainid()
         }
         verifyingChain = _chainId;
-        verifyingChain = 4;
 
         verifyingContract = address(this);
 

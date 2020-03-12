@@ -182,19 +182,19 @@ library XBRTypes {
         uint32 timeout;
 
         /// Signature supplied when opening the channel.
-        bytes openedSignature;
+        // bytes openedSignature;
 
         /// Block timestamp when the channel was closed (finally, after the timeout).
-        uint256 closingAt;
+        // uint256 closingAt;
 
         /// Block timestamp when the channel was closed (finally, after the timeout).
-        uint256 closedAt;
+        // uint256 closedAt;
 
         /// When this channel is closing, the sequence number of the closing transaction.
-        uint32 closing_channel_seq;
+        // uint32 closing_channel_seq;
 
         /// When this channel is closing, the off-chain closing balance of the closing transaction.
-        uint256 closing_balance;
+        // uint256 closing_balance;
     }
 
     /// EIP712 type for XBR as a type domain.
