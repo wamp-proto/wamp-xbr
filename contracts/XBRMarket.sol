@@ -244,6 +244,14 @@ contract XBRMarket is XBRMaintained {
         return marketIds.length;
     }
 
+    function getMarketOwner(bytes16 marketId) public view returns (address) {
+        return markets[marketId].owner;
+    }
+
+    function getMarket(bytes16 marketId) public view returns (XBRTypes.Market memory) {
+        return markets[marketId];
+    }
+
     function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
         return marketsByOwner[owner][index];
     }

@@ -88,22 +88,6 @@ contract XBRNetwork is XBRMaintained {
         members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
     }
 
-    function _register (address member_, string memory eula_, string memory profile_, bytes memory signature) private {
-        // check that sender is not already a member
-        require(uint8(members[member_].level) == 0, "MEMBER_ALREADY_REGISTERED");
-
-        // check that the EULA the member accepted is the one we expect
-        require(keccak256(abi.encode(eula_)) ==
-                keccak256(abi.encode(eula)), "INVALID_EULA");
-
-        // remember the member
-        uint registered = block.timestamp;
-        members[member_] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE, signature);
-
-        // notify observers of new member
-        emit MemberCreated(member_, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
-    }
-
     /**
      * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
      * XBR Data Consumers and XBR Data Market Operators, must first register
@@ -140,21 +124,21 @@ contract XBRNetwork is XBRMaintained {
         _register(member, eula_, profile_, signature);
     }
 
-    /**
-     * Leave the XBR Network.
-     */
-    // function unregister () public {
-    //     require(uint8(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-    //     require((uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.ACTIVE)) ||
-    //             (uint8(members[msg.sender].level) == uint8(XBRTypes.MemberLevel.VERIFIED)), "MEMBER_NOT_ACTIVE");
+    function _register (address member_, string memory eula_, string memory profile_, bytes memory signature) private {
+        // check that sender is not already a member
+        require(uint8(members[member_].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
-    //     // FIXME: check that the member has no active objects associated anymore
-    //     require(false, "NOT_IMPLEMENTED");
+        // check that the EULA the member accepted is the one we expect
+        require(keccak256(abi.encode(eula_)) ==
+                keccak256(abi.encode(eula)), "INVALID_EULA");
 
-    //     members[msg.sender].level = XBRTypes.MemberLevel.RETIRED;
+        // remember the member
+        uint registered = block.timestamp;
+        members[member_] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE, signature);
 
-    //     emit MemberRetired(msg.sender);
-    // }
+        // notify observers of new member
+        emit MemberCreated(member_, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
+    }
 
     /**
      * Manually override the member level of a XBR Network member. Being able to do so

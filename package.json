@@ -26,7 +26,7 @@
         "openzeppelin-solidity": "^2.5.0",
         "solhint": "^2.3.0",
         "solidity-coverage": "^0.7.2",
-        "truffle": "^5.1.14",
+        "truffle": "^5.1.16",
         "truffle-contract": "^4.0.31",
         "truffle-hdwallet-provider": "^1.0.17"
     },
