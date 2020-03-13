@@ -64,11 +64,11 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Network members ("member directory").
     mapping(address => XBRTypes.Member) public members;
 
-     /// Create the XBR network.
-     ///
-     /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
-     ///                     any ERC20 token as a means of payment.
-     /// @param networkOrganization The XBR network organization.
+    /// Create the XBR network.
+    ///
+    /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
+    ///                     any ERC20 token as a means of payment.
+    /// @param networkOrganization The XBR network organization.
     constructor (address networkToken, address networkOrganization) public {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
@@ -86,65 +86,63 @@ contract XBRNetwork is XBRMaintained {
         members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
     }
 
-     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
-     /// providers, data consumers and data market operators, must first register with the XBR network.
-     ///
-     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-    function register (string memory networkEula, string memory profile) public {
-        _register(msg.sender, networkEula, profile, "");
+    /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
+    /// providers, data consumers and data market operators, must first register with the XBR network.
+    ///
+    /// @param registered Block number at which the registering member has created the signature.
+    /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+    /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+    function register (uint256 registered, string memory networkEula, string memory profile) public {
+        _register(msg.sender, registered, networkEula, profile, "");
     }
 
-    /**
-     * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
-     * XBR Data Consumers and XBR Data Market Operators, must first register
-     * with the XBR Network on the global blockchain by calling this function.
-     *
-     * IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
-     * submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
-     *
-     * @param member Address of the registering (new) member.
-     * @param registered Block number at which the registering member has created the signature.
-     * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-     * @param signature EIP712 signature (using private key of member) over
-     *                  `(chain_id, contract_adr, register_at, eula_hash, profile_hash)`.
-     */
-    function registerFor (address member, uint256 registered, string memory eula_,
-        string memory profile_, bytes memory signature) public {
+    /// Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+    /// XBR Data Consumers and XBR Data Market Operators, must first register
+    /// with the XBR Network on the global blockchain by calling this function.
+    ///
+    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Address of the registering (new) member.
+    /// @param registered Block number at which the registering member has created the signature.
+    /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+    /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+    /// @param signature EIP712 signature, signed by the registering member.
+    function registerFor (address member, uint256 registered, string memory networkEula,
+        string memory profile, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
-            member, registered, eula_, profile_), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
+            member, registered, networkEula, profile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
-        _register(member, eula_, profile_, signature);
+        _register(member, registered, networkEula, profile, signature);
     }
 
-    function _register (address member_, string memory eula_, string memory profile_, bytes memory signature) private {
+    function _register (address member, uint256 registered, string memory networkEula, string memory profile, bytes memory signature) private {
         // check that sender is not already a member
-        require(uint8(members[member_].level) == 0, "MEMBER_ALREADY_REGISTERED");
+        require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
+
+        // the signature must have been created in a window of 5 blocks from the current one
+        require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         // check that the EULA the member accepted is the one we expect
-        require(keccak256(abi.encode(eula_)) ==
+        require(keccak256(abi.encode(networkEula)) ==
                 keccak256(abi.encode(eula)), "INVALID_EULA");
 
         // remember the member
-        uint registered = block.timestamp;
-        members[member_] = XBRTypes.Member(registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE, signature);
+        members[member] = XBRTypes.Member(registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE, signature);
 
         // notify observers of new member
-        emit MemberCreated(member_, registered, eula_, profile_, XBRTypes.MemberLevel.ACTIVE);
+        emit MemberCreated(member, registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE);
     }
 
-    /**
-     * Manually override the member level of a XBR Network member. Being able to do so
-     * currently serves two purposes:
-     *
-     * - having a last resort to handle situation where members violated the EULA
-     * - being able to manually patch things in error/bug cases
-     *
-     * @param member The address of the XBR network member to override member level.
-     * @param level The member level to set the member to.
-     */
+    /// Manually override the member level of a XBR Network member. Being able to do so
+    /// currently serves two purposes:
+    ///
+    /// - having a last resort to handle situation where members violated the EULA
+    /// - being able to manually patch things in error/bug cases
+    ///
+    /// @param member The address of the XBR network member to override member level.
+    /// @param level The member level to set the member to.
     function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
