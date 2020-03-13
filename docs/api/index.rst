@@ -15,23 +15,6 @@ This is the public API reference documentation for the XBR protocol smart contra
 ----------
 
 
-XBRToken
---------
-
-.. autosolcontract:: XBRToken
-    :members:
-    :exclude-members:
-        INITIAL_SUPPLY,
-        constructor
-
-
-XBRTypes
---------
-
-.. autosollibrary:: XBRTypes
-    :members:
-
-
 XBRNetwork
 ----------
 
@@ -67,6 +50,23 @@ XBRChannel
 
 .. autosolcontract:: XBRChannel
     :members:
+
+
+XBRTypes
+--------
+
+.. autosollibrary:: XBRTypes
+    :members:
+
+
+XBRToken
+--------
+
+.. autosolcontract:: XBRToken
+    :members:
+    :exclude-members:
+        INITIAL_SUPPLY,
+        constructor
 
 
 XBRMaintained

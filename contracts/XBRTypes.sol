@@ -19,9 +19,6 @@
 pragma solidity ^0.5.12;
 pragma experimental ABIEncoderV2;
 
-import "./XBRToken.sol";
-import "./XBRChannel.sol";
-
 
 /**
  * The `XBR Types <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRTypes.sol>`__
@@ -85,7 +82,7 @@ library XBRTypes {
     /// Container type for holding XBR market information.
     struct Market {
         /// Block number when the market was created.
-        uint created;
+        uint256 created;
 
         /// Market sequence number.
         uint32 seq;
@@ -137,6 +134,10 @@ library XBRTypes {
     }
 
     /// Container type for holding channel static information.
+    ///
+    /// NOTE: This struct has a companion struct `ChannelState` with all
+    /// varying state. The split-up is necessary as the EVM limits stack-depth
+    /// to 16, and we need more channel attributes than that.
     struct Channel {
         /// Block number when the channel was created.
         uint256 created;
@@ -180,7 +181,7 @@ library XBRTypes {
         bytes signature;
     }
 
-    /// Container type for holding channel closing state information.
+    /// Container type for holding channel (closing) state information.
     struct ChannelClosingState {
         /// Current payment channel state.
         ChannelState state;
@@ -305,7 +306,9 @@ library XBRTypes {
         string meta;
     }
 
-    /// EIP712 type for use in opening channels.
+    /// EIP712 type for use in opening channels. The initial opening of a channel
+    /// is one on-chain transaction (as is the final close), but all actual
+    /// in-channel transactions happen off-chain.
     struct EIP712ChannelOpen {
         /// Verifying chain ID, which binds the signature to that chain
         /// for cross-chain replay-attack protection.
@@ -315,30 +318,67 @@ library XBRTypes {
         /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        // actual data attributes
+        /// The type of channel, can be payment channel (for use by buyer delegates) or
+        /// paying channel (for use by seller delegates).
         uint8 ctype;
+
+        /// Block number when the channel was opened.
         uint256 openedAt;
+
+        /// The ID of the market in which the channel was opened.
         bytes16 marketId;
+
+        /// The ID of the channel created (a 16 bytes UUID which is globally unique to that
+        /// channel, in particular the channel ID is unique even across different markets).
         bytes16 channelId;
+
+        /// The actor that created this channel.
         address actor;
+
+        /// The delegate authorized to use this channel for off-chain transactions.
         address delegate;
+
+        /// The address of the market maker that will operate the channel and
+        /// perform the off-chain transactions.
         address marketmaker;
+
+        /// The final recipient of the payout from the channel when the channel is closed.
         address recipient;
+
+        /// The amount of tokens initially put into this channel by the actor. The value is
+        /// denominated in the payment token used in the market.
         uint256 amount;
+
+        /// The timeout that will apply in non-cooperative close scenarios when closing this channel.
         uint32 timeout;
     }
 
-    /// EIP712 type for use in XBRChannel.closeFor.
+    /// EIP712 type for use in closing channels.The final closing of a channel
+    /// is one on-chain transaction (as is the final close), but all actual
+    /// in-channel transactions happened before off-chain.
     struct EIP712ChannelClose {
-        // replay attack protection
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
         uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        // actual data attributes
+        /// The ID of the market in which the channel to be closed was initially opened.
         bytes16 marketId;
+
+        /// The ID of the channel to close.
         bytes16 channelId;
+
+        /// The sequence number of the channel closed.
         uint32 channelSeq;
+
+        /// The remaining closing balance at which the channel is closed.
         uint256 balance;
+
+        /// Indication whether the data signed is considered final, which amounts
+        /// to a promise that no further, newer signed data will be supplied later.
         bool isFinal;
     }
 
@@ -366,18 +406,10 @@ library XBRTypes {
     // solhint-disable-next-line
     bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,bytes16 marketId,bytes16 channelId,uint32 channelSeq,uint256 balance,bool isFinal)");
 
-    /**
-     * Split a signature given as a bytes string into components.
-     */
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
         require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
-        //  // first 32 bytes, after the length prefix
-        //  r := mload(add(sig, 32))
-        //  // second 32 bytes
-        //  s := mload(add(sig, 64))
-        //  // final byte (first byte of the next 32 bytes)
-        //  v := byte(0, mload(add(sig, 96)))
+        // Split a signature given as a bytes string into components.
         assembly
         {
             r := mload(add(signature_rsv, 32))
@@ -478,6 +510,7 @@ library XBRTypes {
         ));
     }
 
+    /// Verify signature on typed data for registering a member.
     function verify (address signer, EIP712MemberRegister memory obj,
         bytes memory signature) public pure returns (bool) {
 
@@ -492,6 +525,7 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /// Verify signature on typed data for creating a market.
     function verify (address signer, EIP712MarketCreate memory obj,
         bytes memory signature) public pure returns (bool) {
 
@@ -506,6 +540,7 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /// Verify signature on typed data for joining a market.
     function verify (address signer, EIP712MarketJoin memory obj,
         bytes memory signature) public pure returns (bool) {
 
@@ -520,6 +555,7 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /// Verify signature on typed data for opening a channel.
     function verify (address signer, EIP712ChannelOpen memory obj,
         bytes memory signature) public pure returns (bool) {
 
@@ -534,6 +570,7 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /// Verify signature on typed data for closing a channel.
     function verify (address signer, EIP712ChannelClose memory obj,
         bytes memory signature) public pure returns (bool) {
 

@@ -100,23 +100,23 @@ contract XBRMarket is XBRMaintained {
      *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
      *                  a fraction of the total supply of XBR tokens.
      */
-    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
+    function createMarket (bytes16 marketId, address coin, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
 
-        _createMarket(msg.sender, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, "");
+        _createMarket(msg.sender, marketId, coin, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, "");
     }
 
-    function createMarketFor (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
+    function createMarketFor (address member, bytes16 marketId, address coin, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
             marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
 
-        _createMarket(member, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
+        _createMarket(member, marketId, coin, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
     }
 
-    function _createMarket (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
+    function _createMarket (address member, bytes16 marketId, address coin, string memory terms, string memory meta, address maker,
         uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) private {
 
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
@@ -127,6 +127,9 @@ contract XBRMarket is XBRMaintained {
 
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
+
+        // FIXME: expand this to check against XBRNetwork.coins (which is not yet there)
+        require(coin == address(network.token()), "INVALID_COIN");
 
         // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
@@ -144,8 +147,8 @@ contract XBRMarket is XBRMaintained {
         require(marketFee >= 0 && marketFee < (network.token().totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         // now remember out new market ..
-        uint created = block.timestamp;
-        markets[marketId] = XBRTypes.Market(created, marketSeq, member, terms, meta, maker,
+        uint256 created = block.timestamp;
+        markets[marketId] = XBRTypes.Market(created, marketSeq, member, coin, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, signature, new address[](0), new address[](0));
 
         // .. and the market-maker-to-market mapping

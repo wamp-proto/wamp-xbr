@@ -64,40 +64,35 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Network members ("member directory").
     mapping(address => XBRTypes.Member) public members;
 
-    /**
-     * Create a new network.
-     *
-     * @param token_ The token to run this network on.
-     * @param organization_ The network technology provider and ecosystem sponsor.
-     */
-    constructor (address token_, address organization_) public {
+     /// Create the XBR network.
+     ///
+     /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
+     ///                     any ERC20 token as a means of payment.
+     /// @param networkOrganization The XBR network organization.
+    constructor (address networkToken, address networkOrganization) public {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
-        uint256 _chainId;
+        uint256 chainId;
         assembly {
-            _chainId := chainid()
+            chainId := chainid()
         }
-        verifyingChain = _chainId;
+        verifyingChain = chainId;
 
         verifyingContract = address(this);
+        token = XBRToken(networkToken);
+        organization = networkOrganization;
 
-        token = XBRToken(token_);
-        organization = organization_;
-
-        // Technical creator is XBR member (by definition).
+        // technically, the creator of the XBR network contract instance is a XBR member (by definition).
         members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
     }
 
-    /**
-     * Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
-     * XBR Data Consumers and XBR Data Market Operators, must first register
-     * with the XBR Network on the global blockchain by calling this function.
-     *
-     * @param eula_ The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-     * @param profile_ Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-     */
-    function register (string memory eula_, string memory profile_) public {
-        _register(msg.sender, eula_, profile_, "");
+     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
+     /// providers, data consumers and data market operators, must first register with the XBR network.
+     ///
+     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+    function register (string memory networkEula, string memory profile) public {
+        _register(msg.sender, networkEula, profile, "");
     }
 
     /**

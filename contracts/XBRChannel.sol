@@ -163,8 +163,8 @@ contract XBRChannel is XBRMaintained {
         uint256 openedAt = block.timestamp;
 
         // track channel static information
-        channels[channelId] = XBRTypes.Channel(channelSeq, openedAt, ctype, marketId,
-            market.getMarketOwner(marketId), actor, delegate, recipient, amount, timeout, signature);
+        channels[channelId] = XBRTypes.Channel(openedAt, channelSeq, ctype, marketId,
+            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout, signature);
 
         // track channel closing (== modifiable) information
         channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN, 0, 0, 0, 0, 0, 0, "", "");
