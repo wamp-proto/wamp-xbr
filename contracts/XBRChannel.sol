@@ -44,6 +44,7 @@ contract XBRChannel is XBRMaintained {
     // Add recover method for bytes32 using ECDSA lib from OpenZeppelin
     using ECDSA for bytes32;
 
+    /// Event emittedd when a new XBR data market has opened.
     event Opened(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
         address indexed marketmaker, address actor, address delegate, address recepient,
         uint256 amount, uint32 timeout);
@@ -75,27 +76,27 @@ contract XBRChannel is XBRMaintained {
     /// Table of all XBR Channel closing states.
     mapping(bytes16 => XBRTypes.ChannelClosingState) public channelClosingStates;
 
-    /**
-     * Constructor for this contract, only called once (when deploying the network).
-     *
-     * @param market_ The XBR markets contract this instance is associated with.
-     */
-    constructor (address market_) public {
-        market = XBRMarket(market_);
+    /// Constructor for this contract, only called once (when deploying the network).
+    ///
+    /// @param marketAdr The XBR markets contract this instance is associated with.
+    constructor (address marketAdr) public {
+        market = XBRMarket(marketAdr);
     }
 
-    /**
-     * Create a new XBR payment/paying channel for processing off-chain micro-transactions.
-     *
-     * @param marketId The ID of the XBR market this channel is associated with.
-     * @param actor The actor (buyer/seller in the market) that opened this channel.
-     * @param delegate The delegate (off-chain) allowed to spend/earn-on this channel (off-chain)
-        in the name of the actor (buyer/seller in the market).
-     * @param recipient The receiver (on-chain) of the channel payout.
-     * @param amount The amount initially transfered to and held in the channel until closed.
-     * @param timeout The channel timeout period that begins with the first call to `close()`
-     */
-    function openChannel (XBRTypes.ChannelType ctype, bytes16 marketId, bytes16 channelId,
+    /// Open a new XBR payment/paying channel for processing off-chain micro-transactions.
+    ///
+    /// @param ctype Channel type: payment or paying channel.
+    /// @param openedAt Block number when the channel opening signature was created.
+    /// @param marketId The ID of the XBR market this channel is associated with.
+    /// @param channelId The ID of the new XBR channel (must be unique).
+    /// @param actor The actor (buyer/seller in the market) that opened this channel.
+    /// @param delegate The delegate (off-chain) allowed to spend/earn-on this channel (off-chain)
+    ///  in the name of the actor (buyer/seller in the market).
+    /// @param recipient The receiver (on-chain) of the channel payout.
+    /// @param amount The amount initially transfered to and held in the channel until closed.
+    /// @param timeout The channel timeout period that begins with the first call to `close()`
+    /// @param signature EIP712 signature, signed by the member.
+    function openChannel (XBRTypes.ChannelType ctype, uint256 openedAt, bytes16 marketId, bytes16 channelId,
         address actor, address delegate, address recipient, uint256 amount,
         uint32 timeout, bytes memory signature) public {
 
@@ -144,6 +145,9 @@ contract XBRChannel is XBRMaintained {
             require(false, "INVALID_CHANNEL_TYPE");
         }
 
+        // signature must have been created in a window of 5 blocks from the current one
+        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+
         // payment channel amount must be positive
         require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
@@ -153,21 +157,19 @@ contract XBRChannel is XBRMaintained {
         // the data used to open the new channel must have a valid signature, signed by the
         // actor (buyer/seller in the market)
         XBRTypes.EIP712ChannelOpen memory eip712_obj = XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
-            market.network().verifyingContract(), uint8(ctype), block.number, marketId, channelId,
+            market.network().verifyingContract(), uint8(ctype), openedAt, marketId, channelId,
             market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout);
         require(XBRTypes.verify(actor, eip712_obj, signature), "INVALID_CHANNEL_SIGNATURE");
 
         // Everything is OK! Continue actually opening the channel ..
-
-        // channel creation time
-        uint256 openedAt = block.timestamp;
 
         // track channel static information
         channels[channelId] = XBRTypes.Channel(openedAt, channelSeq, ctype, marketId,
             market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout, signature);
 
         // track channel closing (== modifiable) information
-        channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN, 0, 0, 0, 0, 0, 0, "", "");
+        channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN,
+            0, 0, 0, 0, 0, 0, "", "");
 
         // increment channel sequence for next channel
         channelSeq = channelSeq + 1;

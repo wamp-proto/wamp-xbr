@@ -28,23 +28,19 @@ import "./XBRToken.sol";
 
 
 /**
- * @title XBR Network main smart contract.
- * @author The XBR Project
+ * The `XBR Network <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRNetwork.sol>`__
+ * contract is the on-chain anchor of and the entry point to the XBR protocol.
  */
 contract XBRNetwork is XBRMaintained {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
 
-    // //////// events for MEMBERS
-
     /// Event emitted when a new member joined the XBR Network.
     event MemberCreated (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
-
-    // Note: closing event of payment channels are emitted from XBRChannel (not from here)
 
     /// Used for EIP712 verification: network ID of the blockchain this contract is running on.
     uint256 public verifyingChain;
@@ -89,14 +85,13 @@ contract XBRNetwork is XBRMaintained {
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
     /// providers, data consumers and data market operators, must first register with the XBR network.
     ///
-    /// @param registered Block number at which the registering member has created the signature.
     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-    function register (uint256 registered, string memory networkEula, string memory profile) public {
-        _register(msg.sender, registered, networkEula, profile, "");
+    function register (string memory networkEula, string memory profile) public {
+        _register(msg.sender, block.number, networkEula, profile, "");
     }
 
-    /// Register sender in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
+    /// Register the specified member in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
     /// XBR Data Consumers and XBR Data Market Operators, must first register
     /// with the XBR Network on the global blockchain by calling this function.
     ///
@@ -111,8 +106,12 @@ contract XBRNetwork is XBRMaintained {
     function registerFor (address member, uint256 registered, string memory networkEula,
         string memory profile, bytes memory signature) public {
 
+        // verify signature
         require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
             member, registered, networkEula, profile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
+
+        // signature must have been created in a window of 5 blocks from the current one
+        require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         _register(member, registered, networkEula, profile, signature);
     }
@@ -120,9 +119,6 @@ contract XBRNetwork is XBRMaintained {
     function _register (address member, uint256 registered, string memory networkEula, string memory profile, bytes memory signature) private {
         // check that sender is not already a member
         require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
-
-        // the signature must have been created in a window of 5 blocks from the current one
-        require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         // check that the EULA the member accepted is the one we expect
         require(keccak256(abi.encode(networkEula)) ==

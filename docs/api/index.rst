@@ -30,11 +30,11 @@ XBRMarket
 .. autosolcontract:: XBRMarket
     :members:
     :exclude-members:
-        marketSeq
-        marketIds
-        marketsByMaker
-        marketsByOwner
-        _createMarket
+        marketSeq,
+        marketIds,
+        marketsByMaker,
+        marketsByOwner,
+        _createMarket,
         _joinMarket
 
 
