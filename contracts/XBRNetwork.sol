@@ -60,11 +60,15 @@ contract XBRNetwork is XBRMaintained {
     /// Current XBR Network members ("member directory").
     mapping(address => XBRTypes.Member) public members;
 
+    /// ERC20 coins which can specified as a means of payment when creating
+    /// a new data market.
+    mapping(address => bool) public coins;
+
     /// Create the XBR network.
     ///
     /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
     ///                     any ERC20 token as a means of payment.
-    /// @param networkOrganization The XBR network organization.
+    /// @param networkOrganization The XBR network organization address.
     constructor (address networkToken, address networkOrganization) public {
 
         // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
@@ -75,7 +79,10 @@ contract XBRNetwork is XBRMaintained {
         verifyingChain = chainId;
 
         verifyingContract = address(this);
+
         token = XBRToken(networkToken);
+        coins[networkToken] = true;
+
         organization = networkOrganization;
 
         // technically, the creator of the XBR network contract instance is a XBR member (by definition).
@@ -87,8 +94,8 @@ contract XBRNetwork is XBRMaintained {
     ///
     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-    function register (string memory networkEula, string memory profile) public {
-        _register(msg.sender, block.number, networkEula, profile, "");
+    function registerMember (string memory networkEula, string memory profile) public {
+        _registerMember(msg.sender, block.number, networkEula, profile, "");
     }
 
     /// Register the specified member in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
@@ -103,7 +110,7 @@ contract XBRNetwork is XBRMaintained {
     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
     /// @param signature EIP712 signature, signed by the registering member.
-    function registerFor (address member, uint256 registered, string memory networkEula,
+    function registerMemberFor (address member, uint256 registered, string memory networkEula,
         string memory profile, bytes memory signature) public {
 
         // verify signature
@@ -113,10 +120,10 @@ contract XBRNetwork is XBRMaintained {
         // signature must have been created in a window of 5 blocks from the current one
         require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
 
-        _register(member, registered, networkEula, profile, signature);
+        _registerMember(member, registered, networkEula, profile, signature);
     }
 
-    function _register (address member, uint256 registered, string memory networkEula, string memory profile, bytes memory signature) private {
+    function _registerMember (address member, uint256 registered, string memory networkEula, string memory profile, bytes memory signature) private {
         // check that sender is not already a member
         require(uint8(members[member].level) == 0, "MEMBER_ALREADY_REGISTERED");
 
@@ -131,7 +138,14 @@ contract XBRNetwork is XBRMaintained {
         emit MemberCreated(member, registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE);
     }
 
-    /// Manually override the member level of a XBR Network member. Being able to do so
+    /// Set the XBR network organization address.
+    ///
+    /// @param networkOrganization The XBR network organization address.
+    function setOrganization (address networkOrganization) public onlyMaintainer {
+        organization = networkOrganization;
+    }
+
+    /// Set (override manually) the member level of a XBR Network member. Being able to do so
     /// currently serves two purposes:
     ///
     /// - having a last resort to handle situation where members violated the EULA
@@ -143,5 +157,13 @@ contract XBRNetwork is XBRMaintained {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
 
         members[member].level = level;
+    }
+
+    /// Set ERC20 coins as usable as a means of payment when opening data markets.
+    ///
+    /// @param coin The address of the ERC20 coin to change.
+    /// @param isPayable When true, the coin can be specified when opening a new data market.
+    function setCoinPayable (address coin, bool isPayable) public onlyMaintainer {
+        coins[coin] = isPayable;
     }
 }

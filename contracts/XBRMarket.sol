@@ -152,7 +152,8 @@ contract XBRMarket is XBRMaintained {
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
 
         // FIXME: expand this to check against XBRNetwork.coins (which is not yet there)
-        require(coin == address(network.token()), "INVALID_COIN");
+        // require(coin == address(network.token()), "INVALID_COIN");
+        require(network.coins(coin) == true, "INVALID_COIN");
 
         // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
