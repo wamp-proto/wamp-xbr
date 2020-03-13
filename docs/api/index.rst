@@ -1,11 +1,83 @@
 .. _XBRAPI:
 
-API Reference
-=============
+XBR Contracts Reference
+=======================
 
-This is the XBR API reference documentation:
+This is the public API reference documentation for the XBR protocol smart contracts:
 
-.. toctree::
-    :maxdepth: 2
+.. contents:: :local:
 
-    solidity
+.. note::
+    The contracts are written in Solidity, and the documentation here is generated directly from
+    the docstrings in the Solidity source code using `Sphinx <http://www.sphinx-doc.org>`__
+    and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`__.
+
+----------
+
+
+XBRToken
+--------
+
+.. autosolcontract:: XBRToken
+    :members:
+    :exclude-members:
+        INITIAL_SUPPLY,
+        constructor
+
+
+XBRTypes
+--------
+
+.. autosollibrary:: XBRTypes
+    :members:
+
+
+XBRNetwork
+----------
+
+.. autosolcontract:: XBRNetwork
+    :members:
+    :exclude-members:
+        _register
+
+
+XBRMarket
+---------
+
+.. autosolcontract:: XBRMarket
+    :members:
+    :exclude-members:
+        marketSeq
+        marketIds
+        marketsByMaker
+        marketsByOwner
+        _createMarket
+        _joinMarket
+
+
+XBRCatalog
+----------
+
+.. autosolcontract:: XBRCatalog
+    :members:
+
+
+XBRChannel
+----------
+
+.. autosolcontract:: XBRChannel
+    :members:
+
+
+XBRMaintained
+-------------
+
+.. autosolcontract:: XBRMaintained
+    :members:
+        MaintainerAdded,
+        MaintainerRemoved,
+        onlyMaintainer,
+        isMaintainer,
+        addMaintainer,
+        renounceMaintainer
+

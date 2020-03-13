@@ -24,50 +24,52 @@ import "./XBRChannel.sol";
 
 
 /**
- * @title XBR domain types and helper functions.
- * @author The XBR Project
+ * The `XBR Types <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRTypes.sol>`__
+ * library collect XBR type definitions used throughout the other XBR contracts.
  */
 library XBRTypes {
 
-    /// All XBR Member levels.
+    /// All XBR network member levels defined.
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
-    /// All XBR Actor types in a market.
+    /// All XBR market actor types defined.
     enum ActorType { NULL, PROVIDER, CONSUMER }
 
-    /// All XBR Channel types.
+    /// All XBR state channel types defined.
     enum ChannelType { NULL, PAYMENT, PAYING }
 
-    /// All XBR Channel states.
+    /// All XBR state channel states defined.
     enum ChannelState { NULL, OPEN, CLOSING, CLOSED }
 
-    // //////// container types
-
-    /// Container type for holding XBR Network membership information.
+    /// Container type for holding XBR network membership information.
     struct Member {
-        /// Time (block.timestamp) when the member was (initially) registered.
+        /// Block number when the member was (initially) registered in the XBR network.
         uint registered;
 
         /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
         /// ZIP file archive on IPFS.
         string eula;
 
-        /// Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+        /// Optional public member profile. An IPFS Multihash of the member profile
+        /// stored in IPFS.
         string profile;
 
         /// Current member level.
         MemberLevel level;
 
-        /// If the transaction was pre-signed, this is the signature the user supplied
+        /// If the transaction to join the XBR network as a new member was was pre-signed
+        /// off-chain by the new member, this is the signature the user supplied. If the
+        /// user on-boarded by directly interacting with the XBR contracts on-chain, this
+        /// will be empty.
         bytes signature;
     }
 
-    /// Container type for holding XBR Market Actors information.
+    /// Container type for holding XBR market actor information.
     struct Actor {
-        /// Time (block.timestamp) when the actor has joined.
+        /// Block number when the actor has joined the respective market.
         uint joined;
 
-        /// Security deposited by actor.
+        /// Security deposited by the actor when joining the market.
         uint256 security;
 
         /// Metadata attached to an actor in a market.
@@ -80,24 +82,27 @@ library XBRTypes {
         address[] channels;
     }
 
-    /// Container type for holding XBR Market information.
+    /// Container type for holding XBR market information.
     struct Market {
-        /// Time (block.timestamp) when the market was created.
+        /// Block number when the market was created.
         uint created;
 
         /// Market sequence number.
-        uint32 marketSeq;
+        uint32 seq;
 
         /// Market owner (aka "market operator").
         address owner;
 
+        /// The coin (ERC20 token) to be used in the market as the means of payment.
+        address coin;
+
         /// Market terms (IPFS Multihash).
         string terms;
 
-        /// Market metadata (IPFS Multihash)
+        /// Market metadata (IPFS Multihash).
         string meta;
 
-        /// Current market maker address.
+        /// Market maker address.
         address maker;
 
         /// Security deposit required by data providers (sellers) to join the market.
@@ -133,11 +138,11 @@ library XBRTypes {
 
     /// Container type for holding channel static information.
     struct Channel {
-        /// Channel sequence number.
-        uint32 channelSeq;
+        /// Block number when the channel was created.
+        uint256 created;
 
-        /// Block timestamp when the channel was created.
-        uint256 openedAt;
+        /// Channel sequence number.
+        uint32 seq;
 
         /// Current payment channel type (either payment or paying channel).
         ChannelType ctype;
@@ -145,37 +150,30 @@ library XBRTypes {
         /// The XBR Market ID this channel is operating payments (or payouts) for.
         bytes16 marketId;
 
-        /**
-        * The off-chain market maker that operates this payment or paying channel.
-        */
+        /// The off-chain market maker that operates this payment or paying channel.
         address marketmaker;
 
-        /**
-        * The sender of the payments in this channel. Either a XBR Consumer (payment channels) or
-        * the XBR Market Maker (paying channels).
-        */
+        /// The sender of the payments in this channel. Either a XBR consumer (for
+        /// payment channels) or the XBR market maker (for paying channels).
         address actor;
 
-        /**
-        * The delegate of the channel, e.g. the XBR Consumer delegate in case of a payment channel
-        * or the XBR Provider (delegate) in case of a paying channel that is allowed to consume or
-        * provide data with payment therefor running under this channel.
-        */
+        /// The delegate of the channel, e.g. the XBR consumer delegate in case
+        /// of a payment channel or the XBR provider delegate in case of a paying
+        /// channel that is allowed to consume or provide data with off-chain
+        /// transactions and  payments running under this channel.
         address delegate;
 
-        /**
-        * Recipient of the payments in this channel. Either the XBR Market Operator (payment
-        * channels) or a XBR Provider (paying channels) in the market.
-        */
+        /// Recipient of the payments in this channel. Either the XBR market operator
+        /// (for payment channels) or a XBR provider (for paying channels).
         address recipient;
 
-        /// Amount of XBR held in the channel.
+        /// Amount of tokens (denominated in the respective market token) held in
+        /// this channel (initially deposited by the actor).
         uint256 amount;
 
-        /**
-        * Timeout with which the channel will be closed (the grace period during which the
-        * channel will wait for participants to submit their last signed transaction).
-        */
+        /// Timeout in blocks with which the channel will be closed definitely in
+        /// a non-cooperative close. This is the grace period during which the channel
+        /// will wait for participants to submit their last signed transaction.
         uint32 timeout;
 
         /// Signature supplied (by the actor) when opening the channel.
@@ -214,58 +212,107 @@ library XBRTypes {
 
     /// EIP712 type for XBR as a type domain.
     struct EIP712Domain {
-        // make signatures from different domains incompatible
+        /// The type domain name, makes signatures from different domains incompatible.
         string  name;
+
+        /// The type domain version.
         string  version;
     }
 
-    /// EIP712 type for use in XBRNetwork.registerFor.
+    /// EIP712 type for use in member registration.
     struct EIP712MemberRegister {
-        // replay attack protection
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
         uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        // actual data attributes
+        /// Registered member address.
         address member;
+
+        /// Block number when the member registered in the XBR network.
         uint256 registered;
+
+        /// Multihash of EULA signed by the member when registering.
         string eula;
+
+        /// Optional profile meta-data multihash.
         string profile;
     }
 
-    /// EIP712 type for use in XBRMarket.createMarketFor.
+    /// EIP712 type for use in market creation.
     struct EIP712MarketCreate {
-        // replay attack protection
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
         uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        // actual data attributes
+        /// The ID of the market created (a 16 bytes UUID which is globally unique to that market).
         bytes16 marketId;
+
+        /// Multihash for the market terms applying to this market.
         string terms;
+
+        /// Multihash for optional market meta-data supplied for the market.
         string meta;
+
+        /// The address of the market maker responsible for this market. The market
+        /// maker of a market is the link between off-chain channels and on-chain channels,
+        /// and operates the channels by processing transactions.
         address maker;
+
+        /// Any mandatory security that actors that join this market as data providers (selling data
+        /// as seller actors) must supply when joining this market. May be 0.
         uint256 providerSecurity;
+
+        /// Any mandatory security that actors that join this market as data consumer (buying data
+        /// as buyer actors) must supply when joining this market. May be 0.
         uint256 consumerSecurity;
+
+        /// The market fee that applies in this market. May be 0.
         uint256 marketFee;
     }
 
-    /// EIP712 type for use in XBRMarket.joinMarketFor.
+    /// EIP712 type for use in joining markets.
     struct EIP712MarketJoin {
-        // replay attack protection
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
         uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        // actual data attributes
+        /// The XBR network member joining the specified market as a market actor.
         address member;
+
+        /// Block number when the member as joined the market,
         uint256 joined;
+
+        /// The ID of the market joined.
         bytes16 marketId;
+
+        /// The actor type as which to join, which can be "buyer" or "seller".
         uint8 actorType;
+
+        /// Optional multihash for additional meta-data supplied
+        /// for the actor joining the market.
         string meta;
     }
 
-    /// EIP712 type for use in XBRChannel.openFor.
+    /// EIP712 type for use in opening channels.
     struct EIP712ChannelOpen {
-        // replay attack protection
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
         uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
         address verifyingContract;
 
         // actual data attributes
