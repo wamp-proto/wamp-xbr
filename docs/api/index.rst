@@ -15,6 +15,17 @@ This is the public API reference documentation for the XBR protocol smart contra
 
 ----------
 
+
+XBRToken
+--------
+
+.. autosolcontract:: XBRToken
+    :members:
+    :exclude-members:
+        INITIAL_SUPPLY,
+        constructor
+
+
 XBRNetwork
 ----------
 
@@ -39,6 +50,33 @@ registerMemberFor
 .................
 
 .. autosolfunction:: XBRNetwork.registerMemberFor
+
+
+XBRCatalog
+----------
+
+.. autosolcontract:: XBRCatalog
+    :members:
+
+createCatalog
+.............
+
+.. autosolfunction:: XBRCatalog.createCatalog
+
+createCatalogFor
+................
+
+.. autosolfunction:: XBRCatalog.createCatalogFor
+
+publishApi
+..........
+
+.. autosolfunction:: XBRCatalog.publishApi
+
+publishApiFor
+.............
+
+.. autosolfunction:: XBRCatalog.publishApiFor
 
 
 XBRMarket
@@ -86,33 +124,6 @@ setConsentFor
 .. autosolfunction:: XBRMarket.setConsentFor
 
 
-XBRCatalog
-----------
-
-.. autosolcontract:: XBRCatalog
-    :members:
-
-createCatalog
-.............
-
-.. autosolfunction:: XBRCatalog.createCatalog
-
-createCatalogFor
-................
-
-.. autosolfunction:: XBRCatalog.createCatalogFor
-
-publishApi
-..........
-
-.. autosolfunction:: XBRCatalog.publishApi
-
-publishApiFor
-.............
-
-.. autosolfunction:: XBRCatalog.publishApiFor
-
-
 XBRChannel
 ----------
 
@@ -134,13 +145,3 @@ closeChannel
 .............
 
 .. autosolfunction:: XBRChannel.closeChannel
-
-
-XBRToken
---------
-
-.. autosolcontract:: XBRToken
-    :members:
-    :exclude-members:
-        INITIAL_SUPPLY,
-        constructor

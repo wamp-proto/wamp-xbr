@@ -64,12 +64,9 @@ contract XBRCatalog is XBRMaintained {
     /// Create a new XBR catalog. The sender of the transaction must be XBR network member
     /// and automatically becomes owner of the new catalog.
     ///
-    /// @param catalogId The ID of the market to create. Must be unique (not yet existing).
-    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-    ///              to a ZIP archive file with market documents.
-    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-    ///             to a RDF/Turtle file with market metadata.
+    /// @param catalogId The ID of the new catalog.
+    /// @param terms Multihash for terms that apply to the catalog and to all APIs as published to this catalog.
+    /// @param meta Multihash for optional catalog meta-data.
     function createCatalog (bytes16 catalogId, string memory terms, string memory meta) public {
 
         _createCatalog(msg.sender, block.number, catalogId, terms, meta, "");
@@ -81,17 +78,17 @@ contract XBRCatalog is XBRMaintained {
     /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
-    /// @param catalogId The ID of the market to create. Must be unique (not yet existing).
-    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-    ///              to a ZIP archive file with market documents.
-    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-    ///             to a RDF/Turtle file with market metadata.
+    /// @param member Member that creates the catalog and will become owner.
+    /// @param created Block number when the catalog was created.
+    /// @param catalogId The ID of the new catalog.
+    /// @param terms Multihash for terms that apply to the catalog and to all APIs as published to this catalog.
+    /// @param meta Multihash for optional catalog meta-data.
+    /// @param signature Signature created by the member.
     function createCatalogFor (address member, uint256 created, bytes16 catalogId, string memory terms,
         string memory meta, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712CatalogCreate(network.verifyingChain(), network.verifyingContract(),
-            catalogId, terms, meta), signature),
+            member, created, catalogId, terms, meta), signature),
             "INVALID_CATALOG_CREATE_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
@@ -133,32 +130,35 @@ contract XBRCatalog is XBRMaintained {
     /// @param meta Multihash for optional meta-data.
     function publishApi (bytes16 catalogId, bytes16 apiId, string memory schema, string memory meta) public {
 
-        return _publishApi(msg.sender, block.number, catalogId, apiId, schema, meta);
+        _publishApi(msg.sender, block.number, catalogId, apiId, schema, meta, "");
     }
 
-    /// Join the specified member to the given XBR market as the specified type of actor,
-    /// which must be PROVIDER or CONSUMER.
+    /// Publish the given API to the specified catalog.
     ///
-    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
-    /// @param marketId The ID of the XBR data market to join.
-    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
-    /// @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+    /// @param member Member that is publishing the API.
+    /// @param published Block number when the API was published.
+    /// @param catalogId The ID of the XBR API catalog to publish the API to.
+    /// @param apiId The ID of the new API (must be unique).
+    /// @param schema Multihash of API Flatbuffers schema (required).
+    /// @param meta Multihash for optional meta-data.
+    /// @param signature Signature created by the member.
     function publishApiFor (address member, uint256 published, bytes16 catalogId, bytes16 apiId,
-        string memory schema, string memory meta, bytes memory signature) public returns (uint256) {
+        string memory schema, string memory meta, bytes memory signature) public {
 
-        require(XBRTypes.verify(member, XBRTypes.EIP712APIPublish(network.verifyingChain(), network.verifyingContract(),
+        require(XBRTypes.verify(member, XBRTypes.EIP712ApiPublish(network.verifyingChain(), network.verifyingContract(),
             member, published, catalogId, apiId, schema, meta), signature), "INVALID_API_PUBLISH_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
         require(published <= block.number && published >= (block.number - 4), "INVALID_API_PUBLISH_BLOCK_NUMBER");
 
-        return _publishApi(member, published, catalogId, apiId, schema, meta, signature);
+        _publishApi(member, published, catalogId, apiId, schema, meta, signature);
     }
 
     function _publishApi (address member, uint256 published, bytes16 catalogId, bytes16 apiId,
-        string memory schema, string memory meta, bytes memory signature) private returns (uint256) {
+        string memory schema, string memory meta, bytes memory signature) private {
 
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
@@ -172,9 +172,9 @@ contract XBRCatalog is XBRMaintained {
         require(catalogs[catalogId].owner == member, "SENDER_IS_NOT_OWNER");
 
         // the API, identified by the ID, must not yet exist
-        require(catalogs[catalogId][apiId].published == 0, "API_ALREADY_EXISTS");
+        require(catalogs[catalogId].apis[apiId].published == 0, "API_ALREADY_EXISTS");
 
         // add API to API-map of catalog
-        catalogs[catalogId][apiId] = XBRTypes.Api(published, schema, meta);
+        catalogs[catalogId].apis[apiId] = XBRTypes.Api(published, schema, meta);
     }
 }

@@ -279,6 +279,61 @@ library XBRTypes {
         string profile;
     }
 
+    /// EIP712 type for use in catalog creation.
+    struct EIP712CatalogCreate {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// Registered member address.
+        address member;
+
+        /// Block number when the member registered in the XBR network.
+        uint256 created;
+
+        /// The ID of the catalog created (a 16 bytes UUID which is globally unique to that market).
+        bytes16 catalogId;
+
+        /// Multihash for the terms applying to this catalog.
+        string terms;
+
+        /// Multihash for optional meta-data supplied for the catalog.
+        string meta;
+    }
+
+    /// EIP712 type for use in publishing APIs to catalogs.
+    struct EIP712ApiPublish {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member publishing the API.
+        address member;
+
+        /// Block number when the API was published to the catalog.
+        uint256 published;
+
+        /// The ID of the catalog the API is published to.
+        bytes16 catalogId;
+
+        /// The ID of the API published.
+        bytes16 apiId;
+
+        /// Multihash of API Flatbuffers schema (required).
+        string schema;
+
+        /// Multihash of API meta-data (optional).
+        string meta;
+    }
+
     /// EIP712 type for use in market creation.
     struct EIP712MarketCreate {
         /// Verifying chain ID, which binds the signature to that chain
@@ -463,6 +518,14 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_CATALOG_CREATE_TYPEHASH = keccak256("EIP712CatalogCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 catalogId,string terms,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_API_PUBLISH_TYPEHASH = keccak256("EIP712ApiPublish(uint256 chainId,address verifyingContract,address member,uint256 published,bytes16 catalogId,bytes16 apiId,string terms,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,bytes16 marketId,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
 
     /// EIP712 type data.
@@ -524,6 +587,33 @@ library XBRTypes {
             obj.registered,
             keccak256(bytes(obj.eula)),
             keccak256(bytes(obj.profile))
+        ));
+    }
+
+    function hash (EIP712CatalogCreate memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_CATALOG_CREATE_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.created,
+            obj.catalogId,
+            keccak256(bytes(obj.terms)),
+            keccak256(bytes(obj.meta))
+        ));
+    }
+
+    function hash (EIP712ApiPublish memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_API_PUBLISH_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.published,
+            obj.catalogId,
+            obj.apiId,
+            keccak256(bytes(obj.schema)),
+            keccak256(bytes(obj.meta))
         ));
     }
 
@@ -602,6 +692,36 @@ library XBRTypes {
 
     /// Verify signature on typed data for registering a member.
     function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for creating a catalog.
+    function verify (address signer, EIP712CatalogCreate memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for publishing an API to a catalog.
+    function verify (address signer, EIP712ApiPublish memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
