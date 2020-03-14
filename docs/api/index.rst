@@ -1,7 +1,7 @@
 .. _XBRAPI:
 
-XBR Contracts Reference
-=======================
+Contracts Reference
+===================
 
 This is the public API reference documentation for the XBR protocol smart contracts:
 
@@ -9,20 +9,36 @@ This is the public API reference documentation for the XBR protocol smart contra
 
 .. note::
     The contracts are written in Solidity, and the documentation here is generated directly from
-    the docstrings in the Solidity source code using `Sphinx <http://www.sphinx-doc.org>`__
-    and `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`__.
+    the docstrings in the `XBR contracts <https://github.com/crossbario/xbr-protocol/tree/master/contracts>`__
+    source code using `Sphinx <http://www.sphinx-doc.org>`__ and
+    `Solidity domain for Sphinx <https://solidity-domain-for-sphinx.readthedocs.io>`__.
 
 ----------
-
 
 XBRNetwork
 ----------
 
 .. autosolcontract:: XBRNetwork
     :members:
-    :exclude-members:
-        constructor
-        _registerMember
+        MemberRegistered,
+        MemberRetired,
+        verifyingChain,
+        verifyingContract,
+        eula,
+        token,
+        organization,
+        members,
+        coins
+
+registerMember
+..............
+
+.. autosolfunction:: XBRNetwork.registerMember
+
+registerMemberFor
+.................
+
+.. autosolfunction:: XBRNetwork.registerMemberFor
 
 
 XBRMarket
@@ -30,14 +46,44 @@ XBRMarket
 
 .. autosolcontract:: XBRMarket
     :members:
-    :exclude-members:
-        constructor,
-        marketSeq,
+        network,
+        markets,
         marketIds,
-        marketsByMaker,
-        marketsByOwner,
-        _createMarket,
-        _joinMarket
+        MarketCreated,
+        MarketClosed,
+        ActorJoined,
+        ActorLeft,
+        ConsentSet
+
+createMarket
+............
+
+.. autosolfunction:: XBRMarket.createMarket
+
+createMarketFor
+...............
+
+.. autosolfunction:: XBRMarket.createMarketFor
+
+joinMarket
+..........
+
+.. autosolfunction:: XBRMarket.joinMarket
+
+joinMarketFor
+.............
+
+.. autosolfunction:: XBRMarket.joinMarketFor
+
+setConsent
+..........
+
+.. autosolfunction:: XBRMarket.setConsent
+
+setConsentFor
+.............
+
+.. autosolfunction:: XBRMarket.setConsentFor
 
 
 XBRCatalog
@@ -52,13 +98,22 @@ XBRChannel
 
 .. autosolcontract:: XBRChannel
     :members:
+        Opened,
+        Closing,
+        Closed,
+        market,
+        channels,
+        channelClosingStates
 
+openChannel
+.............
 
-XBRTypes
---------
+.. autosolfunction:: XBRChannel.openChannel
 
-.. autosollibrary:: XBRTypes
-    :members:
+closeChannel
+.............
+
+.. autosolfunction:: XBRChannel.closeChannel
 
 
 XBRToken
@@ -69,17 +124,3 @@ XBRToken
     :exclude-members:
         INITIAL_SUPPLY,
         constructor
-
-
-XBRMaintained
--------------
-
-.. autosolcontract:: XBRMaintained
-    :members:
-        MaintainerAdded,
-        MaintainerRemoved,
-        onlyMaintainer,
-        isMaintainer,
-        addMaintainer,
-        renounceMaintainer
-

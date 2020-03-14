@@ -89,39 +89,39 @@ contract XBRNetwork is XBRMaintained {
         members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
     }
 
-    /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
-    /// providers ("sellers"), data consumers ("buyers") and data market operators, must first register
-    /// with the XBR network.
+    /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely data
+    /// providers ("sellers"), data consumers ("buyers") and data market operators, must be registered
+    /// in the XBR network.
     ///
-    /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-    /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
-    function registerMember (string memory networkEula, string memory profile) public {
-        _registerMember(msg.sender, block.number, networkEula, profile, "");
+    /// @param networkEula Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+    /// @param memberProfile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+    function registerMember (string memory networkEula, string memory memberProfile) public {
+        _registerMember(msg.sender, block.number, networkEula, memberProfile, "");
     }
 
-    /// Register the specified new member in the XBR Network. All XBR stakeholders, namely XBR data
-    /// providers ("sellers"), data consumers ("buyers") and data market operators, must first register
-    /// with the XBR network.
+    /// Register the specified new member in the XBR Network. All XBR stakeholders, namely data
+    /// providers ("sellers"), data consumers ("buyers") and data market operators, must be registered
+    /// in the XBR network.
     ///
     /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
     /// @param member Address of the registering (new) member.
     /// @param registered Block number at which the registering member has created the signature.
-    /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
-    /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
+    /// @param networkEula Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
+    /// @param memberProfile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
     /// @param signature EIP712 signature, signed by the registering member.
     function registerMemberFor (address member, uint256 registered, string memory networkEula,
-        string memory profile, bytes memory signature) public {
+        string memory memberProfile, bytes memory signature) public {
 
         // verify signature
         require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
-            member, registered, networkEula, profile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
+            member, registered, networkEula, memberProfile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
         require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
 
-        _registerMember(member, registered, networkEula, profile, signature);
+        _registerMember(member, registered, networkEula, memberProfile, signature);
     }
 
     function _registerMember (address member, uint256 registered, string memory networkEula, string memory profile, bytes memory signature) private {

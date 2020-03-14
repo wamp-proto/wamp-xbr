@@ -56,6 +56,10 @@ contract XBRMarket is XBRMaintained {
     /// Event emitted when an actor has left a market.
     event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
 
+    /// Event emitted when an actor has set consent on a ``(market, delegate, api)`` triple.
+    event ConsentSet (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string servicePrefix);
+
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
@@ -300,6 +304,8 @@ contract XBRMarket is XBRMaintained {
     /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
+    /// @param member Address of member (which must be actor in the market) that sets consent.
+    /// @param updated Block number at which the consent setting member has created the signature.
     /// @param marketId The ID of the XBR data market in which to provide or consume data. Any
     ///                 terms attached to the market or the API apply.
     /// @param delegate The address of the off-chain provider or consumer delegate, which is a piece
@@ -308,6 +314,7 @@ contract XBRMarket is XBRMaintained {
     /// @param apiCatalog The ID of the API or API catalog to which the consent shall apply.
     /// @param consent Consent granted or revoked.
     /// @param servicePrefix The WAMP URI prefix to be used by the delegate in the data plane realm.
+    /// @param signature EIP712 signature, signed by the consent setting member.
     function setConsentFor (address member, uint256 updated, bytes16 marketId, address delegate,
         uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
         bytes memory signature) public {
