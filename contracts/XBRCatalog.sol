@@ -175,6 +175,6 @@ contract XBRCatalog is XBRMaintained {
         require(catalogs[catalogId].apis[apiId].published == 0, "API_ALREADY_EXISTS");
 
         // add API to API-map of catalog
-        catalogs[catalogId].apis[apiId] = XBRTypes.Api(published, schema, meta);
+        catalogs[catalogId].apis[apiId] = XBRTypes.Api(published, schema, meta, signature);
     }
 }

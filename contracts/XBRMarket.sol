@@ -131,7 +131,7 @@ contract XBRMarket is XBRMaintained {
         uint256 marketFee, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
-            marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
+            member, created, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one

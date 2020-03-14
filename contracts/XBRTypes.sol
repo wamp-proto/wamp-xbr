@@ -668,7 +668,7 @@ library XBRTypes {
             obj.delegateType,
             obj.apiCatalog,
             obj.consent,
-            keccak256(obj.servicePrefix)
+            keccak256(bytes(obj.servicePrefix))
         ));
     }
 

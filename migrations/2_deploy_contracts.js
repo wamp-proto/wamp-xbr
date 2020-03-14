@@ -11,6 +11,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+const XBRTest = artifacts.require("./XBRTest.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRTypes = artifacts.require("./XBRTypes.sol");
@@ -67,6 +68,12 @@ module.exports = function (deployer, network, accounts) {
         await deployer.link(XBRMarket, XBRChannel);
         await deployer.deploy(XBRChannel, XBRMarket.address, {gas: gas, from: organization});
         console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+
+        // keep this at the end of deployment, so that the addresses of the XBR
+        // contracts "stay constant" for CI
+        if (network === "ganache" || network === "soliditycoverage") {
+            await deployer.deploy(XBRTest, {gas: gas, from: organization});
+        }
 
         console.log('\nDeployed XBR contract addresses:\n');
         console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
