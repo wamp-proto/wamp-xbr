@@ -21,6 +21,8 @@
     "dependencies": {},
     "devDependencies": {
         "bindings": "^1.5.0",
+        "browserify": "^16.5.0",
+        "google-closure-compiler": ">=v20200224",
         "eth-sig-util": "^2.5.2",
         "ethereumjs-util": "^6.2.0",
         "openzeppelin-solidity": "^2.5.0",
