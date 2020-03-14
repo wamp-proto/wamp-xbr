@@ -276,6 +276,60 @@ contract XBRMarket is XBRMaintained {
         return security;
     }
 
+    /// Track consent of an actor in a market to allow the specified seller or buyer delegate
+    /// to provide or consume data under the respective API catalog in the given market.
+    ///
+    /// @param marketId The ID of the XBR data market in which to provide or consume data. Any
+    ///                 terms attached to the market or the API apply.
+    /// @param delegate The address of the off-chain provider or consumer delegate, which is a piece
+    ///                 of software acting on behalf and under consent of the actor in the market.
+    /// @param delegateType The type of off-chain delegate, a data provider or data consumer.
+    /// @param apiCatalog The ID of the API or API catalog to which the consent shall apply.
+    /// @param consent Consent granted or revoked.
+    /// @param servicePrefix The WAMP URI prefix to be used by the delegate in the data plane realm.
+    function setConsent (bytes16 marketId, address delegate, uint8 delegateType, bytes16 apiCatalog,
+        bool consent, string memory servicePrefix) public {
+
+        return _setConsent(msg.sender, block.number, marketId, delegate, delegateType,
+            apiCatalog, consent, servicePrefix, "");
+    }
+
+    /// Track consent of an actor in a market to allow the specified seller or buyer delegate
+    /// to provide or consume data under the respective API catalog in the given market.
+    ///
+    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param marketId The ID of the XBR data market in which to provide or consume data. Any
+    ///                 terms attached to the market or the API apply.
+    /// @param delegate The address of the off-chain provider or consumer delegate, which is a piece
+    ///                 of software acting on behalf and under consent of the actor in the market.
+    /// @param delegateType The type of off-chain delegate, a data provider or data consumer.
+    /// @param apiCatalog The ID of the API or API catalog to which the consent shall apply.
+    /// @param consent Consent granted or revoked.
+    /// @param servicePrefix The WAMP URI prefix to be used by the delegate in the data plane realm.
+    function setConsentFor (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
+        bytes memory signature) public {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712Consent(network.verifyingChain(), network.verifyingContract(),
+            member, updated, marketId, delegate, delegateType, apiCatalog, consent, servicePrefix), signature),
+            "INVALID_CONSENT_SIGNATURE");
+
+        // signature must have been created in a window of 5 blocks from the current one
+        require(updated <= block.number && updated >= (block.number - 4), "INVALID_CONSENT_BLOCK_NUMBER");
+
+        return _setConsent(member, updated, marketId, delegate, delegateType,
+            apiCatalog, consent, servicePrefix, signature);
+    }
+
+    function _setConsent (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
+        bytes memory signature) public {
+
+        // FIXME
+    }
+
     /// Get the total number of markets defined.
     function countMarkets() public view returns (uint) {
         return marketIds.length;

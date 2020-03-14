@@ -21,7 +21,8 @@ XBRNetwork
 .. autosolcontract:: XBRNetwork
     :members:
     :exclude-members:
-        _register
+        constructor
+        _registerMember
 
 
 XBRMarket
@@ -30,6 +31,7 @@ XBRMarket
 .. autosolcontract:: XBRMarket
     :members:
     :exclude-members:
+        constructor,
         marketSeq,
         marketIds,
         marketsByMaker,

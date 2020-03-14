@@ -36,38 +36,38 @@ contract XBRNetwork is XBRMaintained {
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
 
-    /// Event emitted when a new member joined the XBR Network.
-    event MemberCreated (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
+    /// Event emitted when a new member registered in the XBR Network.
+    event MemberRegistered (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
 
-    /// Used for EIP712 verification: network ID of the blockchain this contract is running on.
+    /// Chain ID of the blockchain this contract is running on, used in EIP712 typed data signature verification.
     uint256 public verifyingChain;
 
-    /// Used for EIP712 verification: verifying contract address.
+    /// Verifying contract address, used in EIP712 typed data signature verification.
     address public verifyingContract;
 
-    /// XBR network EULA (IPFS Multihash). Source: https://github.com/crossbario/xbr-protocol/tree/master/ipfs/xbr-eula
+    /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/ipfs/xbr-eula/XBR-EULA.txt>`__.
     string public constant eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
 
-    /// XBR Network ERC20 token (XBR for the CrossbarFX technology stack)
+    /// Address of the XBR Networks' own ERC20 token for network-wide purposes.
     XBRToken public token;
 
-    /// Address of the `XBR Network Organization <https://xbr.network/>`_
+    /// Address of the `XBR Network Organization <https://xbr.network/>`__.
     address public organization;
 
     /// Current XBR Network members ("member directory").
     mapping(address => XBRTypes.Member) public members;
 
-    /// ERC20 coins which can specified as a means of payment when creating
-    /// a new data market.
+    /// ERC20 coins which can specified as a means of payment when creating a new data market.
     mapping(address => bool) public coins;
 
     /// Create the XBR network.
     ///
     /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
-    ///                     any ERC20 token as a means of payment.
+    ///                     any ERC20 token (enabled in the ``coins`` mapping of this contract) as
+    ///                     a means of payment in the respective market.
     /// @param networkOrganization The XBR network organization address.
     constructor (address networkToken, address networkOrganization) public {
 
@@ -90,7 +90,8 @@ contract XBRNetwork is XBRMaintained {
     }
 
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely XBR data
-    /// providers, data consumers and data market operators, must first register with the XBR network.
+    /// providers ("sellers"), data consumers ("buyers") and data market operators, must first register
+    /// with the XBR network.
     ///
     /// @param networkEula The IPFS Multihash of the XBR EULA being agreed to and stored as one ZIP file archive on IPFS.
     /// @param profile Optional public member profile: the IPFS Multihash of the member profile stored in IPFS.
@@ -98,11 +99,11 @@ contract XBRNetwork is XBRMaintained {
         _registerMember(msg.sender, block.number, networkEula, profile, "");
     }
 
-    /// Register the specified member in the XBR Network. All XBR stakeholders, namely XBR Data Providers,
-    /// XBR Data Consumers and XBR Data Market Operators, must first register
-    /// with the XBR Network on the global blockchain by calling this function.
+    /// Register the specified new member in the XBR Network. All XBR stakeholders, namely XBR data
+    /// providers ("sellers"), data consumers ("buyers") and data market operators, must first register
+    /// with the XBR network.
     ///
-    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
     /// @param member Address of the registering (new) member.
@@ -135,7 +136,7 @@ contract XBRNetwork is XBRMaintained {
         members[member] = XBRTypes.Member(registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE, signature);
 
         // notify observers of new member
-        emit MemberCreated(member, registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE);
+        emit MemberRegistered(member, registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE);
     }
 
     /// Set the XBR network organization address.

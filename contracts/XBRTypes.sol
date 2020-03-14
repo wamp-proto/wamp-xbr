@@ -306,6 +306,41 @@ library XBRTypes {
         string meta;
     }
 
+    /// EIP712 type for use in data consent tracking.
+    struct EIP712Consent {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member joining the specified market as a market actor.
+        address member;
+
+        /// Block number when the member as joined the market,
+        uint256 updated;
+
+        /// The ID of the market joined.
+        bytes16 marketId;
+
+        /// Address of delegate consent (status) applies to.
+        address delegate;
+
+        /// The actor type as which to join, which can be "buyer" or "seller".
+        uint8 delegateType;
+
+        /// The ID of the market joined.
+        bytes16 apiCatalog;
+
+        /// Consent granted or revoked.
+        bool consent;
+
+        /// The WAMP URI prefix to be used by the delegate in the data plane realm.
+        string servicePrefix;
+    }
+
     /// EIP712 type for use in opening channels. The initial opening of a channel
     /// is one on-chain transaction (as is the final close), but all actual
     /// in-channel transactions happen off-chain.
@@ -400,6 +435,10 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_CONSENT_TYPEHASH = keccak256("EIP712Consent(uint256 chainId,address verifyingContract,address member,uint256 updated,bytes16 marketId,address delegate,uint8 delegateType,bytes16 apiCatalog,bool consent)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract,uint8 ctype,uint256 openedAt,bytes16 marketId,bytes16 channelId,address actor,address delegate,address recipient,uint256 amount,uint32 timeout)");
 
     /// EIP712 type data.
@@ -480,6 +519,21 @@ library XBRTypes {
         ));
     }
 
+    function hash (EIP712Consent memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_CONSENT_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.updated,
+            obj.marketId,
+            obj.delegate,
+            obj.delegateType,
+            obj.apiCatalog,
+            obj.consent
+        ));
+    }
+
     function hash (EIP712ChannelOpen memory obj) private pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_CHANNEL_OPEN_TYPEHASH,
@@ -542,6 +596,21 @@ library XBRTypes {
 
     /// Verify signature on typed data for joining a market.
     function verify (address signer, EIP712MarketJoin memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for setting consent.
+    function verify (address signer, EIP712Consent memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
