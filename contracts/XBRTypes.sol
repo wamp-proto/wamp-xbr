@@ -41,7 +41,7 @@ library XBRTypes {
     /// Container type for holding XBR network membership information.
     struct Member {
         /// Block number when the member was (initially) registered in the XBR network.
-        uint registered;
+        uint256 registered;
 
         /// The IPFS Multihash of the XBR EULA being agreed to and stored as one
         /// ZIP file archive on IPFS.
@@ -64,7 +64,7 @@ library XBRTypes {
     /// Container type for holding XBR market actor information.
     struct Actor {
         /// Block number when the actor has joined the respective market.
-        uint joined;
+        uint256 joined;
 
         /// Security deposited by the actor when joining the market.
         uint256 security;
@@ -131,6 +131,42 @@ library XBRTypes {
 
         /// Current paying channel by (seller) delegate.
         mapping(address => address) currentPayingChannelByDelegate;
+    }
+
+    /// Container type for holding XBR data service API information.
+    struct Api {
+        /// Block number when the API was added to the respective catalog.
+        uint256 published;
+
+        /// Multihash of API Flatbuffers schema (required).
+        string schema;
+
+        /// Multihash of API meta-data (optional).
+        string meta;
+    }
+
+    /// Container type for holding XBR catalog information.
+    struct Catalog {
+        /// Block number when the catalog was created.
+        uint256 created;
+
+        /// Catalog sequence number.
+        uint32 seq;
+
+        /// Catalog owner (aka "catalog publisher").
+        address owner;
+
+        /// Catalog terms (IPFS Multihash).
+        string terms;
+
+        /// Catalog metadata (IPFS Multihash).
+        string meta;
+
+        /// This is the signature the member supplied for opening the market.
+        bytes signature;
+
+        /// The APIs part of this catalog.
+        mapping(bytes16 => Api) apis;
     }
 
     /// Container type for holding channel static information.

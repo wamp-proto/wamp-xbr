@@ -92,6 +92,26 @@ XBRCatalog
 .. autosolcontract:: XBRCatalog
     :members:
 
+createCatalog
+.............
+
+.. autosolfunction:: XBRCatalog.createCatalog
+
+createCatalogFor
+................
+
+.. autosolfunction:: XBRCatalog.createCatalogFor
+
+publishApi
+..........
+
+.. autosolfunction:: XBRCatalog.publishApi
+
+publishApiFor
+.............
+
+.. autosolfunction:: XBRCatalog.publishApiFor
+
 
 XBRChannel
 ----------

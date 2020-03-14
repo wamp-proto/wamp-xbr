@@ -33,4 +33,148 @@ contract XBRCatalog is XBRMaintained {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
+
+    /// Event emitted when a new catalog was created.
+    event CatalogCreated (bytes16 indexed catalogId, uint256 created, uint32 catalogSeq,
+        address owner, string terms, string meta);
+
+    /// Event emitted when an API has been published to a catalog.
+    event ApiPublished (bytes16 indexed catalogId, bytes16 apiId, uint256 published,
+        string schema, string meta);
+
+    /// Instance of XBRNetwork contract this contract is linked to.
+    XBRNetwork public network;
+
+    /// Created catalogs are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
+    uint32 private catalogSeq = 1;
+
+    /// Current XBR Catalogs ("catalog directory")
+    mapping(bytes16 => XBRTypes.Catalog) public catalogs;
+
+    /// List of IDs of current XBR Catalogs.
+    bytes16[] public catalogIds;
+
+    // Constructor for this contract, only called once (when deploying the network).
+    //
+    // @param networkAdr The XBR network contract this instance is associated with.
+    constructor (address networkAdr) public {
+        network = XBRNetwork(networkAdr);
+    }
+
+    /// Create a new XBR catalog. The sender of the transaction must be XBR network member
+    /// and automatically becomes owner of the new catalog.
+    ///
+    /// @param catalogId The ID of the market to create. Must be unique (not yet existing).
+    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
+    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
+    ///              to a ZIP archive file with market documents.
+    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
+    ///             to a RDF/Turtle file with market metadata.
+    function createCatalog (bytes16 catalogId, string memory terms, string memory meta) public {
+
+        _createCatalog(msg.sender, block.number, catalogId, terms, meta, "");
+    }
+
+    /// Create a new XBR catalog for a member. The member must be XBR network member, must have signed the
+    /// transaction data, and will become owner of the new catalog.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param catalogId The ID of the market to create. Must be unique (not yet existing).
+    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
+    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
+    ///              to a ZIP archive file with market documents.
+    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
+    ///             to a RDF/Turtle file with market metadata.
+    function createCatalogFor (address member, uint256 created, bytes16 catalogId, string memory terms,
+        string memory meta, bytes memory signature) public {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712CatalogCreate(network.verifyingChain(), network.verifyingContract(),
+            catalogId, terms, meta), signature),
+            "INVALID_CATALOG_CREATE_SIGNATURE");
+
+        // signature must have been created in a window of 5 blocks from the current one
+        require(created <= block.number && created >= (block.number - 4), "INVALID_CATALOG_CREATE_BLOCK_NUMBER");
+
+        _createCatalog(member, created, catalogId, terms, meta, signature);
+    }
+
+    function _createCatalog (address member, uint256 created, bytes16 catalogId, string memory terms,
+        string memory meta, bytes memory signature) private {
+
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
+
+        // the catalog owner must be a registered member
+        require(member_level == XBRTypes.MemberLevel.ACTIVE ||
+                member_level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+
+        // catalogs must not yet exist
+        require(catalogs[catalogId].owner == address(0), "CATALOG_ALREADY_EXISTS");
+
+        // store new catalog object
+        catalogs[catalogId] = XBRTypes.Catalog(created, catalogSeq, member, terms, meta, signature);
+
+        // add catalogId to list of all catalog IDs
+        catalogIds.push(catalogId);
+
+        // increment catalog sequence for next catalog
+        catalogSeq = catalogSeq + 1;
+
+        // notify observers of new catalogs
+        emit CatalogCreated(catalogId, created, catalogSeq, member, terms, meta);
+    }
+
+    /// Publish the given API to the specified catalog.
+    ///
+    /// @param catalogId The ID of the XBR API catalog to publish the API to.
+    /// @param apiId The ID of the new API (must be unique).
+    /// @param schema Multihash of API Flatbuffers schema (required).
+    /// @param meta Multihash for optional meta-data.
+    function publishApi (bytes16 catalogId, bytes16 apiId, string memory schema, string memory meta) public {
+
+        return _publishApi(msg.sender, block.number, catalogId, apiId, schema, meta);
+    }
+
+    /// Join the specified member to the given XBR market as the specified type of actor,
+    /// which must be PROVIDER or CONSUMER.
+    ///
+    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param marketId The ID of the XBR data market to join.
+    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+    /// @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+    function publishApiFor (address member, uint256 published, bytes16 catalogId, bytes16 apiId,
+        string memory schema, string memory meta, bytes memory signature) public returns (uint256) {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712APIPublish(network.verifyingChain(), network.verifyingContract(),
+            member, published, catalogId, apiId, schema, meta), signature), "INVALID_API_PUBLISH_SIGNATURE");
+
+        // signature must have been created in a window of 5 blocks from the current one
+        require(published <= block.number && published >= (block.number - 4), "INVALID_API_PUBLISH_BLOCK_NUMBER");
+
+        return _publishApi(member, published, catalogId, apiId, schema, meta, signature);
+    }
+
+    function _publishApi (address member, uint256 published, bytes16 catalogId, bytes16 apiId,
+        string memory schema, string memory meta, bytes memory signature) private returns (uint256) {
+
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
+
+        // the publishing user must be a registered member
+        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the catalog to publish to must exist
+        require(catalogs[catalogId].owner != address(0), "NO_SUCH_CATALOG");
+
+        // the publishing member must be owner of the catalog
+        require(catalogs[catalogId].owner == member, "SENDER_IS_NOT_OWNER");
+
+        // the API, identified by the ID, must not yet exist
+        require(catalogs[catalogId][apiId].published == 0, "API_ALREADY_EXISTS");
+
+        // add API to API-map of catalog
+        catalogs[catalogId][apiId] = XBRTypes.Api(published, schema, meta);
+    }
 }
