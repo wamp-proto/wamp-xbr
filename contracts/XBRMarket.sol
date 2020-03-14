@@ -89,11 +89,9 @@ contract XBRMarket is XBRMaintained {
     /// and automatically becomes owner of the new market.
     ///
     /// @param marketId The ID of the market to create. Must be unique (not yet existing).
-    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-    ///              to a ZIP archive file with market documents.
-    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-    ///             to a RDF/Turtle file with market metadata.
+    /// @param coin The ERC20 coin to be used as the means of payment in the market.
+    /// @param terms Multihash for market terms set by the market owner.
+    /// @param meta Multihash for optional market metadata.
     /// @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
     /// @param providerSecurity The amount of coins a XBR provider joining the market must deposit.
     /// @param consumerSecurity The amount of coins a XBR consumer joining the market must deposit.
@@ -111,15 +109,15 @@ contract XBRMarket is XBRMaintained {
     /// Create a new XBR market for a member. The member must be XBR network member, must have signed the
     /// transaction data, and will become owner of the new market.
     ///
-    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
+    /// @param member The member that creates the market (will become market owner).
+    /// @param created Block number when the market was created.
     /// @param marketId The ID of the market to create. Must be unique (not yet existing).
-    ///                 To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-    /// @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-    ///              to a ZIP archive file with market documents.
-    /// @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-    ///             to a RDF/Turtle file with market metadata.
+    /// @param coin The ERC20 coin to be used as the means of payment in the market.
+    /// @param terms Multihash for market terms set by the market owner.
+    /// @param meta Multihash for optional market metadata.
     /// @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
     /// @param providerSecurity The amount of coins a XBR provider joining the market must deposit.
     /// @param consumerSecurity The amount of coins a XBR consumer joining the market must deposit.
@@ -127,6 +125,7 @@ contract XBRMarket is XBRMaintained {
     ///                  the revenue of the XBR Provider that receives coins paid for transactions.
     ///                  The fee must be between 0% (inclusive) and 100% (inclusive), and is expressed as
     ///                  a fraction of the total supply of coins in the ERC20 token specified for the market.
+    /// @param signature EIP712 signature created by the member.
     function createMarketFor (address member, uint256 created, bytes16 marketId, address coin,
         string memory terms, string memory meta, address maker, uint256 providerSecurity, uint256 consumerSecurity,
         uint256 marketFee, bytes memory signature) public {
@@ -208,12 +207,15 @@ contract XBRMarket is XBRMaintained {
     /// Join the specified member to the given XBR market as the specified type of actor,
     /// which must be PROVIDER or CONSUMER.
     ///
-    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
     /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
     ///
+    /// @param member The member that creates the market (will become market owner).
+    /// @param joined Block number when the member joined the market.
     /// @param marketId The ID of the XBR data market to join.
     /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
     /// @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+    /// @param signature EIP712 signature created by the member.
     function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
         string memory meta, bytes memory signature) public returns (uint256) {
 

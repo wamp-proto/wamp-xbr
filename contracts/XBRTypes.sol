@@ -143,6 +143,9 @@ library XBRTypes {
 
         /// Multihash of API meta-data (optional).
         string meta;
+
+        /// This is the signature the user (actor) supplied when publishing the API.
+        bytes signature;
     }
 
     /// Container type for holding XBR catalog information.
@@ -162,7 +165,7 @@ library XBRTypes {
         /// Catalog metadata (IPFS Multihash).
         string meta;
 
-        /// This is the signature the member supplied for opening the market.
+        /// This is the signature the member supplied for creating the catalog.
         bytes signature;
 
         /// The APIs part of this catalog.
@@ -289,7 +292,7 @@ library XBRTypes {
         /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        /// Registered member address.
+        /// The member that created the catalog.
         address member;
 
         /// Block number when the member registered in the XBR network.
@@ -343,6 +346,12 @@ library XBRTypes {
         /// Verifying contract address, which binds the signature to that address
         /// for cross-contract replay-attack protection.
         address verifyingContract;
+
+        /// The member that created the catalog.
+        address member;
+
+        /// Block number when the market was created.
+        uint256 created;
 
         /// The ID of the market created (a 16 bytes UUID which is globally unique to that market).
         bytes16 marketId;
@@ -526,7 +535,7 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,bytes16 marketId,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
+    bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -622,6 +631,8 @@ library XBRTypes {
             EIP712_MARKET_CREATE_TYPEHASH,
             obj.chainId,
             obj.verifyingContract,
+            obj.member,
+            obj.created,
             obj.marketId,
             keccak256(bytes(obj.terms)),
             keccak256(bytes(obj.meta)),
@@ -656,7 +667,8 @@ library XBRTypes {
             obj.delegate,
             obj.delegateType,
             obj.apiCatalog,
-            obj.consent
+            obj.consent,
+            keccak256(obj.servicePrefix)
         ));
     }
 
