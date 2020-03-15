@@ -24,20 +24,26 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
 
 /**
- * The XBR Token is a `ERC20` compatible token using (with no modifications)
- * the OpenZeppelin (https://openzeppelin.org/) reference implementation.
+ * The `XBR Token <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRToken.sol>`__
+ * is a `ERC20 standard token <https://eips.ethereum.org/EIPS/eip-20>`__ defined by:
  *
- * For API, please see
+ * * "XBR" as symbol
+ * * fixed total supply of 10**9 ("one billion") XBR
+ * * 18 decimals
+ * * address (mainnet): tbd
  *
- *   * https://docs.openzeppelin.com/contracts/2.x/api/token/erc20
- *   * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
+ * The XBR Token is using the (unmodified) `OpenZeppelin <https://openzeppelin.org/>`__
+ * `reference implementation <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol>`__
+ * of the ERC20 token standard.
+ *
+ * For API documentation, please see `here <https://docs.openzeppelin.com/contracts/2.x/api/token/erc20>`__.
  */
 contract XBRToken is ERC20, ERC20Detailed {
 
     /**
      * The XBR Token has a fixed supply of 1 billion and uses 18 decimal digits.
      */
-    uint256 public constant INITIAL_SUPPLY = 10**9 * 10**18;
+    uint256 private constant INITIAL_SUPPLY = 10**9 * 10**18;
 
     /**
      * Constructor that gives ``msg.sender`` all of existing tokens.

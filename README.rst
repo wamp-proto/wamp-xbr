@@ -20,7 +20,27 @@ project main `GitHub repository <https://github.com/crossbario/xbr-protocol>`__.
 
 The XBR Protocol and reference documentation can be found `here <https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html>`__.
 
-**Application development with XBR**
+Contract addresses
+------------------
+
+Contract addresses for local development on Ganache, using the
+
+```
+export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pioneer submit female collect"
+```
+
+which result in the following contract addresses (when the deployment is the very first transactions on Ganache):
+
+```
+export XBR_DEBUG_TOKEN_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
+export XBR_DEBUG_NETWORK_ADDR=0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
+export XBR_DEBUG_MARKET_ADDR=0xe982E462b094850F12AF94d21D470e21bE9D0E9C
+export XBR_DEBUG_CATALOG_ADDR=0x59d3631c86BbE35EF041872d502F218A39FBa150
+export XBR_DEBUG_CHANNEL_ADDR=0x0290FB167208Af455bB137780163b7B7a9a10C16
+```
+
+Application development
+-----------------------
 
 The XBR smart contracts primary build artifacts are the `contract ABIs JSON files <https://github.com/crossbario/xbr-protocol/tree/master/abi>`__.
 The ABI files are built during compiling the `contract sources <https://github.com/crossbario/xbr-protocol/tree/master/contracts>`__.

@@ -11,12 +11,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+const XBRTest = artifacts.require("./XBRTest.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
-const XBRTest = artifacts.require("./XBRTest.sol");
 const XBRTypes = artifacts.require("./XBRTypes.sol");
 const XBRMarket = artifacts.require("./XBRMarket.sol");
-// const XBRPaymentChannel = artifacts.require("./XBRPaymentChannel.sol");
+const XBRCatalog = artifacts.require("./XBRCatalog.sol");
+const XBRChannel = artifacts.require("./XBRChannel.sol");
 // const XBRNetworkProxy = artifacts.require("./XBRNetworkProxy.sol");
 
 // https://truffleframework.com/docs/truffle/getting-started/running-migrations#deployer
@@ -57,6 +58,19 @@ module.exports = function (deployer, network, accounts) {
         await deployer.deploy(XBRMarket, XBRNetwork.address, {gas: gas, from: organization});
         console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
 
+        await deployer.link(XBRTypes, XBRCatalog);
+        await deployer.link(XBRNetwork, XBRCatalog);
+        await deployer.deploy(XBRCatalog, XBRNetwork.address, {gas: gas, from: organization});
+        console.log('>>>> XBRCatalog deployed at ' + XBRCatalog.address);
+
+        await deployer.link(XBRTypes, XBRChannel);
+        await deployer.link(XBRNetwork, XBRChannel);
+        await deployer.link(XBRMarket, XBRChannel);
+        await deployer.deploy(XBRChannel, XBRMarket.address, {gas: gas, from: organization});
+        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+
+        // keep this at the end of deployment, so that the addresses of the XBR
+        // contracts "stay constant" for CI
         if (network === "ganache" || network === "soliditycoverage") {
             await deployer.deploy(XBRTest, {gas: gas, from: organization});
         }
@@ -65,6 +79,8 @@ module.exports = function (deployer, network, accounts) {
         console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
         console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
         console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
+        console.log('export XBR_DEBUG_CATALOG_ADDR=' + XBRCatalog.address);
+        console.log('export XBR_DEBUG_CHANNEL_ADDR=' + XBRChannel.address);
         console.log('\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n');
     });
 };

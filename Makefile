@@ -1,7 +1,7 @@
 .PHONY: list coverage docs clean build test
 
 TRUFFLE = ${PWD}/node_modules/.bin/truffle
-SOLHINT = ${PWD}/node_modules/.bin/solhint
+SOLHINT = ${PWD}/node_modules/solhint/solhint.js
 COVERAGE = ${PWD}/node_modules/.bin/solidity-coverage
 
 SCOUR = scour
@@ -46,6 +46,9 @@ default:
 	@echo '   truffle_compile        '
 	@echo '   truffle_test           '
 	@echo
+	$(TRUFFLE) version
+	$(SOLHINT) version
+	$(SCOUR) --version
 
 list_targets:
 	@grep '^[^#[:space:]].*:' Makefile
@@ -87,6 +90,22 @@ lint:
 
 test:
 	$(TRUFFLE) test --network ganache
+
+test_01:
+	$(TRUFFLE) test --network ganache ./test/01_token.js
+
+test_02:
+	$(TRUFFLE) test --network ganache ./test/02_member.js
+
+test_03:
+	$(TRUFFLE) test --network ganache ./test/03_market.js
+
+test_04:
+	$(TRUFFLE) test --network ganache ./test/04_channel.js
+
+test_05:
+	$(TRUFFLE) test --network ganache ./test/05_test.js
+
 
 coverage:
 	truffle run coverage

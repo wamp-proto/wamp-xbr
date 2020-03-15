@@ -11,14 +11,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const web3 = require("web3");
-const utils = require("./utils.js");
-const ethUtil = require('ethereumjs-util');
-
-var w3_utils = require("web3-utils");
-var eth_sig_utils = require("eth-sig-util");
-var eth_accounts = require("web3-eth-accounts");
-var eth_util = require("ethereumjs-util");
+const w3_utils = require("web3-utils");
+const eth_sig_utils = require("eth-sig-util");
+const eth_util = require("ethereumjs-util");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
@@ -198,25 +193,25 @@ contract('XBRNetwork', accounts => {
         */
     });
 
-    it('XBRNetwork.register() : registering a member with wrong EULA should throw', async () => {
+    it('XBRNetwork.registerMember() : registering a member with wrong EULA should throw', async () => {
 
         const eula = "invalid";
         const profile = "foobar";
 
         try {
-            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/INVALID_EULA/.test(error), "wrong error message: " + error);
         }
     });
 
-    it('XBRNetwork.register() : should create new member with the correct attributes stored, and firing correct event', async () => {
+    it('XBRNetwork.registerMember() : should create new member with the correct attributes stored, and firing correct event', async () => {
 
         const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
-        const txn = await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+        const txn = await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
 
         const _alice = await network.members(alice);
         const _alice_eula = _alice.eula;
@@ -232,27 +227,27 @@ contract('XBRNetwork', accounts => {
         const result = txn.receipt.logs[0];
 
         // check events
-        assert.equal(result.event, "MemberCreated", "wrong event was emitted");
+        assert.equal(result.event, "MemberRegistered", "wrong event was emitted");
         assert.equal(result.args.member, alice, "wrong member address in event");
         assert.equal(result.args.eula, eula, "wrong member EULA in event");
         assert.equal(result.args.profile, profile, "wrong member Profile in event");
         assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
     });
 
-    it('XBRNetwork.register() : registering a member twice should throw', async () => {
+    it('XBRNetwork.registerMember() : registering a member twice should throw', async () => {
 
         const eula = await network.eula();
         const profile = "";
 
         try {
-            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
             assert(false, "contract should throw here");
         } catch (error) {
             assert(/MEMBER_ALREADY_REGISTERED/.test(error), "wrong error message: " + JSON.stringify(error));
         }
     });
 
-    it('XBRNetwork.registerFor() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
+    it('XBRNetwork.registerMemberFor() : delegated transaction should create new member with the correct attributes stored, and firing correct event', async () => {
 
         //const member = accounts[5].address;
         //const member_key = accounts[5].privateKey;
@@ -263,15 +258,11 @@ contract('XBRNetwork', accounts => {
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
         const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
 
+        const registered = await web3.eth.getBlockNumber();
         const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
-        // FIXME: none of the following works on Ganache v6.9.1 ..
-        // const registered = await web3.eth.getBlockNumber();
-        // const registered = web3.eth.blockNumber;
-        const registered = 1;
-
-        console.log('XBRNetwork.registerFor(): member=' + member + ', member_key=' + member_key);
+        console.log('XBRNetwork.registerMemberFor(): member=' + member + ', member_key=' + member_key);
 
         const msg = {
             'chainId': chainId,
@@ -286,7 +277,7 @@ contract('XBRNetwork', accounts => {
         const signature = create_sig(member_key, msg);
         console.log('SIGNATURE', signature);
 
-        const txn = await network.registerFor(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
+        const txn = await network.registerMemberFor(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
 
         const _member = await network.members(member);
         const _member_eula = _member.eula;
@@ -302,30 +293,10 @@ contract('XBRNetwork', accounts => {
         const result = txn.receipt.logs[0];
 
         // check events
-        assert.equal(result.event, "MemberCreated", "wrong event was emitted");
+        assert.equal(result.event, "MemberRegistered", "wrong event was emitted");
         assert.equal(result.args.member, member, "wrong member address in event");
         assert.equal(result.args.eula, eula, "wrong member EULA in event");
         assert.equal(result.args.profile, profile, "wrong member Profile in event");
         assert.equal(result.args.level, MemberLevel_ACTIVE, "wrong member level in event");
     });
-
-/*
-    it('XBRNetwork.unregister() : retiring a member should fire the correct event and store the correct member level', async () => {
-
-        const txn = await network.unregister({from: alice, gasLimit: gasLimit});
-
-        const _alice = await network.members(alice);
-        const _alice_level = _alice.level.toNumber();
-
-        assert.equal(_alice_level, MemberLevel_RETIRED, "wrong member level");
-
-        // check event logs
-        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result = txn.receipt.logs[0];
-
-        // check events
-        assert.equal(result.event, "MemberRetired", "wrong event was emitted");
-        assert.equal(result.args.member, alice, "wrong member address in event");
-    });
-*/
 });

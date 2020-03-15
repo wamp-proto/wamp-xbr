@@ -149,6 +149,8 @@ full_logo = True
 # documentation.
 html_theme_options = {
     'collapse_navigation': False,
+    # https://stackoverflow.com/questions/27669376/show-entire-toctree-in-read-the-docs-sidebar
+    'navigation_depth': 3,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -198,3 +200,5 @@ autoclass_content = 'both'
 
 # http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autodoc_member_order
 autodoc_member_order = 'bysource'
+# autodoc_member_order = 'alphabetical'
+# autodoc_member_order = 'groupwise'

@@ -1,6 +1,6 @@
 {
     "name": "xbr",
-    "version": "20.3.1",
+    "version": "20.4.1-dev",
     "description": "The XBR Protocol (smart contracts package)",
     "keywords": [
         "ethereum",
@@ -21,12 +21,14 @@
     "dependencies": {},
     "devDependencies": {
         "bindings": "^1.5.0",
+        "browserify": "^16.5.0",
+        "google-closure-compiler": ">=v20200224",
         "eth-sig-util": "^2.5.2",
         "ethereumjs-util": "^6.2.0",
         "openzeppelin-solidity": "^2.5.0",
-        "solhint": "^2.3.0",
+        "solhint": "^2.3.1",
         "solidity-coverage": "^0.7.2",
-        "truffle": "^5.1.14",
+        "truffle": "^5.1.17",
         "truffle-contract": "^4.0.31",
         "truffle-hdwallet-provider": "^1.0.17"
     },

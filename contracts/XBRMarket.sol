@@ -26,12 +26,12 @@ import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
 import "./XBRToken.sol";
 import "./XBRNetwork.sol";
-import "./XBRChannel.sol";
 
 
 /**
- * @title XBR Market smart contract.
- * @author The XBR Project
+ * The `XBR Market <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRMarket.sol>`__
+ * contract manages XBR data markets and serves as an anchor for all payment and paying channels for
+ * each respective market.
  */
 contract XBRMarket is XBRMaintained {
 
@@ -56,16 +56,11 @@ contract XBRMarket is XBRMaintained {
     /// Event emitted when an actor has left a market.
     event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
 
-    /// Event emitted when a new payment channel was created in a market.
-    event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
-        address recipient, address channel, XBRChannel.ChannelType channelType);
+    /// Event emitted when an actor has set consent on a ``(market, delegate, api)`` triple.
+    event ConsentSet (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string servicePrefix);
 
-    /// Event emitted when a new request for a paying channel was created in a market.
-    event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address recipient, address delegate,
-        uint256 amount, uint32 timeout);
-
-    // Note: closing event of payment channels are emitted from XBRChannel (not from here)
-
+    /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
@@ -83,17 +78,72 @@ contract XBRMarket is XBRMaintained {
     /// Index: market owner address => [market ID]
     mapping(address => bytes16[]) public marketsByOwner;
 
-    /**
-     * Constructor.
-     *
-     * @param network_ The network this market is part of.
-     */
-    constructor (address network_) public {
-        network = XBRNetwork(network_);
+    // Constructor for this contract, only called once (when deploying the network).
+    //
+    // @param networkAdr The XBR network contract this instance is associated with.
+    constructor (address networkAdr) public {
+        network = XBRNetwork(networkAdr);
     }
 
-    function _createMarket (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) private {
+    /// Create a new XBR market. The sender of the transaction must be XBR network member
+    /// and automatically becomes owner of the new market.
+    ///
+    /// @param marketId The ID of the market to create. Must be unique (not yet existing).
+    /// @param coin The ERC20 coin to be used as the means of payment in the market.
+    /// @param terms Multihash for market terms set by the market owner.
+    /// @param meta Multihash for optional market metadata.
+    /// @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
+    /// @param providerSecurity The amount of coins a XBR provider joining the market must deposit.
+    /// @param consumerSecurity The amount of coins a XBR consumer joining the market must deposit.
+    /// @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
+    ///                  the revenue of the XBR Provider that receives coins paid for transactions.
+    ///                  The fee must be between 0% (inclusive) and 100% (inclusive), and is expressed as
+    ///                  a fraction of the total supply of coins in the ERC20 token specified for the market.
+    function createMarket (bytes16 marketId, address coin, string memory terms, string memory meta, address maker,
+        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
+
+        _createMarket(msg.sender, block.number, marketId, coin, terms, meta, maker,
+            providerSecurity, consumerSecurity, marketFee, "");
+    }
+
+    /// Create a new XBR market for a member. The member must be XBR network member, must have signed the
+    /// transaction data, and will become owner of the new market.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member The member that creates the market (will become market owner).
+    /// @param created Block number when the market was created.
+    /// @param marketId The ID of the market to create. Must be unique (not yet existing).
+    /// @param coin The ERC20 coin to be used as the means of payment in the market.
+    /// @param terms Multihash for market terms set by the market owner.
+    /// @param meta Multihash for optional market metadata.
+    /// @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
+    /// @param providerSecurity The amount of coins a XBR provider joining the market must deposit.
+    /// @param consumerSecurity The amount of coins a XBR consumer joining the market must deposit.
+    /// @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
+    ///                  the revenue of the XBR Provider that receives coins paid for transactions.
+    ///                  The fee must be between 0% (inclusive) and 100% (inclusive), and is expressed as
+    ///                  a fraction of the total supply of coins in the ERC20 token specified for the market.
+    /// @param signature EIP712 signature created by the member.
+    function createMarketFor (address member, uint256 created, bytes16 marketId, address coin,
+        string memory terms, string memory meta, address maker, uint256 providerSecurity, uint256 consumerSecurity,
+        uint256 marketFee, bytes memory signature) public {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
+            member, created, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
+            "INVALID_MARKET_CREATE_SIGNATURE");
+
+        // signature must have been created in a window of 5 blocks from the current one
+        require(created <= block.number && created >= (block.number - 4), "INVALID_CREATED_BLOCK_NUMBER");
+
+        _createMarket(member, created, marketId, coin, terms, meta, maker,
+            providerSecurity, consumerSecurity, marketFee, signature);
+    }
+
+    function _createMarket (address member, uint256 created, bytes16 marketId, address coin, string memory terms,
+        string memory meta, address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee,
+        bytes memory signature) private {
 
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
@@ -103,6 +153,10 @@ contract XBRMarket is XBRMaintained {
 
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
+
+        // FIXME: expand this to check against XBRNetwork.coins (which is not yet there)
+        // require(coin == address(network.token()), "INVALID_COIN");
+        require(network.coins(coin) == true, "INVALID_COIN");
 
         // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
@@ -120,8 +174,7 @@ contract XBRMarket is XBRMaintained {
         require(marketFee >= 0 && marketFee < (network.token().totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         // now remember out new market ..
-        uint created = block.timestamp;
-        markets[marketId] = XBRTypes.Market(created, marketSeq, member, terms, meta, maker,
+        markets[marketId] = XBRTypes.Market(created, marketSeq, member, coin, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, signature, new address[](0), new address[](0));
 
         // .. and the market-maker-to-market mapping
@@ -141,155 +194,42 @@ contract XBRMarket is XBRMaintained {
             providerSecurity, consumerSecurity, marketFee);
     }
 
-    /**
-     * Create a new XBR market. The sender of the transaction must be XBR network member
-     * and automatically becomes owner of the new market.
-     *
-     * @param marketId The ID of the market to create. Must be unique (not yet existing).
-                       To generate a new ID you can do `python -c "import uuid; print(uuid.uuid4().bytes.hex())"`.
-     * @param terms The XBR market terms set by the market owner. IPFS Multihash pointing
-     *              to a ZIP archive file with market documents.
-     * @param meta The XBR market metadata published by the market owner. IPFS Multihash pointing
-     *             to a RDF/Turtle file with market metadata.
-     * @param maker The address of the XBR market maker that will run this market. The delegate of the market owner.
-     * @param providerSecurity The amount of XBR tokens a XBR provider joining the market must deposit.
-     * @param consumerSecurity The amount of XBR tokens a XBR consumer joining the market must deposit.
-     * @param marketFee The fee taken by the market (beneficiary is the market owner). The fee is a percentage of
-     *                  the revenue of the XBR Provider that receives XBR Token paid for transactions.
-     *                  The fee must be between 0% (inclusive) and 99% (inclusive), and is expressed as
-     *                  a fraction of the total supply of XBR tokens.
-     */
-    function createMarket (bytes16 marketId, string memory terms, string memory meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public {
+    /// Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
+    ///
+    /// @param marketId The ID of the XBR data market to join.
+    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+    /// @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
 
-        _createMarket(msg.sender, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, "");
+        return _joinMarket(msg.sender, block.number, marketId, actorType, meta, "");
     }
 
-    function createMarketFor (address member, bytes16 marketId, string memory terms, string memory meta, address maker,
-        uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee, bytes memory signature) public {
+    /// Join the specified member to the given XBR market as the specified type of actor,
+    /// which must be PROVIDER or CONSUMER.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member The member that creates the market (will become market owner).
+    /// @param joined Block number when the member joined the market.
+    /// @param marketId The ID of the XBR data market to join.
+    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+    /// @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
+    /// @param signature EIP712 signature created by the member.
+    function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
+        string memory meta, bytes memory signature) public returns (uint256) {
 
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
-            marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
-            "INVALID_MARKET_CREATE_SIGNATURE");
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
+            member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
-        _createMarket(member, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, signature);
+        // signature must have been created in a window of 5 blocks from the current one
+        require(joined <= block.number && joined >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+
+        return _joinMarket(member, joined, marketId, actorType, meta, signature);
     }
 
-    function countMarkets() public view returns (uint) {
-        return marketIds.length;
-    }
-
-    function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
-        return marketsByOwner[owner][index];
-    }
-
-    function countMarketsByOwner(address owner) public view returns (uint) {
-        return marketsByOwner[owner].length;
-    }
-
-    function getMarketActor (bytes16 marketId, address actor, uint8 actorType) public view
-        returns (uint, uint256, string memory)
-    {
-
-        // the market must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-
-        // must ask for a data provider (seller) or data consumer (buyer)
-        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
-                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
-
-        if (actorType == uint8(XBRTypes.ActorType.CONSUMER)) {
-            XBRTypes.Actor storage _actor = markets[marketId].consumerActors[actor];
-            return (_actor.joined, _actor.security, _actor.meta);
-        } else {
-            XBRTypes.Actor storage _actor = markets[marketId].providerActors[actor];
-            return (_actor.joined, _actor.security, _actor.meta);
-        }
-    }
-
-    // /**
-    //  * Update market information, like market terms, metadata or maker address.
-    //  *
-    //  * @param marketId The ID of the market to update.
-    //  * @param terms When terms should be updated, provide a string of non-zero length with
-    //  *              an IPFS Multihash pointing to the new ZIP file with market terms.
-    //  * @param meta When metadata should be updated, provide a string of non-zero length with
-    //  *             an IPFS Multihash pointing to the new RDF/Turtle file with market metadata.
-    //  * @param maker When maker should be updated, provide a non-zero address.
-    //  * @param providerSecurity Provider security to set that will apply for new members (providers) joining
-    //  *                         the market. It will NOT apply to current market members.
-    //  * @param consumerSecurity Consumer security to set that will apply for new members (consumers) joining
-    //  *                         the market. It will NOT apply to current market members.
-    //  * @param marketFee New market fee to set. The new market fee will apply to all new payment channels
-    //  *                  opened. It will NOT apply to already opened (or closed) payment channels.
-    //  * @return Flag indicating weather the market information was actually updated or left unchanged.
-    //  */
-    // function updateMarket(bytes16 marketId, string memory terms, string memory meta, address maker,
-    //     uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee) public returns (bool) {
-
-    //     Market storage market = markets[marketId];
-
-    //     require(market.owner != address(0), "NO_SUCH_MARKET");
-    //     require(market.owner == msg.sender, "NOT_AUTHORIZED");
-    //     //require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
-    //     require(marketFee >= 0 && marketFee < (10**9 - 10**7) * 10**18, "INVALID_MARKET_FEE");
-
-    //     bool wasChanged = false;
-
-    //     // for these knobs, only update when non-zero values provided
-    //     if (maker != address(0) && maker != market.maker) {
-    //         markets[marketId].maker = maker;
-    //         wasChanged = true;
-    //     }
-
-    //     /* FIXME: find out why including the following code leas to "out of gas" issues when deploying contracts
-
-    //     if (bytes(terms).length > 0 && keccak256(abi.encode(terms)) != keccak256(abi.encode(market.terms))) {
-    //         markets[marketId].terms = terms;
-    //         wasChanged = true;
-    //     }
-    //     if (bytes(meta).length > 0 && keccak256(abi.encode(meta)) != keccak256(abi.encode(market.meta))) {
-    //         markets[marketId].meta = meta;
-    //         wasChanged = true;
-    //     }
-    //     */
-
-    //     // for these knobs, we allow updating to zero value
-    //     if (providerSecurity != market.providerSecurity) {
-    //         markets[marketId].providerSecurity = providerSecurity;
-    //         wasChanged = true;
-    //     }
-    //     if (consumerSecurity != market.consumerSecurity) {
-    //         markets[marketId].consumerSecurity = consumerSecurity;
-    //         wasChanged = true;
-    //     }
-    //     if (marketFee != market.marketFee) {
-    //         markets[marketId].marketFee = marketFee;
-    //         wasChanged = true;
-    //     }
-
-    //     if (wasChanged) {
-    //         emit MarketUpdated(marketId, market.marketSeq, market.owner, market.terms, market.meta, market.maker,
-    //                 market.providerSecurity, market.consumerSecurity, market.marketFee);
-    //     }
-
-    //     return wasChanged;
-    // }
-
-    // /**
-    //  * Close a market. A closed market will not accept new memberships.
-    //  *
-    //  * @param marketId The ID of the market to close.
-    //  */
-    // function closeMarket (bytes16 marketId) public view {
-    //     require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-    //     require(markets[marketId].owner == msg.sender, "NOT_AUTHORIZED");
-    //     // FIXME
-    //     // - remove market ID from marketIds
-    //     require(false, "NOT_IMPLEMENTED");
-    // }
-
-    function _joinMarket (address member, bytes16 marketId, uint8 actorType, string memory meta, bytes memory signature) private returns (uint256) {
+    function _joinMarket (address member, uint256 joined, bytes16 marketId, uint8 actorType,
+        string memory meta, bytes memory signature) private returns (uint256) {
 
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
@@ -326,7 +266,6 @@ contract XBRMarket is XBRMaintained {
         }
 
         // remember actor (by actor address) within market
-        uint joined = block.timestamp;
         if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
             markets[marketId].providerActors[member] = XBRTypes.Actor(joined, security, meta, signature, new address[](0));
             markets[marketId].providerActorAdrs.push(member);
@@ -343,189 +282,128 @@ contract XBRMarket is XBRMaintained {
         return security;
     }
 
-    /**
-     * Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
-     *
-     * @param marketId The ID of the XBR data market to join.
-     * @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
-     * @param meta The XBR market provider/consumer metadata. IPFS Multihash pointing to a JSON file with metadata.
-     */
-    function joinMarket (bytes16 marketId, uint8 actorType, string memory meta) public returns (uint256) {
+    /// Track consent of an actor in a market to allow the specified seller or buyer delegate
+    /// to provide or consume data under the respective API catalog in the given market.
+    ///
+    /// @param marketId The ID of the XBR data market in which to provide or consume data. Any
+    ///                 terms attached to the market or the API apply.
+    /// @param delegate The address of the off-chain provider or consumer delegate, which is a piece
+    ///                 of software acting on behalf and under consent of the actor in the market.
+    /// @param delegateType The type of off-chain delegate, a data provider or data consumer.
+    /// @param apiCatalog The ID of the API or API catalog to which the consent shall apply.
+    /// @param consent Consent granted or revoked.
+    /// @param servicePrefix The WAMP URI prefix to be used by the delegate in the data plane realm.
+    function setConsent (bytes16 marketId, address delegate, uint8 delegateType, bytes16 apiCatalog,
+        bool consent, string memory servicePrefix) public {
 
-        return _joinMarket(msg.sender, marketId, actorType, meta, "");
+        return _setConsent(msg.sender, block.number, marketId, delegate, delegateType,
+            apiCatalog, consent, servicePrefix, "");
     }
 
-    function joinMarketFor (address member, uint256 joined, bytes16 marketId, uint8 actorType,
-        string memory meta, bytes memory signature) public returns (uint256) {
+    /// Track consent of an actor in a market to allow the specified seller or buyer delegate
+    /// to provide or consume data under the respective API catalog in the given market.
+    ///
+    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Address of member (which must be actor in the market) that sets consent.
+    /// @param updated Block number at which the consent setting member has created the signature.
+    /// @param marketId The ID of the XBR data market in which to provide or consume data. Any
+    ///                 terms attached to the market or the API apply.
+    /// @param delegate The address of the off-chain provider or consumer delegate, which is a piece
+    ///                 of software acting on behalf and under consent of the actor in the market.
+    /// @param delegateType The type of off-chain delegate, a data provider or data consumer.
+    /// @param apiCatalog The ID of the API or API catalog to which the consent shall apply.
+    /// @param consent Consent granted or revoked.
+    /// @param servicePrefix The WAMP URI prefix to be used by the delegate in the data plane realm.
+    /// @param signature EIP712 signature, signed by the consent setting member.
+    function setConsentFor (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
+        bytes memory signature) public {
 
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
-            member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
+        require(XBRTypes.verify(member, XBRTypes.EIP712Consent(network.verifyingChain(), network.verifyingContract(),
+            member, updated, marketId, delegate, delegateType, apiCatalog, consent, servicePrefix), signature),
+            "INVALID_CONSENT_SIGNATURE");
 
-        return _joinMarket(member, marketId, actorType, meta, signature);
+        // signature must have been created in a window of 5 blocks from the current one
+        require(updated <= block.number && updated >= (block.number - 4), "INVALID_CONSENT_BLOCK_NUMBER");
+
+        return _setConsent(member, updated, marketId, delegate, delegateType,
+            apiCatalog, consent, servicePrefix, signature);
     }
 
-    // /**
-    //  * As a market actor (participant) currently member of a market, leave that market.
-    //  * A market can only be left when all payment channels of the sender are closed (or expired).
-    //  *
-    //  * @param marketId The ID of the market to leave.
-    //  */
-    // function leaveMarket (bytes16 marketId) public view {
-    //     require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-    //     // FIXME
-    //     // - remove sender actor from markets[marketId].providerActorAdrs|consumerActorAdrs
-    //     require(false, "NOT_IMPLEMENTED");
-    // }
+    function _setConsent (address member, uint256 updated, bytes16 marketId, address delegate,
+        uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
+        bytes memory signature) public {
 
-    /**
-     * Open a new payment channel and deposit an amount of XBR token for off-chain consumption.
-     * Must be called by the data consumer (XBR buyer) and an off-chain buyer delegate address must be given.
-     *
-     * @param marketId The ID of the market to open a payment channel within.
-     * @param recipient Recipient of the earned off-chain transaction amounts of this single channel,
-     *                  commonly the market operator.
-     * @param delegate The address of the (offchain) consumer delegate allowed to consume the channel.
-     * @param amount Amount of XBR Token to deposit into the payment channel (the initial off-chain balance).
-     * @param timeout Channel timeout which will apply.
-     */
-    function openPaymentChannel (bytes16 marketId, address recipient, address delegate,
-        uint256 amount, uint32 timeout) public returns (address paymentChannel) {
+        // FIXME
+    }
 
-        // market must exist
+    /// Get the total number of markets defined.
+    function countMarkets() public view returns (uint) {
+        return marketIds.length;
+    }
+
+    /*
+    // TypeError: Only libraries are allowed to use the mapping type in public or external functions.
+    function getMarket(bytes16 marketId) public view returns (XBRTypes.Market memory) {
+        return markets[marketId];
+    }
+    */
+
+    /// Get the market owner for the given market.
+    function getMarketOwner(bytes16 marketId) public view returns (address) {
+        return markets[marketId].owner;
+    }
+
+    /// Get the market maker for the given market.
+    function getMarketMaker(bytes16 marketId) public view returns (address) {
+        return markets[marketId].maker;
+    }
+
+    /// Get the n-th market owned by the given member.
+    function getMarketsByOwner(address owner, uint index) public view returns (bytes16) {
+        return marketsByOwner[owner][index];
+    }
+
+    /// Check if the specified member is actor in the given market.
+    function isActor(bytes16 marketId, address actor, XBRTypes.ActorType actorType) public view returns (bool) {
+        if (markets[marketId].owner == address(0)) {
+            return false;
+        } else {
+            if (actorType ==  XBRTypes.ActorType.CONSUMER) {
+                return markets[marketId].consumerActors[actor].joined > 0;
+            } else if (actorType ==  XBRTypes.ActorType.PROVIDER) {
+                return markets[marketId].providerActors[actor].joined > 0;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /// Get the number of market owned by the specified member.
+    function countMarketsByOwner(address owner) public view returns (uint) {
+        return marketsByOwner[owner].length;
+    }
+
+    /// Get market actor data for the given actor (address) and actor type in the specified market.
+    function getMarketActor (bytes16 marketId, address actor, uint8 actorType) public view
+        returns (uint, uint256, string memory, bytes memory)
+    {
+        // the market must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
-        // sender must be consumer in the market
-        require(uint8(markets[marketId].consumerActors[msg.sender].joined) != 0, "NO_CONSUMER_ROLE");
+        // must ask for a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
 
-        // technical recipient of the unidirectional, half-legged channel must be the
-        // owner (operator) of the market
-        require(recipient == markets[marketId].owner, "INVALID_CHANNEL_RECIPIENT");
-
-        // must provide a valid off-chain channel delegate address
-        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
-
-        // payment channel amount must be positive
-        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
-
-        // payment channel timeout can be [0 seconds - 10 days[
-        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
-
-        // create new payment channel contract
-        XBRChannel channel = new XBRChannel(network.organization(), address(network.token()), address(this), marketId,
-            markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
-            XBRChannel.ChannelType.PAYMENT);
-
-        // transfer tokens (initial balance) into payment channel contract
-        bool success = network.token().transferFrom(msg.sender, address(channel), amount);
-        require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
-
-        // remember the new payment channel associated with the market
-        //markets[marketId].channels.push(address(channel));
-        markets[marketId].consumerActors[msg.sender].channels.push(address(channel));
-
-        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //      address recipient, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
-            address(channel), XBRChannel.ChannelType.PAYMENT);
-
-        // return address of new channel contract
-        return address(channel);
-    }
-
-    /**
-     * As a data provider, request a new payment channel to get paid by the market maker. Given sufficient
-     * security amount (deposited by the data provider when joining the marker) to cover the request amount,
-     * the market maker will open a payment (state) channel to allow the market maker buying data keys in
-     * microtransactions, and offchain. The creation of the payment channel is asynchronously: the market maker
-     * is watching the global blockchain filtering for events relevant to the market managed by the maker.
-     * When a request to open a payment channel is recognized by the market maker, it will check the provider
-     * for sufficient security deposit covering the requested amount, and if all is fine, create a new payment
-     * channel and store the contract address for the channel request ID, so the data provider can retrieve it.
-     *
-     * @param marketId The ID of the market to request a paying channel within.
-     * @param delegate The address of the (offchain) provider delegate allowed to sell into the channel.
-     * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
-     * @param timeout Channel timeout which will apply.
-     */
-    function requestPayingChannel (bytes16 marketId, address recipient, address delegate,
-        uint256 amount, uint32 timeout) public {
-
-        // market must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-
-        // market must have a market maker associated
-        require(markets[marketId].maker != address(0), "NO_ACTIVE_MARKET_MAKER");
-
-        // sender must be market maker for market
-        require(msg.sender == recipient, "SENDER_NOT_RECIPIENT");
-
-        // recipient must be provider in the market
-        require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
-
-        // must provide a valid off-chain channel delegate address
-        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
-
-        // paying channel amount must be positive
-        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
-
-        // paying channel timeout can be [0 seconds - 10 days[
-        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
-
-        // emit event PayingChannelRequestCreated(bytes16 marketId, address sender, address recipient,
-        //      address delegate, uint256 amount, uint32 timeout)
-        emit PayingChannelRequestCreated(marketId, msg.sender, recipient, delegate, amount, timeout);
-    }
-
-    /**
-     * Open a new paying channel and deposit an amount of XBR token for off-chain consumption.
-     * Must be called by the market maker in response to a successful request for a paying channel.
-     *
-     * @param marketId The ID of the market to open a paying channel within.
-     * @param recipient Ultimate recipient of tokens earned, recipient must be provider in the market.
-     * @param delegate The address of the (offchain) provider delegate allowed to earn on the channel.
-     * @param amount Amount of XBR Token to deposit into the paying channel (the initial off-chain balance).
-     * @param timeout Channel timeout which will apply.
-     */
-    function openPayingChannel (bytes16 marketId, address recipient, address delegate,
-        uint256 amount, uint32 timeout) public returns (address paymentChannel) {
-
-        // market must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
-
-        // sender must be market maker for market
-        require(markets[marketId].maker == msg.sender, "SENDER_NOT_MAKER");
-
-        // recipient must be provider in the market
-        require(uint8(markets[marketId].providerActors[recipient].joined) != 0, "RECIPIENT_NOT_PROVIDER");
-
-        // must provide a valid off-chain channel delegate address
-        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
-
-        // payment channel amount must be positive
-        require(amount > 0 && amount <= network.token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
-
-        // payment channel timeout can be [0 seconds - 10 days[
-        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
-
-        // create new paying channel contract
-        XBRChannel channel = new XBRChannel(network.organization(), address(network.token), address(this),
-            marketId, markets[marketId].maker, msg.sender, delegate, recipient, amount, timeout,
-            XBRChannel.ChannelType.PAYING);
-
-        // transfer tokens (initial balance) into payment channel contract
-        bool success = network.token().transferFrom(msg.sender, address(channel), amount);
-        require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
-
-        // remember the new payment channel associated with the market
-        //markets[marketId].channels.push(address(channel));
-        markets[marketId].providerActors[recipient].channels.push(address(channel));
-
-        // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-        //  address recipient, address channel)
-        emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
-            address(channel), XBRChannel.ChannelType.PAYING);
-
-        return address(channel);
+        if (actorType == uint8(XBRTypes.ActorType.CONSUMER)) {
+            XBRTypes.Actor storage _actor = markets[marketId].consumerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta, _actor.signature);
+        } else {
+            XBRTypes.Actor storage _actor = markets[marketId].providerActors[actor];
+            return (_actor.joined, _actor.security, _actor.meta, _actor.signature);
+        }
     }
 
     /**
