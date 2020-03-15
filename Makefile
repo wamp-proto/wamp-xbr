@@ -91,6 +91,22 @@ lint:
 test:
 	$(TRUFFLE) test --network ganache
 
+test_01:
+	$(TRUFFLE) test --network ganache ./test/01_token.js
+
+test_02:
+	$(TRUFFLE) test --network ganache ./test/02_member.js
+
+test_03:
+	$(TRUFFLE) test --network ganache ./test/03_market.js
+
+test_04:
+	$(TRUFFLE) test --network ganache ./test/04_channel.js
+
+test_05:
+	$(TRUFFLE) test --network ganache ./test/05_test.js
+
+
 coverage:
 	truffle run coverage
 
