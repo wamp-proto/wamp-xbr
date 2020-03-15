@@ -258,13 +258,9 @@ contract('XBRNetwork', accounts => {
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
         const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
 
+        const registered = await web3.eth.getBlockNumber();
         const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
-
-        // FIXME: none of the following works on Ganache v6.9.1 ..
-        const registered = await web3.eth.getBlockNumber();
-        //  const registered = web3.eth.blockNumber;
-        // const registered = 1;
 
         console.log('XBRNetwork.registerMemberFor(): member=' + member + ', member_key=' + member_key);
 

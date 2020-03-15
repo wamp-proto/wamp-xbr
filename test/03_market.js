@@ -199,31 +199,31 @@ contract('XBRNetwork', accounts => {
         const _alice = await network.members(alice);
         const _alice_level = _alice.level.toNumber();
         if (_alice_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
         }
 
         const _bob = await network.members(bob);
         const _bob_level = _bob.level.toNumber();
         if (_bob_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: bob, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: bob, gasLimit: gasLimit});
         }
 
         const _charlie = await network.members(charlie);
         const _charlie_level = _charlie.level.toNumber();
         if (_charlie_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: charlie, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: charlie, gasLimit: gasLimit});
         }
 
         const _donald = await network.members(donald);
         const _donald_level = _donald.level.toNumber();
         if (_donald_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: donald, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: donald, gasLimit: gasLimit});
         }
 
         const _edith = await network.members(edith);
         const _edith_level = _edith.level.toNumber();
         if (_edith_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: edith, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: edith, gasLimit: gasLimit});
         }
     });
 
@@ -244,7 +244,7 @@ contract('XBRNetwork', accounts => {
         // const marketFee = '' + Math.trunc(0.05 * 10**9 * 10**18);
         const marketFee = 0;
 
-        await market.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice, gasLimit: gasLimit});
+        await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: alice, gasLimit: gasLimit});
 
         res = await market.getMarketActor(marketId, alice, ActorType_PROVIDER);
         _joined = res["0"].toNumber();
@@ -477,13 +477,9 @@ contract('XBRNetwork', accounts => {
 
         if (_member_level == MemberLevel_NULL) {
 
+            const registered = await web3.eth.getBlockNumber();
             const eula = await network.eula();
             const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
-
-            // FIXME: none of the following works on Ganache
-            // const registered = await web3.eth.getBlockNumber();
-            // const registered = web3.eth.blockNumber;
-            const registered = 1;
 
             const msg_register = {
                 'chainId': chainId,
@@ -494,7 +490,7 @@ contract('XBRNetwork', accounts => {
                 'profile': profile,
             };
             const signature_register = create_sig_register(member_key, msg_register);
-            await network.registerFor(member, registered, eula, profile, signature_register, {from: alice, gasLimit: gasLimit});
+            await network.registerMemberFor(member, registered, eula, profile, signature_register, {from: alice, gasLimit: gasLimit});
         }
 
         //
@@ -514,10 +510,7 @@ contract('XBRNetwork', accounts => {
             await token.approve(network.address, providerSecurity, {from: member, gasLimit: gasLimit});
         }
 
-        // FIXME: none of the following works on Ganache
-        // const joined = await web3.eth.getBlockNumber();
-        // const joined = web3.eth.blockNumber;
-        const joined = 1;
+        const joined = await web3.eth.getBlockNumber();
 
         const msg_join_market = {
             'chainId': chainId,
