@@ -11,9 +11,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-var w3_utils = require("web3-utils");
-var eth_sig_utils = require("eth-sig-util");
-var eth_util = require("ethereumjs-util");
+const w3_utils = require("web3-utils");
+const eth_sig_utils = require("eth-sig-util");
+const eth_util = require("ethereumjs-util");
 const utils = eth_sig_utils.TypedDataUtils;
 
 const XBRTest = artifacts.require("./XBRTest.sol");

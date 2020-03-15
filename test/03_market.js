@@ -11,14 +11,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const web3 = require("web3");
 const utils = require("./utils.js");
-const ethUtil = require('ethereumjs-util');
-
-var w3_utils = require("web3-utils");
-var eth_sig_utils = require("eth-sig-util");
-var eth_accounts = require("web3-eth-accounts");
-var eth_util = require("ethereumjs-util");
+const w3_utils = require("web3-utils");
+const eth_sig_utils = require("eth-sig-util");
+const eth_util = require("ethereumjs-util");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
