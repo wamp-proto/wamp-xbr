@@ -9,7 +9,7 @@ They are inteded for testing purposes only and Crossbario.io makes no warranties
 functionality or fitness for purpose.
 
 This EULA grants you a license to use these contracts for testing the XBR technology stack developed
-by Crossbar.io. This does not cover usage which may endanger the health or lives of people. Usage is
+by Crossbar.io. This does not cover usage which may endanger the health or lives of people as well as property. Usage is
 at you own risk.
 
 By agreeing to this EULA, you accept that the following IP is held by Crossbar.io:
