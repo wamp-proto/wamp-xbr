@@ -112,7 +112,7 @@ coverage:
 
 compile:
 	wc -l contracts/*.sol
-	grep "struct EIP712" contracts/XBRTypes.sol
+	grep "struct [A-Z][A-Za-z0-9]* {" contracts/XBRTypes.sol | sort
 	$(TRUFFLE) compile --all
 	python ./check-abi-files.py
 

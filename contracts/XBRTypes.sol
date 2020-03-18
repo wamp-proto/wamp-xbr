@@ -36,7 +36,7 @@ library XBRTypes {
     enum ChannelType { NULL, PAYMENT, PAYING }
 
     /// All XBR state channel states defined.
-    enum ChannelState { NULL, OPEN, CLOSING, CLOSED }
+    enum ChannelState { NULL, OPEN, CLOSING, CLOSED, FAILED }
 
     /// Container type for holding XBR network membership information.
     struct Member {
@@ -356,6 +356,9 @@ library XBRTypes {
         /// The ID of the market created (a 16 bytes UUID which is globally unique to that market).
         bytes16 marketId;
 
+        /// Coin used as means of payment in market. Must be an ERC20 compatible token.
+        address coin;
+
         /// Multihash for the market terms applying to this market.
         string terms;
 
@@ -367,13 +370,16 @@ library XBRTypes {
         /// and operates the channels by processing transactions.
         address maker;
 
+        // FIXME: enabling the following  runs into stack-depth limit of 12!
+        //        => move to attributes (under "meta" multihash)
+
         /// Any mandatory security that actors that join this market as data providers (selling data
         /// as seller actors) must supply when joining this market. May be 0.
-        uint256 providerSecurity;
+        // uint256 providerSecurity;
 
         /// Any mandatory security that actors that join this market as data consumer (buying data
         /// as buyer actors) must supply when joining this market. May be 0.
-        uint256 consumerSecurity;
+        // uint256 consumerSecurity;
 
         /// The market fee that applies in this market. May be 0.
         uint256 marketFee;
@@ -535,7 +541,9 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
+    bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 marketFee)");
+    // solhint-disable-next-line
+    // bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -634,11 +642,12 @@ library XBRTypes {
             obj.member,
             obj.created,
             obj.marketId,
+            obj.coin,
             keccak256(bytes(obj.terms)),
             keccak256(bytes(obj.meta)),
             obj.maker,
-            obj.providerSecurity,
-            obj.consumerSecurity,
+            // obj.providerSecurity,
+            // obj.consumerSecurity,
             obj.marketFee
         ));
     }

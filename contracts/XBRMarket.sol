@@ -39,11 +39,11 @@ contract XBRMarket is XBRMaintained {
     using SafeMath for uint256;
 
     /// Event emitted when a new market was created.
-    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, string terms,
+    event MarketCreated (bytes16 indexed marketId, uint created, uint32 marketSeq, address owner, address coin, string terms,
         string meta, address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was updated.
-    event MarketUpdated (bytes16 indexed marketId, uint32 marketSeq, address owner, string terms, string meta,
+    event MarketUpdated (bytes16 indexed marketId, uint32 marketSeq, address owner, address coin, string terms, string meta,
         address maker, uint256 providerSecurity, uint256 consumerSecurity, uint256 marketFee);
 
     /// Event emitted when a market was closed.
@@ -129,9 +129,13 @@ contract XBRMarket is XBRMaintained {
     function createMarketFor (address member, uint256 created, bytes16 marketId, address coin,
         string memory terms, string memory meta, address maker, uint256 providerSecurity, uint256 consumerSecurity,
         uint256 marketFee, bytes memory signature) public {
-
+/*
         require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
-            member, created, marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
+            member, created, marketId, coin, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
+            "INVALID_MARKET_CREATE_SIGNATURE");
+*/
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
+            member, created, marketId, coin, terms, meta, maker, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
@@ -190,7 +194,7 @@ contract XBRMarket is XBRMaintained {
         marketSeq = marketSeq + 1;
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        emit MarketCreated(marketId, created, marketSeq, member, terms, meta, maker,
+        emit MarketCreated(marketId, created, marketSeq, member, coin, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee);
     }
 
