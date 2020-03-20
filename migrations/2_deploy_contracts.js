@@ -53,21 +53,22 @@ module.exports = function (deployer, network, accounts) {
         await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
         console.log('>>>> XBRNetwork deployed at ' + XBRNetwork.address);
 
-        await deployer.link(XBRTypes, XBRMarket);
-        await deployer.link(XBRNetwork, XBRMarket);
-        await deployer.deploy(XBRMarket, XBRNetwork.address, {gas: gas, from: organization});
-        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
-
         await deployer.link(XBRTypes, XBRCatalog);
         await deployer.link(XBRNetwork, XBRCatalog);
         await deployer.deploy(XBRCatalog, XBRNetwork.address, {gas: gas, from: organization});
         console.log('>>>> XBRCatalog deployed at ' + XBRCatalog.address);
 
+        await deployer.link(XBRTypes, XBRMarket);
+        await deployer.link(XBRNetwork, XBRMarket);
+        await deployer.link(XBRCatalog, XBRMarket);
+        await deployer.deploy(XBRMarket, XBRNetwork.address, XBRCatalog.address, {gas: gas, from: organization});
+        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+
         await deployer.link(XBRTypes, XBRChannel);
         await deployer.link(XBRNetwork, XBRChannel);
         await deployer.link(XBRMarket, XBRChannel);
         await deployer.deploy(XBRChannel, XBRMarket.address, {gas: gas, from: organization});
-        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+        console.log('>>>> XBRChannel deployed at ' + XBRMarket.address);
 
         // keep this at the end of deployment, so that the addresses of the XBR
         // contracts "stay constant" for CI

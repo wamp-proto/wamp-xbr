@@ -26,6 +26,7 @@ import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
 import "./XBRToken.sol";
 import "./XBRNetwork.sol";
+import "./XBRCatalog.sol";
 
 
 /**
@@ -63,6 +64,9 @@ contract XBRMarket is XBRMaintained {
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
+    /// Instance of XBRCatalog contract this contract is linked to.
+    XBRCatalog public catalog;
+
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
     uint32 private marketSeq = 1;
 
@@ -81,8 +85,9 @@ contract XBRMarket is XBRMaintained {
     // Constructor for this contract, only called once (when deploying the network).
     //
     // @param networkAdr The XBR network contract this instance is associated with.
-    constructor (address networkAdr) public {
+    constructor (address networkAdr, address catalogAdr) public {
         network = XBRNetwork(networkAdr);
+        catalog = XBRCatalog(catalogAdr);
     }
 
     /// Create a new XBR market. The sender of the transaction must be XBR network member
@@ -339,6 +344,41 @@ contract XBRMarket is XBRMaintained {
     function _setConsent (address member, uint256 updated, bytes16 marketId, address delegate,
         uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
         bytes memory signature) public {
+
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
+
+        // the joining sender must be a registered member
+        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the market must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the joining member must join as a data provider (seller) or data consumer (buyer)
+        require(delegateType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                delegateType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+
+        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER)) {
+            // the member must be a provider actor in the market
+            require(uint8(markets[marketId].providerActors[member].joined) != 0, "MEMBER_NOT_PROVIDER");
+
+            // providers _must_ have a service prefix set
+            require(keccak256(abi.encode(servicePrefix)) !=
+                keccak256(abi.encode("")), "SERVICE_PREFIX_EMPTY");
+        } else  {
+            // the member must be a consumer actor in the market
+            require(uint8(markets[marketId].consumerActors[member].joined) != 0, "MEMBER_NOT_CONSUMER");
+
+            // consumers must _not_ have a service prefix set
+            require(keccak256(abi.encode(servicePrefix)) ==
+                keccak256(abi.encode("")), "SERVICE_PREFIX_NOT_EMPTY");
+        }
+
+        // must provide a valid delegate address, but the delegate doesn't need to be member!
+        require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // the catalog must exist
+        (uint256 catalogCreated, , , , , ) = catalog.catalogs(apiCatalog);
+        require(catalogCreated != 0, "NO_SUCH_CATALOG");
 
         // store consent status
         if (delegateType == uint8(XBRTypes.ActorType.PROVIDER)) {
