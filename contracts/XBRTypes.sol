@@ -30,7 +30,7 @@ library XBRTypes {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// All XBR market actor types defined.
-    enum ActorType { NULL, PROVIDER, CONSUMER }
+    enum ActorType { NULL, PROVIDER, CONSUMER, PROVIDER_CONSUMER }
 
     /// All XBR state channel types defined.
     enum ChannelType { NULL, PAYMENT, PAYING }
@@ -77,6 +77,8 @@ library XBRTypes {
 
         /// All payment (paying) channels of the respective buyer (seller) actor.
         address[] channels;
+
+        mapping(address => mapping(bytes16 => Consent)) delegates;
     }
 
     /// Container type for holding XBR market information.
@@ -170,6 +172,20 @@ library XBRTypes {
 
         /// The APIs part of this catalog.
         mapping(bytes16 => Api) apis;
+    }
+
+    struct Consent {
+        /// Block number when the catalog was created.
+        uint256 updated;
+
+        /// Consent granted or revoked.
+        bool consent;
+
+        /// The WAMP URI prefix to be used by the delegate in the data plane realm.
+        string servicePrefix;
+
+        /// This is the signature the user (actor) supplied when setting the consent status.
+        bytes signature;
     }
 
     /// Container type for holding channel static information.
@@ -422,22 +438,22 @@ library XBRTypes {
         /// for cross-contract replay-attack protection.
         address verifyingContract;
 
-        /// The XBR network member joining the specified market as a market actor.
+        /// The XBR network member giving consent.
         address member;
 
-        /// Block number when the member as joined the market,
+        /// Block number when the consent was status set.
         uint256 updated;
 
-        /// The ID of the market joined.
+        /// The ID of the market in which consent was given.
         bytes16 marketId;
 
         /// Address of delegate consent (status) applies to.
         address delegate;
 
-        /// The actor type as which to join, which can be "buyer" or "seller".
+        /// The actor type for which the consent was set for the delegate.
         uint8 delegateType;
 
-        /// The ID of the market joined.
+        /// The ID of the XBR data catalog consent was given for.
         bytes16 apiCatalog;
 
         /// Consent granted or revoked.
