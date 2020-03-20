@@ -253,19 +253,21 @@ contract XBRMarket is XBRMaintained {
 
         // the joining member must join as a data provider (seller) or data consumer (buyer)
         require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
-                actorType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+                actorType == uint8(XBRTypes.ActorType.CONSUMER) ||
+                actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER), "INVALID_ACTOR_TYPE");
 
         // get the security amount required for joining the market (if any)
-        uint256 security;
-        // if (uint8(actorType) == uint8(ActorType.PROVIDER)) {
-        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
+        uint256 security = 0;
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             // the joining member must not be joined as a provider already
             require(uint8(markets[marketId].providerActors[member].joined) == 0, "ALREADY_JOINED_AS_PROVIDER");
-            security = markets[marketId].providerSecurity;
-        } else  {
+            security += markets[marketId].providerSecurity;
+        }
+
+        if (actorType == uint8(XBRTypes.ActorType.CONSUMER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             // the joining member must not be joined as a consumer already
             require(uint8(markets[marketId].consumerActors[member].joined) == 0, "ALREADY_JOINED_AS_CONSUMER");
-            security = markets[marketId].consumerSecurity;
+            security += markets[marketId].consumerSecurity;
         }
 
         if (security > 0) {
@@ -275,11 +277,13 @@ contract XBRMarket is XBRMaintained {
         }
 
         // remember actor (by actor address) within market
-        if (actorType == uint8(XBRTypes.ActorType.PROVIDER)) {
-            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, security, meta, signature, new address[](0));
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
+            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, markets[marketId].providerSecurity, meta, signature, new address[](0));
             markets[marketId].providerActorAdrs.push(member);
-        } else {
-            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, security, meta, signature, new address[](0));
+        }
+
+        if (actorType == uint8(XBRTypes.ActorType.CONSUMER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
+            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, markets[marketId].consumerSecurity, meta, signature, new address[](0));
             markets[marketId].consumerActorAdrs.push(member);
         }
 
@@ -353,24 +357,19 @@ contract XBRMarket is XBRMaintained {
         // the market must exist
         require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
-        // the joining member must join as a data provider (seller) or data consumer (buyer)
+        // consent to the delegate acting as a data provider (seller) or data consumer (buyer)
         require(delegateType == uint8(XBRTypes.ActorType.PROVIDER) ||
-                delegateType == uint8(XBRTypes.ActorType.CONSUMER), "INVALID_ACTOR_TYPE");
+                delegateType == uint8(XBRTypes.ActorType.CONSUMER) ||
+                delegateType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER), "INVALID_ACTOR_TYPE");
 
-        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER)) {
+        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER) || delegateType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             // the member must be a provider actor in the market
             require(uint8(markets[marketId].providerActors[member].joined) != 0, "MEMBER_NOT_PROVIDER");
+        }
 
-            // providers _must_ have a service prefix set
-            require(keccak256(abi.encode(servicePrefix)) !=
-                keccak256(abi.encode("")), "SERVICE_PREFIX_EMPTY");
-        } else  {
+        if (delegateType == uint8(XBRTypes.ActorType.CONSUMER) || delegateType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             // the member must be a consumer actor in the market
             require(uint8(markets[marketId].consumerActors[member].joined) != 0, "MEMBER_NOT_CONSUMER");
-
-            // consumers must _not_ have a service prefix set
-            require(keccak256(abi.encode(servicePrefix)) ==
-                keccak256(abi.encode("")), "SERVICE_PREFIX_NOT_EMPTY");
         }
 
         // must provide a valid delegate address, but the delegate doesn't need to be member!
@@ -380,11 +379,17 @@ contract XBRMarket is XBRMaintained {
         (uint256 catalogCreated, , , , , ) = catalog.catalogs(apiCatalog);
         require(catalogCreated != 0, "NO_SUCH_CATALOG");
 
-        // store consent status
-        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER)) {
+        // must have a service prefix set
+        require(keccak256(abi.encode(servicePrefix)) != keccak256(abi.encode("")), "SERVICE_PREFIX_EMPTY");
+
+        // store consent status as provider delegate
+        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER) || delegateType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             markets[marketId].providerActors[member].delegates[delegate][apiCatalog] = XBRTypes.Consent(
                 updated, consent, servicePrefix, signature);
-        } else  {
+        }
+
+        // store consent status as consumer delegate
+        if (delegateType == uint8(XBRTypes.ActorType.CONSUMER) || delegateType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
             markets[marketId].consumerActors[member].delegates[delegate][apiCatalog] = XBRTypes.Consent(
                 updated, consent, servicePrefix, signature);
         }

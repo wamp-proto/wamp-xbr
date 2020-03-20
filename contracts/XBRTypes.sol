@@ -30,7 +30,7 @@ library XBRTypes {
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 
     /// All XBR market actor types defined.
-    enum ActorType { NULL, PROVIDER, CONSUMER }
+    enum ActorType { NULL, PROVIDER, CONSUMER, PROVIDER_CONSUMER }
 
     /// All XBR state channel types defined.
     enum ChannelType { NULL, PAYMENT, PAYING }
