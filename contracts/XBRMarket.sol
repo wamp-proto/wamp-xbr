@@ -340,7 +340,17 @@ contract XBRMarket is XBRMaintained {
         uint8 delegateType, bytes16 apiCatalog, bool consent, string memory servicePrefix,
         bytes memory signature) public {
 
-        // FIXME
+        // store consent status
+        if (delegateType == uint8(XBRTypes.ActorType.PROVIDER)) {
+            markets[marketId].providerActors[member].delegates[delegate][apiCatalog] = XBRTypes.Consent(
+                updated, consent, servicePrefix, signature);
+        } else  {
+            markets[marketId].consumerActors[member].delegates[delegate][apiCatalog] = XBRTypes.Consent(
+                updated, consent, servicePrefix, signature);
+        }
+
+        // notify observers of changed consent status
+        emit ConsentSet(member, updated, marketId, delegate, delegateType, apiCatalog, consent, servicePrefix);
     }
 
     /// Get the total number of markets defined.
