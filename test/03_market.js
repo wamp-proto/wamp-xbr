@@ -253,6 +253,10 @@ contract('XBRNetwork', accounts => {
         res = await market.getMarketActor(marketId, alice, ActorType_CONSUMER);
         _joined = res["0"].toNumber();
         assert.equal(_joined, 0, "Alice should not yet be market member (consumer)");
+
+	const marketByMaker = await market.marketsByMaker(maker)
+	assert.equal(marketId, marketByMaker, "marketsByMaker not updated properly")
+
     });
 
     it('XBRMarket.joinMarket() : provider should join existing market', async () => {
