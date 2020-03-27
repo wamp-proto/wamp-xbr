@@ -110,11 +110,6 @@ test_05:
 coverage:
 	truffle run coverage
 
-compile:
-	wc -l contracts/*.sol
-	grep "struct [A-Z][A-Za-z0-9]* {" contracts/XBRTypes.sol | sort
-	$(TRUFFLE) compile --all
-	python ./check-abi-files.py
 
 compile_dist:
 	-rm ./build/contracts/*.json
@@ -200,16 +195,23 @@ run_ganache:
 	# sudo chown -R 1000:1000 docker/data/
 	docker-compose up --force-recreate ganache
 
-# 3) deploy xbr smart contract to blockchain
+# 3) compile xbr smart contracts
+compile:
+	wc -l contracts/*.sol
+	grep "struct [A-Z][A-Za-z0-9]* {" contracts/XBRTypes.sol | sort
+	$(TRUFFLE) compile --all
+	python ./check-abi-files.py
+
+# 4) deploy xbr smart contract to blockchain
 deploy_ganache:
-	# python ./check-abi-files.py
+	python ./check-abi-files.py
 	$(TRUFFLE) migrate --reset --network ganache
 
-# 4) initialize blockchain data
+# 5) initialize blockchain data
 init_ganache:
 	python docker/init-blockchain.py --gateway http://localhost:1545
 
-# 5) build a blockchain (ganache based) docker image using the initialized data from the staging area
+# 6) build a blockchain (ganache based) docker image using the initialized data from the staging area
 build_ganache_docker:
 	cd docker && \
 	docker build \
@@ -218,7 +220,7 @@ build_ganache_docker:
 		-f Dockerfile.ganache \
 		.
 
-# 6) publish locally created docker image with xbr-preinitialized ganache blockchain
+# 7) publish locally created docker image with xbr-preinitialized ganache blockchain
 publish_ganache_docker:
 	docker push crossbario/crossbarfx-blockchain:${XBR_PROTOCOL_VERSION}
 	docker push crossbario/crossbarfx-blockchain:latest
