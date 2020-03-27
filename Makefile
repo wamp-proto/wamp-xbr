@@ -202,7 +202,7 @@ run_ganache:
 
 # 3) deploy xbr smart contract to blockchain
 deploy_ganache:
-	python ./check-abi-files.py
+	# python ./check-abi-files.py
 	$(TRUFFLE) migrate --reset --network ganache
 
 # 4) initialize blockchain data
@@ -234,6 +234,9 @@ run_ganache_docker:
 check_ganache:
 	python docker/init-blockchain.py --showonly --gateway http://localhost:1545
 
+# check ABI Files
+check_abi_files:
+	python ./check-abi-files.py
 
 #
 # build optimized SVG files from source SVGs
