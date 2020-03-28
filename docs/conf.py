@@ -141,7 +141,7 @@ else:
     else:
         html_theme = 'default'
 
-html_logo = '_static/gen/logo_xbr_on_grey.svg'
+html_logo = '_static/img/xbr.svg'
 full_logo = True
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -158,7 +158,7 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_favicon = '_static/favicon.ico'
+html_favicon = '_static/img/favicon.ico'
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

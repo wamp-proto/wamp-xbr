@@ -45,24 +45,23 @@ contract XBRChannel is XBRMaintained {
     using ECDSA for bytes32;
 
     /// Event emittedd when a new XBR data market has opened.
-    event Opened(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
-        address indexed marketmaker, address actor, address delegate, address recepient,
-        uint256 amount, uint32 timeout);
+    event Opened(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId, address actor,
+        address delegate, address marketmaker, address recipient, uint256 amount, bytes signature);
 
     /**
      * Event emitted when payment channel is closing (that is, one of the two state channel
      * participants has called "close()", initiating start of the channel timeout).
      */
-    event Closing(XBRTypes.ChannelType ctype, bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
-        uint256 refund, uint256 timeoutAt);
+    event Closing(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
+        uint256 payout, uint256 fee, uint256 refund, uint256 timeoutAt);
 
     /**
      * Event emitted when payment channel has finally closed, which happens after both state
      * channel participants have called close(), agreeing on last state, or after the timeout
      * at latest - in case the second participant doesn't react within timeout)
      */
-    event Closed(bytes16 indexed marketId, address signer, uint256 payout, uint256 fee,
-        uint256 refund, uint256 closedAt);
+    event Closed(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
+        uint256 payout, uint256 fee, uint256 refund, uint256 closedAt);
 
     /// Instance of XBRMarket contract this contract is linked to.
     XBRMarket public market;
@@ -92,13 +91,13 @@ contract XBRChannel is XBRMaintained {
     /// @param actor The actor (buyer/seller in the market) that opened this channel.
     /// @param delegate The delegate (off-chain) allowed to spend/earn-on this channel (off-chain)
     ///  in the name of the actor (buyer/seller in the market).
+    /// @param marketmaker The off-chain market maker executing the channel.
     /// @param recipient The receiver (on-chain) of the channel payout.
     /// @param amount The amount initially transfered to and held in the channel until closed.
-    /// @param timeout The channel timeout period that begins with the first call to `close()`
     /// @param signature EIP712 signature, signed by the member.
     function openChannel (XBRTypes.ChannelType ctype, uint256 openedAt, bytes16 marketId, bytes16 channelId,
-        address actor, address delegate, address recipient, uint256 amount,
-        uint32 timeout, bytes memory signature) public {
+        address actor, address delegate, address marketmaker, address recipient, uint256 amount,
+        bytes memory signature) public {
 
         // market must exist
         require(market.getMarketOwner(marketId) != address(0), "NO_SUCH_MARKET");
@@ -113,6 +112,9 @@ contract XBRChannel is XBRMaintained {
 
         // must provide a valid delegate address, but the delegate doesn't need to be member!
         require(delegate != address(0), "INVALID_CHANNEL_DELEGATE");
+
+        // must provide a valid marketmaker address: this must be the market maker set in the market!
+        require(marketmaker == market.getMarketMaker(marketId), "INVALID_CHANNEL_MARKETMAKER");
 
         // the recepient must be a registered member
         (, , , XBRTypes.MemberLevel recipient_member_level, ) = market.network().members(recipient);
@@ -151,21 +153,18 @@ contract XBRChannel is XBRMaintained {
         // payment channel amount must be positive
         require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
 
-        // payment channel timeout can be [0 seconds - 10 days[
-        require(timeout >= 0 && timeout < 864000, "INVALID_CHANNEL_TIMEOUT");
-
         // the data used to open the new channel must have a valid signature, signed by the
         // actor (buyer/seller in the market)
         XBRTypes.EIP712ChannelOpen memory eip712_obj = XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
             market.network().verifyingContract(), uint8(ctype), openedAt, marketId, channelId,
-            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout);
+            actor, delegate, marketmaker, recipient, amount);
         require(XBRTypes.verify(actor, eip712_obj, signature), "INVALID_CHANNEL_SIGNATURE");
 
         // Everything is OK! Continue actually opening the channel ..
 
         // track channel static information
-        channels[channelId] = XBRTypes.Channel(openedAt, channelSeq, ctype, marketId,
-            market.getMarketMaker(marketId), actor, delegate, recipient, amount, timeout, signature);
+        channels[channelId] = XBRTypes.Channel(openedAt, channelSeq, ctype, marketId, channelId, actor,
+            delegate, marketmaker, recipient, amount, signature);
 
         // track channel closing (== modifiable) information
         channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN,
@@ -175,7 +174,7 @@ contract XBRChannel is XBRMaintained {
         channelSeq = channelSeq + 1;
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        // emit Opened(ctype, marketId, channelId, marketmaker, actor, delegate, recipient, amount, timeout, signature);
+        emit Opened(ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
     }
 
     /**
@@ -200,14 +199,13 @@ contract XBRChannel is XBRMaintained {
         require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
-        address delegate = channels[channelId].delegate;
-        address marketmaker = channels[channelId].marketmaker;
-
-        require(XBRTypes.verify(delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
+        // check delegate signature
+        require(XBRTypes.verify(channels[channelId].delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
             market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), delegateSignature), "INVALID_DELEGATE_SIGNATURE");
 
-        require(XBRTypes.verify(marketmaker, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
+        // check market maker signature
+        require(XBRTypes.verify(channels[channelId].marketmaker, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
             market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), marketmakerSignature), "INVALID_MARKETMAKER_SIGNATURE");
 
@@ -239,6 +237,9 @@ contract XBRChannel is XBRMaintained {
         // the amount paid out to the recipient
         uint256 payout = earned - fee;
 
+        // FIXME: read from market configuration
+        // uint32 timeout = 1440;
+
         // if we got a newer closing transaction, process it ..
         if (closingChannelSeq > channelClosingStates[channelId].closingSeq) {
 
@@ -253,10 +254,11 @@ contract XBRChannel is XBRMaintained {
             channelClosingStates[channelId].closingBalance = balance;
 
             // note the new channel closing date
-            channelClosingStates[channelId].closingAt = block.timestamp + channels[channelId].timeout; // solhint-disable-line
+            channelClosingStates[channelId].closingAt = block.timestamp + 1440; // solhint-disable-line
 
             // notify channel observers
-            //emit Closing(marketId, sender, payout, fee, refund, closingAt);
+            emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
+                payout, fee, refund, block.timestamp + 1440);
         }
 
         // finally close the channel ..
@@ -282,58 +284,8 @@ contract XBRChannel is XBRMaintained {
             channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
 
             // notify channel observers
-            // emit Closed(marketId, sender, payout, fee, refund, closedAt);
+            emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
+                payout, fee, refund, block.timestamp);
         }
     }
 }
-
-/*
-function openPaymentChannel (bytes16 marketId, address recipient, address delegate,
-    uint256 amount, uint32 timeout) public returns (address paymentChannel) {
-
-    // create new payment channel contract
-    XBRChannel channel = new XBRChannel(market.network().organization(), address(market.network().token()), address(this), marketId,
-        getMarket(marketId).maker, msg.sender, delegate, recipient, amount, timeout,
-        XBRChannel.ChannelType.PAYMENT);
-
-    // transfer tokens (initial balance) into payment channel contract
-    bool success = market.network().token().transferFrom(msg.sender, address(channel), amount);
-    require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
-
-    // remember the new payment channel associated with the market
-    //getMarket(marketId).channels.push(address(channel));
-    getMarket(marketId).consumerActors[msg.sender].channels.push(address(channel));
-
-    // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-    //      address recipient, address channel)
-    emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
-        address(channel), XBRChannel.ChannelType.PAYMENT);
-
-    // return address of new channel contract
-    return address(channel);
-}
-
-function openPayingChannel (bytes16 marketId, address recipient, address delegate,
-    uint256 amount, uint32 timeout) public returns (address paymentChannel) {
-
-    // create new paying channel contract
-    XBRChannel channel = new XBRChannel(market.network().organization(), address(market.network().token), address(this),
-        marketId, getMarket(marketId).maker, msg.sender, delegate, recipient, amount, timeout,
-        XBRChannel.ChannelType.PAYING);
-
-    // transfer tokens (initial balance) into payment channel contract
-    bool success = market.network().token().transferFrom(msg.sender, address(channel), amount);
-    require(success, "OPEN_CHANNEL_TRANSFER_FROM_FAILED");
-
-    // remember the new payment channel associated with the market
-    //getMarket(marketId).channels.push(address(channel));
-    getMarket(marketId).providerActors[recipient].channels.push(address(channel));
-
-    // emit event ChannelCreated(bytes16 marketId, address sender, address delegate,
-    //  address recipient, address channel)
-    emit ChannelCreated(marketId, channel.sender(), channel.delegate(), channel.recipient(),
-        address(channel), XBRChannel.ChannelType.PAYING);
-
-    return address(channel);
-}
-*/

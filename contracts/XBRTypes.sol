@@ -206,8 +206,8 @@ library XBRTypes {
         /// The XBR Market ID this channel is operating payments (or payouts) for.
         bytes16 marketId;
 
-        /// The off-chain market maker that operates this payment or paying channel.
-        address marketmaker;
+        /// The channel ID.
+        bytes16 channelId;
 
         /// The sender of the payments in this channel. Either a XBR consumer (for
         /// payment channels) or the XBR market maker (for paying channels).
@@ -219,6 +219,9 @@ library XBRTypes {
         /// transactions and  payments running under this channel.
         address delegate;
 
+        /// The off-chain market maker that operates this payment or paying channel.
+        address marketmaker;
+
         /// Recipient of the payments in this channel. Either the XBR market operator
         /// (for payment channels) or a XBR provider (for paying channels).
         address recipient;
@@ -226,11 +229,6 @@ library XBRTypes {
         /// Amount of tokens (denominated in the respective market token) held in
         /// this channel (initially deposited by the actor).
         uint256 amount;
-
-        /// Timeout in blocks with which the channel will be closed definitely in
-        /// a non-cooperative close. This is the grace period during which the channel
-        /// will wait for participants to submit their last signed transaction.
-        uint32 timeout;
 
         /// Signature supplied (by the actor) when opening the channel.
         bytes signature;
@@ -505,9 +503,6 @@ library XBRTypes {
         /// The amount of tokens initially put into this channel by the actor. The value is
         /// denominated in the payment token used in the market.
         uint256 amount;
-
-        /// The timeout that will apply in non-cooperative close scenarios when closing this channel.
-        uint32 timeout;
     }
 
     /// EIP712 type for use in closing channels.The final closing of a channel
@@ -571,7 +566,7 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract,uint8 ctype,uint256 openedAt,bytes16 marketId,bytes16 channelId,address actor,address delegate,address recipient,uint256 amount,uint32 timeout)");
+    bytes32 constant EIP712_CHANNEL_OPEN_TYPEHASH = keccak256("EIP712ChannelOpen(uint256 chainId,address verifyingContract,uint8 ctype,uint256 openedAt,bytes16 marketId,bytes16 channelId,address actor,address delegate,address marketmaker,address recipient,uint256 amount)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -708,9 +703,9 @@ library XBRTypes {
             obj.channelId,
             obj.actor,
             obj.delegate,
+            obj.marketmaker,
             obj.recipient,
-            obj.amount,
-            obj.timeout
+            obj.amount
         ));
     }
 
