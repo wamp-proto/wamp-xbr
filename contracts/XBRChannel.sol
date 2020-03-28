@@ -123,10 +123,11 @@ contract XBRChannel is XBRMaintained {
 
         if (ctype == XBRTypes.ChannelType.PAYMENT) {
             // transaction sender must be a market buyer-actor or the market-maker (the piece of running software for the market)
-            require(msg.sender == market.getMarketMaker(marketId) || msg.sender == actor, "SENDER_NOT_MARKETMAKER_OR_BUYER");
+            require(msg.sender == market.getMarketMaker(marketId) ||
+                    msg.sender == actor, "SENDER_NOT_MARKETMAKER_OR_BUYER");
 
             // actor must be consumer in the market
-            require(market.isActor(marketId, actor, XBRTypes.ActorType.CONSUMER), "ACTOR_NOT_CONSUMER");
+            require(market.isActor(marketId, actor, XBRTypes.ActorType.CONSUMER) || market.isActor(marketId, actor, XBRTypes.ActorType.PROVIDER_CONSUMER), "ACTOR_NOT_CONSUMER");
 
             // technical recipient of the unidirectional, half-legged channel must be the
             // owner (operator) of the market
@@ -141,7 +142,7 @@ contract XBRChannel is XBRMaintained {
             require(actor == market.getMarketOwner(marketId), "ACTOR_NOT_MARKET");
 
             // recipient must be provider in the market
-            require(market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER), "RECIPIENT_NOT_PROVIDER");
+            require(market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER) || market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER_CONSUMER), "RECIPIENT_NOT_PROVIDER");
 
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
