@@ -61,15 +61,15 @@ The XBR project currently maintains the following **XBR-enabled client libraries
 XBR support can be added to any `WAMP client library <https://wamp-proto.org/implementations.html#libraries>`__
 with a language run-time that has packages for Ethereum application development.
 
-.. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-yellow.svg?style=flat
+.. |Docs (on CDN)| image:: https://img.shields.io/badge/Docs-CDN-yellow.svg?style=flat
    :target: https://xbr.network/docs/protocol/index.html
-.. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-yellow.svg?style=flat
+.. |Docs (on S3)| image:: https://img.shields.io/badge/Docs-S3-yellow.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
 .. |Travis| image:: https://travis-ci.com/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.com/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
    :target: https://codecov.io/github/crossbario/xbr-protocol
-.. |ABIs (on CDN)| image:: https://img.shields.io/badge/abis-cdn-blue.svg?style=flat
+.. |ABIs (on CDN)| image:: https://img.shields.io/badge/ABIs-CDN-blue.svg?style=flat
    :target: https://xbr.network/lib/abi/xbr-protocol-latest.zip
-.. |ABIs (on S3)| image:: https://img.shields.io/badge/abis-cdn-blue.svg?style=flat
+.. |ABIs (on S3)| image:: https://img.shields.io/badge/ABIs-S3-blue.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip
