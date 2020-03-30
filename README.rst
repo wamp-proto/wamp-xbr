@@ -65,7 +65,7 @@ with a language run-time that has packages for Ethereum application development.
    :target: https://xbr.network/docs/protocol/index.html
 .. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
-.. |Travis| image:: https://travis-ci.org/crossbario/xbr-protocol.svg?branch=master
-   :target: https://travis-ci.org/crossbario/xbr-protocol
+.. |Travis| image:: https://travis-ci.com/crossbario/xbr-protocol.svg?branch=master
+   :target: https://travis-ci.com/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
    :target: https://codecov.io/github/crossbario/xbr-protocol
