@@ -69,7 +69,7 @@ with a language run-time that has packages for Ethereum application development.
    :target: https://travis-ci.com/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
    :target: https://codecov.io/github/crossbario/xbr-protocol
-.. |ABIs (on CDN)| image:: https://img.shields.io/badge/abis-cdn-brightblue.svg?style=flat
+.. |ABIs (on CDN)| image:: https://img.shields.io/badge/abis-cdn-blue.svg?style=flat
    :target: https://xbr.network/lib/abi/xbr-protocol-latest.zip
-.. |ABIs (on S3)| image:: https://img.shields.io/badge/abis-cdn-brightblue.svg?style=flat
+.. |ABIs (on S3)| image:: https://img.shields.io/badge/abis-cdn-blue.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip
