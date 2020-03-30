@@ -1,7 +1,7 @@
 The XBR Protocol
 ================
 
-|Travis| |Coverage| |Docs (on CDN)| |Docs (on S3)|
+|Travis| |Coverage| |Docs (on CDN)| |Docs (on S3)| |ABIs (on CDN)| |ABIs (on S3)|
 
 The **XBR Protocol** enables secure peer-to-peer data-trading and -service microtransactions in
 `Open Data Markets <https://xbr.network>`__ between multiple independent entities.
@@ -32,11 +32,11 @@ export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pione
 which result in the following contract addresses (when the deployment is the very first transactions on Ganache):
 
 ```
-export XBR_DEBUG_TOKEN_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
-export XBR_DEBUG_NETWORK_ADDR=0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
-export XBR_DEBUG_MARKET_ADDR=0xe982E462b094850F12AF94d21D470e21bE9D0E9C
-export XBR_DEBUG_CATALOG_ADDR=0x59d3631c86BbE35EF041872d502F218A39FBa150
-export XBR_DEBUG_CHANNEL_ADDR=0x0290FB167208Af455bB137780163b7B7a9a10C16
+export XBR_DEBUG_TOKEN_ADDR=0xCfEB869F69431e42cdB54A4F4f105C19C080A601
+export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
+export XBR_DEBUG_MARKET_ADDR=0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
+export XBR_DEBUG_CATALOG_ADDR=0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+export XBR_DEBUG_CHANNEL_ADDR=0xe982E462b094850F12AF94d21D470e21bE9D0E9C
 ```
 
 Application development
@@ -61,11 +61,15 @@ The XBR project currently maintains the following **XBR-enabled client libraries
 XBR support can be added to any `WAMP client library <https://wamp-proto.org/implementations.html#libraries>`__
 with a language run-time that has packages for Ethereum application development.
 
-.. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-brightgreen.svg?style=flat
+.. |Docs (on CDN)| image:: https://img.shields.io/badge/docs-cdn-yellow.svg?style=flat
    :target: https://xbr.network/docs/protocol/index.html
-.. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-brightgreen.svg?style=flat
+.. |Docs (on S3)| image:: https://img.shields.io/badge/docs-s3-yellow.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
 .. |Travis| image:: https://travis-ci.com/crossbario/xbr-protocol.svg?branch=master
    :target: https://travis-ci.com/crossbario/xbr-protocol
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
    :target: https://codecov.io/github/crossbario/xbr-protocol
+.. |ABIs (on CDN)| image:: https://img.shields.io/badge/abis-cdn-brightblue.svg?style=flat
+   :target: https://xbr.network/lib/abi/xbr-protocol-latest.zip
+.. |ABIs (on S3)| image:: https://img.shields.io/badge/abis-cdn-brightblue.svg?style=flat
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip

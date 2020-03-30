@@ -67,7 +67,7 @@ aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AW
 # aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest/
 
 aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
-aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/docs/*"
+aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/*"
 
 echo ''
 echo 'package uploaded to:'
