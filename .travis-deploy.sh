@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# build docs/website and upload to "xbr.network" S3 bucket
+set +o verbose -o errexit
 
+# AUTOBAHN_VERSION             : must be set in travis.yml!
 export AWS_DEFAULT_REGION=eu-central-1
 export AWS_S3_BUCKET_NAME=xbr.foundation
-# AWS_ACCESS_KEY_ID         : must be set in Travis CI build context
-# AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context
-
-set -ev
+# AWS_ACCESS_KEY_ID         : must be set in Travis CI build context!
+# AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context!
+# WAMP_PRIVATE_KEY          : must be set in Travis CI build context!
 
 # TRAVIS_BRANCH, TRAVIS_PULL_REQUEST, TRAVIS_TAG
 
@@ -41,23 +41,44 @@ echo 'installing aws tools ..'
 pip install awscli
 which aws
 aws --version
-aws s3 ls ${AWS_S3_BUCKET_NAME}
 
-# deploy latest XBR Lib ABIs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/${XBR_PROTOCOL_VERSION}/
-#   => https://xbr.network/lib/abi/${XBR_PROTOCOL_VERSION}/
+# build XBR contracts, ABI files and docs
+echo 'building package and docs ..'
 tox -c tox.ini -e truffle-build
-aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}/
-
 cd ./build/contracts/ && zip ../../xbr-protocol-${XBR_PROTOCOL_VERSION}.zip *.json && cd ../..
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/
-
-# deploy latest docs:
-#   => https://s3.eu-central-1.amazonaws.com/xbr.network/docs/index.html
-#   => https://xbr.network/docs/index.html
 tox -c tox.ini -e sphinx
-aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
 
-# invalidate cloudfront distribution:
-#   => https://xbr.network/index.html
-aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/*"
+# upload to S3 bucket
+#
+echo 'uploading package and docs ..'
+# "aws s3 ls" will return -1 when no files are found! but we don't want our script to exit
+aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/ || true
+
+aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip || true
+aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip || true
+
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip
+
+# aws s3 rm --recursive s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}/ || true
+# aws s3 rm --recursive s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest/ || true
+
+# aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}/
+# aws s3 cp --recursive --acl public-read --include "*.json" ./build/contracts s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest/
+
+aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
+aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/docs/*"
+
+echo ''
+echo 'package uploaded to:'
+echo ''
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
+echo '      https://xbr.network/lib/abi/xbr-protocol-latest.zip'
+echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
+echo ''
+echo 'docs uploaded to:'
+echo ''
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/docs/index.html'
+echo '      https://xbr.network/docs/index.html'
+echo ''
