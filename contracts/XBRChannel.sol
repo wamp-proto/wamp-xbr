@@ -130,22 +130,21 @@ contract XBRChannel is XBRMaintained {
             require(market.isActor(marketId, actor, XBRTypes.ActorType.CONSUMER) ||
                     market.isActor(marketId, actor, XBRTypes.ActorType.PROVIDER_CONSUMER), "ACTOR_NOT_CONSUMER");
 
-            // technical recipient of the unidirectional, half-legged channel must be the
-            // owner (operator) of the market
+            // technical recipient of the unidirectional, half-legged channel must be the owner (operator) of the market
             require(recipient == market.getMarketOwner(marketId), "RECIPIENT_NOT_MARKET");
 
 
         } else if (ctype == XBRTypes.ChannelType.PAYING) {
-            // transaction sender must be the market-owner (aka market-ooperator) or the market-maker (the piece of running software for the market)
+            // transaction sender must be the market-owner (aka market-operator) or the market-maker (the piece of running software for the market)
             require(msg.sender == market.getMarketMaker(marketId) ||
                     msg.sender == market.getMarketOwner(marketId), "SENDER_NOT_MARKETMAKER_OR_OWNER");
 
-            // transaction sender must be the market-owner (aka market-ooperator) or the market-maker (the piece of running software for the market)
-            require(actor == market.getMarketOwner(marketId), "ACTOR_NOT_MARKET");
+            // actor must be provider in the market
+            require(market.isActor(marketId, actor, XBRTypes.ActorType.PROVIDER) ||
+                    market.isActor(marketId, actor, XBRTypes.ActorType.PROVIDER_CONSUMER), "ACTOR_NOT_PROVIDER");
 
-            // recipient must be provider in the market
-            require(market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER) ||
-                    market.isActor(marketId, recipient, XBRTypes.ActorType.PROVIDER_CONSUMER), "RECIPIENT_NOT_PROVIDER");
+            // technical recipient of the unidirectional, half-legged channel must be a provider (seller) in the market
+            require(recipient == actor, "RECIPIENT_NOT_ACTOR");
 
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
