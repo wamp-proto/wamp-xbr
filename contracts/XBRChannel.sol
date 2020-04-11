@@ -133,6 +133,9 @@ contract XBRChannel is XBRMaintained {
             // technical recipient of the unidirectional, half-legged channel must be the owner (operator) of the market
             require(recipient == market.getMarketOwner(marketId), "RECIPIENT_NOT_MARKET");
 
+            // for payment channels, tokens for the channel must have been approved by the (consumer) actor
+            require(market.network().token().transferFrom(actor, address(this), amount),
+                "OPEN_CHANNEL_TRANSFER_FROM_ACTOR_FAILED");
 
         } else if (ctype == XBRTypes.ChannelType.PAYING) {
             // transaction sender must be the market-owner (aka market-operator) or the market-maker (the piece of running software for the market)
@@ -145,6 +148,10 @@ contract XBRChannel is XBRMaintained {
 
             // technical recipient of the unidirectional, half-legged channel must be a provider (seller) in the market
             require(recipient == actor, "RECIPIENT_NOT_ACTOR");
+
+            // for paying channels, tokens for the channel must have been approved by the market maker
+            require(market.network().token().transferFrom(market.getMarketMaker(marketId), address(this), amount),
+                "OPEN_CHANNEL_TRANSFER_FROM_MARKETMAKER_FAILED");
 
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
