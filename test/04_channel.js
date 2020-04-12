@@ -466,7 +466,6 @@ contract('XBRNetwork', accounts => {
         // the XBR consumer we use here
         const actor = charlie;
         const actor_key = charlie_key;
-
         const actor_token_before = await token.balanceOf(actor);
 
         // consumer (buyer) delegate address
@@ -480,6 +479,7 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
+        const mm_token_before = await token.balanceOf(marketmaker);
 
         assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
         const marketmaker_key = alice_market_maker1_key;
@@ -535,20 +535,28 @@ contract('XBRNetwork', accounts => {
         // remember token amount the XBRChannel contract has AFTER opening the channel
         const token_after = await token.balanceOf(channel.address);
         const actor_token_after = await token.balanceOf(actor);
+        const mm_token_after = await token.balanceOf(marketmaker);
 
         console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
         console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
         console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
         console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
+        console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
+        console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
 
         // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
         assert.equal(token_before - token_after, balance, "wrong token amount transfered");
         assert.equal(actor_token_after - actor_token_before, balance, "tokens not refunded to actor");        
+        assert.equal(mm_token_after - mm_token_before, 0, "tokens refunded to market maker");
     });
 
     it('XBRChannel.closeChannel(ctype==PAYING) : market maker should close paying channel', async () => {
         // remember token amount the XBRChannel contract has BEFORE closing the channel
         const token_before = await token.balanceOf(channel.address);
+
+        const actor = bob;
+        const actor_key = bob_key;
+        const actor_token_before = await token.balanceOf(actor);
 
         // the XBR provider we use here
         const marketmaker = alice_market_maker1;
@@ -618,15 +626,19 @@ contract('XBRNetwork', accounts => {
 
         // remember token amount the XBRChannel contract has AFTER opening the channel
         const token_after = await token.balanceOf(channel.address);
+        const actor_token_after = await token.balanceOf(actor);
         const mm_token_after = await token.balanceOf(marketmaker);
 
-        console.log('XBRChannel token balance of channel before      : ' + token_before / 10**18);
-        console.log('XBRChannel token balance of channel after       : ' + token_after / 10**18);
+        console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
+        console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
+        console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
+        console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
         console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
         console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
 
         // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
         assert.equal(token_before - token_after, balance, "wrong token amount transfered");
+        assert.equal(actor_token_after - actor_token_before, 0, "tokens paid out to actor");
         assert.equal(mm_token_after - mm_token_before, balance, "tokens not refunded to market maker");
     });
 });

@@ -281,11 +281,19 @@ contract XBRChannel is XBRMaintained {
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender
             if (payout > 0) {
-                require(market.network().token().transfer(channels[channelId].recipient, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                    require(market.network().token().transfer(channels[channelId].marketmaker, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                } else {
+                    require(market.network().token().transfer(channels[channelId].actor, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                }
             }
 
             if (refund > 0) {
-                require(market.network().token().transfer(channels[channelId].actor, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                    require(market.network().token().transfer(channels[channelId].actor, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                } else {
+                    require(market.network().token().transfer(channels[channelId].marketmaker, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                }
             }
 
             if (fee > 0) {
