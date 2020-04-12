@@ -196,7 +196,7 @@ contract XBRChannel is XBRMaintained {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function closeChannel (bytes16 channelId, uint32 closingChannelSeq, uint256 balance, bool isFinal,
+    function closeChannel (bytes16 channelId, uint256 closeAt, uint32 closingChannelSeq, uint256 balance, bool isFinal,
         bytes memory delegateSignature, bytes memory marketmakerSignature) public {
 
         // channel must exist
@@ -209,14 +209,17 @@ contract XBRChannel is XBRMaintained {
         require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
+        // signature must have been created in a window of 5 blocks from the current one
+        require(closeAt <= block.number && closeAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
+
         // check delegate signature
         require(XBRTypes.verify(channels[channelId].delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
-            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            market.network().verifyingContract(), closeAt, channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), delegateSignature), "INVALID_DELEGATE_SIGNATURE");
 
         // check market maker signature
         require(XBRTypes.verify(channels[channelId].marketmaker, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
-            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            market.network().verifyingContract(), closeAt, channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), marketmakerSignature), "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid

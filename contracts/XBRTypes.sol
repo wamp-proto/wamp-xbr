@@ -517,6 +517,9 @@ library XBRTypes {
         /// for cross-contract replay-attack protection.
         address verifyingContract;
 
+        /// Block number when the channel close was signed.
+        uint256 closeAt;
+
         /// The ID of the market in which the channel to be closed was initially opened.
         bytes16 marketId;
 
@@ -570,7 +573,7 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,bytes16 marketId,bytes16 channelId,uint32 channelSeq,uint256 balance,bool isFinal)");
+    bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,uint256 closeAt,bytes16 marketId,bytes16 channelId,uint32 channelSeq,uint256 balance,bool isFinal)");
 
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
         require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
@@ -714,6 +717,7 @@ library XBRTypes {
             EIP712_CHANNEL_CLOSE_TYPEHASH,
             obj.chainId,
             obj.verifyingContract,
+            obj.closeAt,
             obj.marketId,
             obj.channelId,
             obj.channelSeq,
