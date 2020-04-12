@@ -19,6 +19,7 @@ const eth_util = require("ethereumjs-util");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRMarket = artifacts.require("./XBRMarket.sol");
+const XBRChannel = artifacts.require("./XBRChannel.sol");
 
 
 const EIP712MemberRegisterData = {
@@ -172,10 +173,12 @@ contract('XBRNetwork', accounts => {
         token = await XBRToken.deployed();
         network = await XBRNetwork.deployed();
         market = await XBRMarket.deployed();
+        channel = await XBRChannel.deployed();
 
         console.log('Using XBRToken           : ' + token.address);
         console.log('Using XBRNetwork         : ' + network.address);
         console.log('Using XBRMarket          : ' + market.address);
+        console.log('Using XBRChannel         : ' + channel.address);
 
         // FIXME: none of the following works on Ganache v6.9.1 ..
 

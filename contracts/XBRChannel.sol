@@ -133,6 +133,9 @@ contract XBRChannel is XBRMaintained {
             // technical recipient of the unidirectional, half-legged channel must be the owner (operator) of the market
             require(recipient == market.getMarketOwner(marketId), "RECIPIENT_NOT_MARKET");
 
+            // for payment channels, tokens for the channel must have been approved by the (consumer) actor
+            require(market.network().token().transferFrom(actor, address(this), amount),
+                "OPEN_CHANNEL_TRANSFER_FROM_ACTOR_FAILED");
 
         } else if (ctype == XBRTypes.ChannelType.PAYING) {
             // transaction sender must be the market-owner (aka market-operator) or the market-maker (the piece of running software for the market)
@@ -146,12 +149,16 @@ contract XBRChannel is XBRMaintained {
             // technical recipient of the unidirectional, half-legged channel must be a provider (seller) in the market
             require(recipient == actor, "RECIPIENT_NOT_ACTOR");
 
+            // for paying channels, tokens for the channel must have been approved by the market maker
+            require(market.network().token().transferFrom(market.getMarketMaker(marketId), address(this), amount),
+                "OPEN_CHANNEL_TRANSFER_FROM_MARKETMAKER_FAILED");
+
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
         }
 
         // signature must have been created in a window of 5 blocks from the current one
-        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
 
         // payment channel amount must be positive
         require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
@@ -189,7 +196,7 @@ contract XBRChannel is XBRMaintained {
      * transferred to the channel recipient, and the remaining amount of token is transferred
      * back to the original sender.
      */
-    function closeChannel (bytes16 channelId, uint32 closingChannelSeq, uint256 balance, bool isFinal,
+    function closeChannel (bytes16 channelId, uint256 closeAt, uint32 closingChannelSeq, uint256 balance, bool isFinal,
         bytes memory delegateSignature, bytes memory marketmakerSignature) public {
 
         // channel must exist
@@ -202,14 +209,17 @@ contract XBRChannel is XBRMaintained {
         require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
+        // signature must have been created in a window of 5 blocks from the current one
+        require(closeAt <= block.number && closeAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
+
         // check delegate signature
         require(XBRTypes.verify(channels[channelId].delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
-            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            market.network().verifyingContract(), closeAt, channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), delegateSignature), "INVALID_DELEGATE_SIGNATURE");
 
         // check market maker signature
         require(XBRTypes.verify(channels[channelId].marketmaker, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
-            market.network().verifyingContract(), channels[channelId].marketId, channelId, closingChannelSeq,
+            market.network().verifyingContract(), closeAt, channels[channelId].marketId, channelId, closingChannelSeq,
             balance, isFinal), marketmakerSignature), "INVALID_MARKETMAKER_SIGNATURE");
 
         // closing (off-chain) balance must be valid
@@ -271,11 +281,19 @@ contract XBRChannel is XBRMaintained {
             // now send tokens locked in this channel (which escrows the tokens) to the recipient,
             // the xbr network (for the network fee), and refund remaining tokens to the original sender
             if (payout > 0) {
-                require(market.network().token().transfer(channels[channelId].recipient, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                    require(market.network().token().transfer(channels[channelId].marketmaker, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                } else {
+                    require(market.network().token().transfer(channels[channelId].actor, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+                }
             }
 
             if (refund > 0) {
-                require(market.network().token().transfer(channels[channelId].actor, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                    require(market.network().token().transfer(channels[channelId].actor, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                } else {
+                    require(market.network().token().transfer(channels[channelId].marketmaker, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+                }
             }
 
             if (fee > 0) {

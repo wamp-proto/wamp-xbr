@@ -134,11 +134,7 @@ contract XBRMarket is XBRMaintained {
     function createMarketFor (address member, uint256 created, bytes16 marketId, address coin,
         string memory terms, string memory meta, address maker, uint256 providerSecurity, uint256 consumerSecurity,
         uint256 marketFee, bytes memory signature) public {
-/*
-        require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
-            member, created, marketId, coin, terms, meta, maker, providerSecurity, consumerSecurity, marketFee), signature),
-            "INVALID_MARKET_CREATE_SIGNATURE");
-*/
+
         require(XBRTypes.verify(member, XBRTypes.EIP712MarketCreate(network.verifyingChain(), network.verifyingContract(),
             member, created, marketId, coin, terms, meta, maker, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
