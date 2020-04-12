@@ -268,29 +268,37 @@ contract('XBRNetwork', accounts => {
 
     it('XBRChannel.openChannel() : consumer should open payment channel', async () => {
 
+        // remember token amount the XBRChannel contract has BEFORE opening the channel
         const token_before = await token.balanceOf(channel.address);
         console.log('XBRChannel token balance before: ' + token_before);
 
-        // the XBR consumer we use here
+        // XBR market operator of the market we open a channel within
         const market_operator = alice;
+
+        // the XBR consumer we use here
         const consumer = charlie;
         const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
+
+        // consumer (buyer) delegate address
         const delegate = charlie_delegate1;
 
+        // market and channel OID
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
         const channelId = utils.sha3("MyChannel1").substring(0, 34);
 
+        // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
 
         // 50 XBR channel deposit
         const amount = '' + 50 * 10**18;
 
-        // payment channel
+        // channel is a payment channel
         const ctype = 1;
 
         // current block number
         const openedAt = await web3.eth.getBlockNumber();
 
+        // create signature over channel open data
         const msg = {
             'chainId': chainId,
             'verifyingContract': verifyingContract,
@@ -304,6 +312,9 @@ contract('XBRNetwork', accounts => {
             'recipient': market_operator,
             'amount': amount,
         };
+
+        // sign the data: this must be signed with the private key of the actor
+        // in the channel (that is the consumer in case)
         const signature = create_sig_open_channel(consumer_key, msg);
 
         // transfer tokens to consumer
@@ -312,17 +323,20 @@ contract('XBRNetwork', accounts => {
         // approve transfer of tokens to open payment channel
         await token.approve(channel.address, amount, {from: consumer, gasLimit: gasLimit});
 
-        // XBR consumer opens a payment channel in the market
-        // ctype, openedAt, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature
+        // now open the channel ..
         const txn = await channel.openChannel(ctype, openedAt, marketId, channelId,
             consumer, delegate, market_.maker, market_operator, amount, signature,
             {from: consumer, gasLimit: gasLimit}
         );
-        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result = txn.receipt.logs[0];
 
+        // check that the correct number of events was emitted (namely 1)
+        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
+
+        // get the transaction results first event: XBRChannel.Opened
+        const result = txn.receipt.logs[0];
         assert.equal(result.event, "Opened", "wrong event was emitted");
 
+        // check all event attributes
         const eargs = result.args;
         assert.equal(eargs.ctype, ctype, "wrong ctype in event");
         assert.equal(eargs.marketId.substring(0, 34), marketId, "wrong marketId in event");
@@ -334,9 +348,11 @@ contract('XBRNetwork', accounts => {
         assert.equal(eargs.amount, amount, "wrong amount in event");
         assert.equal(eargs.signature, signature, "wrong signature in event");
 
+        // remember token amount the XBRChannel contract has AFTER opening the channel
         const token_after = await token.balanceOf(channel.address);
         console.log('XBRChannel token balance after : ' + token_after);
 
+        // the difference AFTER - BEFORE must exactly equal the AMOUNT we opened the channel with
         assert.equal(token_after - token_before, amount, "wrong token amount transfered");
     });
 });
