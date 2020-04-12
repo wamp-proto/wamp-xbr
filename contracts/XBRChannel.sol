@@ -158,7 +158,7 @@ contract XBRChannel is XBRMaintained {
         }
 
         // signature must have been created in a window of 5 blocks from the current one
-        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
 
         // payment channel amount must be positive
         require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");

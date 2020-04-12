@@ -11,78 +11,83 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const web3 = require("web3");
 const utils = require("./utils.js");
-const ethUtil = require('ethereumjs-util');
+const eth_sig_utils = require("eth-sig-util");
+const eth_util = require("ethereumjs-util");
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
-const XBRChannel = artifacts.require("./XBRChannel.sol");
 const XBRMarket = artifacts.require("./XBRMarket.sol");
+const XBRChannel = artifacts.require("./XBRChannel.sol");
 
 
-// dicether/eip712
-// eth-sig-util
-// eth_sig_utils.signTypedData
-// eth_sig_utils.recoverTypedSignature
-// https://github.com/MetaMask/eth-sig-util#signtypeddata-privatekeybuffer-msgparams
-// https://github.com/MetaMask/eth-sig-util#signtypeddata-privatekeybuffer-msgparams
-
-var w3_utils = require("web3-utils");
-var eth_sig_utils = require("eth-sig-util");
-var eth_accounts = require("web3-eth-accounts");
-var eth_util = require("ethereumjs-util");
-
-var buyer_key = "0x" + "a4985a2ed93107886e9a1f12c7b8e2e351cc1d26c42f3aab7f220f3a7d08fda6";
-var buyer_key_bytes = w3_utils.hexToBytes(buyer_key);
-var account = new eth_accounts().privateKeyToAccount(buyer_key);
-var addr = eth_util.toBuffer(account.address);
-
-console.log("Using private key: " + buyer_key);
-//console.log(buyer_key_bytes);
-//console.log(account);
-console.log("Account canonical address: " + account.address);
-//console.log(addr);
-
-
-//console.log(data);
-
-const DomainData = {
+const EIP712ChannelOpen = {
     types: {
         EIP712Domain: [
             { name: 'name', type: 'string' },
             { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
         ],
-        ChannelClose: [
-            {'name': 'channel_adr', 'type': 'address'},
-            {'name': 'channel_seq', 'type': 'uint32'},
-            {'name': 'balance', 'type': 'uint256'},
-            {'name': 'is_final', 'type': 'bool'},
+        EIP712ChannelOpen: [
+            {name: 'chainId', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'ctype', type: 'uint8'},
+            {name: 'openedAt', type: 'uint256'},
+            {name: 'marketId', type: 'bytes16'},
+            {name: 'channelId', type: 'bytes16'},
+            {name: 'actor', type: 'address'},
+            {name: 'delegate', type: 'address'},
+            {name: 'marketmaker', type: 'address'},
+            {name: 'recipient', type: 'address'},
+            {name: 'amount', type: 'uint256'}
         ]
     },
-    primaryType: 'ChannelClose',
+    primaryType: 'EIP712ChannelOpen',
     domain: {
         name: 'XBR',
         version: '1',
-        chainId: 1,
-        verifyingContract: '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B',
+    },
+    message: null
+};
+
+
+function create_sig_open_channel(key_, data_) {
+    EIP712ChannelOpen['message'] = data_;
+    const key = eth_util.toBuffer(key_);
+    const sig = eth_sig_utils.signTypedData(key, {data: EIP712ChannelOpen})
+    return sig;
+}
+
+
+const EIP712ChannelClose = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+        ],
+        EIP712ChannelClose: [
+            {name: 'chainId', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'marketId', type: 'bytes16'},
+            {name: 'channelId', type: 'bytes16'},
+            {name: 'channelSeq', type: 'uint32'},
+            {name: 'balance', type: 'uint256'},
+            {name: 'isFinal', type: 'bool'}
+        ]
+    },
+    primaryType: 'EIP712ChannelClose',
+    domain: {
+        name: 'XBR',
+        version: '1',
     },
     message: null,
 };
 
 
-
-function create_sig(key_, message_) {
-
-    DomainData['message'] = message_;
-
+function create_sig_close_channel(key_, data_) {
+    EIP712ChannelOpen['message'] = data_;
     const key = eth_util.toBuffer(key_);
-
-    const sig = eth_sig_utils.signTypedData(key, {data: DomainData})
-
-    return eth_util.toBuffer(sig);
+    const sig = eth_sig_utils.signTypedData(key, {data: EIP712ChannelClose})
+    return sig;
 }
 
 
@@ -100,6 +105,9 @@ contract('XBRNetwork', accounts => {
 
     // deployed instance of XBRMarket
     var market;
+
+    // deployed instance of XBRChannel
+    var channel;
 
     // https://solidity.readthedocs.io/en/latest/frequently-asked-questions.html#if-i-return-an-enum-i-only-get-integer-values-in-web3-js-how-to-get-the-named-values
 
@@ -127,11 +135,15 @@ contract('XBRNetwork', accounts => {
     const NodeType_CORE = 2;
     const NodeType_EDGE = 3;
 
+    const marketId = utils.sha3("MyMarket1").substring(0, 34);
+
     // 100 XBR security
-    //const providerSecurity = 0;
-    //const consumerSecurity = 0;
-    const providerSecurity = '' + 100 * 10**18;
-    const consumerSecurity = '' + 100 * 10**18;
+    // const providerSecurity = '' + 100 * 10**18;
+    // const consumerSecurity = '' + 100 * 10**18;
+
+    // FIXME: non-zero security breaks "joinMarketFor" test
+    const providerSecurity = 0;
+    const consumerSecurity = 0;
 
     //
     // test accounts setup
@@ -156,6 +168,28 @@ contract('XBRNetwork', accounts => {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
         market = await XBRMarket.deployed();
+        channel = await XBRChannel.deployed();
+
+        console.log('Using XBRToken           : ' + token.address);
+        console.log('Using XBRNetwork         : ' + network.address);
+        console.log('Using XBRMarket          : ' + market.address);
+        console.log('Using XBRChannel         : ' + channel.address);
+
+        // FIXME: none of the following works on Ganache v6.9.1 ..
+
+        // TypeError: Cannot read property 'getChainId' of undefined
+        // https://web3js.readthedocs.io/en/v1.2.6/web3-eth.html#getchainid
+        // const _chainId1 = await web3.eth.getChainId();
+
+        // DEBUG: _chainId2 undefined
+        // const _chainId2 = web3.version.network;
+        // console.log('DEBUG: _chainId2', _chainId2);
+
+        chainId = await network.verifyingChain();
+        verifyingContract = await network.verifyingContract();
+
+        console.log('Using chainId            : ' + chainId);
+        console.log('Using verifyingContract  : ' + verifyingContract);
 
         const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
@@ -163,19 +197,19 @@ contract('XBRNetwork', accounts => {
         const _alice = await network.members(alice);
         const _alice_level = _alice.level.toNumber();
         if (_alice_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: alice, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
         }
 
         const _bob = await network.members(bob);
         const _bob_level = _bob.level.toNumber();
         if (_bob_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: bob, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: bob, gasLimit: gasLimit});
         }
 
         const _charlie = await network.members(charlie);
         const _charlie_level = _charlie.level.toNumber();
         if (_charlie_level == MemberLevel_NULL) {
-            await network.register(eula, profile, {from: charlie, gasLimit: gasLimit});
+            await network.registerMember(eula, profile, {from: charlie, gasLimit: gasLimit});
         }
 
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -194,7 +228,7 @@ contract('XBRNetwork', accounts => {
             // const marketFee = '' + Math.trunc(0.05 * 10**9 * 10**18);
             const marketFee = 0;
 
-            await market.createMarket(marketId, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
+            await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
 
             /////////// the XBR provider we use here
             const provider = bob;
@@ -232,429 +266,77 @@ contract('XBRNetwork', accounts => {
         }
     });
 
-/*
-    it('XBRMarket.openPaymentChannel() : consumer should open payment channel', async () => {
+    it('XBRChannel.openChannel() : consumer should open payment channel', async () => {
+
+        const token_before = await token.balanceOf(channel.address);
+        console.log('XBRChannel token balance before: ' + token_before);
 
         // the XBR consumer we use here
         const market_operator = alice;
         const consumer = charlie;
+        const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
         const delegate = charlie_delegate1;
 
-        // XBR market to join
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market_ = await market.markets(marketId);
+        const channelId = utils.sha3("MyChannel1").substring(0, 34);
 
-        // console.log('MARKET OWNER', market_operator, market);
+        const market_ = await market.markets(marketId);
 
         // 50 XBR channel deposit
         const amount = '' + 50 * 10**18;
-        const timeout = 100;
+
+        // payment channel
+        const ctype = 1;
+
+        // current block number
+        const openedAt = await web3.eth.getBlockNumber();
+
+        const msg = {
+            'chainId': chainId,
+            'verifyingContract': verifyingContract,
+            'ctype': ctype,
+            'openedAt': openedAt,
+            'marketId': marketId,
+            'channelId': channelId,
+            'actor': consumer,
+            'delegate': delegate,
+            'marketmaker': market_.maker,
+            'recipient': market_operator,
+            'amount': amount,
+        };
+        const signature = create_sig_open_channel(consumer_key, msg);
 
         // transfer tokens to consumer
         await token.transfer(consumer, amount, {from: owner, gasLimit: gasLimit});
 
         // approve transfer of tokens to open payment channel
-        await token.approve(market.address, amount, {from: consumer, gasLimit: gasLimit});
+        await token.approve(channel.address, amount, {from: consumer, gasLimit: gasLimit});
 
         // XBR consumer opens a payment channel in the market
-        const txn = await market.openPaymentChannel(marketId, market_.owner, delegate, amount, timeout, {from: consumer, gasLimit: gasLimit});
-        //console.log('result1 txn', txn);
-        //const result1 = txn.receipt.logs[0];
-        //console.log('result1', result1);
-
-        // check event logs
+        // ctype, openedAt, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature
+        const txn = await channel.openChannel(ctype, openedAt, marketId, channelId,
+            consumer, delegate, market_.maker, market_operator, amount, signature,
+            {from: consumer, gasLimit: gasLimit}
+        );
         assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result2 = txn.receipt.logs[0];
+        const result = txn.receipt.logs[0];
 
-        // check events
-        assert.equal(result2.event, "ChannelCreated", "wrong event was emitted");
+        assert.equal(result.event, "Opened", "wrong event was emitted");
 
-        //     event ChannelCreated (bytes16 indexed marketId, address sender, address delegate,
-        //                           address recipient, address channel, XBRChannel.ChannelType channelType);
-        assert.equal(result2.args.marketId.substring(0, 34), marketId, "wrong marketId in event");
-        assert.equal(result2.args.sender, consumer, "wrong sender address in event");
-        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
-        assert.equal(result2.args.recipient, market.owner, "wrong recipient address in event");
-        //assert.equal(result2.args.channel, channel, "wrong channel address in event");
-        assert.equal(result2.args.channelType, 1, "wrong channelType in event");
+        const eargs = result.args;
+        assert.equal(eargs.ctype, ctype, "wrong ctype in event");
+        assert.equal(eargs.marketId.substring(0, 34), marketId, "wrong marketId in event");
+        assert.equal(eargs.channelId.substring(0, 34), channelId, "wrong channelId in event");
+        assert.equal(eargs.actor, consumer, "wrong actor in event");
+        assert.equal(eargs.delegate, delegate, "wrong delegate in event");
+        assert.equal(eargs.marketmaker, market_.maker, "wrong marketmaker in event");
+        assert.equal(eargs.recipient, market_operator, "wrong recipient in event");
+        assert.equal(eargs.amount, amount, "wrong amount in event");
+        assert.equal(eargs.signature, signature, "wrong signature in event");
 
-        const channel = await XBRChannel.at(result2.args.channel);
-        const _ctype = await channel.ctype();
-        const _state = await channel.state();
-        const _marketId = await channel.marketId();
-        const _sender = await channel.sender();
-        const _delegate = await channel.delegate();
-        const _recipient = await channel.recipient();
-        const _amount = await channel.amount();
-        const _timeout = await channel.timeout();
-        const _openedAt = await channel.openedAt();
-        const _closedAt = await channel.closedAt();
+        const token_after = await token.balanceOf(channel.address);
+        console.log('XBRChannel token balance after : ' + token_after);
 
-        console.log('CHANNEL_address', result2.args.channel);
-        console.log('CHANNEL_ctype', _ctype.toNumber());
-        console.log('CHANNEL_state', _state.toNumber());
-        console.log('CHANNEL_marketId', _marketId);
-        console.log('CHANNEL_sender', _sender);
-        console.log('CHANNEL_delegate', _delegate);
-        console.log('CHANNEL_recipient', _recipient);
-        console.log('CHANNEL_amount', '' + _amount);
-        console.log('CHANNEL_timeout', _timeout.toNumber());
-        console.log('CHANNEL_openedAt', _openedAt.toNumber());
-        console.log('CHANNEL_closedAt', _closedAt.toNumber());
+        assert.equal(token_after - token_before, amount, "wrong token amount transfered");
     });
-
-    it('XBRMarket.requestPayingChannel() : provider should request paying channel', async () => {
-
-        // the XBR provider we use here
-        const market_operator = alice;
-        const maker = alice_market_maker1;
-        const provider = bob;
-        const delegate = bob_delegate1;
-
-        // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market_ = await market.markets(marketId);
-
-        // console.log('MARKET OWNER', market_operator, market);
-
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
-        const timeout = 100;
-
-        // transfer tokens to provider
-        await token.transfer(provider, amount, {from: owner, gasLimit: gasLimit});
-
-        // approve transfer of tokens to open paying channel
-        await token.approve(maker, amount, {from: provider, gasLimit: gasLimit});
-
-        // XBR provider requests a paying channel in the market
-        const txn = await market.requestPayingChannel(marketId, provider, delegate, amount, timeout, {from: provider, gasLimit: gasLimit});
-        //console.log('result1 txn', txn);
-        //const result1 = txn.receipt.logs[0];
-        //console.log('result1', result1);
-
-        // check event logs
-        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result2 = txn.receipt.logs[0];
-
-        // check events
-        assert.equal(result2.event, "PayingChannelRequestCreated", "wrong event was emitted");
-
-        //event PayingChannelRequestCreated (bytes16 indexed marketId, address sender, address recipient, address delegate,
-        //                                   uint256 amount, uint32 timeout);
-        assert.equal(result2.args.marketId.substring(0, 34), marketId, "wrong marketId in event");
-        assert.equal(result2.args.sender, provider, "wrong sender address in event");
-        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
-        assert.equal(result2.args.recipient, provider, "wrong recipient address in event");
-        assert.equal(result2.args.amount, amount, "wrong amount in event");
-        assert.equal(result2.args.timeout, timeout, "wrong timeout in event");
-    });
-
-    it('XBRMarket.openPayingChannel() : maker should open paying channel', async () => {
-
-        // the XBR provider we use here
-        const market_operator = alice;
-        const maker = alice_market_maker1;
-        const provider = bob;
-        const delegate = bob_delegate1;
-
-        // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market_ = await market.markets(marketId);
-
-        // console.log('MARKET OWNER', market_operator, market);
-
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
-        const timeout = 100;
-
-        if (true) {
-            // transfer tokens to provider
-            await token.transfer(maker, amount, {from: owner, gasLimit: gasLimit});
-
-            // approve transfer of tokens to open paying channel
-            await token.approve(market.address, amount, {from: maker, gasLimit: gasLimit});
-        }
-
-        // XBR consumer opens a payment channel in the market
-        const txn = await market.openPayingChannel(marketId, provider, delegate, amount, timeout, {from: maker, gasLimit: gasLimit});
-        //console.log('result1 txn', txn);
-        //const result1 = txn.receipt.logs[0];
-        //console.log('result1', result1);
-
-        // check event logs
-        assert.equal(txn.receipt.logs.length, 1, "event(s) we expected not emitted");
-        const result2 = txn.receipt.logs[0];
-
-        // check events
-        assert.equal(result2.event, "ChannelCreated", "wrong event was emitted");
-
-        // event ChannelCreated(bytes16 marketId, address sender, address delegate, address receiver, address channel)
-        assert.equal(result2.args.marketId.substring(0, 34), marketId, "wrong marketId in event");
-        assert.equal(result2.args.sender, maker, "wrong sender address in event");
-        assert.equal(result2.args.delegate, delegate, "wrong delegate address in event");
-        assert.equal(result2.args.recipient, provider, "wrong recipient address in event");
-        //assert.equal(result2.args.channel, channel, "wrong channel address in event");
-        assert.equal(result2.args.channelType, 2, "wrong channelType in event");
-
-        const channel = await XBRChannel.at(result2.args.channel);
-        const _ctype = await channel.ctype();
-        const _state = await channel.state();
-        const _marketId = await channel.marketId();
-        const _sender = await channel.sender();
-        const _delegate = await channel.delegate();
-        const _recipient = await channel.recipient();
-        const _amount = await channel.amount();
-        const _timeout = await channel.timeout();
-        const _openedAt = await channel.openedAt();
-        const _closedAt = await channel.closedAt();
-
-        console.log('CHANNEL_address', result2.args.channel);
-        console.log('CHANNEL_ctype', _ctype.toNumber());
-        console.log('CHANNEL_state', _state.toNumber());
-        console.log('CHANNEL_marketId', _marketId);
-        console.log('CHANNEL_sender', _sender);
-        console.log('CHANNEL_delegate', _delegate);
-        console.log('CHANNEL_recipient', _recipient);
-        console.log('CHANNEL_amount', '' + _amount);
-        console.log('CHANNEL_timeout', _timeout.toNumber());
-        console.log('CHANNEL_openedAt', _openedAt.toNumber());
-        console.log('CHANNEL_closedAt', _closedAt.toNumber());
-    });
-*/
-/*
-    it('XBRChannel.close() : consumer should close payment channel', async () => {
-
-        const market_operator = alice;
-
-        const marketmaker = w3_utils.toChecksumAddress('0x22d491bde2303f2f43325b2108d26f1eaba1e32b');
-        const marketmaker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
-
-        // Charlie
-        const consumer = '0x95ced938f7991cd0dfcb48f0a06a40fa1af46ebc';
-        const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
-
-        // Bob
-        const provider = '0xe11ba2b4d45eaed5996cd0823791e0c93114882d';
-        const provider_key = null;
-
-        // Charlies buyer delegate
-        const delegate = w3_utils.toChecksumAddress('0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9');
-        const delegate_key = '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52';
-
-        // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market_ = await market.markets(marketId);
-
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
-        const timeout = 100;
-
-        // transfer tokens to consumer
-        await token.transfer(consumer, amount, {from: owner, gasLimit: gasLimit});
-
-        // approve transfer of tokens to open payment channel
-        await token.approve(market.address, amount, {from: consumer, gasLimit: gasLimit});
-
-        // XBR consumer opens a payment channel in the market
-        const txn = await market.openPaymentChannel(marketId, market.owner, delegate,
-            amount, timeout, {from: consumer, gasLimit: gasLimit});
-        const channel_adr = txn.receipt.logs[0].args.channel;
-        const channel = await XBRChannel.at(channel_adr);
-        console.log('CHANNEL', channel_adr);
-
-        // const network_balance_before = '' + (await token.balanceOf(await network.organization()));
-        const channel_balance_before = '' + (await token.balanceOf(channel_adr));
-        const market_balance_before = '' + (await token.balanceOf(market_operator));
-        const maker_balance_before = '' + (await token.balanceOf(marketmaker));
-        const provider_balance_before = '' + (await token.balanceOf(provider));
-        const consumer_balance_before = '' + (await token.balanceOf(consumer));
-        const consumer_delegate_balance_before = '' + (await token.balanceOf(delegate));
-
-        const msg = {
-            'channel_adr': channel_adr,
-            'channel_seq': 117,
-            'balance': 13,
-            'is_final': true
-        }
-        console.log('MESSAGE', msg);
-
-        const delegate_sig = create_sig(delegate_key, msg);
-        console.log('DELEGATE_SIG', delegate_sig);
-
-        const marketmaker_sig = create_sig(marketmaker_key, msg);
-        console.log('MARKETMAKER_SIG', marketmaker_sig);
-
-        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig);
-        assert.equal(res, true, "close verification by delegate should succeed");
-
-        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'],msg['is_final'],  marketmaker_sig);
-        assert.equal(res, true, "close verification by market maker should succeed");
-
-        await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
-            {from: consumer, gasLimit: gasLimit});
-
-        // const network_balance_after = '' + (await token.balanceOf(await network.organization()));
-        const channel_balance_after = '' + (await token.balanceOf(channel_adr));
-        const market_balance_after = '' + (await token.balanceOf(market_operator));
-        const maker_balance_after = '' + (await token.balanceOf(marketmaker));
-        const provider_balance_after = '' + (await token.balanceOf(provider));
-        const consumer_balance_after = '' + (await token.balanceOf(consumer));
-        const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
-
-        console.log('--------------------------------------------')
-        // console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
-        console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
-        console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
-        console.log('CHANNEL_BALANCE', channel_balance_before, channel_balance_after);
-        console.log('PROVIDER_BALANCE', provider_balance_before, provider_balance_after);
-        console.log('CONSUMER_BALANCE', consumer_balance_before, consumer_balance_after);
-        console.log('CONSUMER_DELEGATE_BALANCE', consumer_delegate_balance_before, consumer_delegate_balance_after);
-        console.log('--------------------------------------------')
-
-        const _ctype = await channel.ctype();
-        const _state = await channel.state();
-        const _marketId = await channel.marketId();
-        const _sender = await channel.sender();
-        const _delegate = await channel.delegate();
-        const _recipient = await channel.recipient();
-        const _amount = await channel.amount();
-        const _timeout = await channel.timeout();
-        const _openedAt = await channel.openedAt();
-        const _closedAt = await channel.closedAt();
-
-        console.log('CHANNEL_address', channel_adr);
-        console.log('CHANNEL_ctype', _ctype.toNumber());
-        console.log('CHANNEL_state', _state.toNumber());
-        console.log('CHANNEL_marketId', _marketId);
-        console.log('CHANNEL_sender', _sender);
-        console.log('CHANNEL_delegate', _delegate);
-        console.log('CHANNEL_recipient', _recipient);
-        console.log('CHANNEL_amount', '' + _amount);
-        console.log('CHANNEL_timeout', _timeout.toNumber());
-        console.log('CHANNEL_openedAt', _openedAt.toNumber());
-        console.log('CHANNEL_closedAt', _closedAt.toNumber());
-    });
-
-    it('XBRChannel.close() : maker should close paying channel', async () => {
-
-       const market_operator = alice;
-
-       const marketmaker = w3_utils.toChecksumAddress('0x22d491bde2303f2f43325b2108d26f1eaba1e32b');
-       const marketmaker_key = '0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c';
-
-       // Charlie
-       const consumer = '0x95ced938f7991cd0dfcb48f0a06a40fa1af46ebc';
-       const consumer_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
-
-       // Bob
-       const provider = '0xe11ba2b4d45eaed5996cd0823791e0c93114882d';
-       const provider_key = null;
-
-       // Bobs seller delegate
-       const delegate = w3_utils.toChecksumAddress('0xe11ba2b4d45eaed5996cd0823791e0c93114882d');
-       const delegate_key = '0x646f1ce2fdad0e6deeeb5c7e8e5543bdde65e86029e2fd9fc169899c440a7913';
-
-        // XBR market to join
-        const marketId = utils.sha3("MyMarket1").substring(0, 34);
-        const market_ = await market.markets(marketId);
-
-        // console.log('MARKET OWNER', market_operator, market);
-
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
-        const timeout = 100;
-
-        // transfer tokens to provider
-        await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
-
-        // approve transfer of tokens to open paying channel
-        await token.approve(market.address, amount, {from: marketmaker, gasLimit: gasLimit});
-
-        // XBR market maker opens paying channel in the market
-        const txn = await market.openPayingChannel(marketId, provider, delegate,
-            amount, timeout, {from: marketmaker, gasLimit: gasLimit});
-        const channel_adr = txn.receipt.logs[0].args.channel;
-        const channel = await XBRChannel.at(channel_adr);
-        console.log('CHANNEL', channel_adr);
-
-        // const network_balance_before = '' + (await token.balanceOf(await network.organization()));
-        const channel_balance_before = '' + (await token.balanceOf(channel_adr));
-        const market_balance_before = '' + (await token.balanceOf(market_operator));
-        const maker_balance_before = '' + (await token.balanceOf(marketmaker));
-        const provider_balance_before = '' + (await token.balanceOf(provider));
-        const consumer_balance_before = '' + (await token.balanceOf(consumer));
-        const consumer_delegate_balance_before = '' + (await token.balanceOf(delegate));
-
-        const channel_delegate = await channel.delegate();
-        assert.equal(delegate, w3_utils.toChecksumAddress(channel_delegate), "channel should match delegate");
-
-        const channel_marketmaker = await channel.marketmaker();
-        assert.equal(marketmaker, w3_utils.toChecksumAddress(channel_marketmaker), "channel should match market maker");
-
-        const msg = {
-            'channel_adr': channel_adr,
-            'channel_seq': 117,
-            'balance': 13,
-            'is_final': true
-        }
-        console.log('MESSAGE', msg);
-
-        const delegate_sig = create_sig(delegate_key, msg);
-        console.log('DELEGATE_SIG', delegate_sig);
-
-        const marketmaker_sig = create_sig(marketmaker_key, msg);
-        console.log('MARKETMAKER_SIG', marketmaker_sig);
-
-        res = await channel.verifyClose(delegate, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig);
-        assert.equal(res, true, "close verification by delegate should succeed");
-
-        res = await channel.verifyClose(marketmaker, msg['channel_adr'], msg['channel_seq'], msg['balance'], msg['is_final'], marketmaker_sig);
-        assert.equal(res, true, "close verification by market maker should succeed");
-
-        await channel.close(msg['channel_seq'], msg['balance'], msg['is_final'], delegate_sig, marketmaker_sig,
-            {from: marketmaker, gasLimit: gasLimit});
-
-        // const network_balance_after = '' + (await token.balanceOf(await network.organization()));
-        const channel_balance_after = '' + (await token.balanceOf(channel_adr));
-        const market_balance_after = '' + (await token.balanceOf(market_operator));
-        const maker_balance_after = '' + (await token.balanceOf(marketmaker));
-        const provider_balance_after = '' + (await token.balanceOf(provider));
-        const consumer_balance_after = '' + (await token.balanceOf(consumer));
-        const consumer_delegate_balance_after = '' + (await token.balanceOf(delegate));
-
-        console.log('--------------------------------------------')
-        // console.log('NETWORK_BALANCE', network_balance_before, network_balance_after);
-        console.log('MARKET_BALANCE', market_balance_before, market_balance_after);
-        console.log('MAKER_BALANCE', maker_balance_before, maker_balance_after);
-        console.log('CHANNEL_BALANCE', channel_balance_before, channel_balance_after);
-        console.log('PROVIDER_BALANCE', provider_balance_before, provider_balance_after);
-        console.log('CONSUMER_BALANCE', consumer_balance_before, consumer_balance_after);
-        console.log('CONSUMER_DELEGATE_BALANCE', consumer_delegate_balance_before, consumer_delegate_balance_after);
-        console.log('--------------------------------------------')
-
-        const _ctype = await channel.ctype();
-        const _state = await channel.state();
-        const _marketId = await channel.marketId();
-        const _sender = await channel.sender();
-        const _delegate = await channel.delegate();
-        const _recipient = await channel.recipient();
-        const _amount = await channel.amount();
-        const _timeout = await channel.timeout();
-        const _openedAt = await channel.openedAt();
-        const _closedAt = await channel.closedAt();
-
-        console.log('CHANNEL_address', channel_adr);
-        console.log('CHANNEL_ctype', _ctype.toNumber());
-        console.log('CHANNEL_state', _state.toNumber());
-        console.log('CHANNEL_marketId', _marketId);
-        console.log('CHANNEL_sender', _sender);
-        console.log('CHANNEL_delegate', _delegate);
-        console.log('CHANNEL_recipient', _recipient);
-        console.log('CHANNEL_amount', '' + _amount);
-        console.log('CHANNEL_timeout', _timeout.toNumber());
-        console.log('CHANNEL_openedAt', _openedAt.toNumber());
-        console.log('CHANNEL_closedAt', _closedAt.toNumber());
-    });
-*/
 });
