@@ -52,7 +52,7 @@ contract XBRNetwork is XBRMaintained {
     address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
 
     /// Limit to how old a pre-signed transaction is accetable (eg in "registerMemberFor" and similar).
-    uint256 public PRESIGNED_TXN_MAX_AGE = 20;
+    uint256 public PRESIGNED_TXN_MAX_AGE = 4;
 
     // FIXME: this breaks ganache where there are not yet as many blocks when tests are run
     // uint256 public PRESIGNED_TXN_MAX_AGE = 1440;
