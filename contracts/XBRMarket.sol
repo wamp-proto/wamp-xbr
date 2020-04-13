@@ -140,7 +140,8 @@ contract XBRMarket is XBRMaintained {
             "INVALID_MARKET_CREATE_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
-        require(created <= block.number && created >= (block.number - 4), "INVALID_CREATED_BLOCK_NUMBER");
+        require(created <= block.number && created >= (block.number - network.PRESIGNED_TXN_MAX_AGE()),
+            "INVALID_CREATED_BLOCK_NUMBER");
 
         _createMarket(member, created, marketId, coin, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, signature);
@@ -228,7 +229,8 @@ contract XBRMarket is XBRMaintained {
             member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
-        require(joined <= block.number && joined >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+        require(joined <= block.number && joined >= (block.number - network.PRESIGNED_TXN_MAX_AGE()),
+            "INVALID_REGISTERED_BLOCK_NUMBER");
 
         return _joinMarket(member, joined, marketId, actorType, meta, signature);
     }
@@ -337,7 +339,8 @@ contract XBRMarket is XBRMaintained {
             "INVALID_CONSENT_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
-        require(updated <= block.number && updated >= (block.number - 4), "INVALID_CONSENT_BLOCK_NUMBER");
+        require(updated <= block.number && updated >= (block.number - network.PRESIGNED_TXN_MAX_AGE()),
+            "INVALID_CONSENT_BLOCK_NUMBER");
 
         return _setConsent(member, updated, marketId, delegate, delegateType,
             apiCatalog, consent, servicePrefix, signature);
