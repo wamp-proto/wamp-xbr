@@ -291,7 +291,7 @@ contract XBRChannel is XBRMaintained {
 
         // notify channel observers
         emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                     earned - fee, fee - contribution, balance, channelClosingStates[channelId].closingAt);
+            earned - fee, fee - contribution, balance, channelClosingStates[channelId].closingAt);
     }
 
     function _doClose(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
@@ -339,6 +339,6 @@ contract XBRChannel is XBRMaintained {
 
         // notify channel observers
         emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                    earned - fee, fee - contribution, balance, block.timestamp);
+            earned - fee, fee - contribution, balance, block.timestamp);
     }
 }
