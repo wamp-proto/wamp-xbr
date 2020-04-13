@@ -171,13 +171,13 @@ contract XBRMarket is XBRMaintained {
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
         // provider security must be non-negative (and obviously smaller than the total token supply)
-        require(providerSecurity >= 0 && providerSecurity <= network.token().totalSupply(), "INVALID_PROVIDER_SECURITY");
+        require(providerSecurity >= 0 && providerSecurity <= IERC20(coin).totalSupply(), "INVALID_PROVIDER_SECURITY");
 
         // consumer security must be non-negative (and obviously smaller than the total token supply)
-        require(consumerSecurity >= 0 && consumerSecurity <= network.token().totalSupply(), "INVALID_CONSUMER_SECURITY");
+        require(consumerSecurity >= 0 && consumerSecurity <= IERC20(coin).totalSupply(), "INVALID_CONSUMER_SECURITY");
 
         // FIXME: treat market fee
-        require(marketFee >= 0 && marketFee < (network.token().totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        require(marketFee >= 0 && marketFee < (IERC20(coin).totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
 
         // now remember out new market ..
         markets[marketId] = XBRTypes.Market(created, marketSeq, member, coin, terms, meta, maker,
@@ -272,7 +272,6 @@ contract XBRMarket is XBRMaintained {
         if (security > 0) {
             // https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20
             bool success = IERC20(markets[marketId].coin).transferFrom(member, markets[marketId].owner, security);
-            // bool success = network.token().transferFrom(member, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
