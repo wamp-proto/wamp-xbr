@@ -125,7 +125,7 @@ contract XBRChannel is XBRMaintained {
         // FIXME: CompilerError: Stack too deep, try removing local variables.
         // address coin = market.getMarketCoin(marketId);
 
-        // signature must have been created in a window of 5 blocks from the current one
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
         require(openedAt <= block.number && openedAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE()),
             "INVALID_CHANNEL_BLOCK_NUMBER");
 
@@ -214,7 +214,7 @@ contract XBRChannel is XBRMaintained {
         require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
-        // signature must have been created in a window of 5 blocks from the current one
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
         require(closeAt <= block.number && closeAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE()),
             "INVALID_CHANNEL_BLOCK_NUMBER");
 
