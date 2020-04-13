@@ -121,6 +121,24 @@ contract XBRChannel is XBRMaintained {
         require(recipient_member_level == XBRTypes.MemberLevel.ACTIVE ||
                 recipient_member_level == XBRTypes.MemberLevel.VERIFIED, "INVALID_CHANNEL_RECIPIENT");
 
+        // the ERC20 coin used in the market as a means of payment
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // address coin = market.getMarketCoin(marketId);
+
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(openedAt <= block.number && (block.number <= market.network().PRESIGNED_TXN_MAX_AGE() ||
+            openedAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE())), "INVALID_CHANNEL_BLOCK_NUMBER");
+
+        // payment channel amount must be positive
+        require(amount > 0 && amount <= IERC20(market.getMarketCoin(marketId)).totalSupply(), "INVALID_CHANNEL_AMOUNT");
+
+        // the data used to open the new channel must have a valid signature, signed by the
+        // actor (buyer/seller in the market)
+        XBRTypes.EIP712ChannelOpen memory eip712_obj = XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
+            market.network().verifyingContract(), uint8(ctype), openedAt, marketId, channelId,
+            actor, delegate, marketmaker, recipient, amount);
+        require(XBRTypes.verify(actor, eip712_obj, signature), "INVALID_CHANNEL_SIGNATURE");
+
         if (ctype == XBRTypes.ChannelType.PAYMENT) {
             // transaction sender must be a market buyer-actor or the market-maker (the piece of running software for the market)
             require(msg.sender == market.getMarketMaker(marketId) ||
@@ -134,7 +152,7 @@ contract XBRChannel is XBRMaintained {
             require(recipient == market.getMarketOwner(marketId), "RECIPIENT_NOT_MARKET");
 
             // for payment channels, tokens for the channel must have been approved by the (consumer) actor
-            require(market.network().token().transferFrom(actor, address(this), amount),
+            require(IERC20(market.getMarketCoin(marketId)).transferFrom(actor, address(this), amount),
                 "OPEN_CHANNEL_TRANSFER_FROM_ACTOR_FAILED");
 
         } else if (ctype == XBRTypes.ChannelType.PAYING) {
@@ -150,25 +168,12 @@ contract XBRChannel is XBRMaintained {
             require(recipient == actor, "RECIPIENT_NOT_ACTOR");
 
             // for paying channels, tokens for the channel must have been approved by the market maker
-            require(market.network().token().transferFrom(market.getMarketMaker(marketId), address(this), amount),
+            require(IERC20(market.getMarketCoin(marketId)).transferFrom(market.getMarketMaker(marketId), address(this), amount),
                 "OPEN_CHANNEL_TRANSFER_FROM_MARKETMAKER_FAILED");
 
         } else {
             require(false, "INVALID_CHANNEL_TYPE");
         }
-
-        // signature must have been created in a window of 5 blocks from the current one
-        require(openedAt <= block.number && openedAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
-
-        // payment channel amount must be positive
-        require(amount > 0 && amount <= market.network().token().totalSupply(), "INVALID_CHANNEL_AMOUNT");
-
-        // the data used to open the new channel must have a valid signature, signed by the
-        // actor (buyer/seller in the market)
-        XBRTypes.EIP712ChannelOpen memory eip712_obj = XBRTypes.EIP712ChannelOpen(market.network().verifyingChain(),
-            market.network().verifyingContract(), uint8(ctype), openedAt, marketId, channelId,
-            actor, delegate, marketmaker, recipient, amount);
-        require(XBRTypes.verify(actor, eip712_obj, signature), "INVALID_CHANNEL_SIGNATURE");
 
         // Everything is OK! Continue actually opening the channel ..
 
@@ -209,8 +214,9 @@ contract XBRChannel is XBRMaintained {
         require(channelClosingStates[channelId].state == XBRTypes.ChannelState.OPEN ||
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
-        // signature must have been created in a window of 5 blocks from the current one
-        require(closeAt <= block.number && closeAt >= (block.number - 4), "INVALID_CHANNEL_BLOCK_NUMBER");
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(closeAt <= block.number && (block.number <= market.network().PRESIGNED_TXN_MAX_AGE() ||
+            closeAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE())), "INVALID_CHANNEL_BLOCK_NUMBER");
 
         // check delegate signature
         require(XBRTypes.verify(channels[channelId].delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
@@ -238,75 +244,101 @@ contract XBRChannel is XBRMaintained {
             require(channelClosingStates[channelId].closingSeq < closingChannelSeq, "OUTDATED_TRANSACTION");
         }
 
-        // the amount earned (by the recipient) is initial channel amount minus last off-chain balance
-        uint256 earned = (channels[channelId].amount - balance);
-
-        // the remaining amount (send back to the buyer) via the last off-chain balance
-        uint256 refund = balance;
-
-        // the fee to the xbr network is 1% of the earned amount
-        uint256 fee = earned / 100;
-
-        // the amount paid out to the recipient
-        uint256 payout = earned - fee;
-
-        // FIXME: read from market configuration
-        // uint32 timeout = 1440;
-
         // if we got a newer closing transaction, process it ..
         if (closingChannelSeq > channelClosingStates[channelId].closingSeq) {
-
-            // the closing balance of a newer transaction must be not greater than anyone we already know
-            if (channelClosingStates[channelId].closingSeq > 0) {
-                require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
-            }
-
-            // note the closing transaction sequence number and closing off-chain balance
-            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSING;
-            channelClosingStates[channelId].closingSeq = closingChannelSeq;
-            channelClosingStates[channelId].closingBalance = balance;
-
-            // note the new channel closing date
-            channelClosingStates[channelId].closingAt = block.timestamp + 1440; // solhint-disable-line
-
-            // notify channel observers
-            emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                payout, fee, refund, block.timestamp + 1440);
+            _doClosing(channelId, closingChannelSeq, balance);
         }
 
         // finally close the channel ..
         if (isFinal || balance == 0 ||
             (channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channelClosingStates[channelId].closingAt)) { // solhint-disable-line
-
-            // now send tokens locked in this channel (which escrows the tokens) to the recipient,
-            // the xbr network (for the network fee), and refund remaining tokens to the original sender
-            if (payout > 0) {
-                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
-                    require(market.network().token().transfer(channels[channelId].marketmaker, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
-                } else {
-                    require(market.network().token().transfer(channels[channelId].actor, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
-                }
-            }
-
-            if (refund > 0) {
-                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
-                    require(market.network().token().transfer(channels[channelId].actor, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
-                } else {
-                    require(market.network().token().transfer(channels[channelId].marketmaker, refund), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
-                }
-            }
-
-            if (fee > 0) {
-                require(market.network().token().transfer(market.network().organization(), fee), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
-            }
-
-            // mark channel as closed (but do not selfdestruct)
-            channelClosingStates[channelId].closedAt = block.timestamp; // solhint-disable-line
-            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
-
-            // notify channel observers
-            emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                payout, fee, refund, block.timestamp);
+            _doClose(channelId, closingChannelSeq, balance);
         }
+    }
+
+    function _doClosing(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
+        // the ERC20 coin used in the market as a means of payment
+        address coin = market.getMarketCoin(channels[channelId].marketId);
+
+        // the amount earned (by the recipient) is initial channel amount minus last off-chain balance
+        uint256 earned = (channels[channelId].amount - balance);
+
+        // the remaining amount (send back to the buyer) via the last off-chain balance
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // uint256 refund = balance;
+
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
+        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
+
+        // the amount paid out to the recipient is gross earned minus market fees
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // uint256 payout = earned - fee;
+
+        // the closing balance of a newer transaction must be not greater than anyone we already know
+        if (channelClosingStates[channelId].closingSeq > 0) {
+            require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
+        }
+
+        // note the closing transaction sequence number and closing off-chain balance
+        channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSING;
+        channelClosingStates[channelId].closingSeq = closingChannelSeq;
+        channelClosingStates[channelId].closingBalance = balance;
+
+        // note the new channel closing date
+        channelClosingStates[channelId].closingAt = block.timestamp + market.NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT(); // solhint-disable-line
+
+        // notify channel observers
+        emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
+            earned - fee, fee - contribution, balance, channelClosingStates[channelId].closingAt);
+    }
+
+    function _doClose(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
+        // the ERC20 coin used in the market as a means of payment
+        address coin = market.getMarketCoin(channels[channelId].marketId);
+
+        // the amount earned (by the recipient) is initial channel amount minus last off-chain balance
+        uint256 earned = (channels[channelId].amount - balance);
+
+        // the remaining amount (send back to the buyer) via the last off-chain balance
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // uint256 refund = balance;
+
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
+        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
+
+        // now send tokens locked in this channel (which escrows the tokens) to the recipient,
+        // the xbr network (for the network fee), and refund remaining tokens to the original sender
+        if (earned - fee > 0) {
+            if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                require(IERC20(coin).transfer(channels[channelId].marketmaker, earned - fee), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+            } else {
+                require(IERC20(coin).transfer(channels[channelId].actor, earned - fee), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+            }
+        }
+
+        if (balance > 0) {
+            if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                require(IERC20(coin).transfer(channels[channelId].actor, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+            } else {
+                require(IERC20(coin).transfer(channels[channelId].marketmaker, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+            }
+        }
+
+        if (fee > 0) {
+            require(IERC20(coin).transfer(market.getMarketOwner(channels[channelId].marketId), fee - contribution), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
+            require(IERC20(coin).transfer(market.network().organization(), contribution), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
+        }
+
+        // mark channel as closed (but do not selfdestruct)
+        channelClosingStates[channelId].closedAt = block.timestamp; // solhint-disable-line
+        channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
+
+        // notify channel observers
+        emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
+            earned - fee, fee - contribution, balance, block.timestamp);
     }
 }

@@ -14,6 +14,7 @@
 const utils = require("./utils.js");
 const eth_sig_utils = require("eth-sig-util");
 const eth_util = require("ethereumjs-util");
+const BN = require('bn.js');
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
@@ -235,10 +236,14 @@ contract('XBRNetwork', accounts => {
             const terms = "";
             const meta = "";
 
-            // 5% market fee
-            // FIXME: how to write a large uint256 literal?
-            // const marketFee = '' + Math.trunc(0.05 * 10**9 * 10**18);
+            const total_supply = await token.totalSupply();
+            console.log('total_supply', total_supply);
+
+            // free market
             const marketFee = 0;
+            // 5% market fee
+            // const marketFee = total_supply.mul(new BN(25).div(new BN(100)));
+            console.log('marketFee', marketFee);
 
             await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
 
@@ -489,6 +494,7 @@ contract('XBRNetwork', accounts => {
 
         // 50 XBR channel deposit
         const channelSeq = 1;
+        // const balance = '' + 10 * 10**18;
         const balance = '' + 50 * 10**18;
         const isFinal = true;
 
@@ -581,6 +587,7 @@ contract('XBRNetwork', accounts => {
 
         // 50 XBR channel deposit
         const channelSeq = 1;
+        // const balance = '' + 10 * 10**18;
         const balance = '' + 50 * 10**18;
         const isFinal = true;
 

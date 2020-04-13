@@ -39,8 +39,20 @@ contract XBRNetwork is XBRMaintained {
     /// Event emitted when a new member registered in the XBR Network.
     event MemberRegistered (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
 
+    /// Event emitted when an existing member is changed (without leaving the XBR Network).
+    event MemberChanged (address indexed member, uint changed, string eula, string profile, XBRTypes.MemberLevel level);
+
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
+
+    /// Event emitted when the payable status of a coin is changed.
+    event CoinChanged (address indexed coin, address operator, bool isPayable);
+
+    /// Special addresses used as "any address" marker in mappings (eg coins).
+    address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+
+    /// Limit to how old a pre-signed transaction is accetable (eg in "registerMemberFor" and similar).
+    uint256 public PRESIGNED_TXN_MAX_AGE = 1440;
 
     /// Chain ID of the blockchain this contract is running on, used in EIP712 typed data signature verification.
     uint256 public verifyingChain;
@@ -49,7 +61,10 @@ contract XBRNetwork is XBRMaintained {
     address public verifyingContract;
 
     /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/ipfs/xbr-eula/XBR-EULA.txt>`__.
-    string public constant eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+    string public eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+
+    /// XBR network contributions from markets for the XBR project, expressed as a fraction of the total amount of XBR tokens.
+    uint256 public contribution;
 
     /// Address of the XBR Networks' own ERC20 token for network-wide purposes.
     XBRToken public token;
@@ -61,7 +76,7 @@ contract XBRNetwork is XBRMaintained {
     mapping(address => XBRTypes.Member) public members;
 
     /// ERC20 coins which can specified as a means of payment when creating a new data market.
-    mapping(address => bool) public coins;
+    mapping(address => mapping(address => bool)) public coins;
 
     /// Create the XBR network.
     ///
@@ -77,16 +92,21 @@ contract XBRNetwork is XBRMaintained {
             chainId := chainid()
         }
         verifyingChain = chainId;
-
         verifyingContract = address(this);
 
         token = XBRToken(networkToken);
-        coins[networkToken] = true;
+        coins[networkToken][ANYADR] = true;
+        emit CoinChanged(networkToken, ANYADR, true);
+
+        contribution = token.totalSupply() * 30 / 100;
 
         organization = networkOrganization;
 
+        uint256 registered = block.timestamp;
+
         // technically, the creator of the XBR network contract instance is a XBR member (by definition).
-        members[msg.sender] = XBRTypes.Member(block.timestamp, "", "", XBRTypes.MemberLevel.VERIFIED, "");
+        members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
+        emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
     }
 
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely data
@@ -118,8 +138,9 @@ contract XBRNetwork is XBRMaintained {
         require(XBRTypes.verify(member, XBRTypes.EIP712MemberRegister(verifyingChain, verifyingContract,
             member, registered, networkEula, memberProfile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
-        // signature must have been created in a window of 5 blocks from the current one
-        require(registered <= block.number && registered >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(registered <= block.number && (block.number <= PRESIGNED_TXN_MAX_AGE ||
+            registered >= (block.number - PRESIGNED_TXN_MAX_AGE)), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         _registerMember(member, registered, networkEula, memberProfile, signature);
     }
@@ -141,9 +162,30 @@ contract XBRNetwork is XBRMaintained {
 
     /// Set the XBR network organization address.
     ///
+    /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
+    ///                     any ERC20 token (enabled in the ``coins`` mapping of this contract) as
+    ///                     a means of payment in the respective market.
+    function setNetworkToken (address networkToken) public onlyMaintainer returns (bool) {
+        if (networkToken != address(token)) {
+            coins[address(token)][ANYADR] = false;
+            token = XBRToken(networkToken);
+            coins[networkToken][ANYADR] = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /// Set the XBR network organization address.
+    ///
     /// @param networkOrganization The XBR network organization address.
-    function setOrganization (address networkOrganization) public onlyMaintainer {
-        organization = networkOrganization;
+    function setNetworkOrganization (address networkOrganization) public onlyMaintainer returns (bool) {
+        if (networkOrganization != address(organization)) {
+            organization = networkOrganization;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /// Set (override manually) the member level of a XBR Network member. Being able to do so
@@ -154,17 +196,38 @@ contract XBRNetwork is XBRMaintained {
     ///
     /// @param member The address of the XBR network member to override member level.
     /// @param level The member level to set the member to.
-    function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer {
+    function setMemberLevel (address member, XBRTypes.MemberLevel level) public onlyMaintainer returns (bool) {
         require(uint(members[msg.sender].level) != 0, "NO_SUCH_MEMBER");
-
-        members[member].level = level;
+        if (members[member].level != level) {
+            members[member].level = level;
+            emit MemberChanged(member, block.timestamp, members[member].eula, members[member].profile, level);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /// Set ERC20 coins as usable as a means of payment when opening data markets.
     ///
     /// @param coin The address of the ERC20 coin to change.
     /// @param isPayable When true, the coin can be specified when opening a new data market.
-    function setCoinPayable (address coin, bool isPayable) public onlyMaintainer {
-        coins[coin] = isPayable;
+    function setCoinPayable (address coin, address operator, bool isPayable) public onlyMaintainer returns (bool) {
+        if (coins[coin][operator] != isPayable) {
+            coins[coin][operator] = isPayable;
+            emit CoinChanged(coin, operator, isPayable);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function setContribution (uint256 networkContribution) public onlyMaintainer returns (bool) {
+        require(networkContribution >= 0 && networkContribution <= token.totalSupply(), "INVALID_CONTRIBUTION");
+        if (contribution != networkContribution) {
+            contribution = networkContribution;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -26,6 +26,9 @@ pragma experimental ABIEncoderV2;
  */
 library XBRTypes {
 
+    // FIXME: this does not work .. hence we put this constant into XBRNetwork.ANYADR
+    // address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+
     /// All XBR network member levels defined.
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
 

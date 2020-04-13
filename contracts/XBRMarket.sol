@@ -61,6 +61,9 @@ contract XBRMarket is XBRMaintained {
     event ConsentSet (address member, uint256 updated, bytes16 marketId, address delegate,
         uint8 delegateType, bytes16 apiCatalog, bool consent, string servicePrefix);
 
+    /// Channel closing timeout in number of blocks for closing a channel non-cooperatively.
+    uint256 public NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT = 1440;
+
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
@@ -139,8 +142,9 @@ contract XBRMarket is XBRMaintained {
             member, created, marketId, coin, terms, meta, maker, marketFee), signature),
             "INVALID_MARKET_CREATE_SIGNATURE");
 
-        // signature must have been created in a window of 5 blocks from the current one
-        require(created <= block.number && created >= (block.number - 4), "INVALID_CREATED_BLOCK_NUMBER");
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(created <= block.number && (block.number <= network.PRESIGNED_TXN_MAX_AGE() ||
+            created >= (block.number - network.PRESIGNED_TXN_MAX_AGE())), "INVALID_CREATED_BLOCK_NUMBER");
 
         _createMarket(member, created, marketId, coin, terms, meta, maker,
             providerSecurity, consumerSecurity, marketFee, signature);
@@ -159,9 +163,9 @@ contract XBRMarket is XBRMaintained {
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
 
-        // FIXME: expand this to check against XBRNetwork.coins (which is not yet there)
-        // require(coin == address(network.token()), "INVALID_COIN");
-        require(network.coins(coin) == true, "INVALID_COIN");
+        // the market operator (owning member) must be specifically allowed to use the given coin, or the coin
+        // must be allowed to be used in new markets by any member (eg DAI)
+        require(network.coins(coin, member) == true || network.coins(coin, network.ANYADR()) == true, "INVALID_COIN");
 
         // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
@@ -169,14 +173,14 @@ contract XBRMarket is XBRMaintained {
         // the market maker can only work for one market
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
-        // provider security must be non-negative (and obviously smaller than the total token supply)
-        require(providerSecurity >= 0 && providerSecurity <= network.token().totalSupply(), "INVALID_PROVIDER_SECURITY");
+        // provider security must be non-negative (and not larger than the total token supply)
+        require(providerSecurity >= 0 && providerSecurity <= IERC20(coin).totalSupply(), "INVALID_PROVIDER_SECURITY");
 
-        // consumer security must be non-negative (and obviously smaller than the total token supply)
-        require(consumerSecurity >= 0 && consumerSecurity <= network.token().totalSupply(), "INVALID_CONSUMER_SECURITY");
+        // consumer security must be non-negative (and not larger than the total token supply)
+        require(consumerSecurity >= 0 && consumerSecurity <= IERC20(coin).totalSupply(), "INVALID_CONSUMER_SECURITY");
 
-        // FIXME: treat market fee
-        require(marketFee >= 0 && marketFee < (network.token().totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        // market operator fee: [0%, 100%] <-> [0, coin.totalSupply]
+        require(marketFee >= 0 && marketFee <= IERC20(coin).totalSupply(), "INVALID_MARKET_FEE");
 
         // now remember out new market ..
         markets[marketId] = XBRTypes.Market(created, marketSeq, member, coin, terms, meta, maker,
@@ -227,8 +231,9 @@ contract XBRMarket is XBRMaintained {
         require(XBRTypes.verify(member, XBRTypes.EIP712MarketJoin(network.verifyingChain(), network.verifyingContract(),
             member, joined, marketId, actorType, meta), signature), "INVALID_MARKET_JOIN_SIGNATURE");
 
-        // signature must have been created in a window of 5 blocks from the current one
-        require(joined <= block.number && joined >= (block.number - 4), "INVALID_REGISTERED_BLOCK_NUMBER");
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(joined <= block.number && (block.number <= network.PRESIGNED_TXN_MAX_AGE() ||
+            joined >= (block.number - network.PRESIGNED_TXN_MAX_AGE())), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         return _joinMarket(member, joined, marketId, actorType, meta, signature);
     }
@@ -266,9 +271,10 @@ contract XBRMarket is XBRMaintained {
             security += markets[marketId].consumerSecurity;
         }
 
+        // transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
         if (security > 0) {
-            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = network.token().transferFrom(member, markets[marketId].owner, security);
+            // https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20
+            bool success = IERC20(markets[marketId].coin).transferFrom(member, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
@@ -334,8 +340,9 @@ contract XBRMarket is XBRMaintained {
             member, updated, marketId, delegate, delegateType, apiCatalog, consent, servicePrefix), signature),
             "INVALID_CONSENT_SIGNATURE");
 
-        // signature must have been created in a window of 5 blocks from the current one
-        require(updated <= block.number && updated >= (block.number - 4), "INVALID_CONSENT_BLOCK_NUMBER");
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(updated <= block.number && (block.number <= network.PRESIGNED_TXN_MAX_AGE() ||
+            updated >= (block.number - network.PRESIGNED_TXN_MAX_AGE())), "INVALID_CONSENT_BLOCK_NUMBER");
 
         return _setConsent(member, updated, marketId, delegate, delegateType,
             apiCatalog, consent, servicePrefix, signature);
@@ -409,6 +416,16 @@ contract XBRMarket is XBRMaintained {
     /// Get the market owner for the given market.
     function getMarketOwner(bytes16 marketId) public view returns (address) {
         return markets[marketId].owner;
+    }
+
+    /// Get the coin ussed as a means of payment for the given market.
+    function getMarketCoin(bytes16 marketId) public view returns (address) {
+        return markets[marketId].coin;
+    }
+
+    /// Get the market fee set by the market operator that applies for the given market.
+    function getMarketFee(bytes16 marketId) public view returns (uint256) {
+        return markets[marketId].marketFee;
     }
 
     /// Get the market maker for the given market.
