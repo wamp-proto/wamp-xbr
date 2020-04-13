@@ -66,6 +66,9 @@ contract XBRNetwork is XBRMaintained {
     /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/ipfs/xbr-eula/XBR-EULA.txt>`__.
     string public eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
 
+    /// XBR network contributions from markets for the XBR project, expressed as a fraction of the total amount of XBR tokens.
+    uint256 public contribution;
+
     /// Address of the XBR Networks' own ERC20 token for network-wide purposes.
     XBRToken public token;
 
@@ -97,6 +100,8 @@ contract XBRNetwork is XBRMaintained {
         token = XBRToken(networkToken);
         coins[networkToken][ANYADR] = true;
         emit CoinChanged(networkToken, ANYADR, true);
+
+        contribution = token.totalSupply() * 30 / 100;
 
         organization = networkOrganization;
 
@@ -212,6 +217,16 @@ contract XBRNetwork is XBRMaintained {
         if (coins[coin][operator] != isPayable) {
             coins[coin][operator] = isPayable;
             emit CoinChanged(coin, operator, isPayable);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function setContribution (uint256 networkContribution) public onlyMaintainer returns (bool) {
+        require(networkContribution >= 0 && networkContribution <= token.totalSupply(), "INVALID_CONTRIBUTION");
+        if (contribution != networkContribution) {
+            contribution = networkContribution;
             return true;
         } else {
             return false;

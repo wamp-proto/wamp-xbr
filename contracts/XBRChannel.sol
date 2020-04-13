@@ -244,6 +244,19 @@ contract XBRChannel is XBRMaintained {
             require(channelClosingStates[channelId].closingSeq < closingChannelSeq, "OUTDATED_TRANSACTION");
         }
 
+        // if we got a newer closing transaction, process it ..
+        if (closingChannelSeq > channelClosingStates[channelId].closingSeq) {
+            _doClosing(channelId, closingChannelSeq, balance);
+        }
+
+        // finally close the channel ..
+        if (isFinal || balance == 0 ||
+            (channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channelClosingStates[channelId].closingAt)) { // solhint-disable-line
+            _doClose(channelId, closingChannelSeq, balance);
+        }
+    }
+
+    function _doClosing(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
         // the ERC20 coin used in the market as a means of payment
         address coin = market.getMarketCoin(channels[channelId].marketId);
 
@@ -254,69 +267,78 @@ contract XBRChannel is XBRMaintained {
         // FIXME: CompilerError: Stack too deep, try removing local variables.
         // uint256 refund = balance;
 
-        // the fee to the xbr network is 1% of the earned amount
-        uint256 fee = earned / 100;
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
+        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
 
-        // the amount paid out to the recipient
-        uint256 payout = earned - fee;
+        // the amount paid out to the recipient is gross earned minus market fees
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // uint256 payout = earned - fee;
 
-        // FIXME: read from market configuration
-        // uint32 timeout = 1440;
-
-        // if we got a newer closing transaction, process it ..
-        if (closingChannelSeq > channelClosingStates[channelId].closingSeq) {
-
-            // the closing balance of a newer transaction must be not greater than anyone we already know
-            if (channelClosingStates[channelId].closingSeq > 0) {
-                require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
-            }
-
-            // note the closing transaction sequence number and closing off-chain balance
-            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSING;
-            channelClosingStates[channelId].closingSeq = closingChannelSeq;
-            channelClosingStates[channelId].closingBalance = balance;
-
-            // note the new channel closing date
-            channelClosingStates[channelId].closingAt = block.timestamp + 1440; // solhint-disable-line
-
-            // notify channel observers
-            emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                payout, fee, balance, block.timestamp + 1440);
+        // the closing balance of a newer transaction must be not greater than anyone we already know
+        if (channelClosingStates[channelId].closingSeq > 0) {
+            require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
         }
 
-        // finally close the channel ..
-        if (isFinal || balance == 0 ||
-            (channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING && block.timestamp >= channelClosingStates[channelId].closingAt)) { // solhint-disable-line
+        // note the closing transaction sequence number and closing off-chain balance
+        channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSING;
+        channelClosingStates[channelId].closingSeq = closingChannelSeq;
+        channelClosingStates[channelId].closingBalance = balance;
 
-            // now send tokens locked in this channel (which escrows the tokens) to the recipient,
-            // the xbr network (for the network fee), and refund remaining tokens to the original sender
-            if (payout > 0) {
-                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
-                    require(IERC20(coin).transfer(channels[channelId].marketmaker, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
-                } else {
-                    require(IERC20(coin).transfer(channels[channelId].actor, payout), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
-                }
+        // note the new channel closing date
+        channelClosingStates[channelId].closingAt = block.timestamp + market.NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT(); // solhint-disable-line
+
+        // notify channel observers
+        emit Closing(channels[channelId].ctype, channels[channelId].marketId, channelId,
+                     earned - fee, fee - contribution, balance, channelClosingStates[channelId].closingAt);
+    }
+
+    function _doClose(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
+        // the ERC20 coin used in the market as a means of payment
+        address coin = market.getMarketCoin(channels[channelId].marketId);
+
+        // the amount earned (by the recipient) is initial channel amount minus last off-chain balance
+        uint256 earned = (channels[channelId].amount - balance);
+
+        // the remaining amount (send back to the buyer) via the last off-chain balance
+        // FIXME: CompilerError: Stack too deep, try removing local variables.
+        // uint256 refund = balance;
+
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
+        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
+
+        // now send tokens locked in this channel (which escrows the tokens) to the recipient,
+        // the xbr network (for the network fee), and refund remaining tokens to the original sender
+        if (earned - fee > 0) {
+            if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                require(IERC20(coin).transfer(channels[channelId].marketmaker, earned - fee), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
+            } else {
+                require(IERC20(coin).transfer(channels[channelId].actor, earned - fee), "CHANNEL_CLOSE_PAYOUT_TRANSFER_FAILED");
             }
-
-            if (balance > 0) {
-                if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
-                    require(IERC20(coin).transfer(channels[channelId].actor, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
-                } else {
-                    require(IERC20(coin).transfer(channels[channelId].marketmaker, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
-                }
-            }
-
-            if (fee > 0) {
-                require(IERC20(coin).transfer(market.network().organization(), fee), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
-            }
-
-            // mark channel as closed (but do not selfdestruct)
-            channelClosingStates[channelId].closedAt = block.timestamp; // solhint-disable-line
-            channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
-
-            // notify channel observers
-            emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
-                payout, fee, balance, block.timestamp);
         }
+
+        if (balance > 0) {
+            if (channels[channelId].ctype == XBRTypes.ChannelType.PAYMENT) {
+                require(IERC20(coin).transfer(channels[channelId].actor, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+            } else {
+                require(IERC20(coin).transfer(channels[channelId].marketmaker, balance), "CHANNEL_CLOSE_REFUND_TRANSFER_FAILED");
+            }
+        }
+
+        if (fee > 0) {
+            require(IERC20(coin).transfer(market.getMarketOwner(channels[channelId].marketId), fee - contribution), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
+            require(IERC20(coin).transfer(market.network().organization(), contribution), "CHANNEL_CLOSE_FEE_TRANSFER_FAILED");
+        }
+
+        // mark channel as closed (but do not selfdestruct)
+        channelClosingStates[channelId].closedAt = block.timestamp; // solhint-disable-line
+        channelClosingStates[channelId].state = XBRTypes.ChannelState.CLOSED;
+
+        // notify channel observers
+        emit Closed(channels[channelId].ctype, channels[channelId].marketId, channelId,
+                    earned - fee, fee - contribution, balance, block.timestamp);
     }
 }

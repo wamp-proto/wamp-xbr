@@ -61,6 +61,9 @@ contract XBRMarket is XBRMaintained {
     event ConsentSet (address member, uint256 updated, bytes16 marketId, address delegate,
         uint8 delegateType, bytes16 apiCatalog, bool consent, string servicePrefix);
 
+    /// Channel closing timeout in number of blocks for closing a channel non-cooperatively.
+    uint256 public NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT = 1440;
+
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
@@ -170,14 +173,14 @@ contract XBRMarket is XBRMaintained {
         // the market maker can only work for one market
         require(marketsByMaker[maker] == bytes16(0), "MAKER_ALREADY_WORKING_FOR_OTHER_MARKET");
 
-        // provider security must be non-negative (and obviously smaller than the total token supply)
+        // provider security must be non-negative (and not larger than the total token supply)
         require(providerSecurity >= 0 && providerSecurity <= IERC20(coin).totalSupply(), "INVALID_PROVIDER_SECURITY");
 
-        // consumer security must be non-negative (and obviously smaller than the total token supply)
+        // consumer security must be non-negative (and not larger than the total token supply)
         require(consumerSecurity >= 0 && consumerSecurity <= IERC20(coin).totalSupply(), "INVALID_CONSUMER_SECURITY");
 
-        // FIXME: treat market fee
-        require(marketFee >= 0 && marketFee < (IERC20(coin).totalSupply() - 10**7) * 10**18, "INVALID_MARKET_FEE");
+        // market operator fee: [0%, 100%] <-> [0, coin.totalSupply]
+        require(marketFee >= 0 && marketFee <= IERC20(coin).totalSupply(), "INVALID_MARKET_FEE");
 
         // now remember out new market ..
         markets[marketId] = XBRTypes.Market(created, marketSeq, member, coin, terms, meta, maker,
@@ -418,6 +421,11 @@ contract XBRMarket is XBRMaintained {
     /// Get the coin ussed as a means of payment for the given market.
     function getMarketCoin(bytes16 marketId) public view returns (address) {
         return markets[marketId].coin;
+    }
+
+    /// Get the market fee set by the market operator that applies for the given market.
+    function getMarketFee(bytes16 marketId) public view returns (uint256) {
+        return markets[marketId].marketFee;
     }
 
     /// Get the market maker for the given market.
