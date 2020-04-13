@@ -159,9 +159,9 @@ contract XBRMarket is XBRMaintained {
         // market must not yet exist (to generate a new marketId: )
         require(markets[marketId].owner == address(0), "MARKET_ALREADY_EXISTS");
 
-        // FIXME: expand this to check against XBRNetwork.coins (which is not yet there)
-        // require(coin == address(network.token()), "INVALID_COIN");
-        require(network.coins(coin) == true, "INVALID_COIN");
+        // the market operator (owning member) must be specifically allowed to use the given coin, or the coin
+        // must be allowed to be used in new markets by any member (eg DAI)
+        require(network.coins(coin, member) == true || network.coins(coin, network.ANYADR()) == true, "INVALID_COIN");
 
         // must provide a valid market maker address already when creating a market
         require(maker != address(0), "INVALID_MAKER");
@@ -266,9 +266,11 @@ contract XBRMarket is XBRMaintained {
             security += markets[marketId].consumerSecurity;
         }
 
+        // transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
         if (security > 0) {
-            // Transfer (if any) security to the market owner (for ActorType.CONSUMER or ActorType.PROVIDER)
-            bool success = network.token().transferFrom(member, markets[marketId].owner, security);
+            // https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#IERC20
+            bool success = IERC20(markets[marketId].coin).transferFrom(member, markets[marketId].owner, security);
+            // bool success = network.token().transferFrom(member, markets[marketId].owner, security);
             require(success, "JOIN_MARKET_TRANSFER_FROM_FAILED");
         }
 
@@ -409,6 +411,11 @@ contract XBRMarket is XBRMaintained {
     /// Get the market owner for the given market.
     function getMarketOwner(bytes16 marketId) public view returns (address) {
         return markets[marketId].owner;
+    }
+
+    /// Get the coin ussed as a means of payment for the given market.
+    function getMarketCoin(bytes16 marketId) public view returns (address) {
+        return markets[marketId].coin;
     }
 
     /// Get the market maker for the given market.

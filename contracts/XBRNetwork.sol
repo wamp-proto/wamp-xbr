@@ -42,6 +42,8 @@ contract XBRNetwork is XBRMaintained {
     /// Event emitted when a member leaves the XBR Network.
     event MemberRetired (address member);
 
+    address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+
     /// Chain ID of the blockchain this contract is running on, used in EIP712 typed data signature verification.
     uint256 public verifyingChain;
 
@@ -61,7 +63,7 @@ contract XBRNetwork is XBRMaintained {
     mapping(address => XBRTypes.Member) public members;
 
     /// ERC20 coins which can specified as a means of payment when creating a new data market.
-    mapping(address => bool) public coins;
+    mapping(address => mapping(address => bool)) public coins;
 
     /// Create the XBR network.
     ///
@@ -81,7 +83,7 @@ contract XBRNetwork is XBRMaintained {
         verifyingContract = address(this);
 
         token = XBRToken(networkToken);
-        coins[networkToken] = true;
+        coins[networkToken][ANYADR] = true;
 
         organization = networkOrganization;
 
@@ -164,7 +166,7 @@ contract XBRNetwork is XBRMaintained {
     ///
     /// @param coin The address of the ERC20 coin to change.
     /// @param isPayable When true, the coin can be specified when opening a new data market.
-    function setCoinPayable (address coin, bool isPayable) public onlyMaintainer {
-        coins[coin] = isPayable;
+    function setCoinPayable (address coin, address operator, bool isPayable) public onlyMaintainer {
+        coins[coin][operator] = isPayable;
     }
 }
