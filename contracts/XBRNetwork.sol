@@ -52,10 +52,7 @@ contract XBRNetwork is XBRMaintained {
     address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
 
     /// Limit to how old a pre-signed transaction is accetable (eg in "registerMemberFor" and similar).
-    uint256 public PRESIGNED_TXN_MAX_AGE = 4;
-
-    // FIXME: this breaks ganache where there are not yet as many blocks when tests are run
-    // uint256 public PRESIGNED_TXN_MAX_AGE = 1440;
+    uint256 public PRESIGNED_TXN_MAX_AGE = 1440;
 
     /// Chain ID of the blockchain this contract is running on, used in EIP712 typed data signature verification.
     uint256 public verifyingChain;
@@ -142,7 +139,8 @@ contract XBRNetwork is XBRMaintained {
             member, registered, networkEula, memberProfile), signature), "INVALID_MEMBER_REGISTER_SIGNATURE");
 
         // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
-        require(registered <= block.number && registered >= (block.number - PRESIGNED_TXN_MAX_AGE), "INVALID_REGISTERED_BLOCK_NUMBER");
+        require(registered <= block.number && (block.number <= PRESIGNED_TXN_MAX_AGE ||
+            registered >= (block.number - PRESIGNED_TXN_MAX_AGE)), "INVALID_REGISTERED_BLOCK_NUMBER");
 
         _registerMember(member, registered, networkEula, memberProfile, signature);
     }

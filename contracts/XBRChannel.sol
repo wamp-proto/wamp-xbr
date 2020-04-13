@@ -126,8 +126,8 @@ contract XBRChannel is XBRMaintained {
         // address coin = market.getMarketCoin(marketId);
 
         // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
-        require(openedAt <= block.number && openedAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE()),
-            "INVALID_CHANNEL_BLOCK_NUMBER");
+        require(openedAt <= block.number && (block.number <= market.network().PRESIGNED_TXN_MAX_AGE() ||
+            openedAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE())), "INVALID_CHANNEL_BLOCK_NUMBER");
 
         // payment channel amount must be positive
         require(amount > 0 && amount <= IERC20(market.getMarketCoin(marketId)).totalSupply(), "INVALID_CHANNEL_AMOUNT");
@@ -215,8 +215,8 @@ contract XBRChannel is XBRMaintained {
                 channelClosingStates[channelId].state == XBRTypes.ChannelState.CLOSING, "CHANNEL_NOT_OPEN");
 
         // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
-        require(closeAt <= block.number && closeAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE()),
-            "INVALID_CHANNEL_BLOCK_NUMBER");
+        require(closeAt <= block.number && (block.number <= market.network().PRESIGNED_TXN_MAX_AGE() ||
+            closeAt >= (block.number - market.network().PRESIGNED_TXN_MAX_AGE())), "INVALID_CHANNEL_BLOCK_NUMBER");
 
         // check delegate signature
         require(XBRTypes.verify(channels[channelId].delegate, XBRTypes.EIP712ChannelClose(market.network().verifyingChain(),
