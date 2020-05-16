@@ -578,7 +578,7 @@ library XBRTypes {
     // solhint-disable-next-line
     bytes32 constant EIP712_CHANNEL_CLOSE_TYPEHASH = keccak256("EIP712ChannelClose(uint256 chainId,address verifyingContract,uint256 closeAt,bytes16 marketId,bytes16 channelId,uint32 channelSeq,uint256 balance,bool isFinal)");
 
-    function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
+    function splitSignature (bytes memory signature_rsv) public pure returns (uint8 v, bytes32 r, bytes32 s) {
         require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
 
         // Split a signature given as a bytes string into components.

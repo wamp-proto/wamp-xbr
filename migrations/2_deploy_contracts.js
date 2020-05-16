@@ -43,11 +43,12 @@ module.exports = function (deployer, network, accounts) {
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
     deployer.then(async () => {
-        await deployer.deploy(XBRToken, {gas: gas, from: organization});
-        console.log('>>>> XBRToken deployed at ' + XBRToken.address);
-
         await deployer.deploy(XBRTypes);
         console.log('>>>> XBRTypes deployed at ' + XBRTypes.address);
+
+        await deployer.link(XBRTypes, XBRToken);
+        await deployer.deploy(XBRToken, {gas: gas, from: organization});
+        console.log('>>>> XBRToken deployed at ' + XBRToken.address);
 
         await deployer.link(XBRTypes, XBRNetwork);
         await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});

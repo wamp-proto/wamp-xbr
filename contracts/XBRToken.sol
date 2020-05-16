@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.5.12;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
@@ -83,7 +84,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
-    function hash (EIP712Approve memory obj) public pure returns (bytes32) {
+    function hash (EIP712Approve memory obj) public view returns (bytes32) {
 
         bytes32 digestDomain = keccak256(abi.encode(
             EIP712_DOMAIN_TYPEHASH,
@@ -95,12 +96,12 @@ contract XBRToken is ERC20, ERC20Detailed {
 
         bytes32 digestApprove = keccak256(abi.encode(
             EIP712_APPROVE_TYPEHASH,
-            sender,
-            relayer,
-            spender,
-            amount,
-            expires,
-            nonce
+            obj.sender,
+            obj.relayer,
+            obj.spender,
+            obj.amount,
+            obj.expires,
+            obj.nonce
         ));
 
         bytes32 digest = keccak256(abi.encodePacked(
@@ -112,7 +113,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         return digest;
     }
 
-    function verify (address signer, EIP712Approve memory obj, bytes memory signature) public pure returns (bool) {
+    function verify (address signer, EIP712Approve memory obj, bytes memory signature) public view returns (bool) {
 
         bytes32 digest = hash(obj);
         (uint8 v, bytes32 r, bytes32 s) = XBRTypes.splitSignature(signature);
@@ -137,7 +138,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
 
         // mark signature as used
-        burnedSignatures[sigHash] = 0x1;
+        burnedSignatures[digest] = 0x1;
 
         // now to the actual approval. this code is idential to "contracts/token/ERC20/ERC20.sol#L136"
         // here https://github.com/OpenZeppelin/openzeppelin-contracts
