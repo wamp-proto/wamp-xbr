@@ -118,6 +118,61 @@ contract('XBRToken', function (accounts) {
         assert(amount.eq(acct1_after.sub(acct1_before)), "invalid balance for account[1] after transaction");
     });
 
+    it("XBRToken.approveFor() should fail for invalid signature", async () => {
+
+        const chainId = 1;
+        const verifyingContract = token.address;
+
+        // const sender = accounts[0];
+        const sender = w3_utils.toChecksumAddress('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
+        const sender_bogus = w3_utils.toChecksumAddress('0x6666666666666666666666666666666666666666');
+        const sender_key = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
+
+        // const spender = accounts[1];
+        const spender = w3_utils.toChecksumAddress('0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0');
+
+        // const relayer = accounts[2];
+        const relayer = w3_utils.toChecksumAddress('0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b');
+
+        // 1 million XBR
+        const amount = new BN('100000000000000');
+        const expires = 0;
+        const nonce = 1;
+
+        const sender_before = await token.balanceOf(sender);
+        const spender_before = await token.balanceOf(spender);
+
+        const approval = {
+            'sender': sender,
+            'relayer': relayer,
+            'spender': spender,
+            'amount': amount,
+            'expires': expires,
+            'nonce': nonce,
+        }
+        // console.log('MESSAGE', approval);
+
+        // prepare: pre-sign metatransaction
+        // const signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+        const signature = eip712_sign_approval(sender_key, approval, verifyingContract);
+
+        // console.log('SIGNATURE', signature);
+
+        try {
+            // tx 1: submit pre-signed transaction approving transfer of tokens (send tx from relayer)
+            await token.approveFor(sender_bogus, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/INVALID_SIGNATURE/.test(error), "wrong error message: " + JSON.stringify(error));
+
+            const sender_after = await token.balanceOf(sender);
+            const spender_after = await token.balanceOf(spender);
+
+            assert(sender_before.eq(sender_after), "invalid balance for sender after transaction");
+            assert(spender_before.eq(spender_after), "invalid balance for spender after transaction");
+        }
+    });
+
     it("XBRToken.approveFor()+transferFrom() should correctly update token balances", async () => {
 
         const chainId = 1;
@@ -149,12 +204,12 @@ contract('XBRToken', function (accounts) {
             'expires': expires,
             'nonce': nonce,
         }
-        console.log('MESSAGE', approval);
+        // console.log('MESSAGE', approval);
 
         // prepare: pre-sign metatransaction
         // const signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
         const signature = eip712_sign_approval(sender_key, approval, verifyingContract);
-        console.log('SIGNATURE', signature);
+        // console.log('SIGNATURE', signature);
 
         // tx 1: submit pre-signed transaction approving transfer of tokens (send tx from relayer)
         await token.approveFor(sender, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
@@ -167,5 +222,61 @@ contract('XBRToken', function (accounts) {
 
         assert(amount.eq(sender_before.sub(sender_after)), "invalid balance for sender after transaction");
         assert(amount.eq(spender_after.sub(spender_before)), "invalid balance for spender after transaction");
+    });
+
+    it("XBRToken.approveFor()+burnSignature() should correctly render the signature unusable", async () => {
+
+        const chainId = 1;
+        const verifyingContract = token.address;
+
+        // const sender = accounts[0];
+        const sender = w3_utils.toChecksumAddress('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
+        const sender_key = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
+
+        // const spender = accounts[1];
+        const spender = w3_utils.toChecksumAddress('0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0');
+
+        // const relayer = accounts[2];
+        const relayer = w3_utils.toChecksumAddress('0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b');
+
+        // 1 million XBR
+        const amount = new BN('100000000000000');
+        const expires = 0;
+        const nonce = 2;
+
+        const sender_before = await token.balanceOf(sender);
+        const spender_before = await token.balanceOf(spender);
+
+        const approval = {
+            'sender': sender,
+            'relayer': relayer,
+            'spender': spender,
+            'amount': amount,
+            'expires': expires,
+            'nonce': nonce,
+        }
+        // console.log('MESSAGE', approval);
+
+        // prepare: pre-sign metatransaction
+        // const signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+        const signature = eip712_sign_approval(sender_key, approval, verifyingContract);
+        // console.log('SIGNATURE', signature);
+
+        // now burn the signature before it is used
+        await token.burnSignature(sender, relayer, spender, amount, expires, nonce, signature, {from: sender, gasLimit: gasLimit});
+
+        try {
+            // tx 1: submit pre-signed transaction approving transfer of tokens (send tx from relayer)
+            await token.approveFor(sender, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
+            assert(false, "contract should throw here");
+        } catch (error) {
+            assert(/SIGNATURE_REUSED/.test(error), "wrong error message: " + JSON.stringify(error));
+
+            const sender_after = await token.balanceOf(sender);
+            const spender_after = await token.balanceOf(spender);
+
+            assert(sender_before.eq(sender_after), "invalid balance for sender after transaction");
+            assert(spender_before.eq(spender_after), "invalid balance for spender after transaction");
+        }
     });
 });
