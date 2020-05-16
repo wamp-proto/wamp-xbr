@@ -16,10 +16,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.12;
+pragma solidity ^0.6.0;
 
-import "openzeppelin-solidity/contracts/access/Roles.sol";
-
+import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 
 /**
  * XBR Network (and XBR Network Proxies) SCs inherit from this base contract
@@ -27,9 +26,10 @@ import "openzeppelin-solidity/contracts/access/Roles.sol";
  * Control (RBAC).
  * The implementation for management comes from the OpenZeppelin RBAC library.
  */
-contract XBRMaintained {
-    /// OpenZeppelin RBAC mixin.
-    using Roles for Roles.Role;
+contract XBRMaintained is AccessControl {
+
+    // Create a new role identifier for the minter role
+    bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
     /**
      * Event fired when a maintainer was added.
@@ -45,12 +45,9 @@ contract XBRMaintained {
      */
     event MaintainerRemoved(address indexed account);
 
-    /// Current list of XBR network maintainers.
-    Roles.Role private maintainers;
-
     /// The constructor is internal (roles are managed by the OpenZeppelin base class).
     constructor () internal {
-        _addMaintainer(msg.sender);
+        _setupRole(MAINTAINER_ROLE, msg.sender);
     }
 
     /**
@@ -68,7 +65,7 @@ contract XBRMaintained {
      * @return `true` if the account is maintainer, otherwise `false`.
      */
     function isMaintainer (address account) public view returns (bool) {
-        return maintainers.has(account);
+        return hasRole(MAINTAINER_ROLE, account);
     }
 
     /**
@@ -88,12 +85,12 @@ contract XBRMaintained {
     }
 
     function _addMaintainer (address account) internal {
-        maintainers.add(account);
+        grantRole(MAINTAINER_ROLE, account);
         emit MaintainerAdded(account);
     }
 
     function _removeMaintainer (address account) internal {
-        maintainers.remove(account);
+        revokeRole(MAINTAINER_ROLE, account);
         emit MaintainerRemoved(account);
     }
 }

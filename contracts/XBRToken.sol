@@ -16,18 +16,17 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-pragma solidity ^0.5.12;
+pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
 import "./XBRTypes.sol";
 
 
-contract XBRTokenRelayInterface {
-    function getRelayAuthority() public returns (address);
+interface IXBRTokenRelayInterface {
+    function getRelayAuthority() external view returns (address);
 }
 
 
@@ -46,7 +45,7 @@ contract XBRTokenRelayInterface {
  *
  * For API documentation, please see `here <https://docs.openzeppelin.com/contracts/2.x/api/token/erc20>`__.
  */
-contract XBRToken is ERC20, ERC20Detailed {
+contract XBRToken is ERC20 {
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -86,7 +85,7 @@ contract XBRToken is ERC20, ERC20Detailed {
      * Constructor that gives ``msg.sender`` all of existing tokens.
      * The XBR Token uses the symbol "XBR" and 18 decimal digits.
      */
-    constructor() public ERC20Detailed("XBRToken", "XBR", 18) {
+    constructor() public ERC20("XBRToken", "XBR") {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
@@ -143,7 +142,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         require(
             (relayer == address(0x0)) ||
             (!XBRTypes.isContract(relayer) && msg.sender == relayer) ||
-            (XBRTypes.isContract(relayer) && msg.sender == XBRTokenRelayInterface(relayer).getRelayAuthority()),
+            (XBRTypes.isContract(relayer) && msg.sender == IXBRTokenRelayInterface(relayer).getRelayAuthority()),
             "INVALID_RELAYER"
         );
 
