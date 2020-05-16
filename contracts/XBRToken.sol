@@ -140,9 +140,9 @@ contract XBRToken is ERC20, ERC20Detailed {
         // mark signature as used
         burnedSignatures[digest] = 0x1;
 
-        // now to the actual approval. this code is idential to "contracts/token/ERC20/ERC20.sol#L136"
+        // now to the actual approval. also see "contracts/token/ERC20/ERC20.sol#L136"
         // here https://github.com/OpenZeppelin/openzeppelin-contracts
-        _approve(_msgSender(), spender, amount);
+        _approve(sender, spender, amount);
 
         return true;
     }
