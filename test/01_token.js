@@ -11,6 +11,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+const BN = web3.utils.BN;
 const XBRToken = artifacts.require("./XBRToken.sol");
 
 
@@ -22,19 +23,36 @@ contract('XBRToken', function (accounts) {
 
     XBR_TOTAL_SUPPLY = 10**9 * 10**18;
 
-    it("XBRToken() : should have produced the right initial supply of XBRToken", function () {
-        return XBRToken.deployed().then(function (instance) {
-            return instance.totalSupply.call();
-        }).then(function (supply) {
-            assert.equal(supply.valueOf(), XBR_TOTAL_SUPPLY, "Wront initial supply for token");
-        });
+    // deployed instance of XBRNetwork
+    var token;
+
+    beforeEach('setup contract for each test', async function () {
+        token = await XBRToken.deployed();
     });
 
-    it("XBRToken() : should initially put all XBRToken in the first account", function () {
-        return XBRToken.deployed().then(function (instance) {
-            return instance.balanceOf.call(accounts[0]);
-        }).then(function (balance) {
-            assert.equal(balance.valueOf(), XBR_TOTAL_SUPPLY, "Initial supply wasn't allocated to the first account");
-        });
+    it("XBRToken() : should have produced the right initial supply of XBRToken", async () => {
+        const supply = await token.totalSupply();
+        assert.equal(supply.valueOf(), XBR_TOTAL_SUPPLY, "Wrong initial/total supply for token");
+    });
+
+    it("XBRToken() : should initially put all XBRToken in the first account", async () => {
+        const balance = await token.balanceOf(accounts[0]);
+        assert.equal(balance.valueOf(), XBR_TOTAL_SUPPLY, "Initial supply wasn't allocated to the first account");
+    });
+
+    it("XBRToken.transfer() should correctly update token balances", async () => {
+        // 1 million XBR
+        const amount = new BN('100000000000000');
+
+        const acct0_before = await token.balanceOf(accounts[0]);
+        const acct1_before = await token.balanceOf(accounts[1]);
+
+        await token.transfer(accounts[1], amount, {from: accounts[0], gasLimit: gasLimit});
+
+        const acct0_after = await token.balanceOf(accounts[0]);
+        const acct1_after = await token.balanceOf(accounts[1]);
+
+        assert(amount.eq(acct0_before.sub(acct0_after)), "invalid balance for account[0] after transaction");
+        assert(amount.eq(acct1_after.sub(acct1_before)), "invalid balance for account[1] after transaction");
     });
 });
