@@ -26,6 +26,11 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import "./XBRTypes.sol";
 
 
+contract XBRTokenRelayInterface {
+    function getRelayAuthority() public returns (address);
+}
+
+
 /**
  * The `XBR Token <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRToken.sol>`__
  * is a `ERC20 standard token <https://eips.ethereum.org/EIPS/eip-20>`__ defined by:
@@ -51,7 +56,7 @@ contract XBRToken is ERC20, ERC20Detailed {
     // solhint-disable-next-line
     bytes32 constant EIP712_APPROVE_TYPEHASH = keccak256("EIP712Approve(address sender,address relayer,address spender,uint256 amount,uint256 expires,uint256 nonce)");
 
-    /// EIP712 type data.
+    /// EIP712 Domain type data.
     struct EIP712Domain {
         string name;
         string version;
@@ -59,7 +64,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         address verifyingContract;
     }
 
-    /// EIP712 type data.
+    /// EIP712 Approve type data.
     struct EIP712Approve {
         address sender;
         address relayer;
@@ -74,7 +79,8 @@ contract XBRToken is ERC20, ERC20Detailed {
      */
     uint256 private constant INITIAL_SUPPLY = 10**9 * 10**18;
 
-    mapping(bytes32 => uint256) burnedSignatures;
+    /// For pre-signed transactions ("approveFor"), track signatures already used.
+    mapping(bytes32 => uint256) private burnedSignatures;
 
     /**
      * Constructor that gives ``msg.sender`` all of existing tokens.
@@ -84,7 +90,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
-    function hash (EIP712Approve memory obj) public view returns (bytes32) {
+    function hash (EIP712Approve memory obj) private view returns (bytes32) {
 
         bytes32 digestDomain = keccak256(abi.encode(
             EIP712_DOMAIN_TYPEHASH,
@@ -113,7 +119,7 @@ contract XBRToken is ERC20, ERC20Detailed {
         return digest;
     }
 
-    function verify (address signer, EIP712Approve memory obj, bytes memory signature) public view returns (bool) {
+    function verify (address signer, EIP712Approve memory obj, bytes memory signature) private view returns (bool) {
 
         bytes32 digest = hash(obj);
         (uint8 v, bytes32 r, bytes32 s) = XBRTypes.splitSignature(signature);
@@ -128,21 +134,54 @@ contract XBRToken is ERC20, ERC20Detailed {
 
         // signature must be valid (signed by address in parameter "sender" - not the necessarily
         // the "msg.sender", the submitted of the transaction!)
-        require(verify(sender, approve, signature), "INVALID_APPROVE_SIGNATURE");
+        require(verify(sender, approve, signature), "INVALID_SIGNATURE");
+
+        // relayer rules:
+        //  1. always allow relaying if the specified "relayer" is 0
+        //  2. if the authority address is not a contract, allow it to relay
+        //  3. if the authority address is a contract, allow its defined 'getAuthority()' delegate to relay
+        require(
+            (relayer == address(0x0)) ||
+            (!XBRTypes.isContract(relayer) && msg.sender == relayer) ||
+            (XBRTypes.isContract(relayer) && msg.sender == XBRTokenRelayInterface(relayer).getRelayAuthority()),
+            "INVALID_RELAYER"
+        );
 
         // signature must not have been expired
         require(expires < block.number || expires == 0, "SIGNATURE_EXPIRED");
 
-        // signature must not have been expired
+        // signature must not have been used
         bytes32 digest = hash(approve);
         require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
 
-        // mark signature as used
+        // mark signature as "consumed"
         burnedSignatures[digest] = 0x1;
 
         // now to the actual approval. also see "contracts/token/ERC20/ERC20.sol#L136"
         // here https://github.com/OpenZeppelin/openzeppelin-contracts
         _approve(sender, spender, amount);
+
+        return true;
+    }
+
+    function burnSignature (address sender, address relayer, address spender, uint256 amount, uint256 expires,
+        uint256 nonce, bytes memory signature) public returns (bool success) {
+
+        EIP712Approve memory approve = EIP712Approve(sender, relayer, spender, amount, expires, nonce);
+
+        // signature must be valid (signed by address in parameter "sender" - not the necessarily
+        // the "msg.sender", the submitted of the transaction!)
+        require(verify(sender, approve, signature), "INVALID_SIGNATURE");
+
+        // only the original signature creator can burn signature, not a relay
+        require(sender == msg.sender);
+
+        // signature must not have been used
+        bytes32 digest = hash(approve);
+        require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
+
+        // mark signature as "burned"
+        burnedSignatures[digest] = 0x2;
 
         return true;
     }
