@@ -126,6 +126,22 @@ contract XBRToken is ERC20 {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /**
+     * This method provides an extension to the standard ERC20 interface that allows to approve tokens
+     * to be spent by another party or contract, similar to the standard `IERC20.approve` method.
+     *
+     * The difference is, that by using this method, the sender can pre-sign the approval off-chain, and
+     * then let another party (the relayer) submit the transaction to the blockchain. Only the relayer
+     * needs to have ETH to pay for gas, the off-chain sender does _not_ need any ETH.
+     *
+     * @param sender    The (off-chain) sender of tokens.
+     * @param relayer   If given, the metatransaction can only be relayed from this address.
+     * @param spender   The spender that will spend the tokens approved.
+     * @param amount    Token amount to approve for the spender to spend.
+     * @param expires   If given, the signature will expire at this block number.
+     * @param nonce     Random nonce for metatransaction.
+     * @param signature Signature over EIP712 data, signed by sender.
+     */
     function approveFor (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public returns (bool) {
 
@@ -147,7 +163,7 @@ contract XBRToken is ERC20 {
         );
 
         // signature must not have been expired
-        require(expires < block.number || expires == 0, "SIGNATURE_EXPIRED");
+        require(block.number < expires || expires == 0, "SIGNATURE_EXPIRED");
 
         // signature must not have been used
         bytes32 digest = hash(approve);
@@ -163,6 +179,10 @@ contract XBRToken is ERC20 {
         return true;
     }
 
+    /**
+     * This method allows a sender that approved tokens via `approveFor` to burn the metatransaction
+     * that was sent to the relayer - but only if the transaction has not yet been submitted by the relay.
+     */
     function burnSignature (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public returns (bool success) {
 

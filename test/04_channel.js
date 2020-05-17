@@ -68,7 +68,7 @@ const EIP712ChannelClose = {
         EIP712ChannelClose: [
             {name: 'chainId', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
-            {name: 'closeAt', type: 'uint256'},            
+            {name: 'closeAt', type: 'uint256'},
             {name: 'marketId', type: 'bytes16'},
             {name: 'channelId', type: 'bytes16'},
             {name: 'channelSeq', type: 'uint32'},
@@ -183,10 +183,10 @@ contract('XBRNetwork', accounts => {
         market = await XBRMarket.deployed();
         channel = await XBRChannel.deployed();
 
-        console.log('Using XBRToken           : ' + token.address);
-        console.log('Using XBRNetwork         : ' + network.address);
-        console.log('Using XBRMarket          : ' + market.address);
-        console.log('Using XBRChannel         : ' + channel.address);
+        // console.log('Using XBRToken           : ' + token.address);
+        // console.log('Using XBRNetwork         : ' + network.address);
+        // console.log('Using XBRMarket          : ' + market.address);
+        // console.log('Using XBRChannel         : ' + channel.address);
 
         // FIXME: none of the following works on Ganache v6.9.1 ..
 
@@ -201,8 +201,8 @@ contract('XBRNetwork', accounts => {
         chainId = await network.verifyingChain();
         verifyingContract = await network.verifyingContract();
 
-        console.log('Using chainId            : ' + chainId);
-        console.log('Using verifyingContract  : ' + verifyingContract);
+        // console.log('Using chainId            : ' + chainId);
+        // console.log('Using verifyingContract  : ' + verifyingContract);
 
         const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
@@ -233,19 +233,23 @@ contract('XBRNetwork', accounts => {
             const operator = alice;
             const maker = alice_market_maker1;
 
+            // not tested here
             const terms = "";
             const meta = "";
 
-            const total_supply = await token.totalSupply();
-            console.log('total_supply', total_supply);
-
-            // free market
-            const marketFee = 0;
-            // 5% market fee
-            // const marketFee = total_supply.mul(new BN(25).div(new BN(100)));
-            console.log('marketFee', marketFee);
+            // 42% market fee
+            const marketFeePercent = 42;
+            const totalSupply = await token.totalSupply();
+            const marketFee = totalSupply.mul(new BN(marketFeePercent)).div(new BN(100));
 
             await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
+            console.log('=================================================================================');
+            console.log('Market ' + marketId + ' created - market operator fee rate is ' + marketFeePercent + '%');
+            console.log('---------------------------------------------------------------------------------');
+            console.log('  totalSupply  : ' + web3.utils.fromWei(totalSupply).toString().padStart(16) + ' XBR)');
+            console.log('  marketFee    : ' + web3.utils.fromWei(marketFee).toString().padStart(16) + ' XBR)');
+            console.log('=================================================================================');
+            console.log('\n\n')
 
             /////////// the XBR provider we use here
             const provider = bob;
@@ -285,16 +289,18 @@ contract('XBRNetwork', accounts => {
 
     it('XBRChannel.openChannel(ctype==PAYMENT) : consumer should open payment channel', async () => {
 
-        // remember token amount the XBRChannel contract has BEFORE opening the channel
-        const token_before = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance before: ' + token_before);
+        // address of the xbr network organization
+        const organization = await network.organization();
 
-        // the XBR consumer we use here
+        // the XBR consumer actor (data consumer) we use here
         const actor = charlie;
         const actor_key = charlie_key;
 
         // consumer (buyer) delegate address
         const delegate = charlie_delegate1;
+
+        // consumer (buyer) delegate balance before closing the channel
+        const delegate_balance_before = await token.balanceOf(delegate);
 
         // market and channel OID
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -303,19 +309,36 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
+        assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
 
-        // XBR market operator of the market we open a channel within
+        // recipient is the XBR market operator of the market we open the payment channel within
         const recipient = market_.owner;
-        // const recipient = alice;
 
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
+        // 123 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('123', 'ether'));
 
-        // channel is a payment channel
+        // **as owner**: transfer tokens to consumer actor
+        await token.transfer(actor, amount, {from: owner, gasLimit: gasLimit});
+
+        // channel is a PAYMENT channel
         const ctype = 1;
 
         // current block number
         const openedAt = await web3.eth.getBlockNumber();
+
+        // market owner and market maker balances BEFORE opening the channel
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
+
+        // balancec of network organization BEFORE opening channel
+        const network_balance_before = await token.balanceOf(organization);
+
+        // balance of buyer actor has BEFORE opening the channel
+        const actor_balance_before = await token.balanceOf(actor);
+
+        // balance of channel contract has BEFORE opening the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
 
         // create signature over channel open data
         const msg = {
@@ -336,10 +359,7 @@ contract('XBRNetwork', accounts => {
         // the actor in the channel (that is the consumer in case)
         const signature = create_sig_open_channel(actor_key, msg);
 
-        // **as owner**: transfer tokens to consumer
-        await token.transfer(actor, amount, {from: owner, gasLimit: gasLimit});
-
-        // **as consumer**: approve transfer of tokens to open payment channel
+        // **as consumer actor**: approve transfer of tokens to open payment channel
         await token.approve(channel.address, amount, {from: actor, gasLimit: gasLimit});
 
         // **as market maker**: actually open the channel ..
@@ -364,31 +384,68 @@ contract('XBRNetwork', accounts => {
         assert.equal(eargs.delegate, delegate, "wrong delegate in event");
         assert.equal(eargs.marketmaker, market_.maker, "wrong marketmaker in event");
         assert.equal(eargs.recipient, recipient, "wrong recipient in event");
-        assert.equal(eargs.amount, amount, "wrong amount in event");
+        assert(amount.eq(eargs.amount), "wrong amount in event");
         assert.equal(eargs.signature, signature, "wrong signature in event");
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance after : ' + token_after);
+        // balances AFTER channel is opened
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const delegate_balance_after = await token.balanceOf(delegate);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
+        const network_balance_after = await token.balanceOf(organization);
 
         // the difference AFTER - BEFORE must exactly equal the AMOUNT we opened the channel with
-        assert.equal(token_after - token_before, amount, "wrong token amount transfered");
+        assert(amount.eq(actor_balance_before.sub(actor_balance_after)), "wrong token balance for buyer actor");
+        assert(amount.eq(channel_balance_after.sub(channel_balance_before)), "wrong token balance for channel contract");
+
+        console.log('=================================================================================');
+        console.log('PAYMENT (Buyer) Channel OPEN')
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Channel opened with:');
+        console.log('    Channel deposit       : ' + web3.utils.fromWei(amount).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances BEFORE channel open:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_before).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances AFTER channel open:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balance change:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after.sub(channel_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_after.sub(actor_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_after.sub(delegate_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after.sub(marketmaker_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after.sub(marketowner_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after.sub(network_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('=================================================================================');
+        console.log('\n\n')
     });
 
     it('XBRChannel.openChannel(ctype==PAYING) : provider should open paying channel', async () => {
 
-        // remember token amount the XBRChannel contract has BEFORE opening the channel
-        const token_before = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance before: ' + token_before);
+        // address of the xbr network organization
+        const organization = await network.organization();
 
-        // the XBR provider we use here
+        // the XBR seller actor (data provider) we use here
         const actor = bob;
         const actor_key = bob_key;
 
-        const recipient = actor;
-
         // provider (seller) delegate address
         const delegate = bob_delegate1;
+
+        // consumer (buyer) delegate balance before closing the channel
+        const delegate_balance_before = await token.balanceOf(delegate);
 
         // market and channel OID
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -397,14 +454,36 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
+        assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
 
-        // channel is a paying channel
+        // 99 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('99', 'ether'));
+
+        // **as owner**: transfer tokens to marketmaker
+        await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
+
+        // recipient is the seller actor in the market we open the paying channel within
+        const recipient = actor;
+
+        // channel is a PAYING channel
         const ctype = 2;
 
         // current block number
         const openedAt = await web3.eth.getBlockNumber();
+
+        // market owner and market maker balances BEFORE opening the channel
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
+
+        // balance of network organization BEFORE opening channel
+        const network_balance_before = await token.balanceOf(organization);
+
+        // balance of buyer actor has BEFORE opening the channel
+        const actor_balance_before = await token.balanceOf(actor);
+
+        // balance of channel contract has BEFORE opening the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
 
         // create signature over channel open data
         const msg = {
@@ -425,10 +504,7 @@ contract('XBRNetwork', accounts => {
         // the actor in the channel (that is the provider in case)
         const signature = create_sig_open_channel(actor_key, msg);
 
-        // **as owner**: transfer tokens to provider
-        await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
-
-        // **as market maker**: approve transfer of tokens to open payment channel
+        // **as market maker**: approve transfer of tokens to open paying channel
         await token.approve(channel.address, amount, {from: marketmaker, gasLimit: gasLimit});
 
         // **as market maker**: actually open the channel ..
@@ -453,29 +529,73 @@ contract('XBRNetwork', accounts => {
         assert.equal(eargs.delegate, delegate, "wrong delegate in event");
         assert.equal(eargs.marketmaker, market_.maker, "wrong marketmaker in event");
         assert.equal(eargs.recipient, recipient, "wrong recipient in event");
-        assert.equal(eargs.amount, amount, "wrong amount in event");
+        assert(amount.eq(eargs.amount), "wrong amount in event");
         assert.equal(eargs.signature, signature, "wrong signature in event");
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance after : ' + token_after);
+        // balances AFTER channel is opened
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const delegate_balance_after = await token.balanceOf(delegate);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
+        const network_balance_after = await token.balanceOf(organization);
 
         // the difference AFTER - BEFORE must exactly equal the AMOUNT we opened the channel with
-        assert.equal(token_after - token_before, amount, "wrong token amount transfered");
+        assert(amount.eq(marketmaker_balance_before.sub(marketmaker_balance_after)), "wrong token balance for marketmaker");
+        assert(amount.eq(channel_balance_after.sub(channel_balance_before)), "wrong token balance for channel contract");
+
+        console.log('=================================================================================');
+        console.log('PAYING (Seller) Channel OPEN')
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Channel opened with:');
+        console.log('    Channel initial       : ' + web3.utils.fromWei(amount).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances BEFORE channel open:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_before).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances AFTER channel open:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balance change:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after.sub(channel_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_after.sub(actor_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_after.sub(delegate_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after.sub(marketmaker_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after.sub(marketowner_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after.sub(network_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('=================================================================================');
+        console.log('\n\n')
     });
 
     it('XBRChannel.closeChannel(ctype==PAYMENT) : consumer should close payment channel', async () => {
-        // remember token amount the XBRChannel contract has BEFORE closing the channel
-        const token_before = await token.balanceOf(channel.address);
 
-        // the XBR consumer we use here
+        // address of the xbr network organization
+        const organization = await network.organization();
+
+        // remember token amount the XBRChannel contract has BEFORE closing the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
+
+        // buyer actor (data consumer) we use in this test
         const actor = charlie;
         const actor_key = charlie_key;
-        const actor_token_before = await token.balanceOf(actor);
+        const actor_balance_before = await token.balanceOf(actor);
 
-        // consumer (buyer) delegate address
+        // consumer (buyer) delegate address and key
         const delegate = charlie_delegate1;
         const delegate_key = charlie_delegate1_key;
+
+        // consumer (buyer) delegate balance before closing the channel
+        const delegate_balance_before = await token.balanceOf(delegate);
 
         // market and channel OID
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -484,18 +604,29 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
-        const mm_token_before = await token.balanceOf(marketmaker);
-
         assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
         const marketmaker_key = alice_market_maker1_key;
+
+        // balancec of network organization before closing channel
+        const network_balance_before = await token.balanceOf(organization);
 
         // current block number
         const closeAt = await web3.eth.getBlockNumber();
 
-        // 50 XBR channel deposit
-        const channelSeq = 1;
-        // const balance = '' + 10 * 10**18;
-        const balance = '' + 50 * 10**18;
+        // channel is closed at this channel sequence number
+        const channelSeq = 13;
+
+        // channel initial amount
+        const channel_ = await channel.channels(channelId);
+        const amount = channel_.amount;
+
+        // channel remaining balance at which the channel is closed
+        const balance = new BN(web3.utils.toWei('55', 'ether'));
+
+        // channel final flag (when agreed by both parties)
         const isFinal = true;
 
         // create signature over channel open data
@@ -510,9 +641,10 @@ contract('XBRNetwork', accounts => {
             'isFinal': isFinal
         };
 
-        // **as delegate & market maker**: sign the data, this must be signed with
-        // the private key of the actor in the channel (that is the consumer in case)
+        // sign closing payment channel metatransaction using the **delegate private key**
         const delegateSignature = create_sig_close_channel(delegate_key, msg);
+
+        // sign closing payment channel metatransaction using the **marketmaker private key**
         const marketmakerSignature = create_sig_close_channel(marketmaker_key, msg);
 
         // **as market maker**: actually close the channel ..
@@ -538,41 +670,110 @@ contract('XBRNetwork', accounts => {
         // check all event attributes
         const eargs2 = result2.args;
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        const actor_token_after = await token.balanceOf(actor);
-        const mm_token_after = await token.balanceOf(marketmaker);
+        // balances AFTER channel is closed
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const delegate_balance_after = await token.balanceOf(delegate);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
+        const network_balance_after = await token.balanceOf(organization);
 
-        console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // the channel contract must have distributed all tokens initially deposited into the channel
+        assert(amount.eq(channel_balance_before.sub(channel_balance_after)), "wrong channel balance before closing");
 
-        // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
-        assert.equal(token_before - token_after, balance, "wrong token amount transfered");
-        assert.equal(actor_token_after - actor_token_before, balance, "tokens not refunded to actor");        
-        assert.equal(mm_token_after - mm_token_before, 0, "tokens refunded to market maker");
+        // amount spent is the initial amount minus the remaining balance
+        const spent = amount.sub(balance);
+
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        const total_supply = await token.totalSupply();
+        const contribution_fee = await network.contribution();
+
+        // fees are deducted from the amount paid out to sellers
+        const fee = spent.mul(market_.marketFee).div(total_supply);
+
+        // amount transfered to the market maker to pay out sellers
+        const payout = spent.sub(fee);
+
+        // refunded amount is the remaining balance
+        const refund = balance;
+
+        // amout paid to the xbr network
+        const network_amount = fee.mul(contribution_fee).div(total_supply);
+
+        // amount paid to market operator
+        const marketowner_amount = fee.sub(network_amount);
+
+        // assure the amount actually spent has been transferred to the market maker
+        assert(payout.eq(marketmaker_balance_after.sub(marketmaker_balance_before)), "wrong balance for market maker (payout)");
+
+        // assure remaining channel balance has been refunded to the buyer actor
+        assert(refund.eq(actor_balance_after.sub(actor_balance_before)), "wrong balance for buyer actor (refund)");
+
+        // assure the market owner is paid
+        assert(marketowner_amount.eq(marketowner_balance_after.sub(marketowner_balance_before)), "wrong balance for market owner (fee)");
+
+        // assure the network is paid
+        assert(network_amount.eq(network_balance_after.sub(network_balance_before)), "wrong balance for network (contribution)");
+
+        console.log('=================================================================================');
+        console.log('PAYMENT (Buyer) Channel (co-operative) CLOSE')
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Channel closing with:');
+        console.log('    Channel deposit       : ' + web3.utils.fromWei(amount).toString().padStart(16) + ' XBR');
+        console.log('    Channel refund        : ' + web3.utils.fromWei(refund).toString().padStart(16) + ' XBR');
+        console.log('    Channel spent         : ' + web3.utils.fromWei(spent).toString().padStart(16) + ' XBR');
+        console.log('    Channel payout        : ' + web3.utils.fromWei(payout).toString().padStart(16) + ' XBR');
+        console.log('    Channel fee           : ' + web3.utils.fromWei(fee).toString().padStart(16) + ' XBR');
+        console.log('    Channel market        : ' + web3.utils.fromWei(marketowner_amount).toString().padStart(16) + ' XBR');
+        console.log('    Channel network       : ' + web3.utils.fromWei(network_amount).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances BEFORE channel close:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_before).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances AFTER channel close:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balance change:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after.sub(channel_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Buyer actor           : ' + web3.utils.fromWei(actor_balance_after.sub(actor_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Buyer delegate        : ' + web3.utils.fromWei(delegate_balance_after.sub(delegate_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after.sub(marketmaker_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after.sub(marketowner_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after.sub(network_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('=================================================================================');
+        console.log('\n\n')
     });
 
     it('XBRChannel.closeChannel(ctype==PAYING) : market maker should close paying channel', async () => {
-        // remember token amount the XBRChannel contract has BEFORE closing the channel
-        const token_before = await token.balanceOf(channel.address);
 
+        // address of the xbr network organization
+        const organization = await network.organization();
+
+        // remember token amount the XBRChannel contract has BEFORE closing the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
+
+        // seller actor (data provider) we use in this test
         const actor = bob;
         const actor_key = bob_key;
-        const actor_token_before = await token.balanceOf(actor);
-
-        // the XBR provider we use here
-        const marketmaker = alice_market_maker1;
-        const marketmaker_key = alice_market_maker1_key;
-
-        const mm_token_before = await token.balanceOf(marketmaker);
+        const actor_balance_before = await token.balanceOf(actor);
 
         // provider (seller) delegate address
         const delegate = bob_delegate1;
         const delegate_key = bob_delegate1_key;
+
+        // provider (seller) delegate balance before closing the channel
+        const delegate_balance_before = await token.balanceOf(delegate);
 
         // market and channel OID
         const marketId = utils.sha3("MyMarket1").substring(0, 34);
@@ -580,15 +781,30 @@ contract('XBRNetwork', accounts => {
 
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
-        assert.equal(market_.maker, marketmaker, "unexpected market maker");
+        const marketmaker = market_.maker;
+        assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
+        const marketmaker_key = alice_market_maker1_key;
+
+        // balance of network organization before closing channel
+        const network_balance_before = await token.balanceOf(organization);
 
         // current block number
         const closeAt = await web3.eth.getBlockNumber();
 
-        // 50 XBR channel deposit
-        const channelSeq = 1;
-        // const balance = '' + 10 * 10**18;
-        const balance = '' + 50 * 10**18;
+        // channel is closed at this channel sequence number
+        const channelSeq = 9;
+
+        // channel initial amount
+        const channel_ = await channel.channels(channelId);
+        const amount = channel_.amount;
+
+        // channel remaining balance at which the channel is closed
+        const balance = new BN(web3.utils.toWei('37', 'ether'));
+
+        // channel final flag (when agreed by both parties)
         const isFinal = true;
 
         // create signature over channel open data
@@ -603,9 +819,10 @@ contract('XBRNetwork', accounts => {
             'isFinal': isFinal
         };
 
-        // **as delegate & market maker**: sign the data, this must be signed with
-        // the private key of the actor in the channel (that is the consumer in case)
+        // sign closing payment channel metatransaction using the **delegate private key**
         const delegateSignature = create_sig_close_channel(delegate_key, msg);
+
+        // sign closing payment channel metatransaction using the **marketmaker private key**
         const marketmakerSignature = create_sig_close_channel(marketmaker_key, msg);
 
         // **as market maker**: actually close the channel ..
@@ -631,21 +848,88 @@ contract('XBRNetwork', accounts => {
         // check all event attributes
         const eargs2 = result2.args;
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        const actor_token_after = await token.balanceOf(actor);
-        const mm_token_after = await token.balanceOf(marketmaker);
+        // balances AFTER channel is closed
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const delegate_balance_after = await token.balanceOf(delegate);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
+        const network_balance_after = await token.balanceOf(organization);
 
-        console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // the channel contract must have distributed all tokens initially deposited into the channel
+        assert(amount.eq(channel_balance_before.sub(channel_balance_after)), "wrong channel balance before closing");
 
-        // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
-        assert.equal(token_before - token_after, balance, "wrong token amount transfered");
-        assert.equal(actor_token_after - actor_token_before, 0, "tokens paid out to actor");
-        assert.equal(mm_token_after - mm_token_before, balance, "tokens not refunded to market maker");
+        // amount spent is the initial amount minus the remaining balance
+        const spent = amount.sub(balance);
+
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        const total_supply = await token.totalSupply();
+        const contribution_fee = await network.contribution();
+
+        // fees are deducted from the amount paid out to sellers
+        const fee = spent.mul(market_.marketFee).div(total_supply);
+
+        // amount transfered to the market maker to pay out sellers
+        const payout = spent.sub(fee);
+
+        // refunded amount is the remaining balance
+        const refund = balance;
+
+        // amout paid to the xbr network
+        const network_amount = fee.mul(contribution_fee).div(total_supply);
+
+        // amount paid to market operator
+        const marketowner_amount = fee.sub(network_amount);
+
+        // assure the amount actually spent has been transferred to the seller actor ..
+        assert(payout.eq(actor_balance_after.sub(actor_balance_before)));
+
+        // assure remaining channel balance has been refunded to the market maker ..
+        assert(refund.eq(marketmaker_balance_after.sub(marketmaker_balance_before)));
+
+        // assure the market owner is paid
+        assert(marketowner_amount.eq(marketowner_balance_after.sub(marketowner_balance_before)), "wrong balance for market owner (fee)");
+
+        // assure the network is paid
+        assert(network_amount.eq(network_balance_after.sub(network_balance_before)), "wrong balance for network (contribution)");
+
+        console.log('=================================================================================');
+        console.log('PAYING (Seller) Channel (co-operative) CLOSE')
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Channel closing with:');
+        console.log('    Channel initial       : ' + web3.utils.fromWei(amount).toString().padStart(16) + ' XBR');
+        console.log('    Channel refund        : ' + web3.utils.fromWei(refund).toString().padStart(16) + ' XBR');
+        console.log('    Channel spent         : ' + web3.utils.fromWei(spent).toString().padStart(16) + ' XBR');
+        console.log('    Channel payout        : ' + web3.utils.fromWei(payout).toString().padStart(16) + ' XBR');
+        console.log('    Channel fee           : ' + web3.utils.fromWei(fee).toString().padStart(16) + ' XBR');
+        console.log('    Channel market        : ' + web3.utils.fromWei(marketowner_amount).toString().padStart(16) + ' XBR');
+        console.log('    Channel network       : ' + web3.utils.fromWei(network_amount).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances BEFORE channel close:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_before).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_before).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balances AFTER channel close:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after).toString().padStart(16) + ' XBR');
+        console.log('---------------------------------------------------------------------------------');
+        console.log('  Balance change:');
+        console.log('    Channel (contract)    : ' + web3.utils.fromWei(channel_balance_after.sub(channel_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Seller actor          : ' + web3.utils.fromWei(actor_balance_after.sub(actor_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Seller delegate       : ' + web3.utils.fromWei(delegate_balance_after.sub(delegate_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market maker          : ' + web3.utils.fromWei(marketmaker_balance_after.sub(marketmaker_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Market owner          : ' + web3.utils.fromWei(marketowner_balance_after.sub(marketowner_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('    Network organization  : ' + web3.utils.fromWei(network_balance_after.sub(network_balance_before)).toString().padStart(16) + ' XBR');
+        console.log('=================================================================================');
+        console.log('\n\n')
     });
 });
