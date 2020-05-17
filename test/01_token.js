@@ -65,6 +65,7 @@ contract('XBRToken', function (accounts) {
     //const gasLimit = 100000000;
 
     XBR_TOTAL_SUPPLY = 10**9 * 10**18;
+    const total_supply = new BN('1000000000000000000000000000');
 
     // deployed instance of XBRNetwork
     var token;

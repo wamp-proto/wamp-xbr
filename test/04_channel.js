@@ -233,19 +233,17 @@ contract('XBRNetwork', accounts => {
             const operator = alice;
             const maker = alice_market_maker1;
 
+            // not tested here
             const terms = "";
             const meta = "";
 
-            const total_supply = await token.totalSupply();
-            // console.log('total_supply', total_supply);
-
-            // free market
-            const marketFee = 0;
-            // 5% market fee
-            // const marketFee = total_supply.mul(new BN(25).div(new BN(100)));
-            // console.log('marketFee', marketFee);
+            // 25% market fee
+            const marketFeePercent = 25;
+            const totalSupply = await token.totalSupply();
+            const marketFee = totalSupply.mul(new BN(marketFeePercent)).div(new BN(100));
 
             await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
+            console.log('market ' + marketId + ' created with fee rate ' + marketFeePercent + '% (totalSupply=' + totalSupply + ', marketFee=' + marketFee + ')');
 
             /////////// the XBR provider we use here
             const provider = bob;
@@ -476,6 +474,9 @@ contract('XBRNetwork', accounts => {
     });
 
     it('XBRChannel.closeChannel(ctype==PAYMENT) : consumer should close payment channel', async () => {
+
+        const organization = await network.organization();
+
         // remember token amount the XBRChannel contract has BEFORE closing the channel
         const channel_balance_before = await token.balanceOf(channel.address);
 
@@ -500,6 +501,8 @@ contract('XBRNetwork', accounts => {
         const marketowner_balance_before = await token.balanceOf(marketowner);
         const marketmaker_balance_before = await token.balanceOf(marketmaker);
         const marketmaker_key = alice_market_maker1_key;
+
+        const network_balance_before = await token.balanceOf(organization);
 
         // current block number
         const closeAt = await web3.eth.getBlockNumber();
@@ -563,6 +566,7 @@ contract('XBRNetwork', accounts => {
         const actor_balance_after = await token.balanceOf(actor);
         const marketowner_balance_after = await token.balanceOf(marketowner);
         const marketmaker_balance_after = await token.balanceOf(marketmaker);
+        const network_balance_after = await token.balanceOf(organization);
 
         // the channel contract must have distributed all tokens initially deposited into the channel
         assert(amount.eq(channel_balance_before.sub(channel_balance_after)), "wrong channel balance before closing");
@@ -570,17 +574,37 @@ contract('XBRNetwork', accounts => {
         // amount spent is the initial amount minus the remaining balance
         const spent = amount.sub(balance);
 
-        // assure the amount actually spent has been transferred to the market maker ..
-        assert(spent.eq(marketmaker_balance_after.sub(marketmaker_balance_before)));
+        // the fee of the market operator (before network fees) is a percentage of the earned amount, where
+        // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
+        const total_supply = await token.totalSupply();
+        const contribution_fee = await network.contribution();
 
-        // .. and not the market owner directly
-        assert(marketowner_balance_after.eq(marketowner_balance_before), "wrong balance for market owner");
+        // fees are deducted from the amount paid out to sellers
+        const fee = spent.mul(market_.marketFee).div(total_supply);
+
+        // amount transfered to the market maker to pay out sellers
+        const payout = spent.sub(fee);
 
         // refunded amount is the remaining balance
         const refund = balance;
 
+        // amout paid to the xbr network
+        const network_amount = fee.mul(contribution_fee).div(total_supply);
+
+        // amount paid to market operator
+        const marketowner_amount = fee.sub(network_amount);
+
+        // assure the amount actually spent has been transferred to the market maker
+        assert(payout.eq(marketmaker_balance_after.sub(marketmaker_balance_before)), "wrong balance for market maker (payout)");
+
         // assure remaining channel balance has been refunded to the buyer actor
-        assert(refund.eq(actor_balance_after.sub(actor_balance_before)));
+        assert(refund.eq(actor_balance_after.sub(actor_balance_before)), "wrong balance for buyer actor (refund)");
+
+        // assure the market owner is paid
+        assert(marketowner_amount.eq(marketowner_balance_after.sub(marketowner_balance_before)), "wrong balance for market owner (fee)");
+
+        // assure the network is paid
+        assert(network_amount.eq(network_balance_after.sub(network_balance_before)), "wrong balance for network (contribution)");
     });
 
     it('XBRChannel.closeChannel(ctype==PAYING) : market maker should close paying channel', async () => {
