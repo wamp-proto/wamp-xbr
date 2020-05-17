@@ -68,7 +68,7 @@ const EIP712ChannelClose = {
         EIP712ChannelClose: [
             {name: 'chainId', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
-            {name: 'closeAt', type: 'uint256'},            
+            {name: 'closeAt', type: 'uint256'},
             {name: 'marketId', type: 'bytes16'},
             {name: 'channelId', type: 'bytes16'},
             {name: 'channelSeq', type: 'uint32'},
@@ -183,10 +183,10 @@ contract('XBRNetwork', accounts => {
         market = await XBRMarket.deployed();
         channel = await XBRChannel.deployed();
 
-        console.log('Using XBRToken           : ' + token.address);
-        console.log('Using XBRNetwork         : ' + network.address);
-        console.log('Using XBRMarket          : ' + market.address);
-        console.log('Using XBRChannel         : ' + channel.address);
+        // console.log('Using XBRToken           : ' + token.address);
+        // console.log('Using XBRNetwork         : ' + network.address);
+        // console.log('Using XBRMarket          : ' + market.address);
+        // console.log('Using XBRChannel         : ' + channel.address);
 
         // FIXME: none of the following works on Ganache v6.9.1 ..
 
@@ -201,8 +201,8 @@ contract('XBRNetwork', accounts => {
         chainId = await network.verifyingChain();
         verifyingContract = await network.verifyingContract();
 
-        console.log('Using chainId            : ' + chainId);
-        console.log('Using verifyingContract  : ' + verifyingContract);
+        // console.log('Using chainId            : ' + chainId);
+        // console.log('Using verifyingContract  : ' + verifyingContract);
 
         const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
@@ -237,13 +237,13 @@ contract('XBRNetwork', accounts => {
             const meta = "";
 
             const total_supply = await token.totalSupply();
-            console.log('total_supply', total_supply);
+            // console.log('total_supply', total_supply);
 
             // free market
             const marketFee = 0;
             // 5% market fee
             // const marketFee = total_supply.mul(new BN(25).div(new BN(100)));
-            console.log('marketFee', marketFee);
+            // console.log('marketFee', marketFee);
 
             await market.createMarket(marketId, token.address, terms, meta, maker, providerSecurity, consumerSecurity, marketFee, {from: operator, gasLimit: gasLimit});
 
@@ -285,11 +285,7 @@ contract('XBRNetwork', accounts => {
 
     it('XBRChannel.openChannel(ctype==PAYMENT) : consumer should open payment channel', async () => {
 
-        // remember token amount the XBRChannel contract has BEFORE opening the channel
-        const token_before = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance before: ' + token_before);
-
-        // the XBR consumer we use here
+        // the XBR consumer actor (data consumer) we use here
         const actor = charlie;
         const actor_key = charlie_key;
 
@@ -304,18 +300,26 @@ contract('XBRNetwork', accounts => {
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
 
-        // XBR market operator of the market we open a channel within
+        // recipient is the XBR market operator of the market we open the payment channel within
         const recipient = market_.owner;
-        // const recipient = alice;
 
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
+        // 50 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('50', 'ether'));
 
-        // channel is a payment channel
+        // **as owner**: transfer tokens to consumer actor
+        await token.transfer(actor, amount, {from: owner, gasLimit: gasLimit});
+
+        // channel is a PAYMENT channel
         const ctype = 1;
 
         // current block number
         const openedAt = await web3.eth.getBlockNumber();
+
+        // remember token amount the buyer actor has BEFORE opening the channel
+        const actor_balance_before = await token.balanceOf(actor);
+
+        // remember token amount the channel contract has BEFORE opening the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
 
         // create signature over channel open data
         const msg = {
@@ -336,10 +340,7 @@ contract('XBRNetwork', accounts => {
         // the actor in the channel (that is the consumer in case)
         const signature = create_sig_open_channel(actor_key, msg);
 
-        // **as owner**: transfer tokens to consumer
-        await token.transfer(actor, amount, {from: owner, gasLimit: gasLimit});
-
-        // **as consumer**: approve transfer of tokens to open payment channel
+        // **as consumer actor**: approve transfer of tokens to open payment channel
         await token.approve(channel.address, amount, {from: actor, gasLimit: gasLimit});
 
         // **as market maker**: actually open the channel ..
@@ -364,28 +365,25 @@ contract('XBRNetwork', accounts => {
         assert.equal(eargs.delegate, delegate, "wrong delegate in event");
         assert.equal(eargs.marketmaker, market_.maker, "wrong marketmaker in event");
         assert.equal(eargs.recipient, recipient, "wrong recipient in event");
-        assert.equal(eargs.amount, amount, "wrong amount in event");
+        assert(amount.eq(eargs.amount), "wrong amount in event");
         assert.equal(eargs.signature, signature, "wrong signature in event");
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance after : ' + token_after);
+        // remember token amount the buyer actor has AFTER opening the channel
+        const actor_balance_after = await token.balanceOf(actor);
+
+        // remember token amount the channel contract has AFTER opening the channel
+        const channel_balance_after = await token.balanceOf(channel.address);
 
         // the difference AFTER - BEFORE must exactly equal the AMOUNT we opened the channel with
-        assert.equal(token_after - token_before, amount, "wrong token amount transfered");
+        assert(amount.eq(actor_balance_before.sub(actor_balance_after)), "wrong token balance for buyer actor");
+        assert(amount.eq(channel_balance_after.sub(channel_balance_before)), "wrong token balance for channel contract");
     });
 
     it('XBRChannel.openChannel(ctype==PAYING) : provider should open paying channel', async () => {
 
-        // remember token amount the XBRChannel contract has BEFORE opening the channel
-        const token_before = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance before: ' + token_before);
-
-        // the XBR provider we use here
+        // the XBR seller actor (data provider) we use here
         const actor = bob;
         const actor_key = bob_key;
-
-        const recipient = actor;
 
         // provider (seller) delegate address
         const delegate = bob_delegate1;
@@ -397,14 +395,27 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
-        // 50 XBR channel deposit
-        const amount = '' + 50 * 10**18;
 
-        // channel is a paying channel
+        // recipient is the seller actor in the market we open the paying channel within
+        const recipient = actor;
+
+        // 50 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('50', 'ether'));
+
+        // **as owner**: transfer tokens to marketmaker
+        await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
+
+        // channel is a PAYING channel
         const ctype = 2;
 
         // current block number
         const openedAt = await web3.eth.getBlockNumber();
+
+        // remember token amount the marketmaker has BEFORE opening the channel
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
+
+        // remember token amount the channel contract has BEFORE opening the channel
+        const channel_balance_before = await token.balanceOf(channel.address);
 
         // create signature over channel open data
         const msg = {
@@ -425,10 +436,7 @@ contract('XBRNetwork', accounts => {
         // the actor in the channel (that is the provider in case)
         const signature = create_sig_open_channel(actor_key, msg);
 
-        // **as owner**: transfer tokens to provider
-        await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
-
-        // **as market maker**: approve transfer of tokens to open payment channel
+        // **as market maker**: approve transfer of tokens to open paying channel
         await token.approve(channel.address, amount, {from: marketmaker, gasLimit: gasLimit});
 
         // **as market maker**: actually open the channel ..
@@ -453,15 +461,18 @@ contract('XBRNetwork', accounts => {
         assert.equal(eargs.delegate, delegate, "wrong delegate in event");
         assert.equal(eargs.marketmaker, market_.maker, "wrong marketmaker in event");
         assert.equal(eargs.recipient, recipient, "wrong recipient in event");
-        assert.equal(eargs.amount, amount, "wrong amount in event");
+        assert(amount.eq(eargs.amount), "wrong amount in event");
         assert.equal(eargs.signature, signature, "wrong signature in event");
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        console.log('XBRChannel token balance after : ' + token_after);
+        // remember token amount the marketmaker has AFTER opening the channel
+        const marketmaker_balance_after = await token.balanceOf(actor);
+
+        // remember token amount the channel contract has AFTER opening the channel
+        const channel_balance_after = await token.balanceOf(channel.address);
 
         // the difference AFTER - BEFORE must exactly equal the AMOUNT we opened the channel with
-        assert.equal(token_after - token_before, amount, "wrong token amount transfered");
+        assert(amount.eq(marketmaker_balance_before.sub(marketmaker_balance_after)), "wrong token balance for marketmaker");
+        assert(amount.eq(channel_balance_after.sub(channel_balance_before)), "wrong token balance for channel contract");
     });
 
     it('XBRChannel.closeChannel(ctype==PAYMENT) : consumer should close payment channel', async () => {
@@ -543,16 +554,16 @@ contract('XBRNetwork', accounts => {
         const actor_token_after = await token.balanceOf(actor);
         const mm_token_after = await token.balanceOf(marketmaker);
 
-        console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
+        // console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
+        // console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
+        // console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
+        // console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
+        // console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
 
         // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
         assert.equal(token_before - token_after, balance, "wrong token amount transfered");
-        assert.equal(actor_token_after - actor_token_before, balance, "tokens not refunded to actor");        
+        assert.equal(actor_token_after - actor_token_before, balance, "tokens not refunded to actor");
         assert.equal(mm_token_after - mm_token_before, 0, "tokens refunded to market maker");
     });
 
@@ -636,12 +647,12 @@ contract('XBRNetwork', accounts => {
         const actor_token_after = await token.balanceOf(actor);
         const mm_token_after = await token.balanceOf(marketmaker);
 
-        console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
+        // console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
+        // console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
+        // console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
+        // console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
+        // console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
 
         // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
         assert.equal(token_before - token_after, balance, "wrong token amount transfered");

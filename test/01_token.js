@@ -11,6 +11,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+const utils = require("./utils.js");
+
 const w3_utils = require("web3-utils");
 const eth_sig_utils = require("eth-sig-util");
 const eth_util = require("ethereumjs-util");
@@ -89,7 +91,11 @@ contract('XBRToken', function (accounts) {
         const acct1_before = await token.balanceOf(accounts[1]);
 
         // transfer the tokens (send tx from account[0]) in one go
-        await token.transfer(accounts[1], amount, {from: accounts[0], gasLimit: gasLimit});
+        const res = await token.transfer(accounts[1], amount, {from: accounts[0], gasLimit: gasLimit});
+
+        // console.log(res);
+        // const res_tx = await utils.mine_tx(res.tx);
+        // console.log(res_tx);
 
         const acct0_after = await token.balanceOf(accounts[0]);
         const acct1_after = await token.balanceOf(accounts[1]);
