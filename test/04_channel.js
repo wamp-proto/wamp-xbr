@@ -303,8 +303,8 @@ contract('XBRNetwork', accounts => {
         // recipient is the XBR market operator of the market we open the payment channel within
         const recipient = market_.owner;
 
-        // 50 XBR channel deposit (channel liquidity)
-        const amount = new BN(web3.utils.toWei('50', 'ether'));
+        // 123 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('123', 'ether'));
 
         // **as owner**: transfer tokens to consumer actor
         await token.transfer(actor, amount, {from: owner, gasLimit: gasLimit});
@@ -399,8 +399,8 @@ contract('XBRNetwork', accounts => {
         // recipient is the seller actor in the market we open the paying channel within
         const recipient = actor;
 
-        // 50 XBR channel deposit (channel liquidity)
-        const amount = new BN(web3.utils.toWei('50', 'ether'));
+        // 123 XBR channel deposit (channel liquidity)
+        const amount = new BN(web3.utils.toWei('123', 'ether'));
 
         // **as owner**: transfer tokens to marketmaker
         await token.transfer(marketmaker, amount, {from: owner, gasLimit: gasLimit});
@@ -477,14 +477,14 @@ contract('XBRNetwork', accounts => {
 
     it('XBRChannel.closeChannel(ctype==PAYMENT) : consumer should close payment channel', async () => {
         // remember token amount the XBRChannel contract has BEFORE closing the channel
-        const token_before = await token.balanceOf(channel.address);
+        const channel_balance_before = await token.balanceOf(channel.address);
 
-        // the XBR consumer we use here
+        // buyer actor (data consumer) we use in this test
         const actor = charlie;
         const actor_key = charlie_key;
-        const actor_token_before = await token.balanceOf(actor);
+        const actor_balance_before = await token.balanceOf(actor);
 
-        // consumer (buyer) delegate address
+        // consumer (buyer) delegate address and key
         const delegate = charlie_delegate1;
         const delegate_key = charlie_delegate1_key;
 
@@ -495,18 +495,26 @@ contract('XBRNetwork', accounts => {
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
         const marketmaker = market_.maker;
-        const mm_token_before = await token.balanceOf(marketmaker);
-
         assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
         const marketmaker_key = alice_market_maker1_key;
 
         // current block number
         const closeAt = await web3.eth.getBlockNumber();
 
-        // 50 XBR channel deposit
-        const channelSeq = 1;
-        // const balance = '' + 10 * 10**18;
-        const balance = '' + 50 * 10**18;
+        // channel is closed at this channel sequence number
+        const channelSeq = 13;
+
+        // channel initial amount
+        const channel_ = await channel.channels(channelId);
+        const amount = channel_.amount;
+
+        // channel remaining balance at which the channel is closed
+        const balance = new BN(web3.utils.toWei('55', 'ether'));
+
+        // channel final flag (when agreed by both parties)
         const isFinal = true;
 
         // create signature over channel open data
@@ -521,9 +529,10 @@ contract('XBRNetwork', accounts => {
             'isFinal': isFinal
         };
 
-        // **as delegate & market maker**: sign the data, this must be signed with
-        // the private key of the actor in the channel (that is the consumer in case)
+        // sign closing payment channel metatransaction using the **delegate private key**
         const delegateSignature = create_sig_close_channel(delegate_key, msg);
+
+        // sign closing payment channel metatransaction using the **marketmaker private key**
         const marketmakerSignature = create_sig_close_channel(marketmaker_key, msg);
 
         // **as market maker**: actually close the channel ..
@@ -549,37 +558,39 @@ contract('XBRNetwork', accounts => {
         // check all event attributes
         const eargs2 = result2.args;
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        const actor_token_after = await token.balanceOf(actor);
-        const mm_token_after = await token.balanceOf(marketmaker);
+        // balances AFTER channel is closed
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
 
-        // console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        // console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        // console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        // console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        // console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        // console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // the channel contract must have distributed all tokens initially deposited into the channel
+        assert(amount.eq(channel_balance_before.sub(channel_balance_after)), "wrong channel balance before closing");
 
-        // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
-        assert.equal(token_before - token_after, balance, "wrong token amount transfered");
-        assert.equal(actor_token_after - actor_token_before, balance, "tokens not refunded to actor");
-        assert.equal(mm_token_after - mm_token_before, 0, "tokens refunded to market maker");
+        // amount spent is the initial amount minus the remaining balance
+        const spent = amount.sub(balance);
+
+        // assure the amount actually spent has been transferred to the market maker ..
+        assert(spent.eq(marketmaker_balance_after.sub(marketmaker_balance_before)));
+
+        // .. and not the market owner directly
+        assert(marketowner_balance_after.eq(marketowner_balance_before), "wrong balance for market owner");
+
+        // refunded amount is the remaining balance
+        const refund = balance;
+
+        // assure remaining channel balance has been refunded to the buyer actor
+        assert(refund.eq(actor_balance_after.sub(actor_balance_before)));
     });
 
     it('XBRChannel.closeChannel(ctype==PAYING) : market maker should close paying channel', async () => {
         // remember token amount the XBRChannel contract has BEFORE closing the channel
-        const token_before = await token.balanceOf(channel.address);
+        const channel_balance_before = await token.balanceOf(channel.address);
 
+        // seller actor (data provider) we use in this test
         const actor = bob;
         const actor_key = bob_key;
-        const actor_token_before = await token.balanceOf(actor);
-
-        // the XBR provider we use here
-        const marketmaker = alice_market_maker1;
-        const marketmaker_key = alice_market_maker1_key;
-
-        const mm_token_before = await token.balanceOf(marketmaker);
+        const actor_balance_before = await token.balanceOf(actor);
 
         // provider (seller) delegate address
         const delegate = bob_delegate1;
@@ -591,15 +602,27 @@ contract('XBRNetwork', accounts => {
 
         // get the market object, so we can access market maker address etc
         const market_ = await market.markets(marketId);
-        assert.equal(market_.maker, marketmaker, "unexpected market maker");
+        const marketmaker = market_.maker;
+        assert.equal(alice_market_maker1, marketmaker, "unexpected market maker");
+        const marketowner = market_.owner;
+        const marketowner_balance_before = await token.balanceOf(marketowner);
+        const marketmaker_balance_before = await token.balanceOf(marketmaker);
+        const marketmaker_key = alice_market_maker1_key;
 
         // current block number
         const closeAt = await web3.eth.getBlockNumber();
 
-        // 50 XBR channel deposit
-        const channelSeq = 1;
-        // const balance = '' + 10 * 10**18;
-        const balance = '' + 50 * 10**18;
+        // channel is closed at this channel sequence number
+        const channelSeq = 9;
+
+        // channel initial amount
+        const channel_ = await channel.channels(channelId);
+        const amount = channel_.amount;
+
+        // channel remaining balance at which the channel is closed
+        const balance = new BN(web3.utils.toWei('37', 'ether'));
+
+        // channel final flag (when agreed by both parties)
         const isFinal = true;
 
         // create signature over channel open data
@@ -614,9 +637,10 @@ contract('XBRNetwork', accounts => {
             'isFinal': isFinal
         };
 
-        // **as delegate & market maker**: sign the data, this must be signed with
-        // the private key of the actor in the channel (that is the consumer in case)
+        // sign closing payment channel metatransaction using the **delegate private key**
         const delegateSignature = create_sig_close_channel(delegate_key, msg);
+
+        // sign closing payment channel metatransaction using the **marketmaker private key**
         const marketmakerSignature = create_sig_close_channel(marketmaker_key, msg);
 
         // **as market maker**: actually close the channel ..
@@ -642,21 +666,28 @@ contract('XBRNetwork', accounts => {
         // check all event attributes
         const eargs2 = result2.args;
 
-        // remember token amount the XBRChannel contract has AFTER opening the channel
-        const token_after = await token.balanceOf(channel.address);
-        const actor_token_after = await token.balanceOf(actor);
-        const mm_token_after = await token.balanceOf(marketmaker);
+        // balances AFTER channel is closed
+        const channel_balance_after = await token.balanceOf(channel.address);
+        const actor_balance_after = await token.balanceOf(actor);
+        const marketowner_balance_after = await token.balanceOf(marketowner);
+        const marketmaker_balance_after = await token.balanceOf(marketmaker);
 
-        // console.log('XBRChannel token balance of channel before : ' + token_before / 10**18);
-        // console.log('XBRChannel token balance of channel after  : ' + token_after / 10**18);
-        // console.log('XBRChannel token balance of actor before   : ' + actor_token_before / 10**18);
-        // console.log('XBRChannel token balance of actor after    : ' + actor_token_after / 10**18);
-        // console.log('XBRChannel token balance of market maker before : ' + mm_token_before / 10**18);
-        // console.log('XBRChannel token balance of market maker after  : ' + mm_token_after / 10**18);
+        // the channel contract must have distributed all tokens initially deposited into the channel
+        assert(amount.eq(channel_balance_before.sub(channel_balance_after)), "wrong channel balance before closing");
 
-        // the difference BEFORE - AFTER must exactly equal the AMOUNT the channel was opened with
-        assert.equal(token_before - token_after, balance, "wrong token amount transfered");
-        assert.equal(actor_token_after - actor_token_before, 0, "tokens paid out to actor");
-        assert.equal(mm_token_after - mm_token_before, balance, "tokens not refunded to market maker");
+        // amount spent is the initial amount minus the remaining balance
+        const spent = amount.sub(balance);
+
+        // assure the amount actually spent has been transferred to the seller actor ..
+        assert(spent.eq(actor_balance_after.sub(actor_balance_before)));
+
+        // refunded amount is the remaining balance
+        const refund = balance;
+
+        // assure remaining channel balance has been refunded to the market maker ..
+        assert(refund.eq(marketmaker_balance_after.sub(marketmaker_balance_before)));
+
+        // .. and not the market owner directly
+        assert(marketowner_balance_after.eq(marketowner_balance_before), "wrong balance for market owner");
     });
 });
