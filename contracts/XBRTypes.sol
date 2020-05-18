@@ -30,7 +30,14 @@ library XBRTypes {
     // address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
 
     /// All XBR network member levels defined.
-    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
+    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED, RETIRING }
+
+    /// Market state for a given data market. The market can only be joined and new channels
+    /// can only be opened when the market is in state OPEN. When the market operator is closing
+    /// the market, state is moved to CLOSING. Once all channels have been closed, state is
+    /// moved to CLOSED. Once all actors have left (and any securities have been redeemed),
+    /// the market is moved to LIQUIDATED.
+    enum MarketState { NULL, OPEN, CLOSING, CLOSED, LIQUIDATED }
 
     /// All XBR market actor types defined.
     enum ActorType { NULL, PROVIDER, CONSUMER, PROVIDER_CONSUMER }
@@ -62,6 +69,18 @@ library XBRTypes {
         /// user on-boarded by directly interacting with the XBR contracts on-chain, this
         /// will be empty.
         bytes signature;
+    }
+
+    struct MemberStats {
+        /// Number of markets the member is currently joined to as a (buyer, seller, buyer+seller) actor.
+        uint32 marketsJoined;
+
+        /// Number of markets the member is currently owner (operator) of.
+        uint32 marketsOwned;
+
+        ///
+        uint256 marketSecurities;
+        uint256 channelDeposits;
     }
 
     /// Container type for holding XBR market actor information.
@@ -297,6 +316,23 @@ library XBRTypes {
 
         /// Optional profile meta-data multihash.
         string profile;
+    }
+
+    /// EIP712 type for use in member unregistration.
+    struct EIP712MemberUnregister {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// Address of the member that was unregistered.
+        address member;
+
+        /// Block number when the member retired from the XBR network.
+        uint256 retired;
     }
 
     /// EIP712 type for use in catalog creation.
@@ -550,6 +586,10 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_MEMBER_UNREGISTER_TYPEHASH = keccak256("EIP712MemberUnregister(uint256 chainId,address verifyingContract,address member,uint256 retired)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CATALOG_CREATE_TYPEHASH = keccak256("EIP712CatalogCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 catalogId,string terms,string meta)");
 
     /// EIP712 type data.
@@ -634,6 +674,16 @@ library XBRTypes {
             obj.registered,
             keccak256(bytes(obj.eula)),
             keccak256(bytes(obj.profile))
+        ));
+    }
+
+    function hash (EIP712MemberUnregister memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_UNREGISTER_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.retired
         ));
     }
 
@@ -744,6 +794,21 @@ library XBRTypes {
 
     /// Verify signature on typed data for registering a member.
     function verify (address signer, EIP712MemberRegister memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for unregistering a member.
+    function verify (address signer, EIP712MemberUnregister memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);

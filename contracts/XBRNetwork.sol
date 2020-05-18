@@ -43,7 +43,7 @@ contract XBRNetwork is XBRMaintained {
     event MemberChanged (address indexed member, uint changed, string eula, string profile, XBRTypes.MemberLevel level);
 
     /// Event emitted when a member leaves the XBR Network.
-    event MemberRetired (address member);
+    event MemberRetired (address member, uint retired);
 
     /// Event emitted when the payable status of a coin is changed.
     event CoinChanged (address indexed coin, address operator, bool isPayable);
@@ -160,6 +160,44 @@ contract XBRNetwork is XBRMaintained {
         emit MemberRegistered(member, registered, networkEula, profile, XBRTypes.MemberLevel.ACTIVE);
     }
 
+    /// Unregister the sender of this transaction from the XBR network.
+    function unregisterMember () public {
+        _unregisterMember(msg.sender, block.number, "");
+    }
+
+    /// Unregister the specified member from the XBR Network.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Address of the unregistering (existing) member.
+    /// @param retired Block number at which the unregistering member has created the signature.
+    /// @param signature EIP712 signature, signed by the unregistering member.
+    function unregisterMemberFor (address member, uint256 retired, bytes memory signature) public {
+
+        // verify signature
+        require(XBRTypes.verify(member, XBRTypes.EIP712MemberUnregister(verifyingChain, verifyingContract,
+            member, retired), signature), "INVALID_SIGNATURE");
+
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(retired <= block.number && (block.number <= PRESIGNED_TXN_MAX_AGE ||
+            retired >= (block.number - PRESIGNED_TXN_MAX_AGE)), "INVALID_BLOCK_NUMBER");
+
+        _unregisterMember(member, retired, signature);
+    }
+
+    function _unregisterMember (address member, uint256 retired, bytes memory signature) private {
+        // check that sender is currently a member
+        require(members[member].level == XBRTypes.MemberLevel.ACTIVE ||
+                members[member].level == XBRTypes.MemberLevel.VERIFIED, "MEMBER_NOT_REGISTERED");
+
+        // remember the member left the network
+        members[member].level = XBRTypes.MemberLevel.RETIRED;
+
+        // notify observers of retired member
+        emit MemberRetired(member, retired);
+    }
+
     /// Set the XBR network organization address.
     ///
     /// @param networkToken The token to run this network itself on. Note that XBR data markets can use
@@ -221,6 +259,11 @@ contract XBRNetwork is XBRMaintained {
         }
     }
 
+    /// Set the network contribution which is deducted from the market fees defined by a market operator.
+    ///
+    /// @param networkContribution Network contribution, defined as the ratio of given number of
+    ///                            tokens and the total token supply.
+    /// @return Flag indicating whether the contribution value was actually changed.
     function setContribution (uint256 networkContribution) public onlyMaintainer returns (bool) {
         require(networkContribution >= 0 && networkContribution <= token.totalSupply(), "INVALID_CONTRIBUTION");
         if (contribution != networkContribution) {

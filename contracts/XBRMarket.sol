@@ -85,6 +85,9 @@ contract XBRMarket is XBRMaintained {
     /// Index: market owner address => [market ID]
     mapping(address => bytes16[]) public marketsByOwner;
 
+    /// Index: market actor address => [market ID]
+    mapping(address => bytes16[]) public marketsByActor;
+
     // Constructor for this contract, only called once (when deploying the network).
     //
     // @param networkAdr The XBR network contract this instance is associated with.
@@ -203,6 +206,15 @@ contract XBRMarket is XBRMaintained {
             providerSecurity, consumerSecurity, marketFee);
     }
 
+    function closeMarket (bytes16 marketId) public {
+        // the market must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // the market must be owner by the sender
+        require(markets[marketId].owner == msg.sender, "SENDER_NOT_OWNER");
+
+    }
+
     /// Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
     ///
     /// @param marketId The ID of the XBR data market to join.
@@ -288,6 +300,11 @@ contract XBRMarket is XBRMaintained {
             markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, markets[marketId].consumerSecurity, meta, signature, new address[](0));
             markets[marketId].consumerActorAdrs.push(member);
         }
+
+        // remember market joined for the actor. note: this list can contain dups, as a given actor might join as both buyer and seller
+        // to the same market subsequently. an actor might also leave, and then rejoin a market. so this list should only be treated
+        // as a non-unique covering index
+        marketsByActor[member].push(marketId);
 
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
         //                        uint256 security, string meta)

@@ -21,9 +21,22 @@ XBRToken
 
 .. autosolcontract:: XBRToken
     :members:
-    :exclude-members:
+        constructor,
         INITIAL_SUPPLY,
-        constructor
+        transfer,
+        transferFrom,
+        approve,
+        burnedSignatures
+
+approveFor
+..........
+
+.. autosolfunction:: XBRToken.approveFor
+
+burnSignature
+.............
+
+.. autosolfunction:: XBRToken.burnSignature
 
 
 XBRNetwork
@@ -31,15 +44,25 @@ XBRNetwork
 
 .. autosolcontract:: XBRNetwork
     :members:
+        constructor,
+        ANYADR,
         MemberRegistered,
+        MemberChanged,
         MemberRetired,
+        CoinChanged,
         verifyingChain,
         verifyingContract,
         eula,
+        contribution,
         token,
         organization,
         members,
-        coins
+        coins,
+        setNetworkToken,
+        setNetworkOrganization,
+        setMemberLevel,
+        setCoinPayable,
+        setContribution
 
 registerMember
 ..............
