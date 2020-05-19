@@ -457,12 +457,35 @@ library XBRTypes {
         /// The ID of the market joined.
         bytes16 marketId;
 
-        /// The actor type as which to join, which can be "buyer" or "seller".
+        /// The actor type as which to join, which can be "buyer" or "seller" or "buyer+seller".
         uint8 actorType;
 
         /// Optional multihash for additional meta-data supplied
         /// for the actor joining the market.
         string meta;
+    }
+
+    /// EIP712 type for use in leaving markets.
+    struct EIP712MarketLeave {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member leaving the specified market as the given market actor type.
+        address member;
+
+        /// Block number when the member left the market.
+        uint256 left;
+
+        /// The ID of the market left.
+        bytes16 marketId;
+
+        /// The actor type as which to leave, which can be "buyer" or "seller" or "buyer+seller".
+        uint8 actorType;
     }
 
     /// EIP712 type for use in data consent tracking.
@@ -608,6 +631,10 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_MARKET_LEAVE_TYPEHASH = keccak256("EIP712MarketLeave(uint256 chainId,address verifyingContract,address member,uint256 left,bytes16 marketId,uint8 actorType)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CONSENT_TYPEHASH = keccak256("EIP712Consent(uint256 chainId,address verifyingContract,address member,uint256 updated,bytes16 marketId,address delegate,uint8 delegateType,bytes16 apiCatalog,bool consent)");
 
     /// EIP712 type data.
@@ -745,6 +772,18 @@ library XBRTypes {
         ));
     }
 
+    function hash (EIP712MarketLeave memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MARKET_JOIN_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.left,
+            obj.marketId,
+            obj.actorType
+        ));
+    }
+
     function hash (EIP712Consent memory obj) private pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_CONSENT_TYPEHASH,
@@ -869,6 +908,21 @@ library XBRTypes {
 
     /// Verify signature on typed data for joining a market.
     function verify (address signer, EIP712MarketJoin memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for leaving a market.
+    function verify (address signer, EIP712MarketLeave memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
