@@ -71,7 +71,7 @@ contract XBRMarket is XBRMaintained {
     XBRCatalog public catalog;
 
     /// Created markets are sequence numbered using this counter (to allow deterministic collision-free IDs for markets)
-    uint32 private marketSeq = 1;
+    uint32 public marketSeq = 1;
 
     /// Current XBR Markets ("market directory")
     mapping(bytes16 => XBRTypes.Market) public markets;
@@ -87,6 +87,9 @@ contract XBRMarket is XBRMaintained {
 
     /// Index: market actor address => [market ID]
     mapping(address => bytes16[]) public marketsByActor;
+
+    /// Network level (global) stats for an XBR network member.
+    mapping(address => XBRTypes.MemberMarketStats) public memberStats;
 
     // Constructor for this contract, only called once (when deploying the network).
     //
@@ -195,8 +198,11 @@ contract XBRMarket is XBRMaintained {
         // .. and the market-owner-to-market mapping
         marketsByOwner[member].push(marketId);
 
-        // .. and list of markst IDs
+        // .. and list of market IDs
         marketIds.push(marketId);
+
+        // .. and the member network-level stats
+        memberStats[member].marketsOwned += 1;
 
         // increment market sequence for next market
         marketSeq = marketSeq + 1;
@@ -292,12 +298,14 @@ contract XBRMarket is XBRMaintained {
 
         // remember actor (by actor address) within market
         if (actorType == uint8(XBRTypes.ActorType.PROVIDER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
-            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, markets[marketId].providerSecurity, meta, signature, new address[](0));
+            markets[marketId].providerActors[member] = XBRTypes.Actor(joined, markets[marketId].providerSecurity, meta,
+                signature, XBRTypes.ActorState.JOINED, new address[](0));
             markets[marketId].providerActorAdrs.push(member);
         }
 
         if (actorType == uint8(XBRTypes.ActorType.CONSUMER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
-            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, markets[marketId].consumerSecurity, meta, signature, new address[](0));
+            markets[marketId].consumerActors[member] = XBRTypes.Actor(joined, markets[marketId].consumerSecurity, meta,
+                signature, XBRTypes.ActorState.JOINED, new address[](0));
             markets[marketId].consumerActorAdrs.push(member);
         }
 
@@ -306,12 +314,23 @@ contract XBRMarket is XBRMaintained {
         // as a non-unique covering index
         marketsByActor[member].push(marketId);
 
+        // .. and the member network-level stats
+        memberStats[member].marketsJoined += 1;
+        memberStats[member].marketSecuritiesSent += security;
+
         // emit event ActorJoined(bytes16 marketId, address actor, ActorType actorType, uint joined,
         //                        uint256 security, string meta)
         emit ActorJoined(marketId, member, actorType, joined, security, meta);
 
         // return effective security transferred
         return security;
+    }
+
+    /// Leave the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
+    ///
+    /// @param marketId The ID of the XBR data market to join.
+    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+    function leaveMarket (bytes16 marketId, uint8 actorType) public returns (uint256) {
     }
 
     /// Track consent of an actor in a market to allow the specified seller or buyer delegate

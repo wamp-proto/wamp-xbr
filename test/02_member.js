@@ -14,6 +14,7 @@
 const w3_utils = require("web3-utils");
 const eth_sig_utils = require("eth-sig-util");
 const eth_util = require("ethereumjs-util");
+const BN = require('bn.js');
 
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
@@ -116,8 +117,8 @@ contract('XBRNetwork', accounts => {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
 
-        console.log('Using XBRNetwork         : ' + network.address);
-        console.log('Using XBRToken           : ' + token.address);
+        // console.log('Using XBRNetwork         : ' + network.address);
+        // console.log('Using XBRToken           : ' + token.address);
 
         // FIXME: none of the following works on Ganache v6.9.1 ..
 
@@ -132,8 +133,8 @@ contract('XBRNetwork', accounts => {
         chainId = await network.verifyingChain();
         verifyingContract = await network.verifyingContract();
 
-        console.log('Using chainId            : ' + chainId);
-        console.log('Using verifyingContract  : ' + verifyingContract);
+        // console.log('Using chainId            : ' + chainId);
+        // console.log('Using verifyingContract  : ' + verifyingContract);
     });
 
     /*

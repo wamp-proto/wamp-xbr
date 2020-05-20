@@ -39,6 +39,9 @@ library XBRTypes {
     /// the market is moved to LIQUIDATED.
     enum MarketState { NULL, OPEN, CLOSING, CLOSED, LIQUIDATED }
 
+    /// Current state of an actor in a market.
+    enum ActorState { NULL, JOINED, LEAVING, LEFT }
+
     /// All XBR market actor types defined.
     enum ActorType { NULL, PROVIDER, CONSUMER, PROVIDER_CONSUMER }
 
@@ -71,16 +74,28 @@ library XBRTypes {
         bytes signature;
     }
 
-    struct MemberStats {
-        /// Number of markets the member is currently joined to as a (buyer, seller, buyer+seller) actor.
-        uint32 marketsJoined;
-
+    /// Network level (global) stats for an XBR network member.
+    struct MemberMarketStats {
         /// Number of markets the member is currently owner (operator) of.
         uint32 marketsOwned;
 
-        ///
-        uint256 marketSecurities;
-        uint256 channelDeposits;
+        /// Number of markets the member is currently joined to as a (buyer, seller, buyer+seller) actor.
+        uint32 marketsJoined;
+
+        /// Total sum of consumer/provider securities put at stake as a buyer/seller-actor in any joined market.
+        uint256 marketSecuritiesSent;
+
+        uint256 marketSecuritiesReceived;
+    }
+
+    struct MemberChannelStats {
+        uint32 paymentChannels;
+        uint32 payingChannels;
+        uint32 activePaymentChannels;
+        uint32 activePayingChannels;
+        /// Total sum of deposits initially put into (currently still active / open) payment/paying channels by the buyer/seller-actor in any joined market.
+        uint256 activePaymentChannelDeposits;
+        uint256 activePayingChannelDeposits;
     }
 
     /// Container type for holding XBR market actor information.
@@ -96,6 +111,9 @@ library XBRTypes {
 
         /// This is the signature the user (actor) supplied for joining a market.
         bytes signature;
+
+        /// Current state of an actor in a market.
+        ActorState state;
 
         /// All payment (paying) channels of the respective buyer (seller) actor.
         address[] channels;
