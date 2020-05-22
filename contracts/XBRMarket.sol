@@ -51,11 +51,11 @@ contract XBRMarket is XBRMaintained {
     event MarketClosed (bytes16 indexed marketId);
 
     /// Event emitted when a new actor joined a market.
-    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint joined,
+    event ActorJoined (bytes16 indexed marketId, address actor, uint8 actorType, uint256 joined,
         uint256 security, string meta);
 
     /// Event emitted when an actor has left a market.
-    event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType);
+    event ActorLeft (bytes16 indexed marketId, address actor, uint8 actorType, uint256 left, uint256 securitiesToBeRefunded);
 
     /// Event emitted when an actor has set consent on a ``(market, delegate, api)`` triple.
     event ConsentSet (address member, uint256 updated, bytes16 marketId, address delegate,
@@ -326,11 +326,85 @@ contract XBRMarket is XBRMaintained {
         return security;
     }
 
-    /// Leave the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
+    /// Leave the given XBR market as the specified type of actor.
     ///
-    /// @param marketId The ID of the XBR data market to join.
-    /// @param actorType The type of actor under which to join: PROVIDER or CONSUMER.
+    /// @param marketId The ID of the XBR data market to leave.
+    /// @param actorType The type of actor under which to leave: PROVIDER or CONSUMER pr PROVIDER-CONSUMER.
     function leaveMarket (bytes16 marketId, uint8 actorType) public returns (uint256) {
+        return _leaveMarket(msg.sender, block.number, marketId, actorType, "");
+    }
+
+    /// Leave the given XBR market as the specified type of actor.
+    ///
+    /// IMPORTANT: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Address of member (which must be actor in the market) that is leaving the market.
+    /// @param left Block number at which the member left the market.
+    /// @param marketId The ID of the XBR data market to leave.
+    /// @param actorType The type of actor under which to leave: PROVIDER or CONSUMER pr PROVIDER-CONSUMER.
+    /// @param signature EIP712 signature, signed by the leaving actor.
+    function leaveMarketFor (address member, uint256 left, bytes16 marketId, uint8 actorType, bytes memory signature) public returns (uint256) {
+
+        require(XBRTypes.verify(member, XBRTypes.EIP712MarketLeave(network.verifyingChain(), network.verifyingContract(),
+            member, left, marketId, actorType), signature), "INVALID_SIGNATURE");
+
+        // signature must have been created in a window of PRESIGNED_TXN_MAX_AGE blocks from the current one
+        require(left <= block.number && (block.number <= network.PRESIGNED_TXN_MAX_AGE() ||
+            left >= (block.number - network.PRESIGNED_TXN_MAX_AGE())), "INVALID_BLOCK_NUMBER");
+
+        return _leaveMarket(member, left, marketId, actorType, signature);
+    }
+
+    function _leaveMarket (address member, uint256 left, bytes16 marketId, uint8 actorType, bytes memory signature) public returns (uint256) {
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
+
+        // the joining sender must be a registered member
+        require(member_level == XBRTypes.MemberLevel.ACTIVE, "SENDER_NOT_A_MEMBER");
+
+        // the market must exist
+        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+
+        // consent to the delegate acting as a data provider (seller) or data consumer (buyer)
+        require(actorType == uint8(XBRTypes.ActorType.PROVIDER) ||
+                actorType == uint8(XBRTypes.ActorType.CONSUMER) ||
+                actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER), "INVALID_ACTOR_TYPE");
+
+        uint256 securitiesToBeRefunded = 0;
+
+        if (actorType == uint8(XBRTypes.ActorType.PROVIDER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
+            // the member must be a provider actor in the market
+            require(uint8(markets[marketId].providerActors[member].joined) != 0, "MEMBER_NOT_PROVIDER");
+            require(uint8(markets[marketId].providerActors[member].state) == uint8(XBRTypes.ActorState.JOINED), "PROVIDER_NOT_JOINED");
+
+            if (markets[marketId].providerActors[member].security > 0) {
+                // if the member provided a security when joining as a provider, note that, and set actor state "LEAVING"
+                securitiesToBeRefunded += markets[marketId].providerActors[member].security;
+                markets[marketId].providerActors[member].state = XBRTypes.ActorState.LEAVING;
+            } else {
+                // when the member did not provide a security, immediately remove the actor
+                markets[marketId].providerActors[member] = XBRTypes.Actor(0, 0, "", "", XBRTypes.ActorState.NULL, new address[](0));
+            }
+        }
+
+        if (actorType == uint8(XBRTypes.ActorType.CONSUMER) || actorType == uint8(XBRTypes.ActorType.PROVIDER_CONSUMER)) {
+            // the member must be a consumer actor in the market
+            require(uint8(markets[marketId].consumerActors[member].joined) != 0, "MEMBER_NOT_CONSUMER");
+            require(uint8(markets[marketId].consumerActors[member].state) == uint8(XBRTypes.ActorState.JOINED), "CONSUMER_NOT_JOINED");
+
+            if (markets[marketId].consumerActors[member].security > 0) {
+                // if the member provided a security when joining as a provider, note that, and set actor state "LEAVING"
+                securitiesToBeRefunded += markets[marketId].consumerActors[member].security;
+                markets[marketId].consumerActors[member].state = XBRTypes.ActorState.LEAVING;
+            } else {
+                // when the member did not provide a security, immediately remove the actor
+                markets[marketId].consumerActors[member] = XBRTypes.Actor(0, 0, "", "", XBRTypes.ActorState.NULL, new address[](0));
+            }
+        }
+
+        emit ActorLeft(marketId, member, actorType, left, securitiesToBeRefunded);
+
+        return securitiesToBeRefunded;
     }
 
     /// Track consent of an actor in a market to allow the specified seller or buyer delegate
