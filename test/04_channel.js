@@ -204,7 +204,7 @@ contract('XBRNetwork', accounts => {
         // console.log('Using chainId            : ' + chainId);
         // console.log('Using verifyingContract  : ' + verifyingContract);
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
         const _alice = await network.members(alice);

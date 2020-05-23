@@ -263,7 +263,7 @@ contract('XBRNetwork', accounts => {
         const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
-        console.log('XBRNetwork.registerMemberFor(): member=' + member + ', member_key=' + member_key);
+        // console.log('XBRNetwork.registerMemberFor(): member=' + member + ', member_key=' + member_key);
 
         const msg = {
             'chainId': chainId,
@@ -273,10 +273,10 @@ contract('XBRNetwork', accounts => {
             'eula': eula,
             'profile': profile,
         }
-        console.log('MESSAGE', msg);
+        // console.log('MESSAGE', msg);
 
         const signature = create_sig(member_key, msg);
-        console.log('SIGNATURE', signature);
+        // console.log('SIGNATURE', signature);
 
         const txn = await network.registerMemberFor(member, registered, eula, profile, signature, {from: alice, gasLimit: gasLimit});
 
