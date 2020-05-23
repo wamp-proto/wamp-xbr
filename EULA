@@ -1,0 +1,36 @@
+XBR End User License Agreement (EULA)
+=====================================
+
+The XBR Ethereum smart contracts are deployed by Crossbar.io GmbH ("Crossbar.io") to
+Ethereum testnets, and will be deployed to mainnet.
+
+They are intended for testing purposes only and Crossbar.io makes no warranties regarding
+any functionality or fitness for any purpose.
+
+This EULA grants you a license to use these contracts for testing the XBR technology stack
+developed and deployed by Crossbar.io. This does not cover usage which may endanger the
+health or lives of people as well as property. Usage is at your own risk.
+
+By joining and using the XBR Network, you agree to this EULA and accept that the
+following IP is held and fully owned by Crossbar.io:
+
+* the Crossbar.io, WAMP and XBR trademarks, and
+* the copyright in Crossbar.io, Crossbar.io FX, including the XBR market maker,
+* and the XBR smart contracts.
+
+Should you (as a current licensed user) sue Crossbar.io, or its parent holding or
+subsidiaries, in connection with the above IP, then this license is automatically revoked.
+
+Contact information
+...................
+
+Crossbar.io GmbH
+
+Address	        Waldstrasse 18, 91054 Erlangen, Germany
+Email	        contact@crossbario.com
+Registration    HRB15870 Fuerth (Germany)
+VAT ID          DE309012368
+
+----------------------------------------------------------
+
+Crossbar.io GmbH, 2020/05/23

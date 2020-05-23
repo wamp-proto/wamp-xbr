@@ -2,8 +2,6 @@
 //
 //  XBR Open Data Markets - https://xbr.network
 //
-//  JavaScript client library for the XBR Network.
-//
 //  Copyright (C) Crossbar.io Technologies GmbH and contributors
 //
 //  Licensed under the Apache 2.0 License:
@@ -114,10 +112,10 @@ contract('XBRTest', accounts => {
         DomainData['message'] = msg;
 
         var msg_hash = utils.hashStruct(DomainData.primaryType, DomainData.message, DomainData.types);
-        console.log('MSG_HASH = ', eth_util.bufferToHex(msg_hash));
+        // console.log('MSG_HASH = ', eth_util.bufferToHex(msg_hash));
 
         var msg_sig = eth_sig_utils.signTypedData(key, {data: DomainData})
-        console.log("SIGNATURE = " + msg_sig);
+        // console.log("SIGNATURE = " + msg_sig);
 
         var signer = eth_sig_utils.recoverTypedSignature({data: DomainData, sig: msg_sig});
         signer = w3_utils.toChecksumAddress(signer);

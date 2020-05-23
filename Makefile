@@ -104,7 +104,13 @@ test_04:
 	$(TRUFFLE) test --network ganache ./test/04_channel.js
 
 test_05:
-	$(TRUFFLE) test --network ganache ./test/05_test.js
+	$(TRUFFLE) test --network ganache ./test/05_domain.js
+
+test_06:
+	$(TRUFFLE) test --network ganache ./test/06_catalog.js
+
+test_07:
+	$(TRUFFLE) test --network ganache ./test/07_test.js
 
 
 coverage:
@@ -154,13 +160,38 @@ truffle_test:
 
 
 #
-# XBR Protocol smart contracts
+# XBR v20.5.1 "EULA": QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94
 #
-publish_ipfs_eula:
-	cd ipfs && zip -r - xbr-eula | ipfs add
+publish_eula:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"EULA"
 
-publish_ipfs_members:
-	cd ipfs/members && ipfs add *.rdf
+fetch_eula:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94"
+
+#
+# Crossbar.io FX v20.5.1 "LICENSE": QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug
+#
+publish_cfx_license:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"../crossbarfx/crossbarfx/LICENSE"
+
+fetch_cfx_license:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug"
+
+
+publish_cfx_test_config:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"../crossbar-examples/nodeinfo/.crossbar/config.json"
+
+fetch_cfx_test_config:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW"
 
 
 #
@@ -198,6 +229,7 @@ run_ganache:
 # 3) compile xbr smart contracts
 compile:
 	wc -l contracts/*.sol
+	cloc contracts/*.sol
 	grep "struct [A-Z][A-Za-z0-9]* {" contracts/XBRTypes.sol | sort
 	$(TRUFFLE) compile --all
 	python ./check-abi-files.py

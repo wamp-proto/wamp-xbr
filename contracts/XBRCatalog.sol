@@ -115,11 +115,11 @@ contract XBRCatalog is XBRMaintained {
         // add catalogId to list of all catalog IDs
         catalogIds.push(catalogId);
 
-        // increment catalog sequence for next catalog
-        catalogSeq = catalogSeq + 1;
-
         // notify observers of new catalogs
         emit CatalogCreated(catalogId, created, catalogSeq, member, terms, meta);
+
+        // increment catalog sequence for next catalog
+        catalogSeq = catalogSeq + 1;
     }
 
     /// Publish the given API to the specified catalog.

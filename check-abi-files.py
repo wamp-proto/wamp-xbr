@@ -22,6 +22,6 @@ results = sorted(results)
 
 print('\nCompiled (deployed) contract size - the maximum allowed (per-contract) is {} bytes!\n\n'.format(MAX_CONTRACT_BYTECODE_SIZE))
 for fn, bytecode, deployedBytecode in results:
-    print('ABI file: {:<40} bytecode: {:>5} bytes    deployedBytecode: {:>5} bytes {}'.format(
+    print('ABI file: {:<50} bytecode: {:>5} bytes    deployedBytecode: {:>5} bytes {}'.format(
         '"' + fn + '"', bytecode, deployedBytecode, '  WARNING - maximum deployed contract size of 24kB exceeded' if warn else ''))
 print('\n')

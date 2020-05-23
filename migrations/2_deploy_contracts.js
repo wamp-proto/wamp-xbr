@@ -2,8 +2,6 @@
 //
 //  XBR Open Data Markets - https://xbr.network
 //
-//  JavaScript client library for the XBR Network.
-//
 //  Copyright (C) Crossbar.io Technologies GmbH and contributors
 //
 //  Licensed under the Apache 2.0 License:
@@ -15,6 +13,7 @@ const XBRTest = artifacts.require("./XBRTest.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
 const XBRTypes = artifacts.require("./XBRTypes.sol");
+const XBRDomain = artifacts.require("./XBRDomain.sol");
 const XBRMarket = artifacts.require("./XBRMarket.sol");
 const XBRCatalog = artifacts.require("./XBRCatalog.sol");
 const XBRChannel = artifacts.require("./XBRChannel.sol");
@@ -34,9 +33,9 @@ module.exports = function (deployer, network, accounts) {
         // the block gas limit on Rinkeby and Mainnet hovers _around_ 10m (!)
         // eg on Mainnet: Min. 9,955,619 - gas Max. 9,999,175 gas
         // so we use (10m - sth) as limit (not outright 10m)
-        // gas = 9950000;
+        gas = 9950000;
         // gas = 10000000 - 100;
-        gas = 10000000;
+        // gas = 10000000;
     }
 
     const organization = accounts[0];
@@ -53,6 +52,11 @@ module.exports = function (deployer, network, accounts) {
         await deployer.link(XBRTypes, XBRNetwork);
         await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
         console.log('>>>> XBRNetwork deployed at ' + XBRNetwork.address);
+
+        await deployer.link(XBRTypes, XBRDomain);
+        await deployer.link(XBRNetwork, XBRDomain);
+        await deployer.deploy(XBRDomain, XBRNetwork.address, {gas: gas, from: organization});
+        console.log('>>>> XBRDomain deployed at ' + XBRDomain.address);
 
         await deployer.link(XBRTypes, XBRCatalog);
         await deployer.link(XBRNetwork, XBRCatalog);
@@ -80,8 +84,9 @@ module.exports = function (deployer, network, accounts) {
         console.log('\nDeployed XBR contract addresses:\n');
         console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
         console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
-        console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
+        console.log('export XBR_DEBUG_DOMAIN_ADDR=' + XBRDomain.address);
         console.log('export XBR_DEBUG_CATALOG_ADDR=' + XBRCatalog.address);
+        console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
         console.log('export XBR_DEBUG_CHANNEL_ADDR=' + XBRChannel.address);
         console.log('\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n');
     });

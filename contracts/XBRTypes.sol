@@ -30,7 +30,23 @@ library XBRTypes {
     // address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
 
     /// All XBR network member levels defined.
-    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED }
+    enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED, RETIRING }
+
+    /// XBR Domain status values
+    enum DomainStatus { NULL, ACTIVE, CLOSED }
+
+    /// XBR Carrier Node types
+    enum NodeType { NULL, MASTER, CORE, EDGE }
+
+    /// Market state for a given data market. The market can only be joined and new channels
+    /// can only be opened when the market is in state OPEN. When the market operator is closing
+    /// the market, state is moved to CLOSING. Once all channels have been closed, state is
+    /// moved to CLOSED. Once all actors have left (and any securities have been redeemed),
+    /// the market is moved to LIQUIDATED.
+    enum MarketState { NULL, OPEN, CLOSING, CLOSED, LIQUIDATED }
+
+    /// Current state of an actor in a market.
+    enum ActorState { NULL, JOINED, LEAVING, LEFT }
 
     /// All XBR market actor types defined.
     enum ActorType { NULL, PROVIDER, CONSUMER, PROVIDER_CONSUMER }
@@ -64,6 +80,81 @@ library XBRTypes {
         bytes signature;
     }
 
+    /// Container type for holding XBR Domain information.
+    struct Domain {
+        /// Block number when the domain was created.
+        uint256 created;
+
+        /// Domain sequence.
+        uint32 seq;
+
+        /// Domain status
+        DomainStatus status;
+
+        /// Domain owner.
+        address owner;
+
+        /// Domain signing key (Ed25519 public key).
+        bytes32 key;
+
+        /// Software stack license file on IPFS (required).
+        string license;
+
+        /// Optional domain terms on IPFS.
+        string terms;
+
+        /// Optional domain metadata on IPFS.
+        string meta;
+
+        bytes signature;
+
+        /// Nodes within the domain.
+        bytes16[] nodes;
+    }
+
+    /// Container type for holding XBR Domain Nodes information.
+    struct Node {
+        /// Block number when the node was paired to the respective domain.
+        uint256 paired;
+
+        bytes16 domain;
+
+        /// Type of node.
+        NodeType nodeType;
+
+        /// Node key (Ed25519 public key).
+        bytes32 key;
+
+        /// Optional (encrypted) node configuration on IPFS.
+        string config;
+
+        bytes signature;
+    }
+
+    /// Network level (global) stats for an XBR network member.
+    struct MemberMarketStats {
+        /// Number of markets the member is currently owner (operator) of.
+        uint32 marketsOwned;
+
+        /// Number of markets the member is currently joined to as a (buyer, seller, buyer+seller) actor.
+        uint32 marketsJoined;
+
+        /// Total sum of consumer/provider securities put at stake as a buyer/seller-actor in any joined market.
+        uint256 marketSecuritiesSent;
+
+        uint256 marketSecuritiesReceived;
+    }
+
+    struct MemberChannelStats {
+        uint32 paymentChannels;
+        uint32 payingChannels;
+        uint32 activePaymentChannels;
+        uint32 activePayingChannels;
+        /// Total sum of deposits initially put into (currently still active / open) payment/paying channels by the buyer/seller-actor in any joined market.
+        uint256 activePaymentChannelDeposits;
+        uint256 activePayingChannelDeposits;
+    }
+
     /// Container type for holding XBR market actor information.
     struct Actor {
         /// Block number when the actor has joined the respective market.
@@ -77,6 +168,9 @@ library XBRTypes {
 
         /// This is the signature the user (actor) supplied for joining a market.
         bytes signature;
+
+        /// Current state of an actor in a market.
+        ActorState state;
 
         /// All payment (paying) channels of the respective buyer (seller) actor.
         address[] channels;
@@ -299,6 +393,87 @@ library XBRTypes {
         string profile;
     }
 
+    /// EIP712 type for use in member unregistration.
+    struct EIP712MemberUnregister {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// Address of the member that was unregistered.
+        address member;
+
+        /// Block number when the member retired from the XBR network.
+        uint256 retired;
+    }
+
+    /// EIP712 type for use in domain creation.
+    struct EIP712DomainCreate {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The member that created the domain.
+        address member;
+
+        /// Block number when the member registered in the XBR network.
+        uint256 created;
+
+        /// The ID of the domain created (a 16 bytes UUID which is globally unique to that market).
+        bytes16 domainId;
+
+        /// Domain signing key (Ed25519 public key).
+        bytes32 domainKey;
+
+        /// Multihash for the license for the software stack running the domain.
+        string license;
+
+        /// Multihash for the terms applying to this domain.
+        string terms;
+
+        /// Multihash for optional meta-data supplied for the domain.
+        string meta;
+    }
+
+    /// EIP712 type for use in publishing APIs to catalogs.
+    struct EIP712NodePair {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member pairing the node.
+        address member;
+
+        /// Block number when the node was paired to the domain.
+        uint256 paired;
+
+        /// The ID of the node to pair. Must be globally unique (not yet existing).
+        bytes16 nodeId;
+
+        /// The ID of the domain to pair the node with.
+        bytes16 domainId;
+
+        /// The type of node to pair the node under.
+        NodeType nodeType;
+
+        /// The Ed25519 public node key.
+        bytes32 nodeKey;
+
+        /// Optional IPFS Multihash pointing to node configuration stored on IPFS.
+        string config;
+    }
+
     /// EIP712 type for use in catalog creation.
     struct EIP712CatalogCreate {
         /// Verifying chain ID, which binds the signature to that chain
@@ -421,12 +596,35 @@ library XBRTypes {
         /// The ID of the market joined.
         bytes16 marketId;
 
-        /// The actor type as which to join, which can be "buyer" or "seller".
+        /// The actor type as which to join, which can be "buyer" or "seller" or "buyer+seller".
         uint8 actorType;
 
         /// Optional multihash for additional meta-data supplied
         /// for the actor joining the market.
         string meta;
+    }
+
+    /// EIP712 type for use in leaving markets.
+    struct EIP712MarketLeave {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member leaving the specified market as the given market actor type.
+        address member;
+
+        /// Block number when the member left the market.
+        uint256 left;
+
+        /// The ID of the market left.
+        bytes16 marketId;
+
+        /// The actor type as which to leave, which can be "buyer" or "seller" or "buyer+seller".
+        uint8 actorType;
     }
 
     /// EIP712 type for use in data consent tracking.
@@ -550,6 +748,18 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_MEMBER_UNREGISTER_TYPEHASH = keccak256("EIP712MemberUnregister(uint256 chainId,address verifyingContract,address member,uint256 retired)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_DOMAIN_CREATE_TYPEHASH = keccak256("EIP712DomainCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 domainId,bytes32 domainKey,string license,string terms,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,string config)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CATALOG_CREATE_TYPEHASH = keccak256("EIP712CatalogCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 catalogId,string terms,string meta)");
 
     /// EIP712 type data.
@@ -559,12 +769,14 @@ library XBRTypes {
     /// EIP712 type data.
     // solhint-disable-next-line
     bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 marketFee)");
-    // solhint-disable-next-line
-    // bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
     bytes32 constant EIP712_MARKET_JOIN_TYPEHASH = keccak256("EIP712MarketJoin(uint256 chainId,address verifyingContract,address member,uint256 joined,bytes16 marketId,uint8 actorType,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
+    bytes32 constant EIP712_MARKET_LEAVE_TYPEHASH = keccak256("EIP712MarketLeave(uint256 chainId,address verifyingContract,address member,uint256 left,bytes16 marketId,uint8 actorType)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -637,6 +849,46 @@ library XBRTypes {
         ));
     }
 
+    function hash (EIP712MemberUnregister memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MEMBER_UNREGISTER_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.retired
+        ));
+    }
+
+    function hash (EIP712DomainCreate memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_DOMAIN_CREATE_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.created,
+            obj.domainId,
+            obj.domainKey,
+            keccak256(bytes(obj.license)),
+            keccak256(bytes(obj.terms)),
+            keccak256(bytes(obj.meta))
+        ));
+    }
+
+    function hash (EIP712NodePair memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_NODE_PAIR_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.paired,
+            obj.nodeId,
+            obj.domainId,
+            obj.nodeType,
+            obj.nodeKey,
+            keccak256(bytes(obj.config))
+        ));
+    }
+
     function hash (EIP712CatalogCreate memory obj) private pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_CATALOG_CREATE_TYPEHASH,
@@ -692,6 +944,18 @@ library XBRTypes {
             obj.marketId,
             obj.actorType,
             keccak256(bytes(obj.meta))
+        ));
+    }
+
+    function hash (EIP712MarketLeave memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_MARKET_JOIN_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.left,
+            obj.marketId,
+            obj.actorType
         ));
     }
 
@@ -757,6 +1021,51 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    /// Verify signature on typed data for unregistering a member.
+    function verify (address signer, EIP712MemberUnregister memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for creating a domain.
+    function verify (address signer, EIP712DomainCreate memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for pairing a node.
+    function verify (address signer, EIP712NodePair memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
     /// Verify signature on typed data for creating a catalog.
     function verify (address signer, EIP712CatalogCreate memory obj,
         bytes memory signature) public pure returns (bool) {
@@ -804,6 +1113,21 @@ library XBRTypes {
 
     /// Verify signature on typed data for joining a market.
     function verify (address signer, EIP712MarketJoin memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for leaving a market.
+    function verify (address signer, EIP712MarketLeave memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);

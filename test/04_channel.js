@@ -2,8 +2,6 @@
 //
 //  XBR Open Data Markets - https://xbr.network
 //
-//  JavaScript client library for the XBR Network.
-//
 //  Copyright (C) Crossbar.io Technologies GmbH and contributors
 //
 //  Licensed under the Apache 2.0 License:
@@ -204,7 +202,7 @@ contract('XBRNetwork', accounts => {
         // console.log('Using chainId            : ' + chainId);
         // console.log('Using verifyingContract  : ' + verifyingContract);
 
-        const eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+        const eula = await network.eula();
         const profile = "QmQMtxYtLQkirCsVmc3YSTFQWXHkwcASMnu5msezGEwHLT";
 
         const _alice = await network.members(alice);

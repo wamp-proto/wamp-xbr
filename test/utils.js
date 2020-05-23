@@ -1,3 +1,14 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+//  XBR Open Data Markets - https://xbr.network
+//
+//  Copyright (C) Crossbar.io Technologies GmbH and contributors
+//
+//  Licensed under the Apache 2.0 License:
+//  https://opensource.org/licenses/Apache-2.0
+//
+///////////////////////////////////////////////////////////////////////////////
+
 // https://gist.github.com/naps62/e987323357fb7630871eb293e0308c36
 function mine_tx (txhash, interval) {
     return new Promise((resolve, reject) => {
