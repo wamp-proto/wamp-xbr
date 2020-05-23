@@ -198,6 +198,7 @@ run_ganache:
 # 3) compile xbr smart contracts
 compile:
 	wc -l contracts/*.sol
+	cloc contracts/*.sol
 	grep "struct [A-Z][A-Za-z0-9]* {" contracts/XBRTypes.sol | sort
 	$(TRUFFLE) compile --all
 	python ./check-abi-files.py
