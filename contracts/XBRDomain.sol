@@ -79,30 +79,71 @@ contract XBRDomain is XBRMaintained {
         network = XBRNetwork(networkAdr);
     }
 
-    /**
-     *  Create a new XBR domain. Then sender to the transaction must be XBR network member
-     *  and automatically becomes owner of the new domain.
-     *
-     *  @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
-     *  @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
-     *  @param license The license for the software stack running the domain. IPFS Multihash
-     *                 pointing to a JSON/YAML file signed by the project release key.
-     */
-    function createDomain (bytes16 domainId, bytes32 domainKey, string memory license,
-        string memory terms, string memory meta) public {
+    /// Create a new XBR domain.
+    ///
+    /// @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
+    /// @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
+    /// @param license The license for the software stack running the domain. IPFS Multihash
+    ///                pointing to a JSON/YAML file signed by the project release key.
+    /// @param terms Multihash for terms that apply to the domain and to all APIs as published to this catalog.
+    /// @param meta Multihash for optional domain meta-data.
+    function createDomain (bytes16 domainId, bytes32 domainKey, string memory license, string memory terms,
+        string memory meta) private {
 
-        // require(members[msg.sender].level == MemberLevel.ACTIVE ||
-        //         members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
+        _createDomain(msg.sender, block.number, domainId, domainKey, license, terms, meta, "");
+    }
 
-        // require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
+    /// Create a new XBR domain.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Member that creates the domain and will become owner.
+    /// @param created Block number when the catalog was created.
+    /// @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
+    /// @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
+    /// @param license The license for the software stack running the domain. IPFS Multihash
+    ///                pointing to a JSON/YAML file signed by the project release key.
+    /// @param terms Multihash for terms that apply to the domain and to all APIs as published to this catalog.
+    /// @param meta Multihash for optional domain meta-data.
+    /// @param signature Signature created by the member.
+    function createDomainFor (address member, uint256 created, bytes16 domainId, bytes32 domainKey,
+        string memory license, string memory terms, string memory meta, bytes memory signature) private {
 
-        // domains[domainId] = Domain(domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
-        //                             license, terms, meta, new bytes16[](0));
+        require(XBRTypes.verify(member, XBRTypes.EIP712DomainCreate(network.verifyingChain(), network.verifyingContract(),
+            member, created, domainId, domainKey, license, terms, meta), signature),
+            "INVALID_SIGNATURE");
 
-        // emit DomainCreated(domainId, domainSeq, DomainStatus.ACTIVE, msg.sender, domainKey,
-        //                     license, terms, meta);
+        // signature must have been created in a window of 5 blocks from the current one
+        require(created <= block.number && created >= (block.number - 4), "INVALID_BLOCK_NUMBER");
 
-        // domainSeq = domainSeq + 1;
+        _createDomain(member, created, domainId, domainKey, license, terms, meta, signature);
+    }
+
+    function _createDomain (address member, uint256 created, bytes16 domainId, bytes32 domainKey,
+        string memory license, string memory terms, string memory meta, bytes memory signature) private {
+        (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
+
+        // the domain owner must be a registered member
+        require(member_level == XBRTypes.MemberLevel.ACTIVE ||
+                member_level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
+
+        // domain must not yet exist
+        require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
+
+        // store new domain object
+        domains[domainId] = XBRTypes.Domain(domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
+            domainKey, license, terms, meta, new bytes16[](0));
+
+        // add domainId to list of all domain IDs
+        domainIds.push(domainId);
+
+        // notify observers of new domains
+        emit DomainCreated(domainId, domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
+            domainKey, license, terms, meta);
+
+        // increment domain sequence for next domain
+        domainSeq = domainSeq + 1;
     }
 
     /**

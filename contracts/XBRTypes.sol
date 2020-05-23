@@ -400,6 +400,38 @@ library XBRTypes {
         uint256 retired;
     }
 
+    /// EIP712 type for use in domain creation.
+    struct EIP712DomainCreate {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The member that created the domain.
+        address member;
+
+        /// Block number when the member registered in the XBR network.
+        uint256 created;
+
+        /// The ID of the domain created (a 16 bytes UUID which is globally unique to that market).
+        bytes16 domainId;
+
+        /// Domain signing key (Ed25519 public key).
+        bytes32 domainKey;
+
+        /// Multihash for the license for the software stack running the domain.
+        string license;
+
+        /// Multihash for the terms applying to this domain.
+        string terms;
+
+        /// Multihash for optional meta-data supplied for the domain.
+        string meta;
+    }
+
     /// EIP712 type for use in catalog creation.
     struct EIP712CatalogCreate {
         /// Verifying chain ID, which binds the signature to that chain
@@ -678,6 +710,10 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_DOMAIN_CREATE_TYPEHASH = keccak256("EIP712DomainCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 domainId,byte32 domainKey,string license,string terms,string meta)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CATALOG_CREATE_TYPEHASH = keccak256("EIP712CatalogCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 catalogId,string terms,string meta)");
 
     /// EIP712 type data.
@@ -687,8 +723,6 @@ library XBRTypes {
     /// EIP712 type data.
     // solhint-disable-next-line
     bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 marketFee)");
-    // solhint-disable-next-line
-    // bytes32 constant EIP712_MARKET_CREATE_TYPEHASH = keccak256("EIP712MarketCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 marketId,address coin,string terms,string meta,address maker,uint256 providerSecurity,uint256 consumerSecurity,uint256 marketFee)");
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -776,6 +810,21 @@ library XBRTypes {
             obj.verifyingContract,
             obj.member,
             obj.retired
+        ));
+    }
+
+    function hash (EIP712DomainCreate memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_DOMAIN_CREATE_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.created,
+            obj.domainId,
+            obj.domainKey,
+            keccak256(bytes(obj.license)),
+            keccak256(bytes(obj.terms)),
+            keccak256(bytes(obj.meta))
         ));
     }
 
@@ -913,6 +962,21 @@ library XBRTypes {
 
     /// Verify signature on typed data for unregistering a member.
     function verify (address signer, EIP712MemberUnregister memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for creating a catalog.
+    function verify (address signer, EIP712DomainCreate memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
