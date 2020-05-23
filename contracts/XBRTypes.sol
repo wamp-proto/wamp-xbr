@@ -82,6 +82,9 @@ library XBRTypes {
 
     /// Container type for holding XBR Domain information.
     struct Domain {
+        /// Block number when the domain was created.
+        uint256 created;
+
         /// Domain sequence.
         uint32 domainSeq;
 
@@ -103,12 +106,17 @@ library XBRTypes {
         /// Optional domain metadata on IPFS.
         string meta;
 
+        bytes signature;
+
         /// Nodes within the domain.
         bytes16[] nodes;
     }
 
     /// Container type for holding XBR Domain Nodes information.
     struct Node {
+        /// Block number when the node was paired to the respective domain.
+        uint256 paired;
+
         bytes16 domain;
 
         /// Type of node.
@@ -119,6 +127,8 @@ library XBRTypes {
 
         /// Optional (encrypted) node configuration on IPFS.
         string config;
+
+        bytes signature;
     }
 
     /// Network level (global) stats for an XBR network member.
@@ -432,6 +442,38 @@ library XBRTypes {
         string meta;
     }
 
+    /// EIP712 type for use in publishing APIs to catalogs.
+    struct EIP712NodePair {
+        /// Verifying chain ID, which binds the signature to that chain
+        /// for cross-chain replay-attack protection.
+        uint256 chainId;
+
+        /// Verifying contract address, which binds the signature to that address
+        /// for cross-contract replay-attack protection.
+        address verifyingContract;
+
+        /// The XBR network member pairing the node.
+        address member;
+
+        /// Block number when the node was paired to the domain.
+        uint256 paired;
+
+        /// The ID of the node to pair. Must be globally unique (not yet existing).
+        bytes16 nodeId;
+
+        /// The ID of the domain to pair the node with.
+        bytes16 domainId;
+
+        /// The type of node to pair the node under.
+        NodeType nodeType;
+
+        /// The Ed25519 public node key.
+        bytes32 nodeKey;
+
+        /// Optional IPFS Multihash pointing to node configuration stored on IPFS.
+        string config;
+    }
+
     /// EIP712 type for use in catalog creation.
     struct EIP712CatalogCreate {
         /// Verifying chain ID, which binds the signature to that chain
@@ -714,6 +756,10 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
+    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,string config)");
+
+    /// EIP712 type data.
+    // solhint-disable-next-line
     bytes32 constant EIP712_CATALOG_CREATE_TYPEHASH = keccak256("EIP712CatalogCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 catalogId,string terms,string meta)");
 
     /// EIP712 type data.
@@ -825,6 +871,21 @@ library XBRTypes {
             keccak256(bytes(obj.license)),
             keccak256(bytes(obj.terms)),
             keccak256(bytes(obj.meta))
+        ));
+    }
+
+    function hash (EIP712NodePair memory obj) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_NODE_PAIR_TYPEHASH,
+            obj.chainId,
+            obj.verifyingContract,
+            obj.member,
+            obj.paired,
+            obj.nodeId,
+            obj.domainId,
+            obj.nodeType,
+            obj.nodeKey,
+            keccak256(bytes(obj.config))
         ));
     }
 
@@ -975,8 +1036,23 @@ library XBRTypes {
         return ecrecover(digest, v, r, s) == signer;
     }
 
-    /// Verify signature on typed data for creating a catalog.
+    /// Verify signature on typed data for creating a domain.
     function verify (address signer, EIP712DomainCreate memory obj,
+        bytes memory signature) public pure returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
+    /// Verify signature on typed data for pairing a node.
+    function verify (address signer, EIP712NodePair memory obj,
         bytes memory signature) public pure returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);

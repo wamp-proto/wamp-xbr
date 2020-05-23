@@ -46,13 +46,13 @@ contract XBRDomain is XBRMaintained {
     event DomainClosed (bytes16 indexed domainId, XBRTypes.DomainStatus status);
 
     /// Event emitted when a new node was paired with the domain.
-    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, uint256 paired, bytes32 nodeKey, string config);
 
     /// Event emitted when a node was updated.
-    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, bytes32 nodeKey, string config);
+    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, uint256 updated, bytes32 nodeKey, string config);
 
     /// Event emitted when a node was released from a domain.
-    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId);
+    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId, uint256 released);
 
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
@@ -132,8 +132,8 @@ contract XBRDomain is XBRMaintained {
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
         // store new domain object
-        domains[domainId] = XBRTypes.Domain(domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
-            domainKey, license, terms, meta, new bytes16[](0));
+        domains[domainId] = XBRTypes.Domain(created, domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
+            domainKey, license, terms, meta, signature, new bytes16[](0));
 
         // add domainId to list of all domain IDs
         domainIds.push(domainId);
@@ -146,25 +146,15 @@ contract XBRDomain is XBRMaintained {
         domainSeq = domainSeq + 1;
     }
 
-    /**
-     * Close an existing XBR domain. The sender must be owner of the domain, and the domain
-     * must not have any nodes paired (anymore).
-     *
-     * @param domainId The ID of the domain to close.
-     */
-    function closeDomain (bytes16 domainId) public {
-        // require(members[msg.sender].level == MemberLevel.ACTIVE ||
-        //         members[msg.sender].level == MemberLevel.VERIFIED, "NOT_A_MEMBER");
-        // require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        // require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
-        // require(domains[domainId].status == DomainStatus.ACTIVE, "DOMAIN_NOT_ACTIVE");
-
-        // // FIXME: check that the domain has no active objects associated anymore
-
-        // domains[domainId].status = DomainStatus.CLOSED;
-
-        // emit DomainClosed(domainId, DomainStatus.CLOSED);
-    }
+    // /**
+    //  * Close an existing XBR domain. The sender must be owner of the domain, and the domain
+    //  * must not have any nodes paired (anymore).
+    //  *
+    //  * @param domainId The ID of the domain to close.
+    //  */
+    // function closeDomain (bytes16 domainId) public {
+    //     require(false, "NOT_IMPLEMENTED");
+    // }
 
     /**
      * Returns domain status.
@@ -226,53 +216,83 @@ contract XBRDomain is XBRMaintained {
         return domains[domainId].meta;
     }
 
-    /**
-     * Pair a node with an existing XBR Domain. The sender must be owner of the domain.
-     *
-     * @param nodeId The ID of the node to pair. Must be globally unique (not yet existing).
-     * @param domainId The ID of the domain to pair the node with.
-     * @param nodeType The type of node to pair the node under.
-     * @param nodeKey The Ed25519 public node key.
-     * @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
-     */
+    /// Pair a node with a XBR Domain.
+    ///
+    /// @param nodeId The ID of the node to pair. Must be globally unique (not yet existing).
+    /// @param domainId The ID of the domain to pair the node with.
+    /// @param nodeType The type of node to pair the node under.
+    /// @param nodeKey The Ed25519 public node key.
+    /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
     function pairNode (bytes16 nodeId, bytes16 domainId, XBRTypes.NodeType nodeType, bytes32 nodeKey,
         string memory config) public {
 
-        // require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
-        // require(domains[domainId].owner == msg.sender, "NOT_AUTHORIZED");
-        // require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
-        // require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
-        // require(uint8(nodeType) == uint8(NodeType.MASTER) ||
-        //         uint8(nodeType) == uint8(NodeType.EDGE), "INVALID_NODE_TYPE");
-
-        // nodes[nodeId] = Node(domainId, nodeType, nodeKey, config);
-        // nodesByKey[nodeKey] = nodeId;
-        // domains[domainId].nodes.push(nodeId);
-
-        // emit NodePaired(domainId, nodeId, nodeKey, config);
+        _pairNode(msg.sender, block.number, nodeId, domainId, nodeType, nodeKey, config, "");
     }
 
-    /**
-     * Release a node currently paired with an XBR domain. The sender must be owner of the domain.
-     *
-     * @param nodeId The ID of the node to release.
-     */
-    function releaseNode (bytes16 nodeId) public {
-        // require(uint8(nodes[nodeId].nodeType) != 0, "NO_SUCH_NODE");
-        // require(domains[nodes[nodeId].domain].owner == msg.sender, "NOT_AUTHORIZED");
+    /// Pair a node with a XBR Domain.
+    ///
+    /// Note: This version uses pre-signed data where the actual blockchain transaction is
+    /// submitted by a gateway paying the respective gas (in ETH) for the blockchain transaction.
+    ///
+    /// @param member Member that is pairing the node (must be domain owner).
+    /// @param paired Block number when the node was paired to the domain.
+    /// @param nodeId The ID of the node to pair. Must be globally unique (not yet existing).
+    /// @param domainId The ID of the domain to pair the node with.
+    /// @param nodeType The type of node to pair the node under.
+    /// @param nodeKey The Ed25519 public node key.
+    /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
+    /// @param signature Signature created by the member.
+    function pairNodeFor (address member, uint256 paired, bytes16 nodeId, bytes16 domainId,
+        XBRTypes.NodeType nodeType, bytes32 nodeKey, string memory config, bytes memory signature) public {
 
-        // bytes16 domainId = nodes[nodeId].domain;
-        // bytes32 nodeKey = nodes[nodeId].key;
+        require(XBRTypes.verify(member, XBRTypes.EIP712NodePair(network.verifyingChain(), network.verifyingContract(),
+            member, paired, nodeId, domainId, nodeType, nodeKey, config), signature), "INVALID_SIGNATURE");
 
-        // nodes[nodeId].domain = bytes16(0);
-        // nodes[nodeId].nodeType = NodeType.NULL;
-        // nodes[nodeId].key = bytes32(0);
-        // nodes[nodeId].config = "";
+        // signature must have been created in a window of 5 blocks from the current one
+        require(paired <= block.number && paired >= (block.number - 4), "INVALID_BLOCK_NUMBER");
 
-        // nodesByKey[nodeKey] = bytes16(0);
-
-        // emit NodeReleased(domainId, nodeId);
+        _pairNode(member, paired, nodeId, domainId, nodeType, nodeKey, config, signature);
     }
+
+    function _pairNode (address member, uint256 paired, bytes16 nodeId, bytes16 domainId,
+        XBRTypes.NodeType nodeType, bytes32 nodeKey, string memory config, bytes memory signature) private {
+
+        // domain to which the node is paired must exist
+        require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
+
+        // member must be owner of the domain
+        require(domains[domainId].owner == member, "NOT_AUTHORIZED");
+
+        // node must not yet be paired to any (!) domain
+        require(uint8(nodes[nodeId].nodeType) == 0, "NODE_ALREADY_PAIRED");
+        require(nodesByKey[nodeKey] == bytes16(0), "DUPLICATE_NODE_KEY");
+
+        // must provide a valid node type
+        require(uint8(nodeType) == uint8(XBRTypes.NodeType.MASTER) ||
+                uint8(nodeType) == uint8(XBRTypes.NodeType.CORE) ||
+                uint8(nodeType) == uint8(XBRTypes.NodeType.EDGE), "INVALID_NODE_TYPE");
+
+        // remember node
+        nodes[nodeId] = XBRTypes.Node(paired, domainId, nodeType, nodeKey, config, signature);
+
+        // update index
+        nodesByKey[nodeKey] = nodeId;
+
+        // update list of nodes for domain
+        domains[domainId].nodes.push(nodeId);
+
+        // notify observers
+        emit NodePaired(domainId, nodeId, paired, nodeKey, config);
+    }
+
+    // /**
+    //  * Release a node currently paired with an XBR domain. The sender must be owner of the domain.
+    //  *
+    //  * @param nodeId The ID of the node to release.
+    //  */
+    // function releaseNode (bytes16 nodeId) public {
+    //     require(false, "NOT_IMPLEMENTED");
+    // }
 
     /**
      * Lookup node ID by node public key.

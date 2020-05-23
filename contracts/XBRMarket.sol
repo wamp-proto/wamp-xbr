@@ -212,14 +212,15 @@ contract XBRMarket is XBRMaintained {
             providerSecurity, consumerSecurity, marketFee);
     }
 
-    function closeMarket (bytes16 marketId) public {
-        // the market must exist
-        require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
+    // function closeMarket (bytes16 marketId) public {
+    //     // the market must exist
+    //     require(markets[marketId].owner != address(0), "NO_SUCH_MARKET");
 
-        // the market must be owner by the sender
-        require(markets[marketId].owner == msg.sender, "SENDER_NOT_OWNER");
+    //     // the market must be owner by the sender
+    //     require(markets[marketId].owner == msg.sender, "SENDER_NOT_OWNER");
 
-    }
+    //     require(false, "NOT_IMPLEMENTED");
+    // }
 
     /// Join the given XBR market as the specified type of actor, which must be PROVIDER or CONSUMER.
     ///
