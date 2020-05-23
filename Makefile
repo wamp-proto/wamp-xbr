@@ -104,7 +104,10 @@ test_04:
 	$(TRUFFLE) test --network ganache ./test/04_channel.js
 
 test_05:
-	$(TRUFFLE) test --network ganache ./test/05_test.js
+	$(TRUFFLE) test --network ganache ./test/05_domain.js
+
+test_06:
+	$(TRUFFLE) test --network ganache ./test/06_test.js
 
 
 coverage:
@@ -154,7 +157,7 @@ truffle_test:
 
 
 #
-# XBR v20.5.1 EULA: QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94
+# XBR v20.5.1 "EULA": QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94
 #
 publish_eula:
 	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
@@ -164,6 +167,18 @@ publish_eula:
 
 fetch_eula:
 	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94"
+
+#
+# Crossbar.io FX v20.5.1 "LICENSE": QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug
+#
+publish_cfx_license:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"../crossbarfx/crossbarfx/LICENSE"
+
+fetch_cfx_license:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug"
 
 
 #

@@ -57,17 +57,20 @@ contract XBRDomain is XBRMaintained {
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
 
+    /// IPFS multihash of the `Crossbar.io FX LICENSE <https://github.com/crossbario/crossbarfx/blob/master/crossbarfx/LICENSE>`__.
+    string public license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";
+
     /// Created domains are sequence numbered using this counter (to allow deterministic collision-free IDs for domains)
-    uint32 private domainSeq = 1;
+    uint32 public domainSeq = 1;
 
     /// Current XBR Domains ("domain directory")
-    mapping(bytes16 => XBRTypes.Domain) private domains;
+    mapping(bytes16 => XBRTypes.Domain) public domains;
 
     /// Current XBR Nodes ("node directory");
-    mapping(bytes16 => XBRTypes.Node) private nodes;
+    mapping(bytes16 => XBRTypes.Node) public nodes;
 
     /// Index: node public key => (market ID, node ID)
-    mapping(bytes32 => bytes16) private nodesByKey;
+    mapping(bytes32 => bytes16) public nodesByKey;
 
     /// List of IDs of current XBR Domains.
     bytes16[] public domainIds;
@@ -83,14 +86,14 @@ contract XBRDomain is XBRMaintained {
     ///
     /// @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
     /// @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
-    /// @param license The license for the software stack running the domain. IPFS Multihash
-    ///                pointing to a JSON/YAML file signed by the project release key.
+    /// @param stackLicense The license for the software stack running the domain. IPFS Multihash
+    ///                     pointing to a JSON/YAML file signed by the project release key.
     /// @param terms Multihash for terms that apply to the domain and to all APIs as published to this catalog.
     /// @param meta Multihash for optional domain meta-data.
-    function createDomain (bytes16 domainId, bytes32 domainKey, string memory license, string memory terms,
-        string memory meta) private {
+    function createDomain (bytes16 domainId, bytes32 domainKey, string memory stackLicense, string memory terms,
+        string memory meta) public {
 
-        _createDomain(msg.sender, block.number, domainId, domainKey, license, terms, meta, "");
+        _createDomain(msg.sender, block.number, domainId, domainKey, stackLicense, terms, meta, "");
     }
 
     /// Create a new XBR domain.
@@ -102,45 +105,49 @@ contract XBRDomain is XBRMaintained {
     /// @param created Block number when the catalog was created.
     /// @param domainId The ID of the domain to create. Must be globally unique (not yet existing).
     /// @param domainKey The domain signing key. A Ed25519 (https://ed25519.cr.yp.to/) public key.
-    /// @param license The license for the software stack running the domain. IPFS Multihash
-    ///                pointing to a JSON/YAML file signed by the project release key.
+    /// @param stackLicense The license for the software stack running the domain. IPFS Multihash
+    ///                     pointing to a JSON/YAML file signed by the project release key.
     /// @param terms Multihash for terms that apply to the domain and to all APIs as published to this catalog.
     /// @param meta Multihash for optional domain meta-data.
     /// @param signature Signature created by the member.
     function createDomainFor (address member, uint256 created, bytes16 domainId, bytes32 domainKey,
-        string memory license, string memory terms, string memory meta, bytes memory signature) private {
+        string memory stackLicense, string memory terms, string memory meta, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712DomainCreate(network.verifyingChain(), network.verifyingContract(),
-            member, created, domainId, domainKey, license, terms, meta), signature),
+            member, created, domainId, domainKey, stackLicense, terms, meta), signature),
             "INVALID_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
         require(created <= block.number && created >= (block.number - 4), "INVALID_BLOCK_NUMBER");
 
-        _createDomain(member, created, domainId, domainKey, license, terms, meta, signature);
+        _createDomain(member, created, domainId, domainKey, stackLicense, terms, meta, signature);
     }
 
     function _createDomain (address member, uint256 created, bytes16 domainId, bytes32 domainKey,
-        string memory license, string memory terms, string memory meta, bytes memory signature) private {
+        string memory stackLicense, string memory terms, string memory meta, bytes memory signature) private {
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
         // the domain owner must be a registered member
         require(member_level == XBRTypes.MemberLevel.ACTIVE ||
                 member_level == XBRTypes.MemberLevel.VERIFIED, "SENDER_NOT_A_MEMBER");
 
+        // check that the LICENSE the member accepted is the one we expect
+        require(keccak256(abi.encode(stackLicense)) ==
+                keccak256(abi.encode(license)), "INVALID_LICENSE");
+
         // domain must not yet exist
         require(domains[domainId].owner == address(0), "DOMAIN_ALREADY_EXISTS");
 
         // store new domain object
         domains[domainId] = XBRTypes.Domain(created, domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
-            domainKey, license, terms, meta, signature, new bytes16[](0));
+            domainKey, stackLicense, terms, meta, signature, new bytes16[](0));
 
         // add domainId to list of all domain IDs
         domainIds.push(domainId);
 
         // notify observers of new domains
         emit DomainCreated(domainId, domainSeq, XBRTypes.DomainStatus.ACTIVE, member,
-            domainKey, license, terms, meta);
+            domainKey, stackLicense, terms, meta);
 
         // increment domain sequence for next domain
         domainSeq = domainSeq + 1;
@@ -183,7 +190,7 @@ contract XBRDomain is XBRMaintained {
      * @return The Ed25519 public signing key for the domain.
      */
     function getDomainKey(bytes16 domainId) public view returns (bytes32) {
-        return domains[domainId].domainKey;
+        return domains[domainId].key;
     }
 
     /**

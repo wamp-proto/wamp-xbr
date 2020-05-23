@@ -86,7 +86,7 @@ library XBRTypes {
         uint256 created;
 
         /// Domain sequence.
-        uint32 domainSeq;
+        uint32 seq;
 
         /// Domain status
         DomainStatus status;
@@ -95,7 +95,7 @@ library XBRTypes {
         address owner;
 
         /// Domain signing key (Ed25519 public key).
-        bytes32 domainKey;
+        bytes32 key;
 
         /// Software stack license file on IPFS (required).
         string license;
