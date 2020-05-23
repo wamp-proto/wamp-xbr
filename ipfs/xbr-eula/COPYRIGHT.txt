@@ -1,3 +1,0 @@
-The XBR Protocol - blockchain protocol for decentralized open data markets https://xbr.network
-
-Copyright (C) 2018-2019 Crossbar.io Technologies GmbH. All rights reserved.
