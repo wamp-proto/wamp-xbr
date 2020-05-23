@@ -154,13 +154,16 @@ truffle_test:
 
 
 #
-# XBR Protocol smart contracts
+# XBR v20.5.1 EULA: QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94
 #
-publish_ipfs_eula:
-	cd ipfs && zip -r - xbr-eula | ipfs add
+publish_eula:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"EULA"
 
-publish_ipfs_members:
-	cd ipfs/members && ipfs add *.rdf
+fetch_eula:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94"
 
 
 #

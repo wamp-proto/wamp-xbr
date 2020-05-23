@@ -61,7 +61,7 @@ contract XBRNetwork is XBRMaintained {
     address public verifyingContract;
 
     /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/ipfs/xbr-eula/XBR-EULA.txt>`__.
-    string public eula = "QmV1eeDextSdUrRUQp9tUXF8SdvVeykaiwYLgrXHHVyULY";
+    string public eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
 
     /// XBR network contributions from markets for the XBR project, expressed as a fraction of the total amount of XBR tokens.
     uint256 public contribution;
