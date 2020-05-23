@@ -752,7 +752,7 @@ library XBRTypes {
 
     /// EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_DOMAIN_CREATE_TYPEHASH = keccak256("EIP712DomainCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 domainId,byte32 domainKey,string license,string terms,string meta)");
+    bytes32 constant EIP712_DOMAIN_CREATE_TYPEHASH = keccak256("EIP712DomainCreate(uint256 chainId,address verifyingContract,address member,uint256 created,bytes16 domainId,bytes32 domainKey,string license,string terms,string meta)");
 
     /// EIP712 type data.
     // solhint-disable-next-line

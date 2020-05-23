@@ -98,8 +98,29 @@ contract('XBRNetwork', accounts => {
     const NodeType_CORE = 2;
     const NodeType_EDGE = 3;
 
-    const domainId = utils.sha3("MyDomain1").substring(0, 34);
+    // the XBR Project
+    const owner = accounts[0];
+
+    // 2 test XBR market owners
     const alice = accounts[1];
+    const alice_market_maker1 = accounts[2];
+
+    const bob = accounts[3];
+    const bob_market_maker1 = accounts[4];
+
+    // 2 test XBR data providers
+    const charlie = accounts[5];
+    const charlie_provider_delegate1 = accounts[6];
+
+    const donald = accounts[7];
+    const donald_provider_delegate1 = accounts[8];
+
+    // 2 test XBR data consumers
+    const edith = accounts[9];
+    const edith_provider_delegate1 = accounts[10];
+
+    const frank = accounts[11];
+    const frank_provider_delegate1 = accounts[12];
 
     beforeEach('setup contract for each test', async function () {
         token = await XBRToken.deployed();
@@ -117,9 +138,17 @@ contract('XBRNetwork', accounts => {
         if (_alice_level == MemberLevel_NULL) {
             await network.registerMember(eula, profile, {from: alice, gasLimit: gasLimit});
         }
+
+        const _charlie = await network.members(charlie);
+        const _charlie_level = _charlie.level.toNumber();
+        if (_charlie_level == MemberLevel_NULL) {
+            await network.registerMember(eula, profile, {from: charlie, gasLimit: gasLimit});
+        }
     });
 
     it('XBRMarket.createDomain() : should create new domain', async () => {
+
+        const domainId = utils.sha3("MyDomain1").substring(0, 34);
 
         const license = await domain.license();
         const terms = "QmcAuALHaH9pxJP9bzo7go8QU9xUraSozBNVynRs81hpqr";
@@ -148,6 +177,9 @@ contract('XBRNetwork', accounts => {
 
     it('XBRMarket.createDomainFor() : should create new domain', async () => {
 
+        const domainId = utils.sha3("MyDomain2").substring(0, 34);
+
+        // charlie = accounts[5]
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
         const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
 
@@ -184,11 +216,11 @@ contract('XBRNetwork', accounts => {
         assert(domain_.created.gt(1), "wrong created attribute in domain");
         assert(domain_.seq.eq(domainSeq_before), "wrong seq attribute in domain");
         assert.equal(domain_.status, DomainStatus_ACTIVE, "wrong status attribute in domain");
-        assert.equal(domain_.owner, alice, "wrong owner attribute in domain");
+        assert.equal(domain_.owner, member, "wrong owner attribute in domain");
         assert.equal(domain_.key, domainKey, "wrong key attribute in domain");
         assert.equal(domain_.license, license, "wrong license attribute in domain");
         assert.equal(domain_.terms, terms, "wrong terms attribute in domain");
         assert.equal(domain_.meta, meta, "wrong meta attribute in domain");
-        assert.equal(domain_.signature, null, "wrong signature attribute in domain");
+        assert.equal(domain_.signature, signature, "wrong signature attribute in domain");
     });
 });
