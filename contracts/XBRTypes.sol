@@ -32,6 +32,12 @@ library XBRTypes {
     /// All XBR network member levels defined.
     enum MemberLevel { NULL, ACTIVE, VERIFIED, RETIRED, PENALTY, BLOCKED, RETIRING }
 
+    /// XBR Domain status values
+    enum DomainStatus { NULL, ACTIVE, CLOSED }
+
+    /// XBR Carrier Node types
+    enum NodeType { NULL, MASTER, CORE, EDGE }
+
     /// Market state for a given data market. The market can only be joined and new channels
     /// can only be opened when the market is in state OPEN. When the market operator is closing
     /// the market, state is moved to CLOSING. Once all channels have been closed, state is
@@ -72,6 +78,47 @@ library XBRTypes {
         /// user on-boarded by directly interacting with the XBR contracts on-chain, this
         /// will be empty.
         bytes signature;
+    }
+
+    /// Container type for holding XBR Domain information.
+    struct Domain {
+        /// Domain sequence.
+        uint32 domainSeq;
+
+        /// Domain status
+        DomainStatus status;
+
+        /// Domain owner.
+        address owner;
+
+        /// Domain signing key (Ed25519 public key).
+        bytes32 domainKey;
+
+        /// Software stack license file on IPFS (required).
+        string license;
+
+        /// Optional domain terms on IPFS.
+        string terms;
+
+        /// Optional domain metadata on IPFS.
+        string meta;
+
+        /// Nodes within the domain.
+        bytes16[] nodes;
+    }
+
+    /// Container type for holding XBR Domain Nodes information.
+    struct Node {
+        bytes16 domain;
+
+        /// Type of node.
+        NodeType nodeType;
+
+        /// Node key (Ed25519 public key).
+        bytes32 key;
+
+        /// Optional (encrypted) node configuration on IPFS.
+        string config;
     }
 
     /// Network level (global) stats for an XBR network member.
