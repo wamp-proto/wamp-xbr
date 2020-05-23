@@ -2,8 +2,6 @@
 //
 //  XBR Open Data Markets - https://xbr.network
 //
-//  JavaScript client library for the XBR Network.
-//
 //  Copyright (C) Crossbar.io Technologies GmbH and contributors
 //
 //  Licensed under the Apache 2.0 License:
@@ -22,22 +20,25 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRDomain = artifacts.require("./XBRDomain.sol");
 
 
-const EIP712MemberRegisterData = {
+const EIP712DomainCreate = {
     types: {
         EIP712Domain: [
             { name: 'name', type: 'string' },
             { name: 'version', type: 'string' },
         ],
-        EIP712MemberRegister: [
+        EIP712DomainCreate: [
             {name: 'chainId', type: 'uint256'},
             {name: 'verifyingContract', type: 'address'},
             {name: 'member', type: 'address'},
-            {name: 'registered', type: 'uint256'},
-            {name: 'eula', type: 'string'},
-            {name: 'profile', type: 'string'},
+            {name: 'created', type: 'uint256'},
+            {name: 'domainId', type: 'bytes16'},
+            {name: 'domainKey', type: 'bytes32'},
+            {name: 'license', type: 'string'},
+            {name: 'terms', type: 'string'},
+            {name: 'meta', type: 'string'},
         ]
     },
-    primaryType: 'EIP712MemberRegister',
+    primaryType: 'EIP712DomainCreate',
     domain: {
         name: 'XBR',
         version: '1'
@@ -46,43 +47,10 @@ const EIP712MemberRegisterData = {
 };
 
 
-function create_sig_register(key_, data_) {
-    EIP712MemberRegisterData['message'] = data_;
+function sign_create_domain(key_, data_) {
+    EIP712DomainCreate['message'] = data_;
     var key = eth_util.toBuffer(key_);
-    var sig = eth_sig_utils.signTypedData(key, {data: EIP712MemberRegisterData})
-    return sig;
-}
-
-
-const EIP712MarketJoinData = {
-    types: {
-        EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' }
-        ],
-        EIP712MarketJoin: [
-            {name: 'chainId', type: 'uint256'},
-            {name: 'verifyingContract', type: 'address'},
-            {name: 'member', type: 'address'},
-            {name: 'joined', type: 'uint256'},
-            {name: 'marketId', type: 'bytes16'},
-            {name: 'actorType', type: 'uint8'},
-            {name: 'meta', type: 'string'},
-        ]
-    },
-    primaryType: 'EIP712MarketJoin',
-    domain: {
-        name: 'XBR',
-        version: '1',
-    },
-    message: null
-};
-
-
-function create_sig_join_market(key_, data_) {
-    EIP712MarketJoinData['message'] = data_;
-    var key = eth_util.toBuffer(key_);
-    var sig = eth_sig_utils.signTypedData(key, {data: EIP712MarketJoinData})
+    var sig = eth_sig_utils.signTypedData(key, {data: EIP712DomainCreate});
     return sig;
 }
 
@@ -153,14 +121,61 @@ contract('XBRNetwork', accounts => {
 
     it('XBRMarket.createDomain() : should create new domain', async () => {
 
-        const domainKey = '0x810e817f420772877eaacb38b77e2054f41378f629067acfebdbd696d7b3bc46';
         const license = await domain.license();
         const terms = "QmcAuALHaH9pxJP9bzo7go8QU9xUraSozBNVynRs81hpqr";
         const meta = "Qmaa4Rw81a3a1VEx4LxB7HADUAXvZFhCoRdBzsMZyZmqHD";
 
+        const domainKey = '0x810e817f420772877eaacb38b77e2054f41378f629067acfebdbd696d7b3bc46';
+
         const domainSeq_before = await domain.domainSeq();
 
         await domain.createDomain(domainId, domainKey, license, terms, meta, {from: alice, gasLimit: gasLimit});
+
+        const domainSeq_after = await domain.domainSeq();
+        assert(domainSeq_after.eq(domainSeq_before.add(new BN(1))), "domain sequence not incremented");
+
+        const domain_ = await domain.domains(domainId);
+        assert(domain_.created.gt(1), "wrong created attribute in domain");
+        assert(domain_.seq.eq(domainSeq_before), "wrong seq attribute in domain");
+        assert.equal(domain_.status, DomainStatus_ACTIVE, "wrong status attribute in domain");
+        assert.equal(domain_.owner, alice, "wrong owner attribute in domain");
+        assert.equal(domain_.key, domainKey, "wrong key attribute in domain");
+        assert.equal(domain_.license, license, "wrong license attribute in domain");
+        assert.equal(domain_.terms, terms, "wrong terms attribute in domain");
+        assert.equal(domain_.meta, meta, "wrong meta attribute in domain");
+        assert.equal(domain_.signature, null, "wrong signature attribute in domain");
+    });
+
+    it('XBRMarket.createDomainFor() : should create new domain', async () => {
+
+        const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
+        const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
+
+        const created = await web3.eth.getBlockNumber();
+
+        const license = await domain.license();
+        const terms = "QmcAuALHaH9pxJP9bzo7go8QU9xUraSozBNVynRs81hpqr";
+        const meta = "Qmaa4Rw81a3a1VEx4LxB7HADUAXvZFhCoRdBzsMZyZmqHD";
+
+        const domainKey = '0x810e817f420772877eaacb38b77e2054f41378f629067acfebdbd696d7b3bc46';
+
+        const domainSeq_before = await domain.domainSeq();
+
+        const msg = {
+            'chainId': chainId,
+            'verifyingContract': verifyingContract,
+            'member': member,
+            'created': created,
+            'domainId': domainId,
+            'domainKey': domainKey,
+            'license': license,
+            'terms': terms,
+            'meta': meta,
+        }
+        const signature = sign_create_domain(member_key, msg);
+
+        await domain.createDomainFor(member, created, domainId, domainKey, license,
+            terms, meta, signature, {from: alice, gasLimit: gasLimit});
 
         const domainSeq_after = await domain.domainSeq();
         assert(domainSeq_after.eq(domainSeq_before.add(new BN(1))), "domain sequence not incremented");
