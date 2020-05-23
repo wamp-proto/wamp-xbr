@@ -107,7 +107,10 @@ test_05:
 	$(TRUFFLE) test --network ganache ./test/05_domain.js
 
 test_06:
-	$(TRUFFLE) test --network ganache ./test/06_test.js
+	$(TRUFFLE) test --network ganache ./test/06_catalog.js
+
+test_07:
+	$(TRUFFLE) test --network ganache ./test/07_test.js
 
 
 coverage:
@@ -179,6 +182,16 @@ publish_cfx_license:
 
 fetch_cfx_license:
 	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug"
+
+
+publish_cfx_test_config:
+	curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" \
+		-X POST \
+		-H "Content-Type: multipart/form-data" \
+		-F file=@"../crossbar-examples/nodeinfo/.crossbar/config.json"
+
+fetch_cfx_test_config:
+	curl "https://ipfs.infura.io:5001/api/v0/cat?arg=QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW"
 
 
 #

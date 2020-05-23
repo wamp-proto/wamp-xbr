@@ -55,6 +55,41 @@ function sign_create_domain(key_, data_) {
 }
 
 
+const EIP712NodePair = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+        ],
+        EIP712NodePair: [
+            {name: 'chainId', type: 'uint256'},
+            {name: 'verifyingContract', type: 'address'},
+            {name: 'member', type: 'address'},
+            {name: 'paired', type: 'uint256'},
+            {name: 'nodeId', type: 'bytes16'},
+            {name: 'domainId', type: 'bytes16'},
+            {name: 'nodeType', type: 'uint8'},
+            {name: 'nodeKey', type: 'bytes32'},
+            {name: 'config', type: 'string'},
+        ]
+    },
+    primaryType: 'EIP712NodePair',
+    domain: {
+        name: 'XBR',
+        version: '1'
+    },
+    message: null
+};
+
+
+function sign_pair_node(key_, data_) {
+    EIP712NodePair['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: EIP712NodePair});
+    return sig;
+}
+
+
 contract('XBRNetwork', accounts => {
 
     //const gasLimit = 6721975;
@@ -222,5 +257,69 @@ contract('XBRNetwork', accounts => {
         assert.equal(domain_.terms, terms, "wrong terms attribute in domain");
         assert.equal(domain_.meta, meta, "wrong meta attribute in domain");
         assert.equal(domain_.signature, signature, "wrong signature attribute in domain");
+    });
+
+    it('XBRMarket.pairNode() : should pair new node', async () => {
+
+        const domainId = utils.sha3("MyDomain1").substring(0, 34);
+        const nodeId = utils.sha3("MyNode1").substring(0, 34);
+
+        const nodeType = NodeType_EDGE;
+        const nodeKey = '0xbae3cb9f8d280a5d7a945c0ac3407f22290778fb470b4220e3667559100c12da';
+        const config = 'QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW';
+
+        const paired = await web3.eth.getBlockNumber();
+
+        await domain.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
+
+        const node_ = await domain.nodes(nodeId);
+
+        assert(node_.paired.gte(paired), "wrong paired attribute in node");
+        assert.equal(node_.domain, domainId, "wrong domain attribute in node");
+        assert.equal(node_.nodeType, NodeType_EDGE, "wrong nodeType attribute in node");
+        assert.equal(node_.key, nodeKey, "wrong key attribute in node");
+        assert.equal(node_.config, config, "wrong config attribute in node");
+        assert.equal(node_.signature, null, "wrong signature attribute in node");
+    });
+
+    it('XBRMarket.pairNodeFor() : should pair new node', async () => {
+
+        const domainId = utils.sha3("MyDomain2").substring(0, 34);
+        const nodeId = utils.sha3("MyNode2").substring(0, 34);
+
+        // charlie = accounts[5]
+        const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
+        const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
+
+        const paired = await web3.eth.getBlockNumber();
+
+        const nodeType = NodeType_EDGE;
+        const nodeKey = '0xba1a0068a4c49c7a764cd5b1b553f6cef0a81573b9eeb6a6d3f753dc9b93f728';
+        const config = 'QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW';
+
+        const msg = {
+            'chainId': chainId,
+            'verifyingContract': verifyingContract,
+            'member': member,
+            'paired': paired,
+            'nodeId': nodeId,
+            'domainId': domainId,
+            'nodeType': nodeType,
+            'nodeKey': nodeKey,
+            'config': config,
+        }
+        const signature = sign_pair_node(member_key, msg);
+
+        await domain.pairNodeFor(member, paired, nodeId, domainId, nodeType,
+                nodeKey, config, signature, {from: alice, gasLimit: gasLimit});
+
+        const node_ = await domain.nodes(nodeId);
+
+        assert(node_.paired.gte(paired), "wrong paired attribute in node");
+        assert.equal(node_.domain, domainId, "wrong domain attribute in node");
+        assert.equal(node_.nodeType, NodeType_EDGE, "wrong nodeType attribute in node");
+        assert.equal(node_.key, nodeKey, "wrong key attribute in node");
+        assert.equal(node_.config, config, "wrong config attribute in node");
+        assert.equal(node_.signature, signature, "wrong signature attribute in node");
     });
 });
