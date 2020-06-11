@@ -7,9 +7,10 @@ Ethereum testnets, and will be deployed to mainnet.
 They are intended for testing purposes only and Crossbar.io makes no warranties regarding
 any functionality or fitness for any purpose.
 
-This EULA grants you a license to use these contracts for testing the XBR technology stack
-developed and deployed by Crossbar.io. This does not cover usage which may endanger the
-health or lives of people as well as property. Usage is at your own risk.
+This EULA grants you a license to use these contracts for testing. This applies whether you
+use the XBR technology stack developed by Crossbar.io or via access from your own code.
+This does not cover usage which may endanger the health or lives of people as well as property. 
+Usage is entirely at your own risk.
 
 By joining and using the XBR Network, you agree to this EULA and accept that the
 following IP is held and fully owned by Crossbar.io:
