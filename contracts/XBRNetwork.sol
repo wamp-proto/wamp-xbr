@@ -60,8 +60,8 @@ contract XBRNetwork is XBRMaintained {
     /// Verifying contract address, used in EIP712 typed data signature verification.
     address public verifyingContract;
 
-    /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/EULA>`__.
-    string public eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
+    /// IPFS multihash of the `XBR Network EULA <https://ipfs.infura.io:5001/api/v0/cat?arg=QmVSAj3Wp3U9wo43NBUMrsFNa4MYUvA65vtj9zY7kAxSF8>`__.
+    string public eula = "QmVSAj3Wp3U9wo43NBUMrsFNa4MYUvA65vtj9zY7kAxSF8";
 
     /// XBR network contributions from markets for the XBR project, expressed as a fraction of the total amount of XBR tokens.
     uint256 public contribution;
