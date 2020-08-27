@@ -19,19 +19,22 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+
 // https://openzeppelin.org/api/docs/math_SafeMath.html
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
-import "./XBRToken.sol";
 
 
 /**
  * The `XBR Network <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRNetwork.sol>`__
  * contract is the on-chain anchor of and the entry point to the XBR protocol.
  */
-contract XBRNetwork is XBRMaintained {
+contract XBRNetwork is Initializable, XBRMaintained {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -49,10 +52,10 @@ contract XBRNetwork is XBRMaintained {
     event CoinChanged (address indexed coin, address operator, bool isPayable);
 
     /// Special addresses used as "any address" marker in mappings (eg coins).
-    address public constant ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+    address public ANYADR;
 
     /// Limit to how old a pre-signed transaction is accetable (eg in "registerMemberFor" and similar).
-    uint256 public PRESIGNED_TXN_MAX_AGE = 1440;
+    uint256 public PRESIGNED_TXN_MAX_AGE;
 
     /// Chain ID of the blockchain this contract is running on, used in EIP712 typed data signature verification.
     uint256 public verifyingChain;
@@ -61,13 +64,15 @@ contract XBRNetwork is XBRMaintained {
     address public verifyingContract;
 
     /// IPFS multihash of the `XBR Network EULA <https://github.com/crossbario/xbr-protocol/blob/master/EULA>`__.
-    string public eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
+    string public eula;
 
     /// XBR network contributions from markets for the XBR project, expressed as a fraction of the total amount of XBR tokens.
     uint256 public contribution;
 
     /// Address of the XBR Networks' own ERC20 token for network-wide purposes.
-    XBRToken public token;
+    // XBRToken public token;
+    // IERC20
+    address public token;
 
     /// Address of the `XBR Network Organization <https://xbr.network/>`__.
     address public organization;
@@ -84,29 +89,38 @@ contract XBRNetwork is XBRMaintained {
     ///                     any ERC20 token (enabled in the ``coins`` mapping of this contract) as
     ///                     a means of payment in the respective market.
     /// @param networkOrganization The XBR network organization address.
-    constructor (address networkToken, address networkOrganization) public {
+    function initialize (address networkToken, address networkOrganization) public initializer {
 
-        // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        verifyingChain = chainId;
-        verifyingContract = address(this);
+        // // FIXME
+        // XBRMaintained(this).initialize();
 
-        token = XBRToken(networkToken);
-        coins[networkToken][ANYADR] = true;
-        emit CoinChanged(networkToken, ANYADR, true);
+        // ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+        // PRESIGNED_TXN_MAX_AGE = 1440;
+        // eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
 
-        contribution = token.totalSupply() * 30 / 100;
+        // // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
+        // uint256 chainId;
+        // assembly {
+        //     chainId := chainid()
+        // }
+        // verifyingChain = chainId;
+        // verifyingContract = address(this);
 
-        organization = networkOrganization;
+        // // token = XBRToken(networkToken);
+        // // token = IERC20(networkToken);
+        // token = networkToken;
 
-        uint256 registered = block.timestamp;
+        // coins[networkToken][ANYADR] = true;
+        // emit CoinChanged(networkToken, ANYADR, true);
 
-        // technically, the creator of the XBR network contract instance is a XBR member (by definition).
-        members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
-        emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
+        // contribution = IERC20(token).totalSupply() * 30 / 100;
+        // organization = networkOrganization;
+
+        // uint256 registered = block.timestamp;
+
+        // // technically, the creator of the XBR network contract instance is a XBR member (by definition).
+        // members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
+        // emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
     }
 
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely data
@@ -206,7 +220,8 @@ contract XBRNetwork is XBRMaintained {
     function setNetworkToken (address networkToken) public onlyMaintainer returns (bool) {
         if (networkToken != address(token)) {
             coins[address(token)][ANYADR] = false;
-            token = XBRToken(networkToken);
+            // token = XBRToken(networkToken);
+            token = networkToken;
             coins[networkToken][ANYADR] = true;
             return true;
         } else {
@@ -265,7 +280,7 @@ contract XBRNetwork is XBRMaintained {
     ///                            tokens and the total token supply.
     /// @return Flag indicating whether the contribution value was actually changed.
     function setContribution (uint256 networkContribution) public onlyMaintainer returns (bool) {
-        require(networkContribution >= 0 && networkContribution <= token.totalSupply(), "INVALID_CONTRIBUTION");
+        require(networkContribution >= 0 && networkContribution <= IERC20(token).totalSupply(), "INVALID_CONTRIBUTION");
         if (contribution != networkContribution) {
             contribution = networkContribution;
             return true;

@@ -1,7 +1,11 @@
 {
   "manifestVersion": "2.2",
   "contracts": {
-    "XBRTest": "XBRTest"
+    "XBRTest": "XBRTest",
+    "XBRNetwork": "XBRNetwork",
+    "XBRMaintained": "XBRMaintained",
+    "XBRToken": "XBRToken",
+    "XBRMarket": "XBRMarket"
   },
   "dependencies": {},
   "name": "xbr",

@@ -20,10 +20,12 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
 // https://openzeppelin.org/api/docs/cryptography_ECDSA.html
-import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+// import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/cryptography/ECDSA.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
@@ -270,7 +272,7 @@ contract XBRChannel is XBRMaintained {
         // the fee of the market operator (before network fees) is a percentage of the earned amount, where
         // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
         uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
-        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
+        uint256 contribution = fee * market.network().contribution() / IERC20(market.network().token()).totalSupply();
 
         // the amount paid out to the recipient is gross earned minus market fees
         // FIXME: CompilerError: Stack too deep, try removing local variables.
@@ -308,7 +310,7 @@ contract XBRChannel is XBRMaintained {
         // the fee of the market operator (before network fees) is a percentage of the earned amount, where
         // "percentage" is expressed as a fraction of the total amount of tokens (coins used in the market)
         uint256 fee = earned * market.getMarketFee(channels[channelId].marketId) / IERC20(coin).totalSupply();
-        uint256 contribution = fee * market.network().contribution() / market.network().token().totalSupply();
+        uint256 contribution = fee * market.network().contribution() / IERC20(market.network().token()).totalSupply();
 
         // now send tokens locked in this channel (which escrows the tokens) to the recipient,
         // the xbr network (for the network fee), and refund remaining tokens to the original sender

@@ -19,8 +19,11 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+// import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+// import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 
 import "./XBRTypes.sol";
 
@@ -45,7 +48,7 @@ interface IXBRTokenRelayInterface {
  *
  * For API documentation, please see `here <https://docs.openzeppelin.com/contracts/2.x/api/token/erc20>`__.
  */
-contract XBRToken is ERC20 {
+contract XBRToken is ERC20UpgradeSafe {
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -85,7 +88,10 @@ contract XBRToken is ERC20 {
      * Constructor that gives ``msg.sender`` all of existing tokens.
      * The XBR Token uses the symbol "XBR" and 18 decimal digits.
      */
-    constructor() public ERC20("XBRToken", "XBR") {
+    function initialize () public initializer {
+        // constructor() public ERC20("XBRToken", "XBR") {
+        // ERC20UpgradeSafe(this).initialize("XBRToken", "XBR");
+        // FIXME
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 

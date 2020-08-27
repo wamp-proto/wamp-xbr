@@ -20,11 +20,11 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
-import "./XBRToken.sol";
 import "./XBRNetwork.sol";
 
 
