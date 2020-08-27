@@ -89,6 +89,7 @@ lint:
 	$(SOLHINT) "contracts/**/*.sol"
 
 
+# log output for a run: https://gist.github.com/oberstet/656a5b3f11f487ff851d878911d204eb
 # https://docs.openzeppelin.com/learn/upgrading-smart-contracts
 # https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package
 # https://github.com/OpenZeppelin/openzeppelin-upgrades
