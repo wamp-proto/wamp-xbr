@@ -88,6 +88,24 @@ update_dependencies:
 lint:
 	$(SOLHINT) "contracts/**/*.sol"
 
+
+# https://docs.openzeppelin.com/learn/upgrading-smart-contracts
+# https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package
+# https://github.com/OpenZeppelin/openzeppelin-upgrades
+# https://github.com/OpenZeppelin/openzeppelin-sdk/issues/1568
+ozcli_deploy:
+	npx oz create XBRToken --network ganache --init "initialize()"
+	npx oz create XBRNetwork --network ganache --init "initialize(address _arg1, address _arg2)" \
+		--args 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B,0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1
+	npx oz create XBRDomain --network ganache --init "initialize(address _arg1)" \
+		--args 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+	npx oz create XBRCatalog --network ganache --init "initialize(address _arg1)" \
+		--args 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+	npx oz create XBRMarket --network ganache --init "initialize(address _arg1, address _arg2)" \
+		--args 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb,0x0290FB167208Af455bB137780163b7B7a9a10C16
+	npx oz create XBRChannel --network ganache --init "initialize(address _arg1)" \
+		--args 0x67B5656d60a809915323Bf2C40A8bEF15A152e3e
+
 test:
 	$(TRUFFLE) test --network ganache
 

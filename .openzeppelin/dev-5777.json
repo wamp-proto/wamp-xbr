@@ -53,7 +53,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7617,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -61,7 +61,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7619,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -69,7 +69,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7682,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -77,7 +77,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7612,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -85,7 +85,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_balances",
-          "astId": 8266,
+          "astId": 8307,
           "type": "t_mapping<t_uint256>",
           "src": "1481:46:16"
         },
@@ -93,7 +93,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_allowances",
-          "astId": 8272,
+          "astId": 8313,
           "type": "t_mapping<t_uint256>",
           "src": "1534:69:16"
         },
@@ -101,7 +101,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_totalSupply",
-          "astId": 8274,
+          "astId": 8315,
           "type": "t_uint256",
           "src": "1610:28:16"
         },
@@ -109,7 +109,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_name",
-          "astId": 8276,
+          "astId": 8317,
           "type": "t_string",
           "src": "1645:20:16"
         },
@@ -117,7 +117,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_symbol",
-          "astId": 8278,
+          "astId": 8319,
           "type": "t_string",
           "src": "1671:22:16"
         },
@@ -125,7 +125,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "_decimals",
-          "astId": 8280,
+          "astId": 8321,
           "type": "t_uint8",
           "src": "1699:23:16"
         },
@@ -133,7 +133,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
           "label": "__gap",
-          "astId": 8757,
+          "astId": 8798,
           "type": "t_array:44<t_uint256>",
           "src": "11045:25:16"
         },
@@ -141,7 +141,7 @@
           "contract": "XBRToken",
           "path": "contracts/XBRToken.sol",
           "label": "burnedSignatures",
-          "astId": 5658,
+          "astId": 5699,
           "type": "t_mapping<t_uint256>",
           "src": "3095:52:9"
         }
@@ -156,10 +156,10 @@
     },
     "XBRNetwork": {
       "address": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
-      "constructorCode": "608060405234801561001057600080fd5b5061208d806100206000396000f3fe",
-      "bodyBytecodeHash": "ccd17e078737e1389070b7720d34767812cbff98c289fea9534bad7ed2679e74",
-      "localBytecodeHash": "8c36d96ab388fdbd612515263a6cb1a1937cc4bcbeb80966faa50a23feb5372c",
-      "deployedBytecodeHash": "6207909227ab3af3cd7c7411c41d8325fe7d83f8381183bd55d044882a40b2c6",
+      "constructorCode": "608060405234801561001057600080fd5b50612096806100206000396000f3fe",
+      "bodyBytecodeHash": "e0848ed1d2aec6c3ce8fae0cab6e160205afb6a2d0cc0f6cebed76da27f3f48b",
+      "localBytecodeHash": "a8a422e8e310a6734aa5f9377bb9e1d05855994be09eb081bb071c88382980ce",
+      "deployedBytecodeHash": "c2cec39f5fcab77af2d621464865ef393838ca0de21a16e209f191890be1bd66",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -185,13 +185,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7719,
+              "astId": 7760,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7721,
+              "astId": 7762,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -204,7 +204,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9072,
+              "astId": 9113,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -217,13 +217,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8893,
+              "astId": 8934,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8897,
+              "astId": 8938,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -277,31 +277,31 @@
           "members": [
             {
               "label": "registered",
-              "astId": 6014,
+              "astId": 6055,
               "type": "t_uint256",
               "src": "2628:18:10"
             },
             {
               "label": "eula",
-              "astId": 6016,
+              "astId": 6057,
               "type": "t_string",
               "src": "2776:11:10"
             },
             {
               "label": "profile",
-              "astId": 6018,
+              "astId": 6059,
               "type": "t_string",
               "src": "2910:14:10"
             },
             {
               "label": "level",
-              "astId": 6020,
+              "astId": 6061,
               "type": "t_enum<XBRTypes.MemberLevel>",
               "src": "2969:17:10"
             },
             {
               "label": "signature",
-              "astId": 6022,
+              "astId": 6063,
               "type": "t_bytes",
               "src": "3293:15:10"
             }
@@ -344,7 +344,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7617,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -352,7 +352,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7619,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -360,7 +360,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7682,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -368,7 +368,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7612,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -376,7 +376,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7726,
+          "astId": 7767,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -384,7 +384,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7960,
+          "astId": 8001,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -392,7 +392,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "ANYADR",
-          "astId": 4665,
+          "astId": 4699,
           "type": "t_address",
           "src": "2410:21:6"
         },
@@ -400,7 +400,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "PRESIGNED_TXN_MAX_AGE",
-          "astId": 4667,
+          "astId": 4701,
           "type": "t_uint256",
           "src": "2542:36:6"
         },
@@ -408,7 +408,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "verifyingChain",
-          "astId": 4669,
+          "astId": 4703,
           "type": "t_uint256",
           "src": "2699:29:6"
         },
@@ -416,7 +416,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "verifyingContract",
-          "astId": 4671,
+          "astId": 4705,
           "type": "t_address",
           "src": "2821:32:6"
         },
@@ -424,7 +424,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "eula",
-          "astId": 4673,
+          "astId": 4707,
           "type": "t_string",
           "src": "2974:18:6"
         },
@@ -432,7 +432,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "contribution",
-          "astId": 4675,
+          "astId": 4709,
           "type": "t_uint256",
           "src": "3126:27:6"
         },
@@ -440,7 +440,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "token",
-          "astId": 4677,
+          "astId": 4711,
           "type": "t_address",
           "src": "3284:20:6"
         },
@@ -448,7 +448,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "organization",
-          "astId": 4679,
+          "astId": 4713,
           "type": "t_address",
           "src": "3387:27:6"
         },
@@ -456,7 +456,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "members",
-          "astId": 4683,
+          "astId": 4717,
           "type": "t_mapping<t_struct<XBRTypes.Member>>",
           "src": "3479:50:6"
         },
@@ -464,7 +464,7 @@
           "contract": "XBRNetwork",
           "path": "contracts/XBRNetwork.sol",
           "label": "coins",
-          "astId": 4689,
+          "astId": 4723,
           "type": "t_mapping<t_bool>",
           "src": "3631:57:6"
         }
@@ -478,11 +478,11 @@
       }
     },
     "XBRDomain": {
-      "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
-      "constructorCode": "608060405234801561001057600080fd5b50612e43806100206000396000f3fe",
-      "bodyBytecodeHash": "8558a4c43eb52de5e6dd8e477497cd2816e80c4ff41ef0e99420fcb11342ad9a",
-      "localBytecodeHash": "80346f82ce6138b9ae4b442111c605c02de32e83e8aca76fe143b28f54215d93",
-      "deployedBytecodeHash": "cc45412375a28d01f9d2142873d754f084dd774af5096551f9607dda17d34c65",
+      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+      "constructorCode": "608060405234801561001057600080fd5b50612e57806100206000396000f3fe",
+      "bodyBytecodeHash": "7da765ae63232be5562e0bdda78a5c62f72cb219cf725f8a7133812cfd575a0c",
+      "localBytecodeHash": "55889f7be664105dcb0fc392770f66d59942f52781bbb4b4113de2ad3bbdac31",
+      "deployedBytecodeHash": "18abcd13a4caa465a3f81ade48a63c68ead5e1afb502f6b0461269d7199df17a",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -508,13 +508,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7728,
+              "astId": 7760,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7730,
+              "astId": 7762,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -527,7 +527,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9081,
+              "astId": 9113,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -540,13 +540,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8902,
+              "astId": 8934,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8906,
+              "astId": 8938,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -605,61 +605,61 @@
           "members": [
             {
               "label": "created",
-              "astId": 6034,
+              "astId": 6066,
               "type": "t_uint256",
               "src": "3458:15:10"
             },
             {
               "label": "seq",
-              "astId": 6036,
+              "astId": 6068,
               "type": "t_uint32",
               "src": "3513:10:10"
             },
             {
               "label": "status",
-              "astId": 6038,
+              "astId": 6070,
               "type": "t_enum<XBRTypes.DomainStatus>",
               "src": "3560:19:10"
             },
             {
               "label": "owner",
-              "astId": 6040,
+              "astId": 6072,
               "type": "t_address",
               "src": "3616:13:10"
             },
             {
               "label": "key",
-              "astId": 6042,
+              "astId": 6074,
               "type": "t_bytes32",
               "src": "3693:11:10"
             },
             {
               "label": "license",
-              "astId": 6044,
+              "astId": 6076,
               "type": "t_string",
               "src": "3775:14:10"
             },
             {
               "label": "terms",
-              "astId": 6046,
+              "astId": 6078,
               "type": "t_string",
               "src": "3843:12:10"
             },
             {
               "label": "meta",
-              "astId": 6048,
+              "astId": 6080,
               "type": "t_string",
               "src": "3912:11:10"
             },
             {
               "label": "signature",
-              "astId": 6050,
+              "astId": 6082,
               "type": "t_bytes",
               "src": "3934:15:10"
             },
             {
               "label": "nodes",
-              "astId": 6053,
+              "astId": 6085,
               "type": "t_array:dyn<t_bytes16>",
               "src": "3997:15:10"
             }
@@ -705,37 +705,37 @@
           "members": [
             {
               "label": "paired",
-              "astId": 6056,
+              "astId": 6088,
               "type": "t_uint256",
               "src": "4188:14:10"
             },
             {
               "label": "domain",
-              "astId": 6058,
+              "astId": 6090,
               "type": "t_bytes16",
               "src": "4213:14:10"
             },
             {
               "label": "nodeType",
-              "astId": 6060,
+              "astId": 6092,
               "type": "t_enum<XBRTypes.NodeType>",
               "src": "4264:17:10"
             },
             {
               "label": "key",
-              "astId": 6062,
+              "astId": 6094,
               "type": "t_bytes32",
               "src": "4335:11:10"
             },
             {
               "label": "config",
-              "astId": 6064,
+              "astId": 6096,
               "type": "t_string",
               "src": "4418:13:10"
             },
             {
               "label": "signature",
-              "astId": 6066,
+              "astId": 6098,
               "type": "t_bytes",
               "src": "4442:15:10"
             }
@@ -770,7 +770,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7626,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -778,7 +778,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7628,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -786,7 +786,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7691,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -794,7 +794,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7621,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -802,7 +802,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7735,
+          "astId": 7767,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -810,7 +810,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7969,
+          "astId": 8001,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -818,7 +818,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "network",
-          "astId": 1730,
+          "astId": 1748,
           "type": "t_address",
           "src": "2621:25:3"
         },
@@ -826,7 +826,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "license",
-          "astId": 1732,
+          "astId": 1750,
           "type": "t_string",
           "src": "2785:21:3"
         },
@@ -834,7 +834,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "domainSeq",
-          "astId": 1734,
+          "astId": 1752,
           "type": "t_uint32",
           "src": "2934:23:3"
         },
@@ -842,7 +842,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "domains",
-          "astId": 1738,
+          "astId": 1756,
           "type": "t_mapping<t_struct<XBRTypes.Domain>>",
           "src": "3013:50:3"
         },
@@ -850,7 +850,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "nodes",
-          "astId": 1742,
+          "astId": 1760,
           "type": "t_mapping<t_struct<XBRTypes.Node>>",
           "src": "3116:46:3"
         },
@@ -858,7 +858,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "nodesByKey",
-          "astId": 1746,
+          "astId": 1764,
           "type": "t_mapping<t_bytes16>",
           "src": "3224:45:3"
         },
@@ -866,7 +866,7 @@
           "contract": "XBRDomain",
           "path": "contracts/XBRDomain.sol",
           "label": "domainIds",
-          "astId": 1749,
+          "astId": 1767,
           "type": "t_array:dyn<t_bytes16>",
           "src": "3320:26:3"
         }
@@ -880,11 +880,11 @@
       }
     },
     "XBRCatalog": {
-      "address": "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0",
-      "constructorCode": "608060405234801561001057600080fd5b50612190806100206000396000f3fe",
-      "bodyBytecodeHash": "8b4c66257ae3d32fdb3af9e79655fcd985aa0072309f25e1878e3a606dbaa6bd",
-      "localBytecodeHash": "6779ed58b1f199a704f5f7f22689123c2f1105b023c307b7f9992b5b502ba958",
-      "deployedBytecodeHash": "b5e6992d655be9bdcfa097b52b4e873c6dc1975d75d6a06a18c71ebb9bca653c",
+      "address": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+      "constructorCode": "608060405234801561001057600080fd5b50612184806100206000396000f3fe",
+      "bodyBytecodeHash": "a600b0e22bf4206b61ff8e933a518317ace96750748d1b0226d98a5eb3c5e5ad",
+      "localBytecodeHash": "f41023e7fc053c8e497cac4bc96f0f9591100c148f7bf40ad40cb3d3c5b36fb9",
+      "deployedBytecodeHash": "1152499436b24e02b1ce2d4c1a3d170730cc1d53ce479b7b13898d1c0098b23b",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -910,13 +910,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7735,
+              "astId": 7760,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7737,
+              "astId": 7762,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -929,7 +929,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9088,
+              "astId": 9113,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -942,13 +942,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8909,
+              "astId": 8934,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8913,
+              "astId": 8938,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -1002,43 +1002,43 @@
           "members": [
             {
               "label": "created",
-              "astId": 6172,
+              "astId": 6197,
               "type": "t_uint256",
               "src": "8530:15:10"
             },
             {
               "label": "seq",
-              "astId": 6174,
+              "astId": 6199,
               "type": "t_uint32",
               "src": "8593:10:10"
             },
             {
               "label": "owner",
-              "astId": 6176,
+              "astId": 6201,
               "type": "t_address",
               "src": "8667:13:10"
             },
             {
               "label": "terms",
-              "astId": 6178,
+              "astId": 6203,
               "type": "t_string",
               "src": "8735:12:10"
             },
             {
               "label": "meta",
-              "astId": 6180,
+              "astId": 6205,
               "type": "t_string",
               "src": "8805:11:10"
             },
             {
               "label": "signature",
-              "astId": 6182,
+              "astId": 6207,
               "type": "t_bytes",
               "src": "8907:15:10"
             },
             {
               "label": "apis",
-              "astId": 6186,
+              "astId": 6211,
               "type": "t_mapping<t_struct<XBRTypes.Api>>",
               "src": "8976:28:10"
             }
@@ -1061,25 +1061,25 @@
           "members": [
             {
               "label": "published",
-              "astId": 6163,
+              "astId": 6188,
               "type": "t_uint256",
               "src": "8092:17:10"
             },
             {
               "label": "schema",
-              "astId": 6165,
+              "astId": 6190,
               "type": "t_string",
               "src": "8180:13:10"
             },
             {
               "label": "meta",
-              "astId": 6167,
+              "astId": 6192,
               "type": "t_string",
               "src": "8255:11:10"
             },
             {
               "label": "signature",
-              "astId": 6169,
+              "astId": 6194,
               "type": "t_bytes",
               "src": "8362:15:10"
             }
@@ -1115,7 +1115,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7633,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -1123,7 +1123,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7635,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -1131,7 +1131,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7698,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -1139,7 +1139,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7628,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -1147,7 +1147,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7742,
+          "astId": 7767,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -1155,7 +1155,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7976,
+          "astId": 8001,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -1201,11 +1201,11 @@
       }
     },
     "XBRMarket": {
-      "address": "0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66",
-      "constructorCode": "608060405234801561001057600080fd5b50615adc80620000216000396000f3fe",
-      "bodyBytecodeHash": "4c0c7a2478d61bc1b4ab79bcff8dcb432e091ea446e187980fc4e00c33dab43b",
-      "localBytecodeHash": "8df04b2fdd96df22478a9404f556fdc7dafb5924e033640bf27ecb162f7c4f2a",
-      "deployedBytecodeHash": "3a2d33c84e4b339bd6bf1571d136ee064a65b33c807db28aa742b421c6eb646a",
+      "address": "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0",
+      "constructorCode": "608060405234801561001057600080fd5b50615ada80620000216000396000f3fe",
+      "bodyBytecodeHash": "e63fe55296be98ba2cad8cf5b0877de6aebde5b97931425bf64d53caa4e549bc",
+      "localBytecodeHash": "c501b53057e68043bdc4b1205a10e25875eaab043acec01c88ffccd103c067b4",
+      "deployedBytecodeHash": "1d0633909ceca6c2b4cddaa9f4be2f8928d643d8da7818487a7828b2b0b1844a",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -1231,13 +1231,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7735,
+              "astId": 7760,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7737,
+              "astId": 7762,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -1250,7 +1250,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9088,
+              "astId": 9113,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -1263,13 +1263,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8909,
+              "astId": 8934,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8913,
+              "astId": 8938,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -1323,103 +1323,103 @@
           "members": [
             {
               "label": "created",
-              "astId": 6118,
+              "astId": 6143,
               "type": "t_uint256",
               "src": "6297:15:10"
             },
             {
               "label": "seq",
-              "astId": 6120,
+              "astId": 6145,
               "type": "t_uint32",
               "src": "6359:10:10"
             },
             {
               "label": "owner",
-              "astId": 6122,
+              "astId": 6147,
               "type": "t_address",
               "src": "6430:13:10"
             },
             {
               "label": "coin",
-              "astId": 6124,
+              "astId": 6149,
               "type": "t_address",
               "src": "6539:12:10"
             },
             {
               "label": "terms",
-              "astId": 6126,
+              "astId": 6151,
               "type": "t_string",
               "src": "6605:12:10"
             },
             {
               "label": "meta",
-              "astId": 6128,
+              "astId": 6153,
               "type": "t_string",
               "src": "6674:11:10"
             },
             {
               "label": "maker",
-              "astId": 6130,
+              "astId": 6155,
               "type": "t_address",
               "src": "6730:13:10"
             },
             {
               "label": "providerSecurity",
-              "astId": 6132,
+              "astId": 6157,
               "type": "t_uint256",
               "src": "6840:24:10"
             },
             {
               "label": "consumerSecurity",
-              "astId": 6134,
+              "astId": 6159,
               "type": "t_uint256",
               "src": "6960:24:10"
             },
             {
               "label": "marketFee",
-              "astId": 6136,
+              "astId": 6161,
               "type": "t_uint256",
               "src": "7048:17:10"
             },
             {
               "label": "signature",
-              "astId": 6138,
+              "astId": 6163,
               "type": "t_bytes",
               "src": "7176:15:10"
             },
             {
               "label": "providerActorAdrs",
-              "astId": 6141,
+              "astId": 6166,
               "type": "t_array:dyn<t_address>",
               "src": "7273:27:10"
             },
             {
               "label": "consumerActorAdrs",
-              "astId": 6144,
+              "astId": 6169,
               "type": "t_array:dyn<t_address>",
               "src": "7381:27:10"
             },
             {
               "label": "providerActors",
-              "astId": 6148,
+              "astId": 6173,
               "type": "t_mapping<t_struct<XBRTypes.Actor>>",
               "src": "7495:40:10"
             },
             {
               "label": "consumerActors",
-              "astId": 6152,
+              "astId": 6177,
               "type": "t_mapping<t_struct<XBRTypes.Actor>>",
               "src": "7621:40:10"
             },
             {
               "label": "currentPaymentChannelByDelegate",
-              "astId": 6156,
+              "astId": 6181,
               "type": "t_mapping<t_address>",
               "src": "7729:59:10"
             },
             {
               "label": "currentPayingChannelByDelegate",
-              "astId": 6160,
+              "astId": 6185,
               "type": "t_mapping<t_address>",
               "src": "7856:58:10"
             }
@@ -1449,43 +1449,43 @@
           "members": [
             {
               "label": "joined",
-              "astId": 6098,
+              "astId": 6123,
               "type": "t_uint256",
               "src": "5595:14:10"
             },
             {
               "label": "security",
-              "astId": 6100,
+              "astId": 6125,
               "type": "t_uint256",
               "src": "5689:16:10"
             },
             {
               "label": "meta",
-              "astId": 6102,
+              "astId": 6127,
               "type": "t_string",
               "src": "5771:11:10"
             },
             {
               "label": "signature",
-              "astId": 6104,
+              "astId": 6129,
               "type": "t_bytes",
               "src": "5875:15:10"
             },
             {
               "label": "state",
-              "astId": 6106,
+              "astId": 6131,
               "type": "t_enum<XBRTypes.ActorState>",
               "src": "5952:16:10"
             },
             {
               "label": "channels",
-              "astId": 6109,
+              "astId": 6134,
               "type": "t_array:dyn<t_address>",
               "src": "6061:18:10"
             },
             {
               "label": "delegates",
-              "astId": 6115,
+              "astId": 6140,
               "type": "t_mapping<t_struct<XBRTypes.Consent>>",
               "src": "6090:57:10"
             }
@@ -1509,25 +1509,25 @@
           "members": [
             {
               "label": "updated",
-              "astId": 6189,
+              "astId": 6214,
               "type": "t_uint256",
               "src": "9097:15:10"
             },
             {
               "label": "consent",
-              "astId": 6191,
+              "astId": 6216,
               "type": "t_bool",
               "src": "9163:12:10"
             },
             {
               "label": "servicePrefix",
-              "astId": 6193,
+              "astId": 6218,
               "type": "t_string",
               "src": "9270:20:10"
             },
             {
               "label": "signature",
-              "astId": 6195,
+              "astId": 6220,
               "type": "t_bytes",
               "src": "9394:15:10"
             }
@@ -1588,25 +1588,25 @@
           "members": [
             {
               "label": "marketsOwned",
-              "astId": 6076,
+              "astId": 6101,
               "type": "t_uint32",
               "src": "4644:19:10"
             },
             {
               "label": "marketsJoined",
-              "astId": 6078,
+              "astId": 6103,
               "type": "t_uint32",
               "src": "4780:20:10"
             },
             {
               "label": "marketSecuritiesSent",
-              "astId": 6080,
+              "astId": 6105,
               "type": "t_uint256",
               "src": "4924:28:10"
             },
             {
               "label": "marketSecuritiesReceived",
-              "astId": 6082,
+              "astId": 6107,
               "type": "t_uint256",
               "src": "4963:32:10"
             }
@@ -1624,7 +1624,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7633,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -1632,7 +1632,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7635,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -1640,7 +1640,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7698,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -1648,7 +1648,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7628,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -1656,7 +1656,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7742,
+          "astId": 7767,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -1664,7 +1664,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7976,
+          "astId": 8001,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -1672,7 +1672,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
-          "astId": 2603,
+          "astId": 2614,
           "type": "t_uint256",
           "src": "2985:51:5"
         },
@@ -1680,7 +1680,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "network",
-          "astId": 2605,
+          "astId": 2616,
           "type": "t_address",
           "src": "3111:25:5"
         },
@@ -1688,7 +1688,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "catalog",
-          "astId": 2607,
+          "astId": 2618,
           "type": "t_address",
           "src": "3211:25:5"
         },
@@ -1696,7 +1696,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketSeq",
-          "astId": 2609,
+          "astId": 2620,
           "type": "t_uint32",
           "src": "3364:23:5"
         },
@@ -1704,7 +1704,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "markets",
-          "astId": 2613,
+          "astId": 2624,
           "type": "t_mapping<t_struct<XBRTypes.Market>>",
           "src": "3443:50:5"
         },
@@ -1712,7 +1712,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketIds",
-          "astId": 2616,
+          "astId": 2627,
           "type": "t_array:dyn<t_bytes16>",
           "src": "3544:26:5"
         },
@@ -1720,7 +1720,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByMaker",
-          "astId": 2620,
+          "astId": 2631,
           "type": "t_mapping<t_bytes16>",
           "src": "3619:49:5"
         },
@@ -1728,7 +1728,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByOwner",
-          "astId": 2625,
+          "astId": 2636,
           "type": "t_mapping<t_array:dyn<t_bytes16>>",
           "src": "3726:51:5"
         },
@@ -1736,7 +1736,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByActor",
-          "astId": 2630,
+          "astId": 2641,
           "type": "t_mapping<t_array:dyn<t_bytes16>>",
           "src": "3835:51:5"
         },
@@ -1744,7 +1744,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "memberStats",
-          "astId": 2634,
+          "astId": 2645,
           "type": "t_mapping<t_struct<XBRTypes.MemberMarketStats>>",
           "src": "3957:65:5"
         }
@@ -1758,11 +1758,11 @@
       }
     },
     "XBRChannel": {
-      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
-      "constructorCode": "608060405234801561001057600080fd5b50615046806100206000396000f3fe",
-      "bodyBytecodeHash": "4189062f1945bce62eda2ca522586bcd2719dd6d8428088c5a6e592894d5b19a",
-      "localBytecodeHash": "650b4bc7b58e5f6f4cce57621cbcbac11ee21bb735b2fd8aa20bb770977e3c65",
-      "deployedBytecodeHash": "5b59b840edffd9b77a7b64b7c58e0ca843dfe5c4ce9f7403bc3068c8912980be",
+      "address": "0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66",
+      "constructorCode": "608060405234801561001057600080fd5b50615054806100206000396000f3fe",
+      "bodyBytecodeHash": "a1bbb3c8843eefa86dc0d6a843385e410835bc1648ef41e837fb5a0bcb1f7d79",
+      "localBytecodeHash": "71c0e7d16b8f4ff95aa9518be2e547fdf34da257a544044f3c5c683c4962599c",
+      "deployedBytecodeHash": "1d21a0c995bf8cb9711b6770d28a013adb23bbb5e99a2faa26c4639baf1b45e6",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -1788,13 +1788,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7740,
+              "astId": 7760,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7742,
+              "astId": 7762,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -1807,7 +1807,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9093,
+              "astId": 9113,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -1820,13 +1820,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8914,
+              "astId": 8934,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8918,
+              "astId": 8938,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -1880,67 +1880,67 @@
           "members": [
             {
               "label": "created",
-              "astId": 6203,
+              "astId": 6223,
               "type": "t_uint256",
               "src": "9787:15:10"
             },
             {
               "label": "seq",
-              "astId": 6205,
+              "astId": 6225,
               "type": "t_uint32",
               "src": "9850:10:10"
             },
             {
               "label": "ctype",
-              "astId": 6207,
+              "astId": 6227,
               "type": "t_enum<XBRTypes.ChannelType>",
               "src": "9948:17:10"
             },
             {
               "label": "marketId",
-              "astId": 6209,
+              "astId": 6229,
               "type": "t_bytes16",
               "src": "10059:16:10"
             },
             {
               "label": "channelId",
-              "astId": 6211,
+              "astId": 6231,
               "type": "t_bytes16",
               "src": "10114:17:10"
             },
             {
               "label": "actor",
-              "astId": 6213,
+              "astId": 6233,
               "type": "t_address",
               "src": "10302:13:10"
             },
             {
               "label": "delegate",
-              "astId": 6215,
+              "astId": 6235,
               "type": "t_address",
               "src": "10633:16:10"
             },
             {
               "label": "marketmaker",
-              "astId": 6217,
+              "astId": 6237,
               "type": "t_address",
               "src": "10745:19:10"
             },
             {
               "label": "recipient",
-              "astId": 6219,
+              "astId": 6239,
               "type": "t_address",
               "src": "10937:17:10"
             },
             {
               "label": "amount",
-              "astId": 6221,
+              "astId": 6241,
               "type": "t_uint256",
               "src": "11108:14:10"
             },
             {
               "label": "signature",
-              "astId": 6223,
+              "astId": 6243,
               "type": "t_bytes",
               "src": "11205:15:10"
             }
@@ -1979,55 +1979,55 @@
           "members": [
             {
               "label": "state",
-              "astId": 6226,
+              "astId": 6246,
               "type": "t_enum<XBRTypes.ChannelState>",
               "src": "11385:18:10"
             },
             {
               "label": "closingAt",
-              "astId": 6228,
+              "astId": 6248,
               "type": "t_uint256",
               "src": "11500:17:10"
             },
             {
               "label": "closingSeq",
-              "astId": 6230,
+              "astId": 6250,
               "type": "t_uint32",
               "src": "11618:17:10"
             },
             {
               "label": "closingBalance",
-              "astId": 6232,
+              "astId": 6252,
               "type": "t_uint256",
               "src": "11746:22:10"
             },
             {
               "label": "closedAt",
-              "astId": 6234,
+              "astId": 6254,
               "type": "t_uint256",
               "src": "11865:16:10"
             },
             {
               "label": "closedSeq",
-              "astId": 6236,
+              "astId": 6256,
               "type": "t_uint32",
               "src": "11997:16:10"
             },
             {
               "label": "closedBalance",
-              "astId": 6238,
+              "astId": 6258,
               "type": "t_uint256",
               "src": "12129:21:10"
             },
             {
               "label": "delegateSignature",
-              "astId": 6240,
+              "astId": 6260,
               "type": "t_bytes",
               "src": "12280:23:10"
             },
             {
               "label": "marketmakerSignature",
-              "astId": 6242,
+              "astId": 6262,
               "type": "t_bytes",
               "src": "12419:26:10"
             }
@@ -2057,7 +2057,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7638,
+          "astId": 7658,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -2065,7 +2065,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7640,
+          "astId": 7660,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -2073,7 +2073,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7703,
+          "astId": 7723,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -2081,7 +2081,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7633,
+          "astId": 7653,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -2089,7 +2089,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7747,
+          "astId": 7767,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -2097,7 +2097,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7981,
+          "astId": 8001,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -2145,11 +2145,11 @@
   },
   "solidityLibs": {
     "XBRTypes": {
-      "address": "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec",
+      "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
       "constructorCode": "612423610026600b82828239805160001a60731461001957fe5b30600052607381538281f3fe",
-      "bodyBytecodeHash": "2b4834a74af609fdeacbb374d18e4ad5039cea55bcc72fc7fed6a660f54e5b42",
-      "localBytecodeHash": "b443d5549a94ea5c86891f93e0ff4db7ced0e2524e657e493d37fdf002fe0efb",
-      "deployedBytecodeHash": "b443d5549a94ea5c86891f93e0ff4db7ced0e2524e657e493d37fdf002fe0efb"
+      "bodyBytecodeHash": "6448a0ddb001a957c35b77c682a6b52b45c989935fa6d9a4c6442ee6a4c3811c",
+      "localBytecodeHash": "289f7d93feeb7a046f7fb70d6efceb6d864fa88d37a9f287f417f5dc05364c7e",
+      "deployedBytecodeHash": "289f7d93feeb7a046f7fb70d6efceb6d864fa88d37a9f287f417f5dc05364c7e"
     }
   },
   "proxies": {
@@ -2173,14 +2173,23 @@
     ],
     "xbr/XBRDomain": [
       {
-        "address": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+        "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
         "version": "20.5.1",
-        "implementation": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
+        "implementation": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
         "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
         "kind": "Upgradeable"
       }
     ],
     "xbr/XBRCatalog": [
+      {
+        "address": "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+        "version": "20.5.1",
+        "implementation": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+        "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
+        "kind": "Upgradeable"
+      }
+    ],
+    "xbr/XBRMarket": [
       {
         "address": "0x67B5656d60a809915323Bf2C40A8bEF15A152e3e",
         "version": "20.5.1",
@@ -2189,20 +2198,11 @@
         "kind": "Upgradeable"
       }
     ],
-    "xbr/XBRMarket": [
+    "xbr/XBRChannel": [
       {
         "address": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
         "version": "20.5.1",
         "implementation": "0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66",
-        "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
-        "kind": "Upgradeable"
-      }
-    ],
-    "xbr/XBRChannel": [
-      {
-        "address": "0x0E696947A06550DEf604e82C26fd9E493e576337",
-        "version": "20.5.1",
-        "implementation": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
         "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
         "kind": "Upgradeable"
       }
