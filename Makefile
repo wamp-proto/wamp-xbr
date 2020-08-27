@@ -220,6 +220,8 @@ fetch_cfx_test_config:
 clean_ganache:
 	-rm -rf ./docker/data/
 	mkdir ./docker/data/
+	-rm -f ./.openzeppelin/dev-5777.json
+	-rm -f ./.openzeppelin/.session
 
 # 2) run a blockchain from the empty staging area
 run_ganache:

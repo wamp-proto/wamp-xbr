@@ -19,7 +19,8 @@
         "url": "git://github.com/crossbario/xbr-protocol.git"
     },
     "dependencies": {
-        "@openzeppelin/cli": "^2.8.2"
+        "@openzeppelin/cli": "^2.8.2",
+        "@openzeppelin/contracts-ethereum-package": "^3.0.0"
     },
     "devDependencies": {
         "bindings": "^1.5.0",

@@ -1,6 +1,8 @@
 {
   "manifestVersion": "2.2",
-  "contracts": {},
+  "contracts": {
+    "XBRTest": "XBRTest"
+  },
   "dependencies": {},
   "name": "xbr",
   "version": "20.5.1",
@@ -17,5 +19,6 @@
     "manager": "truffle",
     "artifactsDir": "build/contracts",
     "contractsDir": "contracts"
-  }
+  },
+  "telemetryOptIn": true
 }

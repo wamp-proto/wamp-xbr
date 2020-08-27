@@ -18,8 +18,10 @@
 
 pragma solidity ^0.6.0;
 
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract XBRTest {
+
+contract XBRTest is Initializable {
     // Adapted from: https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.sol
 
     struct EIP712Domain {
@@ -54,7 +56,7 @@ contract XBRTest {
 
     bytes32 DOMAIN_SEPARATOR;
 
-    constructor () public {
+    function initialize () initializer public {
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "Ether Mail",
             version: "1",
