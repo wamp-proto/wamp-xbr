@@ -477,12 +477,12 @@
         "uninitializedBaseContracts": []
       }
     },
-    "XBRMarket": {
-      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
-      "constructorCode": "608060405234801561001057600080fd5b50615ad080620000216000396000f3fe",
-      "bodyBytecodeHash": "ab4007e30d4daeee50c4f0520f01f92a06ba328d746b96328257408acc2c8817",
-      "localBytecodeHash": "8ef903bbcb96217b9a74dbc96a7aca81aec103b6fdcd608ecef0a748f42ef476",
-      "deployedBytecodeHash": "e52a874291d61a3ecfc9a93ce36717188f9e5b91f5f35e4e901fe99658be128e",
+    "XBRDomain": {
+      "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
+      "constructorCode": "608060405234801561001057600080fd5b50612e43806100206000396000f3fe",
+      "bodyBytecodeHash": "8558a4c43eb52de5e6dd8e477497cd2816e80c4ff41ef0e99420fcb11342ad9a",
+      "localBytecodeHash": "80346f82ce6138b9ae4b442111c605c02de32e83e8aca76fe143b28f54215d93",
+      "deployedBytecodeHash": "cc45412375a28d01f9d2142873d754f084dd774af5096551f9607dda17d34c65",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -508,13 +508,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 7719,
+              "astId": 7728,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:13"
             },
             {
               "label": "adminRole",
-              "astId": 7721,
+              "astId": 7730,
               "type": "t_bytes32",
               "src": "1697:17:13"
             }
@@ -527,7 +527,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 9072,
+              "astId": 9081,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:19"
             }
@@ -540,13 +540,736 @@
           "members": [
             {
               "label": "_values",
-              "astId": 8893,
+              "astId": 8902,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:19"
             },
             {
               "label": "_indexes",
-              "astId": 8897,
+              "astId": 8906,
+              "type": "t_mapping<t_uint256>",
+              "src": "1364:37:19"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_array:dyn<t_bytes32>": {
+          "id": "t_array:dyn<t_bytes32>",
+          "valueType": "t_bytes32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes32[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
+          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+          "kind": "mapping"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_uint32": {
+          "id": "t_uint32",
+          "kind": "elementary",
+          "label": "uint32"
+        },
+        "t_struct<XBRTypes.Domain>": {
+          "id": "t_struct<XBRTypes.Domain>",
+          "kind": "struct",
+          "label": "XBRTypes.Domain",
+          "members": [
+            {
+              "label": "created",
+              "astId": 6034,
+              "type": "t_uint256",
+              "src": "3458:15:10"
+            },
+            {
+              "label": "seq",
+              "astId": 6036,
+              "type": "t_uint32",
+              "src": "3513:10:10"
+            },
+            {
+              "label": "status",
+              "astId": 6038,
+              "type": "t_enum<XBRTypes.DomainStatus>",
+              "src": "3560:19:10"
+            },
+            {
+              "label": "owner",
+              "astId": 6040,
+              "type": "t_address",
+              "src": "3616:13:10"
+            },
+            {
+              "label": "key",
+              "astId": 6042,
+              "type": "t_bytes32",
+              "src": "3693:11:10"
+            },
+            {
+              "label": "license",
+              "astId": 6044,
+              "type": "t_string",
+              "src": "3775:14:10"
+            },
+            {
+              "label": "terms",
+              "astId": 6046,
+              "type": "t_string",
+              "src": "3843:12:10"
+            },
+            {
+              "label": "meta",
+              "astId": 6048,
+              "type": "t_string",
+              "src": "3912:11:10"
+            },
+            {
+              "label": "signature",
+              "astId": 6050,
+              "type": "t_bytes",
+              "src": "3934:15:10"
+            },
+            {
+              "label": "nodes",
+              "astId": 6053,
+              "type": "t_array:dyn<t_bytes16>",
+              "src": "3997:15:10"
+            }
+          ]
+        },
+        "t_enum<XBRTypes.DomainStatus>": {
+          "id": "t_enum<XBRTypes.DomainStatus>",
+          "kind": "enum",
+          "label": "XBRTypes.DomainStatus",
+          "members": [
+            "NULL",
+            "ACTIVE",
+            "CLOSED"
+          ]
+        },
+        "t_bytes": {
+          "id": "t_bytes",
+          "kind": "elementary",
+          "label": "bytes"
+        },
+        "t_bytes16": {
+          "id": "t_bytes16",
+          "kind": "elementary",
+          "label": "bytes16"
+        },
+        "t_array:dyn<t_bytes16>": {
+          "id": "t_array:dyn<t_bytes16>",
+          "valueType": "t_bytes16",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes16[]"
+        },
+        "t_mapping<t_struct<XBRTypes.Domain>>": {
+          "id": "t_mapping<t_struct<XBRTypes.Domain>>",
+          "valueType": "t_struct<XBRTypes.Domain>",
+          "label": "mapping(key => XBRTypes.Domain)",
+          "kind": "mapping"
+        },
+        "t_struct<XBRTypes.Node>": {
+          "id": "t_struct<XBRTypes.Node>",
+          "kind": "struct",
+          "label": "XBRTypes.Node",
+          "members": [
+            {
+              "label": "paired",
+              "astId": 6056,
+              "type": "t_uint256",
+              "src": "4188:14:10"
+            },
+            {
+              "label": "domain",
+              "astId": 6058,
+              "type": "t_bytes16",
+              "src": "4213:14:10"
+            },
+            {
+              "label": "nodeType",
+              "astId": 6060,
+              "type": "t_enum<XBRTypes.NodeType>",
+              "src": "4264:17:10"
+            },
+            {
+              "label": "key",
+              "astId": 6062,
+              "type": "t_bytes32",
+              "src": "4335:11:10"
+            },
+            {
+              "label": "config",
+              "astId": 6064,
+              "type": "t_string",
+              "src": "4418:13:10"
+            },
+            {
+              "label": "signature",
+              "astId": 6066,
+              "type": "t_bytes",
+              "src": "4442:15:10"
+            }
+          ]
+        },
+        "t_enum<XBRTypes.NodeType>": {
+          "id": "t_enum<XBRTypes.NodeType>",
+          "kind": "enum",
+          "label": "XBRTypes.NodeType",
+          "members": [
+            "NULL",
+            "MASTER",
+            "CORE",
+            "EDGE"
+          ]
+        },
+        "t_mapping<t_struct<XBRTypes.Node>>": {
+          "id": "t_mapping<t_struct<XBRTypes.Node>>",
+          "valueType": "t_struct<XBRTypes.Node>",
+          "label": "mapping(key => XBRTypes.Node)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bytes16>": {
+          "id": "t_mapping<t_bytes16>",
+          "valueType": "t_bytes16",
+          "label": "mapping(key => bytes16)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 7626,
+          "type": "t_bool",
+          "src": "757:24:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 7628,
+          "type": "t_bool",
+          "src": "876:25:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7691,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:12"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 7621,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:11"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "_roles",
+          "astId": 7735,
+          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "src": "1727:44:13"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "__gap",
+          "astId": 7969,
+          "type": "t_array:49<t_uint256>",
+          "src": "6927:25:13"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "network",
+          "astId": 1730,
+          "type": "t_address",
+          "src": "2621:25:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "license",
+          "astId": 1732,
+          "type": "t_string",
+          "src": "2785:21:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "domainSeq",
+          "astId": 1734,
+          "type": "t_uint32",
+          "src": "2934:23:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "domains",
+          "astId": 1738,
+          "type": "t_mapping<t_struct<XBRTypes.Domain>>",
+          "src": "3013:50:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "nodes",
+          "astId": 1742,
+          "type": "t_mapping<t_struct<XBRTypes.Node>>",
+          "src": "3116:46:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "nodesByKey",
+          "astId": 1746,
+          "type": "t_mapping<t_bytes16>",
+          "src": "3224:45:3"
+        },
+        {
+          "contract": "XBRDomain",
+          "path": "contracts/XBRDomain.sol",
+          "label": "domainIds",
+          "astId": 1749,
+          "type": "t_array:dyn<t_bytes16>",
+          "src": "3320:26:3"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "XBRCatalog": {
+      "address": "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0",
+      "constructorCode": "608060405234801561001057600080fd5b50612190806100206000396000f3fe",
+      "bodyBytecodeHash": "8b4c66257ae3d32fdb3af9e79655fcd985aa0072309f25e1878e3a606dbaa6bd",
+      "localBytecodeHash": "6779ed58b1f199a704f5f7f22689123c2f1105b023c307b7f9992b5b502ba958",
+      "deployedBytecodeHash": "b5e6992d655be9bdcfa097b52b4e873c6dc1975d75d6a06a18c71ebb9bca653c",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AccessControlUpgradeSafe.RoleData>": {
+          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "kind": "struct",
+          "label": "AccessControlUpgradeSafe.RoleData",
+          "members": [
+            {
+              "label": "members",
+              "astId": 7735,
+              "type": "t_struct<EnumerableSet.AddressSet>",
+              "src": "1655:32:13"
+            },
+            {
+              "label": "adminRole",
+              "astId": 7737,
+              "type": "t_bytes32",
+              "src": "1697:17:13"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.AddressSet>": {
+          "id": "t_struct<EnumerableSet.AddressSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.AddressSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 9088,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "4644:10:19"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.Set>": {
+          "id": "t_struct<EnumerableSet.Set>",
+          "kind": "struct",
+          "label": "EnumerableSet.Set",
+          "members": [
+            {
+              "label": "_values",
+              "astId": 8909,
+              "type": "t_array:dyn<t_bytes32>",
+              "src": "1213:17:19"
+            },
+            {
+              "label": "_indexes",
+              "astId": 8913,
+              "type": "t_mapping<t_uint256>",
+              "src": "1364:37:19"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_array:dyn<t_bytes32>": {
+          "id": "t_array:dyn<t_bytes32>",
+          "valueType": "t_bytes32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes32[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
+          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+          "kind": "mapping"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_uint32": {
+          "id": "t_uint32",
+          "kind": "elementary",
+          "label": "uint32"
+        },
+        "t_struct<XBRTypes.Catalog>": {
+          "id": "t_struct<XBRTypes.Catalog>",
+          "kind": "struct",
+          "label": "XBRTypes.Catalog",
+          "members": [
+            {
+              "label": "created",
+              "astId": 6172,
+              "type": "t_uint256",
+              "src": "8530:15:10"
+            },
+            {
+              "label": "seq",
+              "astId": 6174,
+              "type": "t_uint32",
+              "src": "8593:10:10"
+            },
+            {
+              "label": "owner",
+              "astId": 6176,
+              "type": "t_address",
+              "src": "8667:13:10"
+            },
+            {
+              "label": "terms",
+              "astId": 6178,
+              "type": "t_string",
+              "src": "8735:12:10"
+            },
+            {
+              "label": "meta",
+              "astId": 6180,
+              "type": "t_string",
+              "src": "8805:11:10"
+            },
+            {
+              "label": "signature",
+              "astId": 6182,
+              "type": "t_bytes",
+              "src": "8907:15:10"
+            },
+            {
+              "label": "apis",
+              "astId": 6186,
+              "type": "t_mapping<t_struct<XBRTypes.Api>>",
+              "src": "8976:28:10"
+            }
+          ]
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_bytes": {
+          "id": "t_bytes",
+          "kind": "elementary",
+          "label": "bytes"
+        },
+        "t_struct<XBRTypes.Api>": {
+          "id": "t_struct<XBRTypes.Api>",
+          "kind": "struct",
+          "label": "XBRTypes.Api",
+          "members": [
+            {
+              "label": "published",
+              "astId": 6163,
+              "type": "t_uint256",
+              "src": "8092:17:10"
+            },
+            {
+              "label": "schema",
+              "astId": 6165,
+              "type": "t_string",
+              "src": "8180:13:10"
+            },
+            {
+              "label": "meta",
+              "astId": 6167,
+              "type": "t_string",
+              "src": "8255:11:10"
+            },
+            {
+              "label": "signature",
+              "astId": 6169,
+              "type": "t_bytes",
+              "src": "8362:15:10"
+            }
+          ]
+        },
+        "t_mapping<t_struct<XBRTypes.Api>>": {
+          "id": "t_mapping<t_struct<XBRTypes.Api>>",
+          "valueType": "t_struct<XBRTypes.Api>",
+          "label": "mapping(key => XBRTypes.Api)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<XBRTypes.Catalog>>": {
+          "id": "t_mapping<t_struct<XBRTypes.Catalog>>",
+          "valueType": "t_struct<XBRTypes.Catalog>",
+          "label": "mapping(key => XBRTypes.Catalog)",
+          "kind": "mapping"
+        },
+        "t_bytes16": {
+          "id": "t_bytes16",
+          "kind": "elementary",
+          "label": "bytes16"
+        },
+        "t_array:dyn<t_bytes16>": {
+          "id": "t_array:dyn<t_bytes16>",
+          "valueType": "t_bytes16",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes16[]"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 7633,
+          "type": "t_bool",
+          "src": "757:24:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 7635,
+          "type": "t_bool",
+          "src": "876:25:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7698,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:12"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 7628,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:11"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "_roles",
+          "astId": 7742,
+          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "src": "1727:44:13"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "__gap",
+          "astId": 7976,
+          "type": "t_array:49<t_uint256>",
+          "src": "6927:25:13"
+        },
+        {
+          "contract": "XBRCatalog",
+          "path": "contracts/XBRCatalog.sol",
+          "label": "network",
+          "astId": 98,
+          "type": "t_address",
+          "src": "1807:25:1"
+        },
+        {
+          "contract": "XBRCatalog",
+          "path": "contracts/XBRCatalog.sol",
+          "label": "catalogSeq",
+          "astId": 100,
+          "type": "t_uint32",
+          "src": "1961:25:1"
+        },
+        {
+          "contract": "XBRCatalog",
+          "path": "contracts/XBRCatalog.sol",
+          "label": "catalogs",
+          "astId": 104,
+          "type": "t_mapping<t_struct<XBRTypes.Catalog>>",
+          "src": "2044:52:1"
+        },
+        {
+          "contract": "XBRCatalog",
+          "path": "contracts/XBRCatalog.sol",
+          "label": "catalogIds",
+          "astId": 107,
+          "type": "t_array:dyn<t_bytes16>",
+          "src": "2148:27:1"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "XBRMarket": {
+      "address": "0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66",
+      "constructorCode": "608060405234801561001057600080fd5b50615adc80620000216000396000f3fe",
+      "bodyBytecodeHash": "4c0c7a2478d61bc1b4ab79bcff8dcb432e091ea446e187980fc4e00c33dab43b",
+      "localBytecodeHash": "8df04b2fdd96df22478a9404f556fdc7dafb5924e033640bf27ecb162f7c4f2a",
+      "deployedBytecodeHash": "3a2d33c84e4b339bd6bf1571d136ee064a65b33c807db28aa742b421c6eb646a",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AccessControlUpgradeSafe.RoleData>": {
+          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "kind": "struct",
+          "label": "AccessControlUpgradeSafe.RoleData",
+          "members": [
+            {
+              "label": "members",
+              "astId": 7735,
+              "type": "t_struct<EnumerableSet.AddressSet>",
+              "src": "1655:32:13"
+            },
+            {
+              "label": "adminRole",
+              "astId": 7737,
+              "type": "t_bytes32",
+              "src": "1697:17:13"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.AddressSet>": {
+          "id": "t_struct<EnumerableSet.AddressSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.AddressSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 9088,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "4644:10:19"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.Set>": {
+          "id": "t_struct<EnumerableSet.Set>",
+          "kind": "struct",
+          "label": "EnumerableSet.Set",
+          "members": [
+            {
+              "label": "_values",
+              "astId": 8909,
+              "type": "t_array:dyn<t_bytes32>",
+              "src": "1213:17:19"
+            },
+            {
+              "label": "_indexes",
+              "astId": 8913,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:19"
             }
@@ -600,103 +1323,103 @@
           "members": [
             {
               "label": "created",
-              "astId": 6102,
+              "astId": 6118,
               "type": "t_uint256",
               "src": "6297:15:10"
             },
             {
               "label": "seq",
-              "astId": 6104,
+              "astId": 6120,
               "type": "t_uint32",
               "src": "6359:10:10"
             },
             {
               "label": "owner",
-              "astId": 6106,
+              "astId": 6122,
               "type": "t_address",
               "src": "6430:13:10"
             },
             {
               "label": "coin",
-              "astId": 6108,
+              "astId": 6124,
               "type": "t_address",
               "src": "6539:12:10"
             },
             {
               "label": "terms",
-              "astId": 6110,
+              "astId": 6126,
               "type": "t_string",
               "src": "6605:12:10"
             },
             {
               "label": "meta",
-              "astId": 6112,
+              "astId": 6128,
               "type": "t_string",
               "src": "6674:11:10"
             },
             {
               "label": "maker",
-              "astId": 6114,
+              "astId": 6130,
               "type": "t_address",
               "src": "6730:13:10"
             },
             {
               "label": "providerSecurity",
-              "astId": 6116,
+              "astId": 6132,
               "type": "t_uint256",
               "src": "6840:24:10"
             },
             {
               "label": "consumerSecurity",
-              "astId": 6118,
+              "astId": 6134,
               "type": "t_uint256",
               "src": "6960:24:10"
             },
             {
               "label": "marketFee",
-              "astId": 6120,
+              "astId": 6136,
               "type": "t_uint256",
               "src": "7048:17:10"
             },
             {
               "label": "signature",
-              "astId": 6122,
+              "astId": 6138,
               "type": "t_bytes",
               "src": "7176:15:10"
             },
             {
               "label": "providerActorAdrs",
-              "astId": 6125,
+              "astId": 6141,
               "type": "t_array:dyn<t_address>",
               "src": "7273:27:10"
             },
             {
               "label": "consumerActorAdrs",
-              "astId": 6128,
+              "astId": 6144,
               "type": "t_array:dyn<t_address>",
               "src": "7381:27:10"
             },
             {
               "label": "providerActors",
-              "astId": 6132,
+              "astId": 6148,
               "type": "t_mapping<t_struct<XBRTypes.Actor>>",
               "src": "7495:40:10"
             },
             {
               "label": "consumerActors",
-              "astId": 6136,
+              "astId": 6152,
               "type": "t_mapping<t_struct<XBRTypes.Actor>>",
               "src": "7621:40:10"
             },
             {
               "label": "currentPaymentChannelByDelegate",
-              "astId": 6140,
+              "astId": 6156,
               "type": "t_mapping<t_address>",
               "src": "7729:59:10"
             },
             {
               "label": "currentPayingChannelByDelegate",
-              "astId": 6144,
+              "astId": 6160,
               "type": "t_mapping<t_address>",
               "src": "7856:58:10"
             }
@@ -726,43 +1449,43 @@
           "members": [
             {
               "label": "joined",
-              "astId": 6082,
+              "astId": 6098,
               "type": "t_uint256",
               "src": "5595:14:10"
             },
             {
               "label": "security",
-              "astId": 6084,
+              "astId": 6100,
               "type": "t_uint256",
               "src": "5689:16:10"
             },
             {
               "label": "meta",
-              "astId": 6086,
+              "astId": 6102,
               "type": "t_string",
               "src": "5771:11:10"
             },
             {
               "label": "signature",
-              "astId": 6088,
+              "astId": 6104,
               "type": "t_bytes",
               "src": "5875:15:10"
             },
             {
               "label": "state",
-              "astId": 6090,
+              "astId": 6106,
               "type": "t_enum<XBRTypes.ActorState>",
               "src": "5952:16:10"
             },
             {
               "label": "channels",
-              "astId": 6093,
+              "astId": 6109,
               "type": "t_array:dyn<t_address>",
               "src": "6061:18:10"
             },
             {
               "label": "delegates",
-              "astId": 6099,
+              "astId": 6115,
               "type": "t_mapping<t_struct<XBRTypes.Consent>>",
               "src": "6090:57:10"
             }
@@ -786,25 +1509,25 @@
           "members": [
             {
               "label": "updated",
-              "astId": 6173,
+              "astId": 6189,
               "type": "t_uint256",
               "src": "9097:15:10"
             },
             {
               "label": "consent",
-              "astId": 6175,
+              "astId": 6191,
               "type": "t_bool",
               "src": "9163:12:10"
             },
             {
               "label": "servicePrefix",
-              "astId": 6177,
+              "astId": 6193,
               "type": "t_string",
               "src": "9270:20:10"
             },
             {
               "label": "signature",
-              "astId": 6179,
+              "astId": 6195,
               "type": "t_bytes",
               "src": "9394:15:10"
             }
@@ -865,25 +1588,25 @@
           "members": [
             {
               "label": "marketsOwned",
-              "astId": 6060,
+              "astId": 6076,
               "type": "t_uint32",
               "src": "4644:19:10"
             },
             {
               "label": "marketsJoined",
-              "astId": 6062,
+              "astId": 6078,
               "type": "t_uint32",
               "src": "4780:20:10"
             },
             {
               "label": "marketSecuritiesSent",
-              "astId": 6064,
+              "astId": 6080,
               "type": "t_uint256",
               "src": "4924:28:10"
             },
             {
               "label": "marketSecuritiesReceived",
-              "astId": 6066,
+              "astId": 6082,
               "type": "t_uint256",
               "src": "4963:32:10"
             }
@@ -901,7 +1624,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 7617,
+          "astId": 7633,
           "type": "t_bool",
           "src": "757:24:12"
         },
@@ -909,7 +1632,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 7619,
+          "astId": 7635,
           "type": "t_bool",
           "src": "876:25:12"
         },
@@ -917,7 +1640,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 7682,
+          "astId": 7698,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:12"
         },
@@ -925,7 +1648,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 7612,
+          "astId": 7628,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:11"
         },
@@ -933,7 +1656,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 7726,
+          "astId": 7742,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:13"
         },
@@ -941,7 +1664,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 7960,
+          "astId": 7976,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:13"
         },
@@ -949,7 +1672,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
-          "astId": 2587,
+          "astId": 2603,
           "type": "t_uint256",
           "src": "2985:51:5"
         },
@@ -957,7 +1680,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "network",
-          "astId": 2589,
+          "astId": 2605,
           "type": "t_address",
           "src": "3111:25:5"
         },
@@ -965,7 +1688,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "catalog",
-          "astId": 2591,
+          "astId": 2607,
           "type": "t_address",
           "src": "3211:25:5"
         },
@@ -973,7 +1696,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketSeq",
-          "astId": 2593,
+          "astId": 2609,
           "type": "t_uint32",
           "src": "3364:23:5"
         },
@@ -981,7 +1704,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "markets",
-          "astId": 2597,
+          "astId": 2613,
           "type": "t_mapping<t_struct<XBRTypes.Market>>",
           "src": "3443:50:5"
         },
@@ -989,7 +1712,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketIds",
-          "astId": 2600,
+          "astId": 2616,
           "type": "t_array:dyn<t_bytes16>",
           "src": "3544:26:5"
         },
@@ -997,7 +1720,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByMaker",
-          "astId": 2604,
+          "astId": 2620,
           "type": "t_mapping<t_bytes16>",
           "src": "3619:49:5"
         },
@@ -1005,7 +1728,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByOwner",
-          "astId": 2609,
+          "astId": 2625,
           "type": "t_mapping<t_array:dyn<t_bytes16>>",
           "src": "3726:51:5"
         },
@@ -1013,7 +1736,7 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "marketsByActor",
-          "astId": 2614,
+          "astId": 2630,
           "type": "t_mapping<t_array:dyn<t_bytes16>>",
           "src": "3835:51:5"
         },
@@ -1021,9 +1744,394 @@
           "contract": "XBRMarket",
           "path": "contracts/XBRMarket.sol",
           "label": "memberStats",
-          "astId": 2618,
+          "astId": 2634,
           "type": "t_mapping<t_struct<XBRTypes.MemberMarketStats>>",
           "src": "3957:65:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "XBRChannel": {
+      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+      "constructorCode": "608060405234801561001057600080fd5b50615046806100206000396000f3fe",
+      "bodyBytecodeHash": "4189062f1945bce62eda2ca522586bcd2719dd6d8428088c5a6e592894d5b19a",
+      "localBytecodeHash": "650b4bc7b58e5f6f4cce57621cbcbac11ee21bb735b2fd8aa20bb770977e3c65",
+      "deployedBytecodeHash": "5b59b840edffd9b77a7b64b7c58e0ca843dfe5c4ce9f7403bc3068c8912980be",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AccessControlUpgradeSafe.RoleData>": {
+          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "kind": "struct",
+          "label": "AccessControlUpgradeSafe.RoleData",
+          "members": [
+            {
+              "label": "members",
+              "astId": 7740,
+              "type": "t_struct<EnumerableSet.AddressSet>",
+              "src": "1655:32:13"
+            },
+            {
+              "label": "adminRole",
+              "astId": 7742,
+              "type": "t_bytes32",
+              "src": "1697:17:13"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.AddressSet>": {
+          "id": "t_struct<EnumerableSet.AddressSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.AddressSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 9093,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "4644:10:19"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.Set>": {
+          "id": "t_struct<EnumerableSet.Set>",
+          "kind": "struct",
+          "label": "EnumerableSet.Set",
+          "members": [
+            {
+              "label": "_values",
+              "astId": 8914,
+              "type": "t_array:dyn<t_bytes32>",
+              "src": "1213:17:19"
+            },
+            {
+              "label": "_indexes",
+              "astId": 8918,
+              "type": "t_mapping<t_uint256>",
+              "src": "1364:37:19"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_array:dyn<t_bytes32>": {
+          "id": "t_array:dyn<t_bytes32>",
+          "valueType": "t_bytes32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes32[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
+          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+          "kind": "mapping"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_uint32": {
+          "id": "t_uint32",
+          "kind": "elementary",
+          "label": "uint32"
+        },
+        "t_struct<XBRTypes.Channel>": {
+          "id": "t_struct<XBRTypes.Channel>",
+          "kind": "struct",
+          "label": "XBRTypes.Channel",
+          "members": [
+            {
+              "label": "created",
+              "astId": 6203,
+              "type": "t_uint256",
+              "src": "9787:15:10"
+            },
+            {
+              "label": "seq",
+              "astId": 6205,
+              "type": "t_uint32",
+              "src": "9850:10:10"
+            },
+            {
+              "label": "ctype",
+              "astId": 6207,
+              "type": "t_enum<XBRTypes.ChannelType>",
+              "src": "9948:17:10"
+            },
+            {
+              "label": "marketId",
+              "astId": 6209,
+              "type": "t_bytes16",
+              "src": "10059:16:10"
+            },
+            {
+              "label": "channelId",
+              "astId": 6211,
+              "type": "t_bytes16",
+              "src": "10114:17:10"
+            },
+            {
+              "label": "actor",
+              "astId": 6213,
+              "type": "t_address",
+              "src": "10302:13:10"
+            },
+            {
+              "label": "delegate",
+              "astId": 6215,
+              "type": "t_address",
+              "src": "10633:16:10"
+            },
+            {
+              "label": "marketmaker",
+              "astId": 6217,
+              "type": "t_address",
+              "src": "10745:19:10"
+            },
+            {
+              "label": "recipient",
+              "astId": 6219,
+              "type": "t_address",
+              "src": "10937:17:10"
+            },
+            {
+              "label": "amount",
+              "astId": 6221,
+              "type": "t_uint256",
+              "src": "11108:14:10"
+            },
+            {
+              "label": "signature",
+              "astId": 6223,
+              "type": "t_bytes",
+              "src": "11205:15:10"
+            }
+          ]
+        },
+        "t_enum<XBRTypes.ChannelType>": {
+          "id": "t_enum<XBRTypes.ChannelType>",
+          "kind": "enum",
+          "label": "XBRTypes.ChannelType",
+          "members": [
+            "NULL",
+            "PAYMENT",
+            "PAYING"
+          ]
+        },
+        "t_bytes16": {
+          "id": "t_bytes16",
+          "kind": "elementary",
+          "label": "bytes16"
+        },
+        "t_bytes": {
+          "id": "t_bytes",
+          "kind": "elementary",
+          "label": "bytes"
+        },
+        "t_mapping<t_struct<XBRTypes.Channel>>": {
+          "id": "t_mapping<t_struct<XBRTypes.Channel>>",
+          "valueType": "t_struct<XBRTypes.Channel>",
+          "label": "mapping(key => XBRTypes.Channel)",
+          "kind": "mapping"
+        },
+        "t_struct<XBRTypes.ChannelClosingState>": {
+          "id": "t_struct<XBRTypes.ChannelClosingState>",
+          "kind": "struct",
+          "label": "XBRTypes.ChannelClosingState",
+          "members": [
+            {
+              "label": "state",
+              "astId": 6226,
+              "type": "t_enum<XBRTypes.ChannelState>",
+              "src": "11385:18:10"
+            },
+            {
+              "label": "closingAt",
+              "astId": 6228,
+              "type": "t_uint256",
+              "src": "11500:17:10"
+            },
+            {
+              "label": "closingSeq",
+              "astId": 6230,
+              "type": "t_uint32",
+              "src": "11618:17:10"
+            },
+            {
+              "label": "closingBalance",
+              "astId": 6232,
+              "type": "t_uint256",
+              "src": "11746:22:10"
+            },
+            {
+              "label": "closedAt",
+              "astId": 6234,
+              "type": "t_uint256",
+              "src": "11865:16:10"
+            },
+            {
+              "label": "closedSeq",
+              "astId": 6236,
+              "type": "t_uint32",
+              "src": "11997:16:10"
+            },
+            {
+              "label": "closedBalance",
+              "astId": 6238,
+              "type": "t_uint256",
+              "src": "12129:21:10"
+            },
+            {
+              "label": "delegateSignature",
+              "astId": 6240,
+              "type": "t_bytes",
+              "src": "12280:23:10"
+            },
+            {
+              "label": "marketmakerSignature",
+              "astId": 6242,
+              "type": "t_bytes",
+              "src": "12419:26:10"
+            }
+          ]
+        },
+        "t_enum<XBRTypes.ChannelState>": {
+          "id": "t_enum<XBRTypes.ChannelState>",
+          "kind": "enum",
+          "label": "XBRTypes.ChannelState",
+          "members": [
+            "NULL",
+            "OPEN",
+            "CLOSING",
+            "CLOSED",
+            "FAILED"
+          ]
+        },
+        "t_mapping<t_struct<XBRTypes.ChannelClosingState>>": {
+          "id": "t_mapping<t_struct<XBRTypes.ChannelClosingState>>",
+          "valueType": "t_struct<XBRTypes.ChannelClosingState>",
+          "label": "mapping(key => XBRTypes.ChannelClosingState)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 7638,
+          "type": "t_bool",
+          "src": "757:24:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 7640,
+          "type": "t_bool",
+          "src": "876:25:12"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7703,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:12"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 7633,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:11"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "_roles",
+          "astId": 7747,
+          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "src": "1727:44:13"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "label": "__gap",
+          "astId": 7981,
+          "type": "t_array:49<t_uint256>",
+          "src": "6927:25:13"
+        },
+        {
+          "contract": "XBRChannel",
+          "path": "contracts/XBRChannel.sol",
+          "label": "market",
+          "astId": 552,
+          "type": "t_address",
+          "src": "2996:23:2"
+        },
+        {
+          "contract": "XBRChannel",
+          "path": "contracts/XBRChannel.sol",
+          "label": "channelSeq",
+          "astId": 554,
+          "type": "t_uint32",
+          "src": "3149:25:2"
+        },
+        {
+          "contract": "XBRChannel",
+          "path": "contracts/XBRChannel.sol",
+          "label": "channels",
+          "astId": 558,
+          "type": "t_mapping<t_struct<XBRTypes.Channel>>",
+          "src": "3216:52:2"
+        },
+        {
+          "contract": "XBRChannel",
+          "path": "contracts/XBRChannel.sol",
+          "label": "channelClosingStates",
+          "astId": 562,
+          "type": "t_mapping<t_struct<XBRTypes.ChannelClosingState>>",
+          "src": "3324:76:2"
         }
       ],
       "warnings": {
@@ -1037,11 +2145,11 @@
   },
   "solidityLibs": {
     "XBRTypes": {
-      "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
-      "constructorCode": "61243b610026600b82828239805160001a60731461001957fe5b30600052607381538281f3fe",
-      "bodyBytecodeHash": "170a015ab47e5c418d98a2a26550b309b99ceacf10fb4e6b5c7b6a3c361d1626",
-      "localBytecodeHash": "7b240feb81ef46a97086f06f585493bbabfa7507068b836436df8f1cf5e13185",
-      "deployedBytecodeHash": "7b240feb81ef46a97086f06f585493bbabfa7507068b836436df8f1cf5e13185"
+      "address": "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec",
+      "constructorCode": "612423610026600b82828239805160001a60731461001957fe5b30600052607381538281f3fe",
+      "bodyBytecodeHash": "2b4834a74af609fdeacbb374d18e4ad5039cea55bcc72fc7fed6a660f54e5b42",
+      "localBytecodeHash": "b443d5549a94ea5c86891f93e0ff4db7ced0e2524e657e493d37fdf002fe0efb",
+      "deployedBytecodeHash": "b443d5549a94ea5c86891f93e0ff4db7ced0e2524e657e493d37fdf002fe0efb"
     }
   },
   "proxies": {
@@ -1063,11 +2171,38 @@
         "kind": "Upgradeable"
       }
     ],
+    "xbr/XBRDomain": [
+      {
+        "address": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+        "version": "20.5.1",
+        "implementation": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
+        "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
+        "kind": "Upgradeable"
+      }
+    ],
+    "xbr/XBRCatalog": [
+      {
+        "address": "0x67B5656d60a809915323Bf2C40A8bEF15A152e3e",
+        "version": "20.5.1",
+        "implementation": "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0",
+        "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
+        "kind": "Upgradeable"
+      }
+    ],
     "xbr/XBRMarket": [
       {
-        "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
+        "address": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
         "version": "20.5.1",
-        "implementation": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+        "implementation": "0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66",
+        "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
+        "kind": "Upgradeable"
+      }
+    ],
+    "xbr/XBRChannel": [
+      {
+        "address": "0x0E696947A06550DEf604e82C26fd9E493e576337",
+        "version": "20.5.1",
+        "implementation": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
         "admin": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
         "kind": "Upgradeable"
       }

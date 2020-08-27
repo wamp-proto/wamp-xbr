@@ -38,7 +38,7 @@ import "./XBRMarket.sol";
  * XBR Payment/Paying Channel between a XBR data consumer and the XBR market maker,
  * or the XBR Market Maker and a XBR data provider.
  */
-contract XBRChannel is XBRMaintained {
+contract XBRChannel is Initializable, XBRMaintained {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -69,7 +69,7 @@ contract XBRChannel is XBRMaintained {
     XBRMarket public market;
 
     /// Created channels are sequence numbered using this counter (to allow deterministic collision-free IDs for channels)
-    uint32 private channelSeq = 1;
+    uint32 private channelSeq;
 
     /// Table of all XBR Channels.
     mapping(bytes16 => XBRTypes.Channel) public channels;
@@ -80,8 +80,12 @@ contract XBRChannel is XBRMaintained {
     /// Constructor for this contract, only called once (when deploying the network).
     ///
     /// @param marketAdr The XBR markets contract this instance is associated with.
-    constructor (address marketAdr) public {
+    function initialize (address marketAdr) public {
+        // // FIXME
+        // XBRMaintained(this).initialize();
+
         market = XBRMarket(marketAdr);
+        channelSeq = 1;
     }
 
     /// Open a new XBR payment/paying channel for processing off-chain micro-transactions.
@@ -297,6 +301,10 @@ contract XBRChannel is XBRMaintained {
     }
 
     function _doClose(bytes16 channelId, uint32 closingChannelSeq, uint256 balance) private {
+        // workaround because I cannot find the fucking option to disable
+        // the "Warning: Unused function parameter." shit
+        require(closingChannelSeq >= 0);
+
         // the ERC20 coin used in the market as a means of payment
         address coin = market.getMarketCoin(channels[channelId].marketId);
 

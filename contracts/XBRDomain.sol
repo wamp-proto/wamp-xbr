@@ -19,6 +19,8 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 // import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
@@ -30,7 +32,7 @@ import "./XBRNetwork.sol";
 
 
 /// XBR API catalogs contract.
-contract XBRDomain is XBRMaintained {
+contract XBRDomain is Initializable, XBRMaintained {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -59,10 +61,10 @@ contract XBRDomain is XBRMaintained {
     XBRNetwork public network;
 
     /// IPFS multihash of the `Crossbar.io FX LICENSE <https://github.com/crossbario/crossbarfx/blob/master/crossbarfx/LICENSE>`__.
-    string public license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";
+    string public license;
 
     /// Created domains are sequence numbered using this counter (to allow deterministic collision-free IDs for domains)
-    uint32 public domainSeq = 1;
+    uint32 public domainSeq;
 
     /// Current XBR Domains ("domain directory")
     mapping(bytes16 => XBRTypes.Domain) public domains;
@@ -79,7 +81,12 @@ contract XBRDomain is XBRMaintained {
     // Constructor for this contract, only called once (when deploying the network).
     //
     // @param networkAdr The XBR network contract this instance is associated with.
-    constructor (address networkAdr) public {
+    function initialize (address networkAdr) public {
+        // // FIXME
+        // XBRMaintained(this).initialize();
+
+        license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";
+        domainSeq = 1;
         network = XBRNetwork(networkAdr);
     }
 

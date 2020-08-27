@@ -189,7 +189,7 @@ contract XBRTest is Initializable {
         return true;
     }
 
-    function test2() public view returns (bool) {
+    function test2() public pure returns (bool) {
         return true;
     }
 }

@@ -5,7 +5,10 @@
     "XBRNetwork": "XBRNetwork",
     "XBRMaintained": "XBRMaintained",
     "XBRToken": "XBRToken",
-    "XBRMarket": "XBRMarket"
+    "XBRMarket": "XBRMarket",
+    "XBRDomain": "XBRDomain",
+    "XBRCatalog": "XBRCatalog",
+    "XBRChannel": "XBRChannel"
   },
   "dependencies": {},
   "name": "xbr",

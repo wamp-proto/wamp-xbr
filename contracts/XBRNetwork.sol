@@ -205,6 +205,10 @@ contract XBRNetwork is Initializable, XBRMaintained {
         require(members[member].level == XBRTypes.MemberLevel.ACTIVE ||
                 members[member].level == XBRTypes.MemberLevel.VERIFIED, "MEMBER_NOT_REGISTERED");
 
+        // workaround because I cannot find the fucking option to disable
+        // the "Warning: Unused function parameter." shit
+        require(signature.length >= 0);
+
         // remember the member left the network
         members[member].level = XBRTypes.MemberLevel.RETIRED;
 

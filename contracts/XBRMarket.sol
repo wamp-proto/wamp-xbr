@@ -364,6 +364,11 @@ contract XBRMarket is Initializable, XBRMaintained {
     }
 
     function _leaveMarket (address member, uint256 left, bytes16 marketId, uint8 actorType, bytes memory signature) public returns (uint256) {
+
+        // workaround because I cannot find the fucking option to disable
+        // the "Warning: Unused function parameter." shit
+        require(signature.length >= 0);
+
         (, , , XBRTypes.MemberLevel member_level, ) = network.members(member);
 
         // the joining sender must be a registered member
