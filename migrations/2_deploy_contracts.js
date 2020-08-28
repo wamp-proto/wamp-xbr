@@ -9,6 +9,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// https://gist.github.com/oberstet/0cde635cd1067d3a84d426e4e18e61aa
+
+// https://github.com/OpenZeppelin/openzeppelin-upgrades/blob/master/packages/plugin-truffle/README.md
+const { deployProxy } = require('@openzeppelin/truffle-upgrades');
+
 const XBRTest = artifacts.require("./XBRTest.sol");
 const XBRToken = artifacts.require("./XBRToken.sol");
 const XBRNetwork = artifacts.require("./XBRNetwork.sol");
@@ -42,52 +47,101 @@ module.exports = function (deployer, network, accounts) {
     console.log("Deploying contracts from " + organization + " with gas " + gas + " ..");
 
     deployer.then(async () => {
-        await deployer.deploy(XBRTypes);
-        console.log('>>>> XBRTypes deployed at ' + XBRTypes.address);
+        //const existing1 = await XBRTypes.deployed();
+        //const instance1 = await deployProxy(existing1.address, XBRTypes, { deployer });
+
+        // https://github.com/OpenZeppelin/openzeppelin-upgrades#why-cant-i-use-custom-types-like-structs-and-enums
+        // https://github.com/OpenZeppelin/openzeppelin-upgrades/blob/master/packages/plugin-truffle/README.md#deployproxy
+        const instance1 = await deployProxy(XBRTypes, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRTypes deployed at ' + instance1.address);
+
+        //await deployer.deploy(XBRTypes);
+        //console.log('>>>> XBRTypes deployed at ' + XBRTypes.address);
 
         await deployer.link(XBRTypes, XBRToken);
-        await deployer.deploy(XBRToken, {gas: gas, from: organization});
-        console.log('>>>> XBRToken deployed at ' + XBRToken.address);
+        const instance2 = await deployProxy(XBRToken, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRToken deployed at ' + instance2.address);
+
+        //await deployer.link(XBRTypes, XBRToken);
+        //await deployer.deploy(XBRToken, {gas: gas, from: organization});
 
         await deployer.link(XBRTypes, XBRNetwork);
-        await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
-        console.log('>>>> XBRNetwork deployed at ' + XBRNetwork.address);
+        const instance3 = await deployProxy(XBRNetwork, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRNetwork deployed at ' + instance3.address);
+
+        // await deployer.link(XBRTypes, XBRNetwork);
+        // await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
+        // console.log('>>>> XBRNetwork deployed at ' + XBRNetwork.address);
 
         await deployer.link(XBRTypes, XBRDomain);
         await deployer.link(XBRNetwork, XBRDomain);
-        await deployer.deploy(XBRDomain, XBRNetwork.address, {gas: gas, from: organization});
-        console.log('>>>> XBRDomain deployed at ' + XBRDomain.address);
+        const instance4 = await deployProxy(XBRDomain, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRDomain deployed at ' + instance4.address);
+
+        // await deployer.link(XBRTypes, XBRDomain);
+        // await deployer.link(XBRNetwork, XBRDomain);
+        // await deployer.deploy(XBRDomain, XBRNetwork.address, {gas: gas, from: organization});
+        // console.log('>>>> XBRDomain deployed at ' + XBRDomain.address);
 
         await deployer.link(XBRTypes, XBRCatalog);
         await deployer.link(XBRNetwork, XBRCatalog);
-        await deployer.deploy(XBRCatalog, XBRNetwork.address, {gas: gas, from: organization});
-        console.log('>>>> XBRCatalog deployed at ' + XBRCatalog.address);
+        const instance5 = await deployProxy(XBRCatalog, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRCatalog deployed at ' + instance5.address);
+
+        // await deployer.link(XBRTypes, XBRCatalog);
+        // await deployer.link(XBRNetwork, XBRCatalog);
+        // await deployer.deploy(XBRCatalog, XBRNetwork.address, {gas: gas, from: organization});
+        // console.log('>>>> XBRCatalog deployed at ' + XBRCatalog.address);
 
         await deployer.link(XBRTypes, XBRMarket);
         await deployer.link(XBRNetwork, XBRMarket);
         await deployer.link(XBRCatalog, XBRMarket);
-        await deployer.deploy(XBRMarket, XBRNetwork.address, XBRCatalog.address, {gas: gas, from: organization});
-        console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
+        const instance6 = await deployProxy(XBRMarket, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRMarket deployed at ' + instance6.address);
+
+        // await deployer.link(XBRTypes, XBRMarket);
+        // await deployer.link(XBRNetwork, XBRMarket);
+        // await deployer.link(XBRCatalog, XBRMarket);
+        // await deployer.deploy(XBRMarket, XBRNetwork.address, XBRCatalog.address, {gas: gas, from: organization});
+        // console.log('>>>> XBRMarket deployed at ' + XBRMarket.address);
 
         await deployer.link(XBRTypes, XBRChannel);
         await deployer.link(XBRNetwork, XBRChannel);
         await deployer.link(XBRMarket, XBRChannel);
-        await deployer.deploy(XBRChannel, XBRMarket.address, {gas: gas, from: organization});
-        console.log('>>>> XBRChannel deployed at ' + XBRChannel.address);
+        const instance7 = await deployProxy(XBRChannel, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRChannel deployed at ' + instance7.address);
 
-        // keep this at the end of deployment, so that the addresses of the XBR
-        // contracts "stay constant" for CI
+        // await deployer.link(XBRTypes, XBRChannel);
+        // await deployer.link(XBRNetwork, XBRChannel);
+        // await deployer.link(XBRMarket, XBRChannel);
+        // await deployer.deploy(XBRChannel, XBRMarket.address, {gas: gas, from: organization});
+        // console.log('>>>> XBRChannel deployed at ' + XBRChannel.address);
+
         if (network === "ganache" || network === "soliditycoverage") {
-            await deployer.deploy(XBRTest, {gas: gas, from: organization});
+            const instance8 = await deployProxy(XBRTest, [], { deployer, unsafeAllowCustomTypes: true });
+            // await deployer.deploy(XBRTest, {gas: gas, from: organization});
         }
 
+        // // keep this at the end of deployment, so that the addresses of the XBR
+        // // contracts "stay constant" for CI
+        // if (network === "ganache" || network === "soliditycoverage") {
+        //     await deployer.deploy(XBRTest, {gas: gas, from: organization});
+        // }
+
         console.log('\nDeployed XBR contract addresses:\n');
-        console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
-        console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
-        console.log('export XBR_DEBUG_DOMAIN_ADDR=' + XBRDomain.address);
-        console.log('export XBR_DEBUG_CATALOG_ADDR=' + XBRCatalog.address);
-        console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
-        console.log('export XBR_DEBUG_CHANNEL_ADDR=' + XBRChannel.address);
+        console.log('export XBR_DEBUG_TOKEN_ADDR=' + instance2.address);
+        console.log('export XBR_DEBUG_NETWORK_ADDR=' + instance3.address);
+        console.log('export XBR_DEBUG_DOMAIN_ADDR=' + instance4.address);
+        console.log('export XBR_DEBUG_CATALOG_ADDR=' + instance5.address);
+        console.log('export XBR_DEBUG_MARKET_ADDR=' + instance6.address);
+        console.log('export XBR_DEBUG_CHANNEL_ADDR=' + instance7.address);
+        // console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
+        // console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
+        // console.log('export XBR_DEBUG_DOMAIN_ADDR=' + XBRDomain.address);
+        // console.log('export XBR_DEBUG_CATALOG_ADDR=' + XBRCatalog.address);
+        // console.log('export XBR_DEBUG_MARKET_ADDR=' + XBRMarket.address);
+        // console.log('export XBR_DEBUG_CHANNEL_ADDR=' + XBRChannel.address);
         console.log('\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n');
+
     });
 };
