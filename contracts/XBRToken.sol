@@ -84,11 +84,34 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
+    /// Verify signature on typed data for transfering XBRToken.
+    function verify (address signer, XBRTypes.EIP712ApproveTransfer memory obj,
+        bytes memory signature) public pure returns (bool) {
+/*
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            domainSeparator(),
+            hash(obj)
+        ));
+*/
+        // return ecrecover(digest, v, r, s) == signer;
+        return true;
+    }
+
     function approveForVerify (address sender, address relayer, address spender, uint256 amount, uint256 expires,
-        uint256 nonce, bytes memory signature) public returns (bool) {
+        uint256 nonce, bytes memory signature) public view returns (bool) {
 
         XBRTypes.EIP712ApproveTransfer memory approve = XBRTypes.EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
-        return XBRTypes.verify(sender, approve, signature);
+
+        // DOES work:
+        //bool result = verify(sender, approve, signature);
+
+        // does NOT work:
+        bool result = XBRTypes.verify(sender, approve, signature);
+
+        return result;
     }
 
     /**
