@@ -54,36 +54,14 @@ interface IXBRTokenRelayInterface {
  */
 contract XBRToken is Initializable, ERC20UpgradeSafe {
 
-    /// EIP712 type data.
-    // solhint-disable-next-line
-    bytes32 constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    /// Verifying chain ID for EIP712 signatures.
+    uint256 public verifyingChain;
 
-    /// EIP712 type data.
-    // solhint-disable-next-line
-    bytes32 constant EIP712_APPROVE_TYPEHASH = keccak256("EIP712Approve(address sender,address relayer,address spender,uint256 amount,uint256 expires,uint256 nonce)");
+    /// Verifying contract address for EIP712 signatures.
+    address public verifyingContract;
 
-    /// EIP712 Domain type data.
-    struct EIP712Domain {
-        string name;
-        string version;
-        uint256 chainId;
-        address verifyingContract;
-    }
-
-    /// EIP712 Approve type data.
-    struct EIP712Approve {
-        address sender;
-        address relayer;
-        address spender;
-        uint256 amount;
-        uint256 expires;
-        uint256 nonce;
-    }
-
-    /**
-     * The XBR Token has a fixed supply of 1 billion and uses 18 decimal digits.
-     */
-    uint256 private INITIAL_SUPPLY;
+    /// The XBR Token has a fixed supply of 1 billion and uses 18 decimal digits.
+    uint256 public INITIAL_SUPPLY;
 
     /// For pre-signed transactions ("approveFor"), track signatures already used.
     mapping(bytes32 => uint256) private burnedSignatures;
@@ -97,45 +75,20 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
         __Context_init_unchained();
         __ERC20_init_unchained("XBRToken", "XBR");
 
+        // FIXME: read chain_id at run-time
+        verifyingChain = 1;
+        verifyingContract = address(this);
+
         INITIAL_SUPPLY = 10**9 * 10**18;
+
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
-    function hash (EIP712Approve memory obj) private view returns (bytes32) {
+    function approveForVerify (address sender, address relayer, address spender, uint256 amount, uint256 expires,
+        uint256 nonce, bytes memory signature) public returns (bool) {
 
-        bytes32 digestDomain = keccak256(abi.encode(
-            EIP712_DOMAIN_TYPEHASH,
-            keccak256(bytes("XBRToken")),
-            keccak256(bytes("1")),
-            1,  // FIXME: read chain_id at run-time
-            address(this)
-        ));
-
-        bytes32 digestApprove = keccak256(abi.encode(
-            EIP712_APPROVE_TYPEHASH,
-            obj.sender,
-            obj.relayer,
-            obj.spender,
-            obj.amount,
-            obj.expires,
-            obj.nonce
-        ));
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            digestDomain,
-            digestApprove
-        ));
-
-        return digest;
-    }
-
-    function verify (address signer, EIP712Approve memory obj, bytes memory signature) private view returns (bool) {
-
-        bytes32 digest = hash(obj);
-        (uint8 v, bytes32 r, bytes32 s) = XBRTypes.splitSignature(signature);
-
-        return ecrecover(digest, v, r, s) == signer;
+        XBRTypes.EIP712ApproveTransfer memory approve = XBRTypes.EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
+        return XBRTypes.verify(sender, approve, signature);
     }
 
     /**
@@ -157,28 +110,28 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
     function approveFor (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public returns (bool) {
 
-        EIP712Approve memory approve = EIP712Approve(sender, relayer, spender, amount, expires, nonce);
+        XBRTypes.EIP712ApproveTransfer memory approve = XBRTypes.EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
 
         // signature must be valid (signed by address in parameter "sender" - not the necessarily
         // the "msg.sender", the submitted of the transaction!)
-        require(verify(sender, approve, signature), "INVALID_SIGNATURE");
+        // require(verify(sender, approve, signature), "INVALID_SIGNATURE");
 
         // relayer rules:
         //  1. always allow relaying if the specified "relayer" is 0
         //  2. if the authority address is not a contract, allow it to relay
         //  3. if the authority address is a contract, allow its defined 'getAuthority()' delegate to relay
-        require(
-            (relayer == address(0x0)) ||
-            (!XBRTypes.isContract(relayer) && msg.sender == relayer) ||
-            (XBRTypes.isContract(relayer) && msg.sender == IXBRTokenRelayInterface(relayer).getRelayAuthority()),
-            "INVALID_RELAYER"
-        );
+        // require(
+        //     (relayer == address(0x0)) ||
+        //     (!XBRTypes.isContract(relayer) && msg.sender == relayer) ||
+        //     (XBRTypes.isContract(relayer) && msg.sender == IXBRTokenRelayInterface(relayer).getRelayAuthority()),
+        //     "INVALID_RELAYER"
+        // );
 
         // signature must not have been expired
         require(block.number < expires || expires == 0, "SIGNATURE_EXPIRED");
 
         // signature must not have been used
-        bytes32 digest = hash(approve);
+        bytes32 digest = XBRTypes.hash(approve);
         require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
 
         // mark signature as "consumed"
@@ -198,17 +151,17 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
     function burnSignature (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public returns (bool success) {
 
-        EIP712Approve memory approve = EIP712Approve(sender, relayer, spender, amount, expires, nonce);
+        XBRTypes.EIP712ApproveTransfer memory approve = XBRTypes.EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
 
         // signature must be valid (signed by address in parameter "sender" - not the necessarily
         // the "msg.sender", the submitted of the transaction!)
-        require(verify(sender, approve, signature), "INVALID_SIGNATURE");
+        // require(verify(sender, approve, signature), "INVALID_SIGNATURE");
 
         // only the original signature creator can burn signature, not a relay
         require(sender == msg.sender);
 
         // signature must not have been used
-        bytes32 digest = hash(approve);
+        bytes32 digest = XBRTypes.hash(approve);
         require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
 
         // mark signature as "burned"

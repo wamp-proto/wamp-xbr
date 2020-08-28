@@ -21,8 +21,8 @@ const XBRToken = artifacts.require("./XBRToken.sol");
 const DomainData = {
     types: {
         EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' },
+            {name: 'name', type: 'string' },
+            {name: 'version', type: 'string' },
         ],
         EIP712MemberRegister: [
             {name: 'chainId', type: 'uint256'},
