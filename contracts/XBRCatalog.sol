@@ -58,7 +58,6 @@ contract XBRCatalog is Initializable, XBRMaintained {
     //
     // @param networkAdr The XBR network contract this instance is associated with.
     function initialize (address networkAdr) public initializer {
-        // // FIXME
         // XBRMaintained(this).initialize();
 
         network = XBRNetwork(networkAdr);

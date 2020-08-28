@@ -90,37 +90,35 @@ contract XBRNetwork is Initializable, XBRMaintained {
     ///                     a means of payment in the respective market.
     /// @param networkOrganization The XBR network organization address.
     function initialize (address networkToken, address networkOrganization) public initializer {
-
-        // // FIXME
         // XBRMaintained(this).initialize();
 
-        // ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
-        // PRESIGNED_TXN_MAX_AGE = 1440;
-        // eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
+        ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
+        PRESIGNED_TXN_MAX_AGE = 1440;
+        eula = "QmUEM5UuSUMeET2Zo8YQtDMK74Fr2SJGEyTokSYzT3uD94";
 
-        // // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
-        // uint256 chainId;
-        // assembly {
-        //     chainId := chainid()
-        // }
-        // verifyingChain = chainId;
-        // verifyingContract = address(this);
+        // read chain ID into temp local var (to avoid "TypeError: Only local variables are supported").
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        verifyingChain = chainId;
+        verifyingContract = address(this);
 
-        // // token = XBRToken(networkToken);
-        // // token = IERC20(networkToken);
-        // token = networkToken;
+        // token = XBRToken(networkToken);
+        // token = IERC20(networkToken);
+        token = networkToken;
 
-        // coins[networkToken][ANYADR] = true;
-        // emit CoinChanged(networkToken, ANYADR, true);
+        coins[networkToken][ANYADR] = true;
+        emit CoinChanged(networkToken, ANYADR, true);
 
-        // contribution = IERC20(token).totalSupply() * 30 / 100;
-        // organization = networkOrganization;
+        contribution = IERC20(token).totalSupply() * 30 / 100;
+        organization = networkOrganization;
 
-        // uint256 registered = block.timestamp;
+        uint256 registered = block.timestamp;
 
-        // // technically, the creator of the XBR network contract instance is a XBR member (by definition).
-        // members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
-        // emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
+        // technically, the creator of the XBR network contract instance is a XBR member (by definition).
+        members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
+        emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
     }
 
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely data

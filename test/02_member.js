@@ -152,6 +152,8 @@ contract('XBRNetwork', accounts => {
     it('XBRNetwork() : token should be the network token', async () => {
         const _token = await network.token();
 
+        console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: " + _token);
+
         assert.equal(_token, token.address, "network token was initialized correctly");
     });
 

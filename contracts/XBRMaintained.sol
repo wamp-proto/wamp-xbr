@@ -18,8 +18,12 @@
 
 pragma solidity ^0.6.0;
 
+// normally, we would import "@openzeppelin/contracts", but we want to use
+// upgradeable contracts, and hence must use upgradeable flavor for imports
+// from "@openzeppelin/contracts-ethereum-package"
+// https://docs.openzeppelin.com/learn/developing-smart-contracts#importing_openzeppelin_contracts
+// https://docs.openzeppelin.com/cli/2.8/dependencies#linking-the-contracts-ethereum-package
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-
 // import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 
@@ -50,11 +54,13 @@ contract XBRMaintained is Initializable, AccessControlUpgradeSafe {
     event MaintainerRemoved(address indexed account);
 
     /// The constructor is internal (roles are managed by the OpenZeppelin base class).
-    // FIXME
     // function initialize () internal initializer {
     function initialize () public initializer {
-        // FIXME: https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/blob/32e1c6f564a14e5404012ceb59d605cdb82112c6/contracts/access/AccessControl.sol#L39
-        // AccessControlUpgradeSafe.initialize();
+        // https://forum.openzeppelin.com/t/how-to-use-ownable-with-upgradeable-contract/3336/4
+        // https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/blob/32e1c6f564a14e5404012ceb59d605cdb82112c6/contracts/access/AccessControl.sol#L40
+        __Context_init_unchained();
+        __AccessControl_init_unchained();
+
         _setupRole(MAINTAINER_ROLE, msg.sender);
     }
 

@@ -82,7 +82,6 @@ contract XBRDomain is Initializable, XBRMaintained {
     //
     // @param networkAdr The XBR network contract this instance is associated with.
     function initialize (address networkAdr) public {
-        // // FIXME
         // XBRMaintained(this).initialize();
 
         license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";

@@ -19,6 +19,12 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+// normally, we would import "@openzeppelin/contracts", but we want to use
+// upgradeable contracts, and hence must use upgradeable flavor for imports
+// from "@openzeppelin/contracts-ethereum-package"
+// https://docs.openzeppelin.com/learn/developing-smart-contracts#importing_openzeppelin_contracts
+// https://docs.openzeppelin.com/cli/2.8/dependencies#linking-the-contracts-ethereum-package
+
 // https://openzeppelin.org/api/docs/math_SafeMath.html
 // import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
@@ -80,8 +86,7 @@ contract XBRChannel is Initializable, XBRMaintained {
     /// Constructor for this contract, only called once (when deploying the network).
     ///
     /// @param marketAdr The XBR markets contract this instance is associated with.
-    function initialize (address marketAdr) public {
-        // // FIXME
+    function initialize (address marketAdr) public initializer {
         // XBRMaintained(this).initialize();
 
         market = XBRMarket(marketAdr);

@@ -19,9 +19,13 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+// normally, we would import "@openzeppelin/contracts", but we want to use
+// upgradeable contracts, and hence must use upgradeable flavor for imports
+// from "@openzeppelin/contracts-ethereum-package"
+// https://docs.openzeppelin.com/learn/developing-smart-contracts#importing_openzeppelin_contracts
+// https://docs.openzeppelin.com/cli/2.8/dependencies#linking-the-contracts-ethereum-package
 // import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 // import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 
@@ -48,7 +52,7 @@ interface IXBRTokenRelayInterface {
  *
  * For API documentation, please see `here <https://docs.openzeppelin.com/contracts/2.x/api/token/erc20>`__.
  */
-contract XBRToken is ERC20UpgradeSafe {
+contract XBRToken is Initializable, ERC20UpgradeSafe {
 
     /// EIP712 type data.
     // solhint-disable-next-line
@@ -79,7 +83,7 @@ contract XBRToken is ERC20UpgradeSafe {
     /**
      * The XBR Token has a fixed supply of 1 billion and uses 18 decimal digits.
      */
-    uint256 private constant INITIAL_SUPPLY = 10**9 * 10**18;
+    uint256 private INITIAL_SUPPLY;
 
     /// For pre-signed transactions ("approveFor"), track signatures already used.
     mapping(bytes32 => uint256) private burnedSignatures;
@@ -89,9 +93,11 @@ contract XBRToken is ERC20UpgradeSafe {
      * The XBR Token uses the symbol "XBR" and 18 decimal digits.
      */
     function initialize () public initializer {
-        // constructor() public ERC20("XBRToken", "XBR") {
-        // ERC20UpgradeSafe(this).initialize("XBRToken", "XBR");
-        // FIXME
+        // https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/blob/32e1c6f564a14e5404012ceb59d605cdb82112c6/contracts/token/ERC20/ERC20.sol#L57
+        __Context_init_unchained();
+        __ERC20_init_unchained("XBRToken", "XBR");
+
+        INITIAL_SUPPLY = 10**9 * 10**18;
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 

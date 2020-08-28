@@ -95,7 +95,6 @@ contract XBRMarket is Initializable, XBRMaintained {
     //
     // @param networkAdr The XBR network contract this instance is associated with.
     function initialize (address networkAdr, address catalogAdr) public initializer {
-        // // FIXME
         // XBRMaintained(this).initialize();
 
         NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT = 1440;
