@@ -1039,7 +1039,7 @@ library XBRTypes {
     /// Verify signature on typed data for transfering XBRToken.
     function verify (address signer, EIP712ApproveTransfer memory obj,
         bytes memory signature) public pure returns (bool) {
-/*
+
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
 
         bytes32 digest = keccak256(abi.encodePacked(
@@ -1047,9 +1047,8 @@ library XBRTypes {
             domainSeparator(),
             hash(obj)
         ));
-*/
-        // return ecrecover(digest, v, r, s) == signer;
-        return true;
+
+        return ecrecover(digest, v, r, s) == signer;
     }
 
     /// Verify signature on typed data for registering a member.

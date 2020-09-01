@@ -84,7 +84,7 @@ contract XBRDomain is Initializable {
     function initialize (address networkAdr) public initializer {
         license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";
         domainSeq = 1;
-        //network = XBRNetwork(networkAdr);
+        network = XBRNetwork(networkAdr);
     }
 
     /// Create a new XBR domain.
