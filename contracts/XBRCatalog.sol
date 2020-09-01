@@ -29,7 +29,7 @@ import "./XBRNetwork.sol";
 
 
 /// XBR API catalogs contract.
-contract XBRCatalog is Initializable, XBRMaintained {
+contract XBRCatalog is Initializable {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -58,8 +58,6 @@ contract XBRCatalog is Initializable, XBRMaintained {
     //
     // @param networkAdr The XBR network contract this instance is associated with.
     function initialize (address networkAdr) public initializer {
-        // XBRMaintained(this).initialize();
-
         network = XBRNetwork(networkAdr);
         catalogSeq = 1;
     }

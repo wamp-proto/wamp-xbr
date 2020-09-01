@@ -34,10 +34,35 @@ import "./XBRTypes.sol";
  * The `XBR Network <https://github.com/crossbario/xbr-protocol/blob/master/contracts/XBRNetwork.sol>`__
  * contract is the on-chain anchor of and the entry point to the XBR protocol.
  */
-contract XBRNetwork is Initializable, XBRMaintained {
+contract XBRNetwork is Initializable, AccessControlUpgradeSafe {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
+
+    // Create a new role identifier for the minter role
+    bytes32 public MAINTAINER_ROLE;
+
+    /**
+     * Event fired when a maintainer was added.
+     *
+     * @param account The account that was added as a maintainer.
+     */
+    event MaintainerAdded(address indexed account);
+
+    /**
+     * Event fired when a maintainer was removed.
+     *
+     * @param account The account that was removed as a maintainer.
+     */
+    event MaintainerRemoved(address indexed account);
+
+    /**
+     * Modifier to require maintainer-role for the sender when calling a SC.
+     */
+    modifier onlyMaintainer () {
+        require(isMaintainer(msg.sender));
+        _;
+    }
 
     /// Event emitted when a new member registered in the XBR Network.
     event MemberRegistered (address indexed member, uint registered, string eula, string profile, XBRTypes.MemberLevel level);
@@ -89,8 +114,17 @@ contract XBRNetwork is Initializable, XBRMaintained {
     ///                     any ERC20 token (enabled in the ``coins`` mapping of this contract) as
     ///                     a means of payment in the respective market.
     /// @param networkOrganization The XBR network organization address.
+    // function initialize () internal initializer {
     function initialize (address networkToken, address networkOrganization) public initializer {
-        // XBRMaintained(this).initialize();
+        // https://forum.openzeppelin.com/t/how-to-use-ownable-with-upgradeable-contract/3336/4
+        // https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/blob/32e1c6f564a14e5404012ceb59d605cdb82112c6/contracts/access/AccessControl.sol#L40
+        __Context_init_unchained();
+        __AccessControl_init_unchained();
+
+        // The constructor is internal (roles are managed by the OpenZeppelin
+        // base class).
+        MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
+        _setupRole(MAINTAINER_ROLE, msg.sender);
 
         ANYADR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
         PRESIGNED_TXN_MAX_AGE = 1440;
@@ -119,6 +153,42 @@ contract XBRNetwork is Initializable, XBRMaintained {
         // technically, the creator of the XBR network contract instance is a XBR member (by definition).
         members[msg.sender] = XBRTypes.Member(registered, "", "", XBRTypes.MemberLevel.VERIFIED, "");
         emit MemberRegistered(msg.sender, registered, "", "", XBRTypes.MemberLevel.VERIFIED);
+    }
+
+    /**
+     * Check if the given address is currently a maintainer.
+     *
+     * @param account The account to check.
+     * @return `true` if the account is maintainer, otherwise `false`.
+     */
+    function isMaintainer (address account) public view returns (bool) {
+        return hasRole(MAINTAINER_ROLE, account);
+    }
+
+    /**
+     * Add a new maintainer to the list of maintainers.
+     *
+     * @param account The account to grant maintainer rights to.
+     */
+    function addMaintainer (address account) public onlyMaintainer {
+        _addMaintainer(account);
+    }
+
+    /**
+     * Give away maintainer rights.
+     */
+    function renounceMaintainer () public {
+        _removeMaintainer(msg.sender);
+    }
+
+    function _addMaintainer (address account) internal {
+        grantRole(MAINTAINER_ROLE, account);
+        emit MaintainerAdded(account);
+    }
+
+    function _removeMaintainer (address account) internal {
+        revokeRole(MAINTAINER_ROLE, account);
+        emit MaintainerRemoved(account);
     }
 
     /// Register the sender of this transaction in the XBR network. All XBR stakeholders, namely data

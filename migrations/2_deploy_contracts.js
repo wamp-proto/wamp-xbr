@@ -52,22 +52,22 @@ module.exports = function (deployer, network, accounts) {
 
         // https://github.com/OpenZeppelin/openzeppelin-upgrades#why-cant-i-use-custom-types-like-structs-and-enums
         // https://github.com/OpenZeppelin/openzeppelin-upgrades/blob/master/packages/plugin-truffle/README.md#deployproxy
-        const instance1 = await deployProxy(XBRTypes, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRTypes deployed at ' + instance1.address);
+        const types_instance = await deployProxy(XBRTypes, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRTypes deployed at ' + types_instance.address);
 
         //await deployer.deploy(XBRTypes);
         //console.log('>>>> XBRTypes deployed at ' + XBRTypes.address);
 
         await deployer.link(XBRTypes, XBRToken);
-        const instance2 = await deployProxy(XBRToken, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRToken deployed at ' + instance2.address);
+        const token_instance = await deployProxy(XBRToken, [], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRToken deployed at ' + token_instance.address);
 
         //await deployer.link(XBRTypes, XBRToken);
         //await deployer.deploy(XBRToken, {gas: gas, from: organization});
 
         await deployer.link(XBRTypes, XBRNetwork);
-        const instance3 = await deployProxy(XBRNetwork, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRNetwork deployed at ' + instance3.address);
+        const network_instance = await deployProxy(XBRNetwork, [token_instance.address, organization], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRNetwork deployed at ' + network_instance.address);
 
         // await deployer.link(XBRTypes, XBRNetwork);
         // await deployer.deploy(XBRNetwork, XBRToken.address, organization, {gas: gas, from: organization});
@@ -75,8 +75,8 @@ module.exports = function (deployer, network, accounts) {
 
         await deployer.link(XBRTypes, XBRDomain);
         await deployer.link(XBRNetwork, XBRDomain);
-        const instance4 = await deployProxy(XBRDomain, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRDomain deployed at ' + instance4.address);
+        const domain_instance = await deployProxy(XBRDomain, [network_instance.address], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRDomain deployed at ' + domain_instance.address);
 
         // await deployer.link(XBRTypes, XBRDomain);
         // await deployer.link(XBRNetwork, XBRDomain);
@@ -85,8 +85,8 @@ module.exports = function (deployer, network, accounts) {
 
         await deployer.link(XBRTypes, XBRCatalog);
         await deployer.link(XBRNetwork, XBRCatalog);
-        const instance5 = await deployProxy(XBRCatalog, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRCatalog deployed at ' + instance5.address);
+        const catalog_instance = await deployProxy(XBRCatalog, [network_instance.address], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRCatalog deployed at ' + catalog_instance.address);
 
         // await deployer.link(XBRTypes, XBRCatalog);
         // await deployer.link(XBRNetwork, XBRCatalog);
@@ -96,8 +96,8 @@ module.exports = function (deployer, network, accounts) {
         await deployer.link(XBRTypes, XBRMarket);
         await deployer.link(XBRNetwork, XBRMarket);
         await deployer.link(XBRCatalog, XBRMarket);
-        const instance6 = await deployProxy(XBRMarket, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRMarket deployed at ' + instance6.address);
+        const market_instance = await deployProxy(XBRMarket, [network_instance.address, catalog_instance.address], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRMarket deployed at ' + market_instance.address);
 
         // await deployer.link(XBRTypes, XBRMarket);
         // await deployer.link(XBRNetwork, XBRMarket);
@@ -108,8 +108,8 @@ module.exports = function (deployer, network, accounts) {
         await deployer.link(XBRTypes, XBRChannel);
         await deployer.link(XBRNetwork, XBRChannel);
         await deployer.link(XBRMarket, XBRChannel);
-        const instance7 = await deployProxy(XBRChannel, [], { deployer, unsafeAllowCustomTypes: true });
-        console.log('>>>> XBRChannel deployed at ' + instance7.address);
+        const channel_instance = await deployProxy(XBRChannel, [market_instance.address], { deployer, unsafeAllowCustomTypes: true });
+        console.log('>>>> XBRChannel deployed at ' + channel_instance.address);
 
         // await deployer.link(XBRTypes, XBRChannel);
         // await deployer.link(XBRNetwork, XBRChannel);
@@ -129,12 +129,13 @@ module.exports = function (deployer, network, accounts) {
         // }
 
         console.log('\nDeployed XBR contract addresses:\n');
-        console.log('export XBR_DEBUG_TOKEN_ADDR=' + instance2.address);
-        console.log('export XBR_DEBUG_NETWORK_ADDR=' + instance3.address);
-        console.log('export XBR_DEBUG_DOMAIN_ADDR=' + instance4.address);
-        console.log('export XBR_DEBUG_CATALOG_ADDR=' + instance5.address);
-        console.log('export XBR_DEBUG_MARKET_ADDR=' + instance6.address);
-        console.log('export XBR_DEBUG_CHANNEL_ADDR=' + instance7.address);
+        console.log('export XBR_DEBUG_TYPES_ADDR=' + types_instance.address);
+        console.log('export XBR_DEBUG_TOKEN_ADDR=' + token_instance.address);
+        console.log('export XBR_DEBUG_NETWORK_ADDR=' + network_instance.address);
+        console.log('export XBR_DEBUG_DOMAIN_ADDR=' + domain_instance.address);
+        console.log('export XBR_DEBUG_CATALOG_ADDR=' + catalog_instance.address);
+        console.log('export XBR_DEBUG_MARKET_ADDR=' + market_instance.address);
+        console.log('export XBR_DEBUG_CHANNEL_ADDR=' + channel_instance.address);
         // console.log('export XBR_DEBUG_TOKEN_ADDR=' + XBRToken.address);
         // console.log('export XBR_DEBUG_NETWORK_ADDR=' + XBRNetwork.address);
         // console.log('export XBR_DEBUG_DOMAIN_ADDR=' + XBRDomain.address);

@@ -34,7 +34,7 @@ import "./XBRCatalog.sol";
  * contract manages XBR data markets and serves as an anchor for all payment and paying channels for
  * each respective market.
  */
-contract XBRMarket is Initializable, XBRMaintained {
+contract XBRMarket is Initializable {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -95,8 +95,6 @@ contract XBRMarket is Initializable, XBRMaintained {
     //
     // @param networkAdr The XBR network contract this instance is associated with.
     function initialize (address networkAdr, address catalogAdr) public initializer {
-        // XBRMaintained(this).initialize();
-
         NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT = 1440;
         marketSeq = 1;
 

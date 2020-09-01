@@ -56,7 +56,7 @@ contract XBRTest is Initializable {
 
     bytes32 DOMAIN_SEPARATOR;
 
-    function initialize () initializer public {
+    function initialize () public initializer {
         DOMAIN_SEPARATOR = hash(EIP712Domain({
             name: "Ether Mail",
             version: "1",

@@ -115,8 +115,8 @@ contract('XBRNetwork', accounts => {
         network = await XBRNetwork.deployed();
         token = await XBRToken.deployed();
 
-        // console.log('Using XBRNetwork         : ' + network.address);
-        // console.log('Using XBRToken           : ' + token.address);
+        console.log('Using XBRNetwork         : ' + network.address);
+        console.log('Using XBRToken           : ' + token.address);
 
         // FIXME: none of the following works on Ganache v6.9.1 ..
 
@@ -130,9 +130,13 @@ contract('XBRNetwork', accounts => {
 
         chainId = await network.verifyingChain();
         verifyingContract = await network.verifyingContract();
+        contribution = await network.contribution();
+        organization = await network.organization();
 
-        // console.log('Using chainId            : ' + chainId);
-        // console.log('Using verifyingContract  : ' + verifyingContract);
+        console.log('Using chainId            : ' + chainId);
+        console.log('Using verifyingContract  : ' + verifyingContract);
+        console.log('Using contribution       : ' + contribution);
+        console.log('Using organization       : ' + organization);
     });
 
     /*

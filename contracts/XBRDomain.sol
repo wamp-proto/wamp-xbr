@@ -25,14 +25,14 @@ import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 // import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
-import "./XBRMaintained.sol";
+//import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
 import "./XBRToken.sol";
 import "./XBRNetwork.sol";
 
 
 /// XBR API catalogs contract.
-contract XBRDomain is Initializable, XBRMaintained {
+contract XBRDomain is Initializable {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -81,12 +81,10 @@ contract XBRDomain is Initializable, XBRMaintained {
     // Constructor for this contract, only called once (when deploying the network).
     //
     // @param networkAdr The XBR network contract this instance is associated with.
-    function initialize (address networkAdr) public {
-        // XBRMaintained(this).initialize();
-
+    function initialize (address networkAdr) public initializer {
         license = "QmZSrrVWh6pCxzKcWLJMA2jg3Q3tx4RMvg1eMdVSwjmRug";
         domainSeq = 1;
-        network = XBRNetwork(networkAdr);
+        //network = XBRNetwork(networkAdr);
     }
 
     /// Create a new XBR domain.

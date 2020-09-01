@@ -44,7 +44,7 @@ import "./XBRMarket.sol";
  * XBR Payment/Paying Channel between a XBR data consumer and the XBR market maker,
  * or the XBR Market Maker and a XBR data provider.
  */
-contract XBRChannel is Initializable, XBRMaintained {
+contract XBRChannel is Initializable {
 
     // Add safe math functions to uint256 using SafeMath lib from OpenZeppelin
     using SafeMath for uint256;
@@ -87,8 +87,6 @@ contract XBRChannel is Initializable, XBRMaintained {
     ///
     /// @param marketAdr The XBR markets contract this instance is associated with.
     function initialize (address marketAdr) public initializer {
-        // XBRMaintained(this).initialize();
-
         market = XBRMarket(marketAdr);
         channelSeq = 1;
     }
