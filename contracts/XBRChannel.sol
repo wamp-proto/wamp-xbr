@@ -185,11 +185,11 @@ contract XBRChannel is XBRMaintained {
         channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN,
             0, 0, 0, 0, 0, 0, "", "");
 
+        // notify observers (eg a dormant market maker waiting to be associated)
+        emit Opened(channelSeq, ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
+
         // increment channel sequence for next channel
         channelSeq = channelSeq + 1;
-
-        // notify observers (eg a dormant market maker waiting to be associated)
-        emit Opened(ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
     }
 
     /**
