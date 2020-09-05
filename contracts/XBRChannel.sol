@@ -45,8 +45,8 @@ contract XBRChannel is XBRMaintained {
     using ECDSA for bytes32;
 
     /// Event emittedd when a new XBR data market has opened.
-    event Opened(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId, address actor,
-        address delegate, address marketmaker, address recipient, uint256 amount, bytes signature);
+    event Opened(uint32 channelSeq, XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
+        address actor, address delegate, address marketmaker, address recipient, uint256 amount, bytes signature);
 
     /**
      * Event emitted when payment channel is closing (that is, one of the two state channel
@@ -65,9 +65,6 @@ contract XBRChannel is XBRMaintained {
 
     /// Instance of XBRMarket contract this contract is linked to.
     XBRMarket public market;
-
-    /// Created channels are sequence numbered using this counter (to allow deterministic collision-free IDs for channels)
-    uint32 private channelSeq = 1;
 
     /// Table of all XBR Channels.
     mapping(bytes16 => XBRTypes.Channel) public channels;
@@ -178,18 +175,15 @@ contract XBRChannel is XBRMaintained {
         // Everything is OK! Continue actually opening the channel ..
 
         // track channel static information
-        channels[channelId] = XBRTypes.Channel(openedAt, channelSeq, ctype, marketId, channelId, actor,
+        channels[channelId] = XBRTypes.Channel(openedAt, 1, ctype, marketId, channelId, actor,
             delegate, marketmaker, recipient, amount, signature);
 
         // track channel closing (== modifiable) information
         channelClosingStates[channelId] = XBRTypes.ChannelClosingState(XBRTypes.ChannelState.OPEN,
-            0, 0, 0, 0, 0, 0, "", "");
+            0, 1, 0, 0, 0, 0, "", "");
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        emit Opened(channelSeq, ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
-
-        // increment channel sequence for next channel
-        channelSeq = channelSeq + 1;
+        emit Opened(1, ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
     }
 
     /**
