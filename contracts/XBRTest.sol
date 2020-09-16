@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
@@ -29,6 +30,15 @@ contract XBRTest is Initializable {
         string  version;
         uint256 chainId;
         address verifyingContract;
+    }
+
+    struct EIP712ApproveTransfer {
+        address sender;
+        address relayer;
+        address spender;
+        uint256 amount;
+        uint256 expires;
+        uint256 nonce;
     }
 
     struct Person {
@@ -44,6 +54,10 @@ contract XBRTest is Initializable {
 
     bytes32 constant EIP712DOMAIN_TYPEHASH = keccak256(
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+
+    bytes32 constant EIP712_APPROVE_TRANSFER_TYPEHASH = keccak256(
+        "EIP712ApproveTransfer(address sender,address relayer,address spender,uint256 amount,uint256 expires,uint256 nonce)"
     );
 
     bytes32 constant PERSON_TYPEHASH = keccak256(
@@ -76,6 +90,18 @@ contract XBRTest is Initializable {
         ));
     }
 
+    function hash (EIP712ApproveTransfer memory obj) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            EIP712_APPROVE_TRANSFER_TYPEHASH,
+            obj.sender,
+            obj.relayer,
+            obj.spender,
+            obj.amount,
+            obj.expires,
+            obj.nonce
+        ));
+    }
+
     function hash(Person memory person) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             PERSON_TYPEHASH,
@@ -102,6 +128,21 @@ contract XBRTest is Initializable {
         ));
         return ecrecover(digest, v, r, s) == mail.from.wallet;
     }
+
+    function verify (address signer, EIP712ApproveTransfer memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
+
 
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
 
@@ -191,5 +232,15 @@ contract XBRTest is Initializable {
 
     function test2() public pure returns (bool) {
         return true;
+    }
+
+    function approveForVerify (address sender, address relayer, address spender, uint256 amount, uint256 expires,
+        uint256 nonce, bytes memory signature) public view returns (bool) {
+
+        EIP712ApproveTransfer memory approve = EIP712ApproveTransfer(sender, relayer, spender, amount, expires, nonce);
+
+        bool result = verify(sender, approve, signature);
+
+        return result;
     }
 }

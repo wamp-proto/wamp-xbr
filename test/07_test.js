@@ -13,6 +13,7 @@ const w3_utils = require("web3-utils");
 const eth_sig_utils = require("eth-sig-util");
 const eth_util = require("ethereumjs-util");
 const utils = eth_sig_utils.TypedDataUtils;
+const BN = web3.utils.BN;
 
 const XBRTest = artifacts.require("./XBRTest.sol");
 
@@ -23,6 +24,14 @@ const DomainData = {
             { name: 'version', type: 'string' },
             { name: 'chainId', type: 'uint256' },
             { name: 'verifyingContract', type: 'address' },
+        ],
+        EIP712ApproveTransfer: [
+            {name: 'sender', type: 'address'},
+            {name: 'relayer', type: 'address'},
+            {name: 'spender', type: 'address'},
+            {name: 'amount', type: 'uint256'},
+            {name: 'expires', type: 'uint256'},
+            {name: 'nonce', type: 'uint256'},
         ],
         Person: [
             { name: 'name', type: 'string' },
@@ -43,6 +52,15 @@ const DomainData = {
     },
     message: null,
 };
+
+
+function eip712_sign_approval(key_, data_) {
+    DomainData['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+    return sig;
+}
+
 
 const alice = w3_utils.toChecksumAddress("0xffcf8fdee72ac11b5c542428b35eef5769c409f0");
 const alice_privkey = "0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1";
@@ -171,7 +189,7 @@ contract('XBRTest', accounts => {
         }
         DomainData['message'] = msg;
 
-        var msg_sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+        const msg_sig = eth_sig_utils.signTypedData(key, {data: DomainData})
 
         res = await testcontract.test_verify1(
             alice,
@@ -202,7 +220,7 @@ contract('XBRTest', accounts => {
         }
         DomainData['message'] = msg;
 
-        var msg_sig = "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        const msg_sig = "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
         res = await testcontract.test_verify1(
             alice,
@@ -214,5 +232,50 @@ contract('XBRTest', accounts => {
         );
 
         assert.equal(res, false, "XBRTest.test_verify1(): succeeded with an invalid signature");
+    });
+
+    it("XBRTest().approveForVerify() : should verify correct signature", async () => {
+
+        // const sender = accounts[0];
+        const sender = w3_utils.toChecksumAddress('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
+        const sender_key = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
+
+        // const spender = accounts[1];
+        const spender = w3_utils.toChecksumAddress('0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0');
+
+        // const relayer = accounts[2];
+        const relayer = w3_utils.toChecksumAddress('0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b');
+        // const relayer = w3_utils.toChecksumAddress('0x0000000000000000000000000000000000000000');
+
+        // 1 million XBR
+        const amount = new BN('100000000000000');
+        const expires = 0;
+        const nonce = 1;
+
+        const approval = {
+            'sender': sender,
+            'relayer': relayer,
+            'spender': spender,
+            'amount': amount,
+            'expires': expires,
+            'nonce': nonce,
+        }
+        console.log('MESSAGE', sender_key, approval);
+
+        // prepare: pre-sign metatransaction
+        // const signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+        const signature = eip712_sign_approval(sender_key, approval);
+        console.log('SIGNATURE', signature);
+
+        result = null;
+        console.log('testcontract.approveForVerify', sender, relayer, spender, amount, expires, nonce, signature);
+        try {
+            result = await testcontract.approveForVerify(sender, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
+        } catch (error) {
+            assert(false, "call to verify should always succeed [" + error + "]");
+        }
+        if (result !== null) {
+            assert(result, "correct signature should verify");
+        }
     });
 });

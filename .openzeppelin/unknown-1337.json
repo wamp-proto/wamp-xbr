@@ -1,759 +1,6 @@
 {
   "manifestVersion": "3.0",
   "impls": {
-    "e18ebeb956074e8581b1fdb44bf7364d0ba77aa86079f3a3092c61e8b4512da0": {
-      "address": "0x21Ae538B902Cf4C188CF34614db46A51dDc738F4",
-      "txHash": "0x4b7bf4bae86e43446ff3eedc2fd6e3be83203ac2f748b3823037649e6248cc99",
-      "layout": {
-        "storage": [],
-        "types": {}
-      }
-    },
-    "4b51e75b4f07040a40d573515b53e2bda8015b412e691d78eb34e005e202fe0c": {
-      "address": "0x49549BEd7061CB537D1500f83582105F0F29fD4A",
-      "txHash": "0xd24704aae9db74cd18e53345134e18d171d5a88cf32e00d2c37f467a807c0c14",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_balances",
-            "type": "t_mapping(t_address,t_uint256)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_allowances",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_totalSupply",
-            "type": "t_uint256",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_name",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_symbol",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_decimals",
-            "type": "t_uint8",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)44_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "INITIAL_SUPPLY",
-            "type": "t_uint256",
-            "src": "XBRToken.sol:88"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "burnedSignatures",
-            "type": "t_mapping(t_bytes32,t_uint256)",
-            "src": "XBRToken.sol:91"
-          }
-        ],
-        "types": {
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_mapping(t_bytes32,t_uint256)": {
-            "label": "mapping(bytes32 => uint256)"
-          },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)"
-          },
-          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-            "label": "mapping(address => mapping(address => uint256))"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_uint8": {
-            "label": "uint8"
-          },
-          "t_array(t_uint256)44_storage": {
-            "label": "uint256[44]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "9fd292e6ca4e6b53b7986053f0443709f73b788b32e41fe35d4d2144fd95efdd": {
-      "address": "0xAc341beD089df64F75140CE962983a20668e93b6",
-      "txHash": "0x10f8d1c4011c54910ea820c826c057c38bfb94b92e6de97df30ab0c72359ea2e",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "ANYADR",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:57"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "PRESIGNED_TXN_MAX_AGE",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:60"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingChain",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:63"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingContract",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:66"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "eula",
-            "type": "t_string_storage",
-            "src": "XBRNetwork.sol:69"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "contribution",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:72"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "token",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:77"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "organization",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:80"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "members",
-            "type": "t_mapping(t_address,t_struct(Member)10917_storage)",
-            "src": "XBRNetwork.sol:83"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "coins",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
-            "src": "XBRNetwork.sol:86"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_mapping(t_address,t_struct(Member)10917_storage)": {
-            "label": "mapping(address => struct XBRTypes.Member)"
-          },
-          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
-            "label": "mapping(address => mapping(address => bool))"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "42b8e41841ad16994dd0f15b26afe0d632f7279ac26a7d66cb476ef6229cb0ff": {
-      "address": "0xF1eB6Bd78F5202677B9eF902AD43B2e9dBD3e444",
-      "txHash": "0x36f3ec4a5ed339989db47af8352611408a8b8db4b9c71f08186d1c817958f6b3",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)9489",
-            "src": "XBRDomain.sol:63"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "license",
-            "type": "t_string_storage",
-            "src": "XBRDomain.sol:66"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainSeq",
-            "type": "t_uint32",
-            "src": "XBRDomain.sol:69"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domains",
-            "type": "t_mapping(t_bytes16,t_struct(Domain)10939_storage)",
-            "src": "XBRDomain.sol:72"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodes",
-            "type": "t_mapping(t_bytes16,t_struct(Node)10952_storage)",
-            "src": "XBRDomain.sol:75"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodesByKey",
-            "type": "t_mapping(t_bytes32,t_bytes16)",
-            "src": "XBRDomain.sol:78"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRDomain.sol:81"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)9489": {
-            "label": "contract XBRNetwork"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Domain)10939_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
-          },
-          "t_mapping(t_bytes16,t_struct(Node)10952_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Node)"
-          },
-          "t_mapping(t_bytes32,t_bytes16)": {
-            "label": "mapping(bytes32 => bytes16)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "373beabb5f948345c98ddbafc909acf498afaf03ec7feff8d19696cfad4a11ba": {
-      "address": "0x5fD64798A1624e4856D5de481D30D44727E9D2ee",
-      "txHash": "0x2ba5a9f6c9e02b85999568d834279d11f655c0763564a2dba67254c026ccd1bd",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)9489",
-            "src": "XBRCatalog.sol:48"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogSeq",
-            "type": "t_uint32",
-            "src": "XBRCatalog.sol:51"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogs",
-            "type": "t_mapping(t_bytes16,t_struct(Catalog)11065_storage)",
-            "src": "XBRCatalog.sol:54"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRCatalog.sol:57"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)9489": {
-            "label": "contract XBRNetwork"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Catalog)11065_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "64a4d434bc75de7c69fed525521db6ca3392aa90b9292308290639f4d581ae2f": {
-      "address": "0xECF838070bB3C66754d91A48FF3cd112C839DF02",
-      "txHash": "0x6ce90e96097e275df74ae2f4022db0677848e5d2b26817fe68d09ebd9e7f9c0a",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
-            "type": "t_uint256",
-            "src": "XBRMarket.sol:67"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)9489",
-            "src": "XBRMarket.sol:70"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "catalog",
-            "type": "t_contract(XBRCatalog)776",
-            "src": "XBRMarket.sol:73"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketSeq",
-            "type": "t_uint32",
-            "src": "XBRMarket.sol:76"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "markets",
-            "type": "t_mapping(t_bytes16,t_struct(Market)11039_storage)",
-            "src": "XBRMarket.sol:79"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRMarket.sol:82"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByMaker",
-            "type": "t_mapping(t_address,t_bytes16)",
-            "src": "XBRMarket.sol:85"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByOwner",
-            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
-            "src": "XBRMarket.sol:88"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByActor",
-            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
-            "src": "XBRMarket.sol:91"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "memberStats",
-            "type": "t_mapping(t_address,t_struct(MemberMarketStats)10961_storage)",
-            "src": "XBRMarket.sol:94"
-          }
-        ],
-        "types": {
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_contract(XBRNetwork)9489": {
-            "label": "contract XBRNetwork"
-          },
-          "t_contract(XBRCatalog)776": {
-            "label": "contract XBRCatalog"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Market)11039_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Market)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_mapping(t_address,t_bytes16)": {
-            "label": "mapping(address => bytes16)"
-          },
-          "t_mapping(t_address,t_array(t_bytes16)dyn_storage)": {
-            "label": "mapping(address => bytes16[])"
-          },
-          "t_mapping(t_address,t_struct(MemberMarketStats)10961_storage)": {
-            "label": "mapping(address => struct XBRTypes.MemberMarketStats)"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "ae08357d0aaca4308bd3776ea56a09f406761b7fb04319c489ebdfb3fd2a710b": {
-      "address": "0xBfD96cD4DbcB58736BfD2dd3300A5f376d33b271",
-      "txHash": "0x727a5883e9c263af3e7f285c53ef89c403c65093d3130dca52ac7e172e66a0d0",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "market",
-            "type": "t_contract(XBRMarket)8198",
-            "src": "XBRChannel.sol:77"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channelSeq",
-            "type": "t_uint32",
-            "src": "XBRChannel.sol:80"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channels",
-            "type": "t_mapping(t_bytes16,t_struct(Channel)11097_storage)",
-            "src": "XBRChannel.sol:83"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channelClosingStates",
-            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)11116_storage)",
-            "src": "XBRChannel.sol:86"
-          }
-        ],
-        "types": {
-          "t_contract(XBRMarket)8198": {
-            "label": "contract XBRMarket"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Channel)11097_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
-          },
-          "t_mapping(t_bytes16,t_struct(ChannelClosingState)11116_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)13201_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "a52f24f5cea7952a7ce0c7754786a2ffab370d2e73e10f1df3db159ee9cbc8c2": {
-      "address": "0x7F1cAFC08F30b0C86f9d49479308135B7C86c4e4",
-      "txHash": "0x6661f7992283669c7bbb1db9fbe82f13a824dd0bd95c8f6ad696e115de0b840c",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRTest",
-            "label": "DOMAIN_SEPARATOR",
-            "type": "t_bytes32",
-            "src": "XBRTest.sol:59"
-          }
-        ],
-        "types": {
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
     "6ea4335e051524918f7a8e587715aa1195aac0d1cdb1f34dd6e9dc458bb8e670": {
       "address": "0xC3Ef4965B788cc4b905084d01F2eb7D4b6E93ABF",
       "txHash": "0x86d9a2cf25f237783adb852d2657d9fd05401417f7962a3de0c0158166c789b5",
@@ -5340,14 +4587,6 @@
         }
       }
     },
-    "c9eb166c0d24c0243c6168de82395ff68e3f0e9b5f1f2cd8a6b2036f55064905": {
-      "address": "0x3F4E941ef5071a1D09C2eB4a24DA1Fc43F76fcfF",
-      "txHash": "0x0f1ad3672c17b1ed9c11d24146839586b073bf39695ecb32ae68ecfa74a7b0a1",
-      "layout": {
-        "storage": [],
-        "types": {}
-      }
-    },
     "0443d2ed76efe943237ea58dc4b5e50f925e7cb6d347ce84723386afe1cc933d": {
       "address": "0x81920CAF1F99Bb0f7D72Fdfba840cff21d63CcC5",
       "txHash": "0x56488800a3e1daa08289b4579fdbe717e3fccd0e53bf2843a0eac7d0b0c409e8",
@@ -6888,151 +6127,6 @@
         }
       }
     },
-    "1495ad095dcdb7d88a73d07bc7d59638e34f4c43819cf51e34d507a6c9543d29": {
-      "address": "0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb",
-      "txHash": "0x1ea104a0b9c59a165a7fdcc5363a0d294b51d615bec9d7dccf6910950df5d851",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_balances",
-            "type": "t_mapping(t_address,t_uint256)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_allowances",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_totalSupply",
-            "type": "t_uint256",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_name",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_symbol",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "_decimals",
-            "type": "t_uint8",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
-          },
-          {
-            "contract": "ERC20UpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)44_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "EIP712_DOMAIN_TYPEHASH",
-            "type": "t_bytes32",
-            "src": "XBRToken.sol:79"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "EIP712_APPROVE_TRANSFER_TYPEHASH",
-            "type": "t_bytes32",
-            "src": "XBRToken.sol:82"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "verifyingChain",
-            "type": "t_uint256",
-            "src": "XBRToken.sol:146"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "verifyingContract",
-            "type": "t_address",
-            "src": "XBRToken.sol:149"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "INITIAL_SUPPLY",
-            "type": "t_uint256",
-            "src": "XBRToken.sol:152"
-          },
-          {
-            "contract": "XBRToken",
-            "label": "burnedSignatures",
-            "type": "t_mapping(t_bytes32,t_uint256)",
-            "src": "XBRToken.sol:155"
-          }
-        ],
-        "types": {
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_mapping(t_bytes32,t_uint256)": {
-            "label": "mapping(bytes32 => uint256)"
-          },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)"
-          },
-          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-            "label": "mapping(address => mapping(address => uint256))"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_uint8": {
-            "label": "uint8"
-          },
-          "t_array(t_uint256)44_storage": {
-            "label": "uint256[44]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
     "50f0535c922265a713503319f71f927ad3e419597cdf9000d0d1f0bd1724e5f8": {
       "address": "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",
       "txHash": "0x97fbae8cfef7fc4937091b474f429056f019da7d89cc81e41f1b5aa1355eb12e",
@@ -7275,864 +6369,12 @@
         }
       }
     },
-    "6b8ab9507af0fc67d540dc031e9ce7b3fe7a29b1f396797822baa3b66b2370ea": {
-      "address": "0xc0b3B62DD0400E4baa721DdEc9B8A384147b23fF",
-      "txHash": "0x82bdbaaeb720426514f48fa85ca974802ace27787facbcd821bd8be835fd4f23",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)7988_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "MAINTAINER_ROLE",
-            "type": "t_bytes32",
-            "src": "XBRNetwork.sol:43"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "ANYADR",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:80"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "PRESIGNED_TXN_MAX_AGE",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:83"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingChain",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:86"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingContract",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:89"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "eula",
-            "type": "t_string_storage",
-            "src": "XBRNetwork.sol:92"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "contribution",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:95"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "token",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:100"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "organization",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:103"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "members",
-            "type": "t_mapping(t_address,t_struct(Member)6191_storage)",
-            "src": "XBRNetwork.sol:106"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "coins",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
-            "src": "XBRNetwork.sol:109"
-          }
-        ],
-        "types": {
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_mapping(t_address,t_struct(Member)6191_storage)": {
-            "label": "mapping(address => struct XBRTypes.Member)"
-          },
-          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
-            "label": "mapping(address => mapping(address => bool))"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)7988_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "a88b0db15e789a155f2c467b8a0be28dd473291db94c7f36e4e047c9a9ca7830": {
-      "address": "0x47a2Db5D68751EeAdFBC44851E84AcDB4F7299Cc",
-      "txHash": "0x85b21c46bdbe37ad7d372b98760ed56826820eb11775b1c387dda66d6fbdab36",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)5413",
-            "src": "XBRDomain.sol:61"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "license",
-            "type": "t_string_storage",
-            "src": "XBRDomain.sol:64"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainSeq",
-            "type": "t_uint32",
-            "src": "XBRDomain.sol:67"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domains",
-            "type": "t_mapping(t_bytes16,t_struct(Domain)6213_storage)",
-            "src": "XBRDomain.sol:70"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodes",
-            "type": "t_mapping(t_bytes16,t_struct(Node)6226_storage)",
-            "src": "XBRDomain.sol:73"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodesByKey",
-            "type": "t_mapping(t_bytes32,t_bytes16)",
-            "src": "XBRDomain.sol:76"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRDomain.sol:79"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)5413": {
-            "label": "contract XBRNetwork"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Domain)6213_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
-          },
-          "t_mapping(t_bytes16,t_struct(Node)6226_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Node)"
-          },
-          "t_mapping(t_bytes32,t_bytes16)": {
-            "label": "mapping(bytes32 => bytes16)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
-    "decc111ff872c2eb9c546e5e2036e81b223e2c4b29c75960e4dd6875c4d907a3": {
-      "address": "0xeea2Fc1D255Fd28aA15c6c2324Ad40B03267f9c5",
-      "txHash": "0x8cecec175c7c350c30a132f8a725f8c209740bdd085ca4db5dea8be7cf99e762",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)5413",
-            "src": "XBRCatalog.sol:46"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogSeq",
-            "type": "t_uint32",
-            "src": "XBRCatalog.sol:49"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogs",
-            "type": "t_mapping(t_bytes16,t_struct(Catalog)6339_storage)",
-            "src": "XBRCatalog.sol:52"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRCatalog.sol:55"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)5413": {
-            "label": "contract XBRNetwork"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Catalog)6339_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
     "437ce7b58af09b25369dd32b90cafe2b2517f37236aa956f3413e4edbb71a217": {
       "address": "0x7C728214be9A0049e6a86f2137ec61030D0AA964",
       "txHash": "0x20858bba288e3bcc6e06cbecfaf45a2829a4d49dabb1333983dfa48ce17ddaf4",
       "layout": {
         "storage": [],
         "types": {}
-      }
-    },
-    "80f0b53eaa116fdd4f56dfda4fdf54ff666bc5c729913c9acf1ac28998906c8e": {
-      "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
-      "txHash": "0x626b13e062dbe2b2fc034da83e8394eebf7ea265e7a1e957967c3e4d38477bca",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "ContextUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)7982_storage)",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
-          },
-          {
-            "contract": "AccessControlUpgradeSafe",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "MAINTAINER_ROLE",
-            "type": "t_bytes32",
-            "src": "XBRNetwork.sol:43"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "ANYADR",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:80"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "PRESIGNED_TXN_MAX_AGE",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:83"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingChain",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:86"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "verifyingContract",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:89"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "eula",
-            "type": "t_string_storage",
-            "src": "XBRNetwork.sol:92"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "contribution",
-            "type": "t_uint256",
-            "src": "XBRNetwork.sol:95"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "token",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:100"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "organization",
-            "type": "t_address",
-            "src": "XBRNetwork.sol:103"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "members",
-            "type": "t_mapping(t_address,t_struct(Member)6185_storage)",
-            "src": "XBRNetwork.sol:106"
-          },
-          {
-            "contract": "XBRNetwork",
-            "label": "coins",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
-            "src": "XBRNetwork.sol:109"
-          }
-        ],
-        "types": {
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_mapping(t_address,t_struct(Member)6185_storage)": {
-            "label": "mapping(address => struct XBRTypes.Member)"
-          },
-          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
-            "label": "mapping(address => mapping(address => bool))"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)7982_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
-    "7e1ce349cb118bd6b6abdd70b0419028f295ba48693f26dea03d868386d9567d": {
-      "address": "0x0290FB167208Af455bB137780163b7B7a9a10C16",
-      "txHash": "0x3198d3664114b19cd0604c237871cac54b21004d763b449352f22da1f2de1717",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)5407",
-            "src": "XBRDomain.sol:61"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "license",
-            "type": "t_string_storage",
-            "src": "XBRDomain.sol:64"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainSeq",
-            "type": "t_uint32",
-            "src": "XBRDomain.sol:67"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domains",
-            "type": "t_mapping(t_bytes16,t_struct(Domain)6207_storage)",
-            "src": "XBRDomain.sol:70"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodes",
-            "type": "t_mapping(t_bytes16,t_struct(Node)6220_storage)",
-            "src": "XBRDomain.sol:73"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "nodesByKey",
-            "type": "t_mapping(t_bytes32,t_bytes16)",
-            "src": "XBRDomain.sol:76"
-          },
-          {
-            "contract": "XBRDomain",
-            "label": "domainIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRDomain.sol:79"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)5407": {
-            "label": "contract XBRNetwork"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Domain)6207_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
-          },
-          "t_mapping(t_bytes16,t_struct(Node)6220_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Node)"
-          },
-          "t_mapping(t_bytes32,t_bytes16)": {
-            "label": "mapping(bytes32 => bytes16)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
-    "74c6aa974efee1b2d5573434f6e49c32cd45e51e7fc9bc5db7488f1a0b58278e": {
-      "address": "0x67B5656d60a809915323Bf2C40A8bEF15A152e3e",
-      "txHash": "0x2dd3e02879ca4119bd884174d66a86e23064ac2ee9e85e4dd90314cc0111308c",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)5407",
-            "src": "XBRCatalog.sol:46"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogSeq",
-            "type": "t_uint32",
-            "src": "XBRCatalog.sol:49"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogs",
-            "type": "t_mapping(t_bytes16,t_struct(Catalog)6333_storage)",
-            "src": "XBRCatalog.sol:52"
-          },
-          {
-            "contract": "XBRCatalog",
-            "label": "catalogIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRCatalog.sol:55"
-          }
-        ],
-        "types": {
-          "t_contract(XBRNetwork)5407": {
-            "label": "contract XBRNetwork"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Catalog)6333_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
-    "f3d46704b41c0d1e2fd0f4b2717ff0aba723dc67ed43f8c8527d1fa1cde11bde": {
-      "address": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
-      "txHash": "0xc00774e9487eaf14a15ba699de6b8a0700f3dbd172e7a14eb868e05459689419",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
-            "type": "t_uint256",
-            "src": "XBRMarket.sol:65"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "network",
-            "type": "t_contract(XBRNetwork)5407",
-            "src": "XBRMarket.sol:68"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "catalog",
-            "type": "t_contract(XBRCatalog)476",
-            "src": "XBRMarket.sol:71"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketSeq",
-            "type": "t_uint32",
-            "src": "XBRMarket.sol:74"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "markets",
-            "type": "t_mapping(t_bytes16,t_struct(Market)6307_storage)",
-            "src": "XBRMarket.sol:77"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketIds",
-            "type": "t_array(t_bytes16)dyn_storage",
-            "src": "XBRMarket.sol:80"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByMaker",
-            "type": "t_mapping(t_address,t_bytes16)",
-            "src": "XBRMarket.sol:83"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByOwner",
-            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
-            "src": "XBRMarket.sol:86"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "marketsByActor",
-            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
-            "src": "XBRMarket.sol:89"
-          },
-          {
-            "contract": "XBRMarket",
-            "label": "memberStats",
-            "type": "t_mapping(t_address,t_struct(MemberMarketStats)6229_storage)",
-            "src": "XBRMarket.sol:92"
-          }
-        ],
-        "types": {
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_contract(XBRNetwork)5407": {
-            "label": "contract XBRNetwork"
-          },
-          "t_contract(XBRCatalog)476": {
-            "label": "contract XBRCatalog"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Market)6307_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Market)"
-          },
-          "t_array(t_bytes16)dyn_storage": {
-            "label": "bytes16[]"
-          },
-          "t_mapping(t_address,t_bytes16)": {
-            "label": "mapping(address => bytes16)"
-          },
-          "t_mapping(t_address,t_array(t_bytes16)dyn_storage)": {
-            "label": "mapping(address => bytes16[])"
-          },
-          "t_mapping(t_address,t_struct(MemberMarketStats)6229_storage)": {
-            "label": "mapping(address => struct XBRTypes.MemberMarketStats)"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
-    "1dc6a65e64b9bd91a1386b32d483f2779ef5ea5bf729bfc44442a1c02784afe2": {
-      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
-      "txHash": "0x2d7bb1873090422ed19857ad0003abad42bd25a57fd722bb4a52e8206b3bb1aa",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "market",
-            "type": "t_contract(XBRMarket)4639",
-            "src": "XBRChannel.sol:75"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channelSeq",
-            "type": "t_uint32",
-            "src": "XBRChannel.sol:78"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channels",
-            "type": "t_mapping(t_bytes16,t_struct(Channel)6365_storage)",
-            "src": "XBRChannel.sol:81"
-          },
-          {
-            "contract": "XBRChannel",
-            "label": "channelClosingStates",
-            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6384_storage)",
-            "src": "XBRChannel.sol:84"
-          }
-        ],
-        "types": {
-          "t_contract(XBRMarket)4639": {
-            "label": "contract XBRMarket"
-          },
-          "t_uint32": {
-            "label": "uint32"
-          },
-          "t_mapping(t_bytes16,t_struct(Channel)6365_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
-          },
-          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6384_storage)": {
-            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
-      }
-    },
-    "592fe4fc64de5d406ca7b2b02e4352aa6d9a3d0bf913873c086f7880e0c55c65": {
-      "address": "0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15",
-      "txHash": "0x6d93c946443e9a215de5f8fd3065331fa825305e561da366c1b6fce5dbf5b1f4",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "initializing",
-            "type": "t_bool",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
-          },
-          {
-            "contract": "Initializable",
-            "label": "______gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
-          },
-          {
-            "contract": "XBRTest",
-            "label": "DOMAIN_SEPARATOR",
-            "type": "t_bytes32",
-            "src": "XBRTest.sol:57"
-          }
-        ],
-        "types": {
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          }
-        }
       }
     },
     "36a5278f79035fd8a2af2c38a65fe701557786d852908b6c3b6a28ff13048d5e": {
@@ -8528,8 +6770,8 @@
       }
     },
     "2057920c586689034559cad2c3e89093e58f78a60a53a68b3aaefd5ccfb4e88f": {
-      "address": "0xd45A464a2412A2f83498d13635698a041b9dBe9b",
-      "txHash": "0xabdb8a60f89aa24987abc29d755e8afdd4dde3f9bdf3dc38f3ac644ddb9f875e",
+      "address": "0xb4fFe5983B0B748124577Af4d16953bd096b6897",
+      "txHash": "0xe9cdf7f41063d0f480944a41b6e3bc4e9321d901b3bae833101f71af5a196d93",
       "layout": {
         "storage": [
           {
@@ -8553,7 +6795,7 @@
           {
             "contract": "XBRCatalog",
             "label": "network",
-            "type": "t_contract(XBRNetwork)5389",
+            "type": "t_contract(XBRNetwork)5413",
             "src": "XBRCatalog.sol:46"
           },
           {
@@ -8565,7 +6807,7 @@
           {
             "contract": "XBRCatalog",
             "label": "catalogs",
-            "type": "t_mapping(t_bytes16,t_struct(Catalog)6315_storage)",
+            "type": "t_mapping(t_bytes16,t_struct(Catalog)6413_storage)",
             "src": "XBRCatalog.sol:52"
           },
           {
@@ -8576,13 +6818,13 @@
           }
         ],
         "types": {
-          "t_contract(XBRNetwork)5389": {
+          "t_contract(XBRNetwork)5413": {
             "label": "contract XBRNetwork"
           },
           "t_uint32": {
             "label": "uint32"
           },
-          "t_mapping(t_bytes16,t_struct(Catalog)6315_storage)": {
+          "t_mapping(t_bytes16,t_struct(Catalog)6413_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
           },
           "t_array(t_bytes16)dyn_storage": {
@@ -8597,9 +6839,713 @@
         }
       }
     },
-    "2e9edefd8a1c4e7d33d095974d1b8c87dcd648e708b2a2737f35caeda69c14f6": {
-      "address": "0x68b86Cd90A44C805b1cCF4808b29C9c7cf73FDFF",
-      "txHash": "0x6242382a083442425ce366de413737c053a51e6f29eb29da90d3ad625cca4be6",
+    "79ad77434819efd5e748a1dc0c6c96f986717133bca96e8f49608a01c5c1453e": {
+      "address": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
+      "txHash": "0xc1967f7b2538f14b27c886834a855b08617092e6e47d3633408dd0130e701f34",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
+            "type": "t_uint256",
+            "src": "XBRMarket.sol:65"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRMarket.sol:68"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "catalog",
+            "type": "t_contract(XBRCatalog)476",
+            "src": "XBRMarket.sol:71"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketSeq",
+            "type": "t_uint32",
+            "src": "XBRMarket.sol:74"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "markets",
+            "type": "t_mapping(t_bytes16,t_struct(Market)6208_storage)",
+            "src": "XBRMarket.sol:77"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRMarket.sol:80"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByMaker",
+            "type": "t_mapping(t_address,t_bytes16)",
+            "src": "XBRMarket.sol:83"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByOwner",
+            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
+            "src": "XBRMarket.sol:86"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByActor",
+            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
+            "src": "XBRMarket.sol:89"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "memberStats",
+            "type": "t_mapping(t_address,t_struct(MemberMarketStats)6130_storage)",
+            "src": "XBRMarket.sol:92"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_contract(XBRCatalog)476": {
+            "label": "contract XBRCatalog"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Market)6208_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Market)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_mapping(t_address,t_bytes16)": {
+            "label": "mapping(address => bytes16)"
+          },
+          "t_mapping(t_address,t_array(t_bytes16)dyn_storage)": {
+            "label": "mapping(address => bytes16[])"
+          },
+          "t_mapping(t_address,t_struct(MemberMarketStats)6130_storage)": {
+            "label": "mapping(address => struct XBRTypes.MemberMarketStats)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "3211e4ed3a857c2e656f3adb567ec8dbf4e5f5892297274965ac62085a2be1dc": {
+      "address": "0x21Ae538B902Cf4C188CF34614db46A51dDc738F4",
+      "txHash": "0xd189d100a7726145d61ba4f9e73d643fde64f09ea7aa235866eb17f8d05c9227",
+      "layout": {
+        "storage": [],
+        "types": {}
+      }
+    },
+    "6f6b8b7c7443d9351e84e4ce01137140c1928102cadf1a9d878aeb992e8d3c4a": {
+      "address": "0x49549BEd7061CB537D1500f83582105F0F29fD4A",
+      "txHash": "0xfb7e90f0b7c666a60a6f3c659fa2fdafb9fc86a00662c2606d8888b66ba95b5a",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_DOMAIN_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:81"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_APPROVE_TRANSFER_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:84"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:177"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRToken.sol:180"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "INITIAL_SUPPLY",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:183"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "burnedSignatures",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "XBRToken.sol:186"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "88e5974a2d796439626bd5124200ba98544e8fe8e14c4c4f39e0ce07c710e6e4": {
+      "address": "0xAc341beD089df64F75140CE962983a20668e93b6",
+      "txHash": "0x3dc5cf88ab5b699668873fde88abe6f3ca683b35c7d28ecfb4aec74e7cce2a8e",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)13453_storage)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "MAINTAINER_ROLE",
+            "type": "t_bytes32",
+            "src": "XBRNetwork.sol:45"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "ANYADR",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:88"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "PRESIGNED_TXN_MAX_AGE",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:91"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:94"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:97"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "eula",
+            "type": "t_string_storage",
+            "src": "XBRNetwork.sol:100"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "contribution",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:103"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "token",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:108"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "organization",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:111"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "members",
+            "type": "t_mapping(t_address,t_struct(Member)11031_storage)",
+            "src": "XBRNetwork.sol:114"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "coins",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "XBRNetwork.sol:117"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_address,t_struct(Member)11031_storage)": {
+            "label": "mapping(address => struct XBRTypes.Member)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)13453_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "ea6f26625c6fff6d06271892ec798b62aaed82d9d54eee343cbfe7cdf5ee7841": {
+      "address": "0xF1eB6Bd78F5202677B9eF902AD43B2e9dBD3e444",
+      "txHash": "0x6317bb935f092bbacb0b25e926d5c581ae224d5e35c0924bc9e740426d27ca8c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)9717",
+            "src": "XBRDomain.sol:63"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:66"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:69"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)11053_storage)",
+            "src": "XBRDomain.sol:72"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)11066_storage)",
+            "src": "XBRDomain.sol:75"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:78"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:81"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)9717": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)11053_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)11066_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "4db6460c55c220e67942725aa45ed26a1e51005205d13e24db12c00aff074fbf": {
+      "address": "0x5fD64798A1624e4856D5de481D30D44727E9D2ee",
+      "txHash": "0x0fbbee5a243d8d19894798a23fba9103b40a9654040cfaa2184ce640a6cfe65f",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)9717",
+            "src": "XBRCatalog.sol:48"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogSeq",
+            "type": "t_uint32",
+            "src": "XBRCatalog.sol:51"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogs",
+            "type": "t_mapping(t_bytes16,t_struct(Catalog)11179_storage)",
+            "src": "XBRCatalog.sol:54"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRCatalog.sol:57"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)9717": {
+            "label": "contract XBRNetwork"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Catalog)11179_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "bdf857ce45338d1ba0ed7603b584e10fac0022af18bdf256a844ba063d382986": {
+      "address": "0xECF838070bB3C66754d91A48FF3cd112C839DF02",
+      "txHash": "0xa858c6f675b261bb401acee1d05bacb8363e5d750b4669e97082229e12e6a60b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "NONCOOPERATIVE_CHANNEL_CLOSE_TIMEOUT",
+            "type": "t_uint256",
+            "src": "XBRMarket.sol:67"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)9717",
+            "src": "XBRMarket.sol:70"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "catalog",
+            "type": "t_contract(XBRCatalog)774",
+            "src": "XBRMarket.sol:73"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketSeq",
+            "type": "t_uint32",
+            "src": "XBRMarket.sol:76"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "markets",
+            "type": "t_mapping(t_bytes16,t_struct(Market)11153_storage)",
+            "src": "XBRMarket.sol:79"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRMarket.sol:82"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByMaker",
+            "type": "t_mapping(t_address,t_bytes16)",
+            "src": "XBRMarket.sol:85"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByOwner",
+            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
+            "src": "XBRMarket.sol:88"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "marketsByActor",
+            "type": "t_mapping(t_address,t_array(t_bytes16)dyn_storage)",
+            "src": "XBRMarket.sol:91"
+          },
+          {
+            "contract": "XBRMarket",
+            "label": "memberStats",
+            "type": "t_mapping(t_address,t_struct(MemberMarketStats)11075_storage)",
+            "src": "XBRMarket.sol:94"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_contract(XBRNetwork)9717": {
+            "label": "contract XBRNetwork"
+          },
+          "t_contract(XBRCatalog)774": {
+            "label": "contract XBRCatalog"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Market)11153_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Market)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_mapping(t_address,t_bytes16)": {
+            "label": "mapping(address => bytes16)"
+          },
+          "t_mapping(t_address,t_array(t_bytes16)dyn_storage)": {
+            "label": "mapping(address => bytes16[])"
+          },
+          "t_mapping(t_address,t_struct(MemberMarketStats)11075_storage)": {
+            "label": "mapping(address => struct XBRTypes.MemberMarketStats)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "6d0f9c7831ecd918c3de298b25ee668ab32efd054f70d3e67f7245ecd5c0873b": {
+      "address": "0xBfD96cD4DbcB58736BfD2dd3300A5f376d33b271",
+      "txHash": "0x65461f32a90458c630e19714e85f030bcc773bcabf20ac281c3f23bff42dc766",
       "layout": {
         "storage": [
           {
@@ -8623,39 +7569,39 @@
           {
             "contract": "XBRChannel",
             "label": "market",
-            "type": "t_contract(XBRMarket)4639",
-            "src": "XBRChannel.sol:75"
+            "type": "t_contract(XBRMarket)8191",
+            "src": "XBRChannel.sol:77"
           },
           {
             "contract": "XBRChannel",
             "label": "channelSeq",
             "type": "t_uint32",
-            "src": "XBRChannel.sol:78"
+            "src": "XBRChannel.sol:80"
           },
           {
             "contract": "XBRChannel",
             "label": "channels",
-            "type": "t_mapping(t_bytes16,t_struct(Channel)6347_storage)",
-            "src": "XBRChannel.sol:81"
+            "type": "t_mapping(t_bytes16,t_struct(Channel)11211_storage)",
+            "src": "XBRChannel.sol:83"
           },
           {
             "contract": "XBRChannel",
             "label": "channelClosingStates",
-            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6366_storage)",
-            "src": "XBRChannel.sol:84"
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)11230_storage)",
+            "src": "XBRChannel.sol:86"
           }
         ],
         "types": {
-          "t_contract(XBRMarket)4639": {
+          "t_contract(XBRMarket)8191": {
             "label": "contract XBRMarket"
           },
           "t_uint32": {
             "label": "uint32"
           },
-          "t_mapping(t_bytes16,t_struct(Channel)6347_storage)": {
+          "t_mapping(t_bytes16,t_struct(Channel)11211_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.Channel)"
           },
-          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6366_storage)": {
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)11230_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
           },
           "t_bool": {
@@ -8667,25 +7613,60 @@
         }
       }
     },
-    "6f611f904be857e7bec2b40be2c107af5766be9143c847f93bf03a4b2c8ca958": {
-      "address": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
-      "txHash": "0x2e58dc9c869454ab5739debad7dac8f6ce8021cd12ab468ca662e8da918dbaaa",
+    "49f628423b13697b26a86292bd8d3e3dbc5e42cdada54257154c35c848b38a61": {
+      "address": "0x7F1cAFC08F30b0C86f9d49479308135B7C86c4e4",
+      "txHash": "0x48c7b3452e9f70ed3f8e2b05eac4fc86bd4ba5ff0d30c6447bc9d4313c8f0af3",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRTest",
+            "label": "DOMAIN_SEPARATOR",
+            "type": "t_bytes32",
+            "src": "XBRTest.sol:59"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "8629655f1e0758f0e8c12fc5795eb1ac4c52e2ec04d78a74396ada65d2e0aac9": {
+      "address": "0x3acc15dE35aaB8A94B7D2426E27c887541e4DE6c",
+      "txHash": "0xf3a59afa8f3333fe34bad1ee73969c5d68db7c11699c0422cb465a3785c2b20d",
       "layout": {
         "storage": [],
         "types": {}
       }
     },
-    "a56c5e60b036a7dd3e8deec6f8d62472d135f72004452f06089071cde230c7db": {
-      "address": "0x4339316e04CFfB5961D1c41fEF8E44bfA2A7fBd1",
-      "txHash": "0x4fc6740e8d1c73eb6bfe0560c1670cde19f825eac49ca1794b3ee6ad81ab7c64",
-      "layout": {
-        "storage": [],
-        "types": {}
-      }
-    },
-    "06c1ebac5f0dd2869f8c6849cb72045a7a94200217b7e061ee704c29fe293c7e": {
-      "address": "0xf19A2A01B70519f67ADb309a994Ec8c69A967E8b",
-      "txHash": "0x1daaf37aa8e251cfcaad7916ad51319769beaa2e310643a5d723bd9c2a39f526",
+    "3327a59da9222eab932f51912a3af59490bb8b387951d3216fb0bbaa92252395": {
+      "address": "0x2f3efA6bbDC5fAf4dC1a600765c7B7829e47bE10",
+      "txHash": "0x57301cab4df05b62b94b6943e262d28f6108a7bc915a2b9203d91464eb12b6b6",
       "layout": {
         "storage": [
           {
@@ -8828,9 +7809,1735 @@
         }
       }
     },
-    "79ad77434819efd5e748a1dc0c6c96f986717133bca96e8f49608a01c5c1453e": {
-      "address": "0xe97DbD7116D168190F8A6E7beB1092c103c53a12",
-      "txHash": "0xa3a17354417ec10faf980945376817d951776a0180c6b754216056f11aaa6870",
+    "b311b631c5d878becc156f5e314c0573d462ce1dc9354fdf09288d572607421e": {
+      "address": "0x1aBE68277AE236083947f2551FEe8b885efCA8f5",
+      "txHash": "0x037c36be2fd59a3406ea828563f801d6e411320160bf0da59a280b3e7196a845",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)8062_storage)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "MAINTAINER_ROLE",
+            "type": "t_bytes32",
+            "src": "XBRNetwork.sol:43"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "ANYADR",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:80"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "PRESIGNED_TXN_MAX_AGE",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:83"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:86"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:89"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "eula",
+            "type": "t_string_storage",
+            "src": "XBRNetwork.sol:92"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "contribution",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:95"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "token",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:100"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "organization",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:103"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "members",
+            "type": "t_mapping(t_address,t_struct(Member)6265_storage)",
+            "src": "XBRNetwork.sol:106"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "coins",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "XBRNetwork.sol:109"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_address,t_struct(Member)6265_storage)": {
+            "label": "mapping(address => struct XBRTypes.Member)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)8062_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "207d0db9bc3c0bc0896489b888df8f2aeb121839e0f681a4dd74e08a1d04f3a7": {
+      "address": "0x9e90054F4B6730cffAf1E6f6ea10e1bF9dD26dbb",
+      "txHash": "0xebcebc9c70bd319e05aa3c1b4467ad9e217330a2ceeb715bb4cd3a476143119c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRDomain.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:64"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:67"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)6287_storage)",
+            "src": "XBRDomain.sol:70"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)6300_storage)",
+            "src": "XBRDomain.sol:73"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:76"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:79"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)6287_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)6300_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "25253b5aa52a6e6c892ffcac8485d9cf8bb36b4f93134e45a0c3ea3d5361bc57": {
+      "address": "0xC5aFE31AE505594B190AC71EA689B58139d1C354",
+      "txHash": "0x2ddc792687548ad7a8485a6149f54637eace94b77dec7cf9ee86fbec68d0e966",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "market",
+            "type": "t_contract(XBRMarket)4645",
+            "src": "XBRChannel.sol:75"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelSeq",
+            "type": "t_uint32",
+            "src": "XBRChannel.sol:78"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channels",
+            "type": "t_mapping(t_bytes16,t_struct(Channel)6445_storage)",
+            "src": "XBRChannel.sol:81"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelClosingStates",
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6464_storage)",
+            "src": "XBRChannel.sol:84"
+          }
+        ],
+        "types": {
+          "t_contract(XBRMarket)4645": {
+            "label": "contract XBRMarket"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Channel)6445_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
+          },
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6464_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "59d561070a35fd91ace5a0549cc2183dd3af587753dd76a891a9b29fe794d345": {
+      "address": "0xB349FB172D6D5f693b0aA1C6eEc4c61cFd6846f4",
+      "txHash": "0x6311509a46011857da7cd7357a085739cad60e25f651fad9039afa763a27ad0c",
+      "layout": {
+        "storage": [],
+        "types": {}
+      }
+    },
+    "51e132db8dc07c9e8f6da7c538c7ee3a907b7e7f51a62a1e3ba264818aea74a0": {
+      "address": "0x83EE15DFDDD8b8AD56A73001Ca7A1627c7fe6716",
+      "txHash": "0xcb59f671fc2313c8a269aea25a19f578fb51160669aac24183a2b3614e517269",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_DOMAIN_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:79"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_APPROVE_TRANSFER_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:82"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:146"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRToken.sol:149"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "INITIAL_SUPPLY",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:152"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "burnedSignatures",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "XBRToken.sol:155"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "e763b7e2c0e2bc6e1ca7ecd248522ae19df364725e15204a528cb60d4f85436b": {
+      "address": "0x68b86Cd90A44C805b1cCF4808b29C9c7cf73FDFF",
+      "txHash": "0x239400bd005c8be91cc5945bd8dd988e2f9fd6a74b432222370e3ad1d004353e",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)8071_storage)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "MAINTAINER_ROLE",
+            "type": "t_bytes32",
+            "src": "XBRNetwork.sol:43"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "ANYADR",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:80"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "PRESIGNED_TXN_MAX_AGE",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:83"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:86"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:89"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "eula",
+            "type": "t_string_storage",
+            "src": "XBRNetwork.sol:92"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "contribution",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:95"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "token",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:100"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "organization",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:103"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "members",
+            "type": "t_mapping(t_address,t_struct(Member)6274_storage)",
+            "src": "XBRNetwork.sol:106"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "coins",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "XBRNetwork.sol:109"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_address,t_struct(Member)6274_storage)": {
+            "label": "mapping(address => struct XBRTypes.Member)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)8071_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "6870b1d41fbf7ded02c2c7b94a86567428a72d143bd2b7bc4408ce9adda6e35f": {
+      "address": "0xe93e3B649d4E01e47dd2170CAFEf0651477649Da",
+      "txHash": "0x48d3d2b1ffbd1c04f3f6e621f72b326b899ad9e5e00e5b033b38535a43196378",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRDomain.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:64"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:67"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)6296_storage)",
+            "src": "XBRDomain.sol:70"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)6309_storage)",
+            "src": "XBRDomain.sol:73"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:76"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:79"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)6296_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)6309_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "74c6aa974efee1b2d5573434f6e49c32cd45e51e7fc9bc5db7488f1a0b58278e": {
+      "address": "0x3F4E941ef5071a1D09C2eB4a24DA1Fc43F76fcfF",
+      "txHash": "0x5e00686a1b29aa1adaa00181cd9fcdbf35af55d193eca041f89252f8d669ef7f",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRCatalog.sol:46"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogSeq",
+            "type": "t_uint32",
+            "src": "XBRCatalog.sol:49"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogs",
+            "type": "t_mapping(t_bytes16,t_struct(Catalog)6422_storage)",
+            "src": "XBRCatalog.sol:52"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRCatalog.sol:55"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Catalog)6422_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "92dbd1b850ab610115fdd597e881dd61b4596fab6c6bca1a65eafec0133d6c6b": {
+      "address": "0x04CbD650c829299FDedCE903eada37FbDbA3b50f",
+      "txHash": "0x3595f782af8d6abe411d9163ef23406febbfdfbf80fd5dc4e9fc5341d9a8e5dd",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "market",
+            "type": "t_contract(XBRMarket)4645",
+            "src": "XBRChannel.sol:75"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelSeq",
+            "type": "t_uint32",
+            "src": "XBRChannel.sol:78"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channels",
+            "type": "t_mapping(t_bytes16,t_struct(Channel)6454_storage)",
+            "src": "XBRChannel.sol:81"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelClosingStates",
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6473_storage)",
+            "src": "XBRChannel.sol:84"
+          }
+        ],
+        "types": {
+          "t_contract(XBRMarket)4645": {
+            "label": "contract XBRMarket"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Channel)6454_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
+          },
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6473_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "6ae5ef28676e0584146b48a734776898338f2c5c24738c79463ccc7b9d16704e": {
+      "address": "0x71E02441209d3dd9Ed064A4E4EafAf90D0263088",
+      "txHash": "0xac4412a8b68853e1175ec210404d2e834fe5e34d6000b8e89bdd5a3e76eb9ec1",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_DOMAIN_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:79"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_APPROVE_TRANSFER_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:82"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:146"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRToken.sol:149"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "INITIAL_SUPPLY",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:152"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "burnedSignatures",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "XBRToken.sol:155"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "b4bc3c03817f67dd5f60c8187a2ca6292de2b81c3e8549f862356ad5207d5a5c": {
+      "address": "0x46Ec5F3b5d965072023E98f98A02ce46AEe473c6",
+      "txHash": "0x6d102cbb22e2a9d1d440f7de847e9897d1f611e61f6f94bd90ce8dc5bd873011",
+      "layout": {
+        "storage": [],
+        "types": {}
+      }
+    },
+    "4dfef68e271649ff18da7967ffbb5b47665c1c4dfb5ed2e236f85f910a9e226a": {
+      "address": "0xAffD1e5D27968889E25Ba045c53Ed608cE5Ee223",
+      "txHash": "0xf596773869b00779ae31d6ef04841449fb8fd0556b018d4b4b5532b1e88f2d8c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_DOMAIN_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:80"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "EIP712_APPROVE_TRANSFER_TYPEHASH",
+            "type": "t_bytes32",
+            "src": "XBRToken.sol:83"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:147"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRToken.sol:150"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "INITIAL_SUPPLY",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:153"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "burnedSignatures",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "XBRToken.sol:156"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "ee4b9c1cce509188ca3fb7cb3bcf462d19a02749e33d36905dfbb4e5b941174f": {
+      "address": "0xb3212b66C337F83D277172D891Daf31776FF9D79",
+      "txHash": "0x7a5ba41f3c9a4ff0b936d418523de631b2d44baee98ce32baf76cdba41360c2e",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRDomain.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:64"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:67"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)6294_storage)",
+            "src": "XBRDomain.sol:70"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)6307_storage)",
+            "src": "XBRDomain.sol:73"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:76"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:79"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)6294_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)6307_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "d1168f5ba089a3dd93692053d356e995e187e62968d53027904bf822b531cd93": {
+      "address": "0xf1486cC376555A5035cFa85A761279c9876Daddc",
+      "txHash": "0x68db689948861cb1f3e9db183d2ee6fc6c2d0c6adffe43d74febaa771a7d0d34",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "market",
+            "type": "t_contract(XBRMarket)4645",
+            "src": "XBRChannel.sol:75"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelSeq",
+            "type": "t_uint32",
+            "src": "XBRChannel.sol:78"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channels",
+            "type": "t_mapping(t_bytes16,t_struct(Channel)6452_storage)",
+            "src": "XBRChannel.sol:81"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelClosingStates",
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6471_storage)",
+            "src": "XBRChannel.sol:84"
+          }
+        ],
+        "types": {
+          "t_contract(XBRMarket)4645": {
+            "label": "contract XBRMarket"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Channel)6452_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
+          },
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6471_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "bc8a86a22ed70d09687af3bd56c2367823eaf3bff429599ce97f640106ccf0f4": {
+      "address": "0xe14E93b1a9f7227f7B3851B12FDF4c7BcA4428Db",
+      "txHash": "0x07131a95ef99057380ff54d1ff05b41e919e23663b90ba61561e701db9e5a69b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRTest",
+            "label": "DOMAIN_SEPARATOR",
+            "type": "t_bytes32",
+            "src": "XBRTest.sol:57"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "fb3df28484479cbe4cd48e6273e82f30563ac18d33450e6e468512947e4e7d41": {
+      "address": "0x12F2df43A6385B8D5D6730822A09a2D6c42b61c0",
+      "txHash": "0xca9a3c2b6a8381a91c4430fd02f971902c3c86e8594127bd2e592bba90c659ab",
+      "layout": {
+        "storage": [],
+        "types": {}
+      }
+    },
+    "c5d5e72b33a86d8249fb162c5f3c387163c368471c9d9a4fbca6df1d96f09d6c": {
+      "address": "0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb",
+      "txHash": "0x8fc81a699f02e44ed589df7e3612a515fd093bee0362e20b6ebfe57ac32e9435",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:37"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:39"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:41"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:43"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:44"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:45"
+          },
+          {
+            "contract": "ERC20UpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol:317"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:71"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRToken.sol:74"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "INITIAL_SUPPLY",
+            "type": "t_uint256",
+            "src": "XBRToken.sol:77"
+          },
+          {
+            "contract": "XBRToken",
+            "label": "burnedSignatures",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "XBRToken.sol:80"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "3be35bfd7ecc705f6d093ff5b2cba0acf9454e1223b7ab343f761f288de039ee": {
+      "address": "0x757dbc31BB286832d21C505F1D80FbcfF6756e49",
+      "txHash": "0x5c3affe6671773011f22fc4b3a1a73237d4a65c4a7eb631eb81997a6b261071c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)7842_storage)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "MAINTAINER_ROLE",
+            "type": "t_bytes32",
+            "src": "XBRNetwork.sol:43"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "ANYADR",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:80"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "PRESIGNED_TXN_MAX_AGE",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:83"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:86"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:89"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "eula",
+            "type": "t_string_storage",
+            "src": "XBRNetwork.sol:92"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "contribution",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:95"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "token",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:100"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "organization",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:103"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "members",
+            "type": "t_mapping(t_address,t_struct(Member)6045_storage)",
+            "src": "XBRNetwork.sol:106"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "coins",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "XBRNetwork.sol:109"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_address,t_struct(Member)6045_storage)": {
+            "label": "mapping(address => struct XBRTypes.Member)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)7842_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "c53f71413d318451cf7980d4da34e2b8bef5c23eae6a878c6647bc7fd9ef0fc0": {
+      "address": "0x2B9b7E41652d7cd3038a6531AB081805c58870E7",
+      "txHash": "0x0e4be89a93fb2a08dd84f8b780a8ddf6eec6e585c8f60baf1a51d6da0f49b38b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRDomain.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:64"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:67"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)6067_storage)",
+            "src": "XBRDomain.sol:70"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)6080_storage)",
+            "src": "XBRDomain.sol:73"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:76"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:79"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)6067_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)6080_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "f3d46704b41c0d1e2fd0f4b2717ff0aba723dc67ed43f8c8527d1fa1cde11bde": {
+      "address": "0xa7ed470Dd9f1e2B656708D87e64e9ddCc79583c0",
+      "txHash": "0x003e07e4c1a806e8d427c2c6fabb7195c0cca94d8149f3dd152206e520da5b08",
       "layout": {
         "storage": [
           {
@@ -8878,7 +9585,7 @@
           {
             "contract": "XBRMarket",
             "label": "markets",
-            "type": "t_mapping(t_bytes16,t_struct(Market)6313_storage)",
+            "type": "t_mapping(t_bytes16,t_struct(Market)6167_storage)",
             "src": "XBRMarket.sol:77"
           },
           {
@@ -8908,7 +9615,7 @@
           {
             "contract": "XBRMarket",
             "label": "memberStats",
-            "type": "t_mapping(t_address,t_struct(MemberMarketStats)6235_storage)",
+            "type": "t_mapping(t_address,t_struct(MemberMarketStats)6089_storage)",
             "src": "XBRMarket.sol:92"
           }
         ],
@@ -8925,7 +9632,7 @@
           "t_uint32": {
             "label": "uint32"
           },
-          "t_mapping(t_bytes16,t_struct(Market)6313_storage)": {
+          "t_mapping(t_bytes16,t_struct(Market)6167_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.Market)"
           },
           "t_array(t_bytes16)dyn_storage": {
@@ -8937,7 +9644,7 @@
           "t_mapping(t_address,t_array(t_bytes16)dyn_storage)": {
             "label": "mapping(address => bytes16[])"
           },
-          "t_mapping(t_address,t_struct(MemberMarketStats)6235_storage)": {
+          "t_mapping(t_address,t_struct(MemberMarketStats)6089_storage)": {
             "label": "mapping(address => struct XBRTypes.MemberMarketStats)"
           },
           "t_bool": {
@@ -8949,9 +9656,9 @@
         }
       }
     },
-    "644b849b58ff3cc9ec1aeea17fe6f744ae9549752e113420ad72819a649e1b54": {
-      "address": "0xD13ebb5C39fB00C06122827E1cbD389930C9E0E3",
-      "txHash": "0x70eee005cc441ae16582c9f91bfaee95f568ccdeeb9024361b543f590d41625f",
+    "a3130a0b1da965c5be114ad4b834987c7db40063880d9b9775440849d02ae31d": {
+      "address": "0x44cAA0c71800eEA0Ec750Ba1A9Ff420cbc393952",
+      "txHash": "0xf504280ce92f418eeda4310abaf0783e7f88df1faf248a97f515507efcf9ba50",
       "layout": {
         "storage": [
           {
@@ -8987,13 +9694,13 @@
           {
             "contract": "XBRChannel",
             "label": "channels",
-            "type": "t_mapping(t_bytes16,t_struct(Channel)6371_storage)",
+            "type": "t_mapping(t_bytes16,t_struct(Channel)6225_storage)",
             "src": "XBRChannel.sol:81"
           },
           {
             "contract": "XBRChannel",
             "label": "channelClosingStates",
-            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6390_storage)",
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6244_storage)",
             "src": "XBRChannel.sol:84"
           }
         ],
@@ -9004,11 +9711,484 @@
           "t_uint32": {
             "label": "uint32"
           },
-          "t_mapping(t_bytes16,t_struct(Channel)6371_storage)": {
+          "t_mapping(t_bytes16,t_struct(Channel)6225_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.Channel)"
           },
-          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6390_storage)": {
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6244_storage)": {
             "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "32f4945fec586a47c335825f6b60867f5d4c619a673cc4f764f8f404317ae317": {
+      "address": "0x32B283164B5A283A01208CA894b534b9eA9C4632",
+      "txHash": "0xa23d6ee724d598df60ac9a18b2c6cf71faa6ccb7027cb94a979518b72a0e6805",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRTest",
+            "label": "DOMAIN_SEPARATOR",
+            "type": "t_bytes32",
+            "src": "XBRTest.sol:71"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "104371c3082767ec188e10fafd6001cdee5fb7a4351a5730917f3d166cd9af2b": {
+      "address": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
+      "txHash": "0xdad08c095c11d1d814f04931e838618dedba427be534ad7f2dd348e495b5b510",
+      "layout": {
+        "storage": [],
+        "types": {}
+      }
+    },
+    "1f0bac09e784d5e0512c534283b60544624eecb83773d04dfbca238714db960b": {
+      "address": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
+      "txHash": "0x5a4fa2721fc37c5a2c3c60dff68d24dd2039f9a39951bd9fdba49afe4e551944",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "ContextUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol:37"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)7883_storage)",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:58"
+          },
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol:210"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "MAINTAINER_ROLE",
+            "type": "t_bytes32",
+            "src": "XBRNetwork.sol:43"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "ANYADR",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:80"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "PRESIGNED_TXN_MAX_AGE",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:83"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingChain",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:86"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "verifyingContract",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:89"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "eula",
+            "type": "t_string_storage",
+            "src": "XBRNetwork.sol:92"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "contribution",
+            "type": "t_uint256",
+            "src": "XBRNetwork.sol:95"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "token",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:100"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "organization",
+            "type": "t_address",
+            "src": "XBRNetwork.sol:103"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "members",
+            "type": "t_mapping(t_address,t_struct(Member)6086_storage)",
+            "src": "XBRNetwork.sol:106"
+          },
+          {
+            "contract": "XBRNetwork",
+            "label": "coins",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "XBRNetwork.sol:109"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_address,t_struct(Member)6086_storage)": {
+            "label": "mapping(address => struct XBRTypes.Member)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)7883_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeSafe.RoleData)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "2cb404d216abc8ce9f2cf1c92c55ba49b51dfcd9542840e8778e0500bfb9c561": {
+      "address": "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      "txHash": "0x28a158ee776d14a49d6289eb098650c51bd4b8866ab43f8a0be5a8f58c6d8533",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRDomain.sol:61"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "license",
+            "type": "t_string_storage",
+            "src": "XBRDomain.sol:64"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainSeq",
+            "type": "t_uint32",
+            "src": "XBRDomain.sol:67"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domains",
+            "type": "t_mapping(t_bytes16,t_struct(Domain)6108_storage)",
+            "src": "XBRDomain.sol:70"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodes",
+            "type": "t_mapping(t_bytes16,t_struct(Node)6121_storage)",
+            "src": "XBRDomain.sol:73"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "nodesByKey",
+            "type": "t_mapping(t_bytes32,t_bytes16)",
+            "src": "XBRDomain.sol:76"
+          },
+          {
+            "contract": "XBRDomain",
+            "label": "domainIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRDomain.sol:79"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Domain)6108_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Domain)"
+          },
+          "t_mapping(t_bytes16,t_struct(Node)6121_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Node)"
+          },
+          "t_mapping(t_bytes32,t_bytes16)": {
+            "label": "mapping(bytes32 => bytes16)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "50d2abf0cc331f5f20880b82ff6a383bf909fdb1319d55ef614f3e44aa18ccf3": {
+      "address": "0x67B5656d60a809915323Bf2C40A8bEF15A152e3e",
+      "txHash": "0x5f0f73d9426260c42cf88a40bead011b5632987bc97cc85376539d554bebacaa",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "network",
+            "type": "t_contract(XBRNetwork)5413",
+            "src": "XBRCatalog.sol:46"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogSeq",
+            "type": "t_uint32",
+            "src": "XBRCatalog.sol:49"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogs",
+            "type": "t_mapping(t_bytes16,t_struct(Catalog)6234_storage)",
+            "src": "XBRCatalog.sol:52"
+          },
+          {
+            "contract": "XBRCatalog",
+            "label": "catalogIds",
+            "type": "t_array(t_bytes16)dyn_storage",
+            "src": "XBRCatalog.sol:55"
+          }
+        ],
+        "types": {
+          "t_contract(XBRNetwork)5413": {
+            "label": "contract XBRNetwork"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Catalog)6234_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Catalog)"
+          },
+          "t_array(t_bytes16)dyn_storage": {
+            "label": "bytes16[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "de0e5a92d2e73e00a9cf69a6f21aa4dd23edaebb2157c7474d025b5d20dd314f": {
+      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+      "txHash": "0xb12f16b87440890e34472c89df3f180f23095ff0af65ff13ca1f4feab4888953",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "market",
+            "type": "t_contract(XBRMarket)4645",
+            "src": "XBRChannel.sol:75"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelSeq",
+            "type": "t_uint32",
+            "src": "XBRChannel.sol:78"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channels",
+            "type": "t_mapping(t_bytes16,t_struct(Channel)6266_storage)",
+            "src": "XBRChannel.sol:81"
+          },
+          {
+            "contract": "XBRChannel",
+            "label": "channelClosingStates",
+            "type": "t_mapping(t_bytes16,t_struct(ChannelClosingState)6285_storage)",
+            "src": "XBRChannel.sol:84"
+          }
+        ],
+        "types": {
+          "t_contract(XBRMarket)4645": {
+            "label": "contract XBRMarket"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_bytes16,t_struct(Channel)6266_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.Channel)"
+          },
+          "t_mapping(t_bytes16,t_struct(ChannelClosingState)6285_storage)": {
+            "label": "mapping(bytes16 => struct XBRTypes.ChannelClosingState)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "bee946fecec3f2b9e76cfb2b1d8364c2a16e25048f60b9516f9d63c43e2e3cbf": {
+      "address": "0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15",
+      "txHash": "0xc6754f1c02cecbdc01f9831d18df63cdae0d9017954569631ae59cb4b4c247d4",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:26"
+          },
+          {
+            "contract": "Initializable",
+            "label": "______gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol:61"
+          },
+          {
+            "contract": "XBRTest",
+            "label": "DOMAIN_SEPARATOR",
+            "type": "t_bytes32",
+            "src": "XBRTest.sol:71"
+          }
+        ],
+        "types": {
+          "t_bytes32": {
+            "label": "bytes32"
           },
           "t_bool": {
             "label": "bool"

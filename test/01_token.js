@@ -19,13 +19,13 @@ const BN = web3.utils.BN;
 const XBRToken = artifacts.require("./XBRToken.sol");
 
 
-const eip712ApprovalTypedData = {
+const eip712ApproveTransferTypedData = {
     types: {
         EIP712Domain: [
             {name: 'name', type: 'string' },
             {name: 'version', type: 'string' },
         ],
-        EIP712Approve: [
+        EIP712ApproveTransfer: [
             {name: 'chainId', type: 'uint256' },
             {name: 'verifyingContract', type: 'address' },
             {name: 'sender', type: 'address'},
@@ -36,7 +36,7 @@ const eip712ApprovalTypedData = {
             {name: 'nonce', type: 'uint256'},
         ]
     },
-    primaryType: 'EIP712Approve',
+    primaryType: 'EIP712ApproveTransfer',
     domain: {
         name: 'XBR',
         version: '1',
@@ -46,10 +46,10 @@ const eip712ApprovalTypedData = {
 
 
 function eip712_sign_approval(key_, data_, verifyingContract) {
-    eip712ApprovalTypedData['message'] = data_;
-    eip712ApprovalTypedData['domain']['verifyingContract'] = verifyingContract;
+    eip712ApproveTransferTypedData['message'] = data_;
+    eip712ApproveTransferTypedData['message']['verifyingContract'] = verifyingContract;
     var key = eth_util.toBuffer(key_);
-    var sig = eth_sig_utils.signTypedData(key, {data: eip712ApprovalTypedData})
+    var sig = eth_sig_utils.signTypedData(key, {data: eip712ApproveTransferTypedData})
     return sig;
 }
 
@@ -139,6 +139,8 @@ contract('XBRToken', function (accounts) {
         const chainId = await token.verifyingChain();
         const verifyingContract = await token.verifyingContract();
 
+        console.log("XXXXXXXXXXX", chainId, verifyingContract);
+
         // const sender = accounts[0];
         const sender = w3_utils.toChecksumAddress('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
         const sender_key = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
@@ -170,18 +172,19 @@ contract('XBRToken', function (accounts) {
         const signature = eip712_sign_approval(sender_key, approval, verifyingContract);
         console.log('SIGNATURE', signature);
 
+        result = null;
+        console.log('token.approveForVerify', sender, relayer, spender, amount, expires, nonce, signature);
         try {
-            console.log('token.approveForVerify', sender, relayer, spender, amount, expires, nonce, signature);
-            const result = await token.approveForVerify(sender, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
-            console.log('XBRToken.approveForVerify(): 1)', result);
-            //assert(result, "valid signature should verify successfully");
+            result = await token.approveForVerify(sender, relayer, spender, amount, expires, nonce, signature, {from: relayer, gasLimit: gasLimit});
         } catch (error) {
-            console.log('XBRToken.approveForVerify(): 2)', error);
-            //assert(false, "contract should not throw here");
+            assert(false, "call to verify should always succeed [" + error + "]");
+        }
+        if (result !== null) {
+            assert(result, "correct signature should verify");
         }
     });
 
-    /*
+/*
     it("XBRToken.approveFor() should fail for invalid signature", async () => {
 
         const chainId = await token.verifyingChain();
@@ -241,8 +244,7 @@ contract('XBRToken', function (accounts) {
             assert(spender_before.eq(spender_after), "invalid balance for spender after transaction");
         }
     });
-*/
-/*
+
     it("XBRToken.approveFor()+transferFrom() should correctly update token balances", async () => {
 
         const chainId = await token.verifyingChain();

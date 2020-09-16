@@ -52,34 +52,8 @@ interface IXBRTokenRelayInterface {
  *
  * For API documentation, please see `here <https://docs.openzeppelin.com/contracts/2.x/api/token/erc20>`__.
  */
-contract XBRToken is Initializable, ERC20UpgradeSafe {
-
-    /// EIP712 type for XBR as a type domain.
-    struct EIP712Domain {
-        /// The type domain name, makes signatures from different domains incompatible.
-        string  name;
-
-        /// The type domain version.
-        string  version;
-    }
-
-    /// EIP712 Approve type data.
-    struct EIP712ApproveTransfer {
-        uint256 chainId;
-        address verifyingContract;
-        address sender;
-        address relayer;
-        address spender;
-        uint256 amount;
-        uint256 expires;
-        uint256 nonce;
-    }
-
-    /// EIP712 type data.
-    bytes32 public EIP712_DOMAIN_TYPEHASH;
-
-    /// EIP712 type data.
-    bytes32 public EIP712_APPROVE_TRANSFER_TYPEHASH;
+//contract XBRToken is Initializable, ERC20UpgradeSafe {
+contract XBRToken is ERC20UpgradeSafe {
 
     /// Check if the given address is a contract.
     function isContract(address adr) public view returns (bool) {
@@ -91,55 +65,6 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
         }
 
         return codeLength > 0;
-    }
-
-    /// Splits a signature (65 octets) into components (a "vrs"-tuple).
-    function splitSignature (bytes memory signature_rsv) public view returns (uint8 v, bytes32 r, bytes32 s) {
-        require(signature_rsv.length == 65, "INVALID_SIGNATURE_LENGTH");
-
-        // Split a signature given as a bytes string into components.
-        assembly
-        {
-            r := mload(add(signature_rsv, 32))
-            s := mload(add(signature_rsv, 64))
-            v := and(mload(add(signature_rsv, 65)), 255)
-        }
-        if (v < 27) {
-            v += 27;
-        }
-
-        return (v, r, s);
-    }
-
-    function hash(EIP712Domain memory domain_) public view returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_DOMAIN_TYPEHASH,
-            keccak256(bytes(domain_.name)),
-            keccak256(bytes(domain_.version))
-        ));
-    }
-
-    function domainSeparator () public view returns (bytes32) {
-        // makes signatures from different domains incompatible.
-        // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md#arbitrary-messages
-        return hash(EIP712Domain({
-            name: "XBR",
-            version: "1"
-        }));
-    }
-
-    function hash (EIP712ApproveTransfer memory obj) public view returns (bytes32) {
-        return keccak256(abi.encode(
-            EIP712_APPROVE_TRANSFER_TYPEHASH,
-            obj.chainId,
-            obj.verifyingContract,
-            obj.sender,
-            obj.relayer,
-            obj.spender,
-            obj.amount,
-            obj.expires,
-            obj.nonce
-        ));
     }
 
     /// Verifying chain ID for EIP712 signatures.
@@ -167,30 +92,12 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
         verifyingChain = 1;
         verifyingContract = address(this);
 
-        EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version)");
-        EIP712_APPROVE_TRANSFER_TYPEHASH = keccak256("EIP712Approve(uint256 chainId,address verifyingContract,address sender,address relayer,address spender,uint256 amount,uint256 expires,uint256 nonce)");
-
         INITIAL_SUPPLY = 10**9 * 10**18;
 
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
-    /// Verify signature on typed data for transfering XBRToken.
-    function verify (address signer, EIP712ApproveTransfer memory obj,
-        bytes memory signature) public view returns (bool) {
-
-        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
-
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            domainSeparator(),
-            hash(obj)
-        ));
-
-        return ecrecover(digest, v, r, s) == signer;
-        //return true;
-    }
-
+/*
     function approveForVerify (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public view returns (bool) {
 
@@ -204,7 +111,7 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
 
         return result;
     }
-
+*/
     /**
      * This method provides an extension to the standard ERC20 interface that allows to approve tokens
      * to be spent by another party or contract, similar to the standard `IERC20.approve` method.
@@ -225,11 +132,11 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
     function approveFor (address sender, address relayer, address spender, uint256 amount, uint256 expires,
         uint256 nonce, bytes memory signature) public returns (bool) {
 
-        XBRTypes.EIP712ApproveTransfer memory approve = XBRTypes.EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
+        EIP712ApproveTransfer memory approve = EIP712ApproveTransfer(verifyingChain, verifyingContract, sender, relayer, spender, amount, expires, nonce);
 
         // signature must be valid (signed by address in parameter "sender" - not the necessarily
         // the "msg.sender", the submitted of the transaction!)
-        // require(verify(sender, approve, signature), "INVALID_SIGNATURE");
+        require(verify(sender, approve, signature), "INVALID_SIGNATURE");
 
         // relayer rules:
         //  1. always allow relaying if the specified "relayer" is 0
@@ -246,7 +153,7 @@ contract XBRToken is Initializable, ERC20UpgradeSafe {
         require(block.number < expires || expires == 0, "SIGNATURE_EXPIRED");
 
         // signature must not have been used
-        bytes32 digest = XBRTypes.hash(approve);
+        bytes32 digest = hash(approve);
         require(burnedSignatures[digest] == 0x0, "SIGNATURE_REUSED");
 
         // mark signature as "consumed"
