@@ -90,7 +90,7 @@ contract XBRTest is Initializable {
         ));
     }
 
-    function hash (EIP712ApproveTransfer memory obj) internal pure returns (bytes32) {
+    function hash(EIP712ApproveTransfer memory obj) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712_APPROVE_TRANSFER_TYPEHASH,
             obj.sender,
@@ -129,7 +129,7 @@ contract XBRTest is Initializable {
         return ecrecover(digest, v, r, s) == mail.from.wallet;
     }
 
-    function verify (address signer, EIP712ApproveTransfer memory obj,
+    function verify (address signer, Mail memory obj,
         bytes memory signature) public view returns (bool) {
 
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
@@ -143,6 +143,19 @@ contract XBRTest is Initializable {
         return ecrecover(digest, v, r, s) == signer;
     }
 
+    function verify (address signer, EIP712ApproveTransfer memory obj,
+        bytes memory signature) public view returns (bool) {
+
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(obj)
+        ));
+
+        return ecrecover(digest, v, r, s) == signer;
+    }
 
     function splitSignature (bytes memory signature_rsv) private pure returns (uint8 v, bytes32 r, bytes32 s) {
 
@@ -232,6 +245,25 @@ contract XBRTest is Initializable {
 
     function test2() public pure returns (bool) {
         return true;
+    }
+
+    function mailForVerify (address sender, string memory from_name, address from_wallet, string memory to_name, address to_wallet, string memory contents, bytes memory signature) public view returns (bool) {
+
+        Mail memory mail = Mail({
+            from: Person({
+                name: from_name,
+                wallet: from_wallet
+            }),
+            to: Person({
+                name: to_name,
+                wallet: to_wallet
+            }),
+            contents: contents
+        });
+
+        bool result = verify(sender, mail, signature);
+
+        return result;
     }
 
     function approveForVerify (address sender, address relayer, address spender, uint256 amount, uint256 expires,

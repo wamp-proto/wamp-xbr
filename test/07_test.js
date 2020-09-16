@@ -25,14 +25,6 @@ const DomainData = {
             { name: 'chainId', type: 'uint256' },
             { name: 'verifyingContract', type: 'address' },
         ],
-        EIP712ApproveTransfer: [
-            {name: 'sender', type: 'address'},
-            {name: 'relayer', type: 'address'},
-            {name: 'spender', type: 'address'},
-            {name: 'amount', type: 'uint256'},
-            {name: 'expires', type: 'uint256'},
-            {name: 'nonce', type: 'uint256'},
-        ],
         Person: [
             { name: 'name', type: 'string' },
             { name: 'wallet', type: 'address' }
@@ -53,11 +45,46 @@ const DomainData = {
     message: null,
 };
 
-
-function eip712_sign_approval(key_, data_) {
+function eip712_sign_mail(key_, data_) {
     DomainData['message'] = data_;
     var key = eth_util.toBuffer(key_);
     var sig = eth_sig_utils.signTypedData(key, {data: DomainData})
+    return sig;
+}
+
+
+const EIP712ApproveTransfer_DomainData = {
+    types: {
+        EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+        ],
+        EIP712ApproveTransfer: [
+            {name: 'sender', type: 'address'},
+            {name: 'relayer', type: 'address'},
+            {name: 'spender', type: 'address'},
+            {name: 'amount', type: 'uint256'},
+            {name: 'expires', type: 'uint256'},
+            {name: 'nonce', type: 'uint256'},
+        ]
+    },
+    primaryType: 'EIP712ApproveTransfer',
+    domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    },
+    message: null,
+};
+
+
+function eip712_sign_approve_transfer(key_, data_) {
+    EIP712ApproveTransfer_DomainData['message'] = data_;
+    var key = eth_util.toBuffer(key_);
+    var sig = eth_sig_utils.signTypedData(key, {data: EIP712ApproveTransfer_DomainData})
     return sig;
 }
 
@@ -234,7 +261,37 @@ contract('XBRTest', accounts => {
         assert.equal(res, false, "XBRTest.test_verify1(): succeeded with an invalid signature");
     });
 
-    it("XBRTest().approveForVerify() : should verify correct signature", async () => {
+    it("XBRTest().mailForVerify() : should verify correct signature on <mail> data", async () => {
+
+        const key = eth_util.toBuffer(alice_privkey);
+
+        const msg = {
+            from: {
+                name: 'Cow',
+                wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            },
+            to: {
+                name: 'Bob',
+                wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+            },
+            contents: 'Hello, Bob!',
+        }
+        const signature = eip712_sign_mail(key, msg);
+        console.log('SIGNATURE', signature);
+
+        result = null;
+        console.log('testcontract.mailForVerify', alice, msg.from.name, msg.from.wallet, msg.to.name, msg.to.wallet, msg.contents, signature);
+        try {
+            result = await testcontract.mailForVerify(alice, msg.from.name, msg.from.wallet, msg.to.name, msg.to.wallet, msg.contents, signature, {from: sender, gasLimit: gasLimit});
+        } catch (error) {
+            assert(false, "call to verify should always succeed [" + error + "]");
+        }
+        if (result !== null) {
+            assert(result, "correct signature should verify");
+        }
+    });
+
+    it("XBRTest().approveForVerify() : should verify correct signature on <approval> data", async () => {
 
         // const sender = accounts[0];
         const sender = w3_utils.toChecksumAddress('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
@@ -264,7 +321,7 @@ contract('XBRTest', accounts => {
 
         // prepare: pre-sign metatransaction
         // const signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
-        const signature = eip712_sign_approval(sender_key, approval);
+        const signature = eip712_sign_approve_transfer(sender_key, approval);
         console.log('SIGNATURE', signature);
 
         result = null;
