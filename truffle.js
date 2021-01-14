@@ -67,7 +67,8 @@ module.exports = {
     // https://github.com/trufflesuite/truffle-compile/issues/7#issuecomment-449629758
     compilers: {
         solc: {
-            version: "0.6.2",
+            // https://github.com/ethereum/solidity/tags
+            version: "0.6.12",
             settings: {
                 optimizer: {
                     enabled: true,
