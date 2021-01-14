@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-2020 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2021 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +22,9 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts/math/SafeMath.sol";
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.3.0/contracts/math/SafeMath.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";

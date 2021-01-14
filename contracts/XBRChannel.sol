@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-2020 Crossbar.io Technologies GmbH and contributors.
+//  Copyright (C) 2018-2021 Crossbar.io Technologies GmbH and contributors.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,10 +22,12 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 // https://openzeppelin.org/api/docs/math_SafeMath.html
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts/math/SafeMath.sol";
 
 // https://openzeppelin.org/api/docs/cryptography_ECDSA.html
-import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+// import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 
 import "./XBRMaintained.sol";
 import "./XBRTypes.sol";
@@ -45,7 +49,7 @@ contract XBRChannel is XBRMaintained {
     using ECDSA for bytes32;
 
     /// Event emittedd when a new XBR data market has opened.
-    event Opened(uint32 channelSeq, XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
+    event Opened(XBRTypes.ChannelType ctype, bytes16 indexed marketId, bytes16 indexed channelId,
         address actor, address delegate, address marketmaker, address recipient, uint256 amount, bytes signature);
 
     /**
@@ -183,7 +187,7 @@ contract XBRChannel is XBRMaintained {
             0, 1, 0, 0, 0, 0, "", "");
 
         // notify observers (eg a dormant market maker waiting to be associated)
-        emit Opened(1, ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
+        emit Opened(ctype, marketId, channelId, actor, delegate, marketmaker, recipient, amount, signature);
     }
 
     /**
@@ -271,7 +275,7 @@ contract XBRChannel is XBRMaintained {
         // uint256 payout = earned - fee;
 
         // the closing balance of a newer transaction must be not greater than anyone we already know
-        if (channelClosingStates[channelId].closingSeq > 0) {
+        if (channelClosingStates[channelId].closingSeq > 1) {
             require(balance <= channelClosingStates[channelId].closingBalance, "TRANSACTION_BALANCE_OUTDATED");
         }
 
