@@ -1,7 +1,7 @@
 The XBR Protocol
 ================
 
-|Travis| |Coverage| |Docs (on CDN)| |Docs (on S3)| |ABIs (on CDN)| |ABIs (on S3)|
+|Build| |Deploy| |Coverage| |Docs (on CDN)| |Docs (on S3)| |ABIs (on CDN)| |ABIs (on S3)|
 
 The **XBR Protocol** enables secure peer-to-peer data-trading and -service microtransactions in
 `Open Data Markets <https://xbr.network>`__ between multiple independent entities.
@@ -61,15 +61,25 @@ The XBR project currently maintains the following **XBR-enabled client libraries
 XBR support can be added to any `WAMP client library <https://wamp-proto.org/implementations.html#libraries>`__
 with a language run-time that has packages for Ethereum application development.
 
-.. |Docs (on CDN)| image:: https://img.shields.io/badge/Docs-CDN-yellow.svg?style=flat
-   :target: https://xbr.network/docs/protocol/index.html
-.. |Docs (on S3)| image:: https://img.shields.io/badge/Docs-S3-yellow.svg?style=flat
-   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
-.. |Travis| image:: https://travis-ci.com/crossbario/xbr-protocol.svg?branch=master
-   :target: https://travis-ci.com/crossbario/xbr-protocol
+.. |Build| image:: https://github.com/crossbario/xbr-protocol/workflows/main/badge.svg
+   :target: https://github.com/crossbario/xbr-protocol/actions?query=workflow%3Amain
+   :alt: Build Status
+
+.. |Deploy| image:: https://github.com/crossbario/xbr-protocol/workflows/deploy/badge.svg
+   :target: https://github.com/crossbario/xbr-protocol/actions?query=workflow%3Adeploy
+   :alt: Deploy Status
+
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/crossbario/xbr-protocol/master.svg
    :target: https://codecov.io/github/crossbario/xbr-protocol
+
+.. |Docs (on CDN)| image:: https://img.shields.io/badge/Docs-CDN-yellow.svg?style=flat
+   :target: https://xbr.network/docs/protocol/index.html
+
+.. |Docs (on S3)| image:: https://img.shields.io/badge/Docs-S3-yellow.svg?style=flat
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/protocol/index.html
+
 .. |ABIs (on CDN)| image:: https://img.shields.io/badge/ABIs-CDN-blue.svg?style=flat
    :target: https://xbr.network/lib/abi/xbr-protocol-latest.zip
+
 .. |ABIs (on S3)| image:: https://img.shields.io/badge/ABIs-S3-blue.svg?style=flat
    :target: https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip

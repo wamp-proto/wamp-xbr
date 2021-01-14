@@ -29,7 +29,7 @@ jobs:
     - name: Install OS dependencies
       run: |
         sudo apt update
-        sudo apt install nodejs nodejs-dev npm
+        sudo apt install nodejs libnode-dev npm
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
