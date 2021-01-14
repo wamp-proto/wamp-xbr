@@ -1,0 +1,135 @@
+# GitHub actions for XBR Protocol CI/CD
+# https://github.com/crossbario/xbr-protocol/actions
+#
+# See also:
+#
+#   * https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+#   * https://github.com/actions/starter-workflows/blob/main/ci/python-package.yml
+#
+name: main
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check:
+    runs-on: ubuntu-20.04
+
+    env:
+      XBR_HDWALLET_SEED: ${{ secrets.XBR_HDWALLET_SEED }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install OS dependencies
+      run: |
+        sudo apt update
+        sudo apt install nodejs nodejs-dev npm
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        architecture: 'x64'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+
+    - name: Install Node dependencies
+      run: |
+        npm install -g google-closure-compiler
+        npm install -g node-buffer
+        npm install -g browserify
+        npm install -g coveralls
+        npm install -g nodeunit
+
+      # https://github.com/trufflesuite/ganache-cli/issues/593
+        npm install -g ganache-cli@v6.9.0
+        which ganache-cli
+        ganache-cli --version
+
+        npm install -g truffle
+        npm install -g solhint
+        npm install -g solidity-coverage
+
+        npm install
+
+    - name: Set environment
+      run: |
+        echo BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
+
+    - name: Print environment
+      run: |
+        echo ""
+        echo "Build environment configured:"
+        echo ""
+        echo "  BUILD_DATE              = ${BUILD_DATE}"
+        echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
+        echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
+        echo ""
+
+    - name: Start Ganache
+      run: |
+        ganache-cli --accounts 15 --defaultBalanceEther 1000 \
+          --mnemonic ${{ secrets.XBR_HDWALLET_SEED }} \
+          --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 > /dev/null &
+        sleep 5
+
+    - name: Run Solhint
+      run: tox -c tox.ini -e solhint
+
+    - name: Run Truffle build
+      run: tox -c tox.ini -e truffle-build
+
+    - name: Run Truffle test
+      run: tox -c tox.ini -e truffle-test
+
+    - name: Run Coverage
+      run: tox -c tox.ini -e coverage
+
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install OS dependencies
+      run: |
+        sudo apt update
+        sudo apt install libenchant-dev
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        architecture: 'x64'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Set environment
+      run: |
+        echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
+
+    - name: Print environment
+      run: |
+        echo ""
+        echo "Environment configured:"
+        echo ""
+        echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
+        echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
+        echo ""
+
+    - name: Run Sphinx
+      run: tox -c tox.ini -e sphinx
