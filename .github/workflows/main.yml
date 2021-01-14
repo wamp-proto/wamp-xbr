@@ -50,8 +50,7 @@ jobs:
         npm install -g coveralls
         npm install -g nodeunit
 
-      # https://github.com/trufflesuite/ganache-cli/issues/593
-        npm install -g ganache-cli@v6.9.0
+        npm install -g ganache-cli@v6.12.2
         which ganache-cli
         ganache-cli --version
 
