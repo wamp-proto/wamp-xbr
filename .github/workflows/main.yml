@@ -44,21 +44,7 @@ jobs:
 
     - name: Install Node dependencies
       run: |
-        npm install -g google-closure-compiler
-        npm install -g node-buffer
-        npm install -g browserify
-        npm install -g coveralls
-        npm install -g nodeunit
-
-        npm install -g ganache-cli@v6.12.2
-        which ganache-cli
-        ganache-cli --version
-
-        npm install -g truffle
-        npm install -g solhint
-        npm install -g solidity-coverage
-
-        npm install
+        npm install --only=dev
 
     - name: Set environment
       run: |

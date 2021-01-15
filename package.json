@@ -22,9 +22,13 @@
     "devDependencies": {
         "bindings": "^1.5.0",
         "browserify": "^17.0.0",
+        "coveralls": "^3.1.0",
+        "ganache-cli": "^6.12.2",
         "google-closure-compiler": ">=20210106",
         "eth-sig-util": "^3.0.0",
         "ethereumjs-util": "^7.0.7",
+        "node-buffer": "^1.0.3",
+        "nodeunit": "^0.11.3",
         "@openzeppelin/contracts": "^3.3.0",
         "solhint": "^3.3.2",
         "solidity-coverage": "^0.7.13",
