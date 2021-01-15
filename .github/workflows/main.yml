@@ -85,10 +85,11 @@ jobs:
     - name: Run Truffle build
       run: tox -c tox.ini -e truffle-build
 
+    # https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#using-encrypted-secrets-in-a-workflow
     - name: Run Truffle test
       run: |
         ganache-cli --accounts 15 --defaultBalanceEther 1000 \
-          --mnemonic ${{ secrets.XBR_HDWALLET_SEED }} \
+          --mnemonic "$XBR_HDWALLET_SEED" \
           --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 &
         sleep 5
         truffle migrate --reset --network ganache

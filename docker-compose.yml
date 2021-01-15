@@ -3,7 +3,7 @@ services:
 
     ganache:
         # FIXME: ganache_1   | Error: EXDEV: cross-device link not permitted, rename '/tmp/tmp-1g6J0UVLVMW56' -> '/ganache/!trie_db!0x41c488877f4bd7f076e7a46574f86eb2e58bb101aad9fd4da0dbf9b60ec8c949'
-        image: trufflesuite/ganache-cli:v6.9.1
+        image: trufflesuite/ganache-cli:v6.12.2
         # need v6.9.1 as v6.7.0 doesn't support the CHAINID opcode!
         # image: trufflesuite/ganache-cli:v6.7.0
         volumes:
