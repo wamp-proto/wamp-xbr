@@ -62,13 +62,6 @@ jobs:
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
         echo ""
 
-    - name: Start Ganache
-      run: |
-        ganache-cli --accounts 15 --defaultBalanceEther 1000 \
-          --mnemonic ${{ secrets.XBR_HDWALLET_SEED }} \
-          --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 > /dev/null &
-        sleep 5
-
     - name: Run Solhint
       run: tox -c tox.ini -e solhint
 
@@ -76,7 +69,12 @@ jobs:
       run: tox -c tox.ini -e truffle-build
 
     - name: Run Truffle test
-      run: tox -c tox.ini -e truffle-test
+      run: |
+        ganache-cli --accounts 15 --defaultBalanceEther 1000 \
+          --mnemonic ${{ secrets.XBR_HDWALLET_SEED }} \
+          --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 > /dev/null &
+        sleep 5
+        tox -c tox.ini -e truffle-test
 
     - name: Run Coverage
       run: tox -c tox.ini -e coverage
