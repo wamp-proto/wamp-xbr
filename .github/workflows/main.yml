@@ -26,10 +26,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install OS dependencies
-      run: |
-        sudo apt update
-        sudo apt install nodejs libnode-dev npm
+    # https://github.com/actions/setup-node
+    - name: Set up Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
     - name: Set up Python 3
       uses: actions/setup-python@v2
@@ -48,7 +49,7 @@ jobs:
 
     - name: Set environment
       run: |
-        echo PATH=`${PWD}/node_modules/.bin/:${PATH}` >> $GITHUB_ENV
+        echo PATH=`./node_modules/.bin:${PATH}` >> $GITHUB_ENV
         echo BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
@@ -63,6 +64,13 @@ jobs:
         echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
         echo ""
+        which python
+        python -V
+        which node
+        node --version
+        which truffle
+        truffle --version
+        which ganache-cli
 
     - name: Run Solhint
       run: tox -c tox.ini -e solhint
