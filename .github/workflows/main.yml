@@ -89,8 +89,9 @@ jobs:
       run: |
         ganache-cli --accounts 15 --defaultBalanceEther 1000 \
           --mnemonic ${{ secrets.XBR_HDWALLET_SEED }} \
-          --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 > /dev/null &
+          --gasLimit 0xfffffffffff --gasPrice 1 --port 1545 --networkId 5777 &
         sleep 5
+        truffle migrate --reset --network ganache
         tox -c tox.ini -e truffle-test
 
     - name: Run Coverage
