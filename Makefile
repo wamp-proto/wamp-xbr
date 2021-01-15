@@ -85,6 +85,10 @@ update_dependencies:
 	ncu -u
 	npm install
 
+flatten:
+	./node_modules/.bin/truffle-flattener ./contracts/XBRToken.sol > ./contracts/XBRTokenFlattened.sol
+	./node_modules/.bin/truffle-flattener ./contracts/XBRNetwork.sol > ./contracts/XBRNetworkFlattened.sol
+
 lint:
 	$(SOLHINT) "contracts/**/*.sol"
 
