@@ -22,6 +22,7 @@ jobs:
 
     env:
       XBR_HDWALLET_SEED: ${{ secrets.XBR_HDWALLET_SEED }}
+      PATH: node_modules/.bin/:${PATH}
 
     steps:
     - uses: actions/checkout@v2
