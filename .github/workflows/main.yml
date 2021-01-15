@@ -47,9 +47,12 @@ jobs:
       run: |
         npm install --only=dev
 
+    # https://github.com/actions/toolkit/blob/main/docs/commands.md#path-manipulation
+    # https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables
     - name: Set environment
       run: |
-        echo PATH=`./node_modules/.bin:${PATH}` >> $GITHUB_ENV
+        echo "${HOME}/.local/bin" >> $GITHUB_PATH
+        echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> $GITHUB_PATH
         echo BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
