@@ -22,7 +22,6 @@ jobs:
 
     env:
       XBR_HDWALLET_SEED: ${{ secrets.XBR_HDWALLET_SEED }}
-      PATH: node_modules/.bin/:${PATH}
 
     steps:
     - uses: actions/checkout@v2
@@ -49,6 +48,7 @@ jobs:
 
     - name: Set environment
       run: |
+        echo PATH=`${PWD}/node_modules/.bin/:${PATH}` >> $GITHUB_ENV
         echo BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
         echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
@@ -58,6 +58,7 @@ jobs:
         echo ""
         echo "Build environment configured:"
         echo ""
+        echo "  PATH                    = ${PATH}"
         echo "  BUILD_DATE              = ${BUILD_DATE}"
         echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
