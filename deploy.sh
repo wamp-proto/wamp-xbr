@@ -2,17 +2,19 @@
 
 set +o verbose -o errexit
 
-# XBR_PROTOCOL_BUILD_DATE   : must be set in travis.yml!
-# XBR_PROTOCOL_VCS_REF      : must be set in travis.yml!
-# XBR_PROTOCOL_BUILD_ID     : must be set in travis.yml!
-# XBR_PROTOCOL_VERSION      : must be set in travis.yml!
-
-export AWS_DEFAULT_REGION=eu-central-1
-export AWS_S3_BUCKET_NAME=xbr.foundation
-# AWS_ACCESS_KEY_ID         : must be set in Travis CI build context!
-# AWS_SECRET_ACCESS_KEY     : must be set in Travis CI build context!
-
-# WAMP_PRIVATE_KEY          : must be set in Travis CI build context!
+# The following env vars must be set in the enclosing CI:
+#
+# XBR_PROTOCOL_BUILD_DATE
+# XBR_PROTOCOL_VCS_REF
+# XBR_PROTOCOL_BUILD_ID
+# XBR_PROTOCOL_VERSION
+#
+# AWS_DEFAULT_REGION
+# AWS_S3_BUCKET_NAME
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+#
+# WAMP_PRIVATE_KEY
 
 echo 'AWS env vars (should be 4):'
 env | grep AWS_ | wc -l
@@ -37,17 +39,17 @@ ls -la ./*.zip
 echo 'uploading contracts ABI bundle ..'
 
 # "aws s3 ls" will return -1 when no files are found! but we don't want our script to exit
-aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/ || true
+aws s3 ls $AWS_S3_BUCKET_NAME/lib/abi/ || true
 
-aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip || true
-aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip || true
-aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip || true
+aws s3 rm s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip || true
+aws s3 rm s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip || true
+aws s3 rm s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-latest.zip || true
 
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-latest.zip
 
-aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/
+aws s3 ls $AWS_S3_BUCKET_NAME/lib/abi/
 
 echo 'notify crossbar-builder ..'
 
@@ -67,7 +69,7 @@ echo 'building docs ..'
 tox -c tox.ini -e sphinx
 
 echo 'publishing docs ..'
-aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
+aws s3 cp --recursive --acl public-read ./docs/_build s3://$AWS_S3_BUCKET_NAME/docs
 aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/*"
 
 echo ''
@@ -76,9 +78,10 @@ echo '========'
 echo ''
 echo 'package uploaded to:'
 echo ''
-echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip'
-echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
-echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_BUILD_ID}'.zip'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/xbr-protocol-latest.zip'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/xbr-protocol-'${XBR_PROTOCOL_BUILD_ID}'.zip'
+echo ''
 echo '      https://xbr.network/lib/abi/xbr-protocol-latest.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_BUILD_ID}'.zip'
@@ -86,6 +89,7 @@ echo ''
 echo ''
 echo 'docs uploaded to:'
 echo ''
-echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/docs/index.html'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.foundation/docs/index.html'
+echo ''
 echo '      https://xbr.network/docs/index.html'
 echo ''

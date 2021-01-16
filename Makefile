@@ -153,6 +153,20 @@ deploy_rinkeby_dryrun:
 deploy_rinkeby:
 	$(TRUFFLE) migrate --reset --network rinkeby
 
+# https://kalis.me/verify-truffle-smart-contracts-etherscan/
+verify_etherscan:
+	$(TRUFFLE) run verify XBRTypes --network rinkeby
+	$(TRUFFLE) run verify XBRMaintained --network rinkeby
+	$(TRUFFLE) run verify XBRChannel --network rinkeby
+	$(TRUFFLE) run verify XBRToken --network rinkeby
+	# $(TRUFFLE) run verify XBRTest --network rinkeby
+	$(TRUFFLE) run verify XBRCatalog --network rinkeby
+	$(TRUFFLE) run verify XBRNetworkProxy --network rinkeby
+	$(TRUFFLE) run verify XBRMarket --network rinkeby
+	$(TRUFFLE) run verify XBRDomain --network rinkeby
+	$(TRUFFLE) run verify XBRNetwork --network rinkeby
+
+
 #
 # Truffle in Docker
 #

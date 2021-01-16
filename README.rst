@@ -82,4 +82,4 @@ with a language run-time that has packages for Ethereum application development.
    :target: https://xbr.network/lib/abi/xbr-protocol-latest.zip
 
 .. |ABIs (on S3)| image:: https://img.shields.io/badge/ABIs-S3-blue.svg?style=flat
-   :target: https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip
+   :target: https://s3.eu-central-1.amazonaws.com/xbr.foundation/lib/abi/xbr-protocol-latest.zip
