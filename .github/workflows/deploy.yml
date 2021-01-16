@@ -51,18 +51,20 @@ jobs:
 
     - name: Set environment
       run: |
-        echo BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_BUILD_DATE=`date --utc "+%Y%m%d"` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_VCS_REF=`git rev-parse --short ${GITHUB_SHA}` >> $GITHUB_ENV
+        echo XBR_PROTOCOL_BUILD_ID=$(date --utc +%Y%m%d)-$(git rev-parse --short ${GITHUB_SHA}) >> $GITHUB_ENV
         echo XBR_PROTOCOL_VERSION=`grep '"version":' ./package.json -m1 | cut -d\" -f4` >> $GITHUB_ENV
-        echo XBR_PROTOCOL_VCS_REF=`git --git-dir="./.git" rev-list -n 1 v${XBR_PROTOCOL_VERSION} --abbrev-commit` >> $GITHUB_ENV
 
     - name: Print environment
       run: |
         echo ""
         echo "Build environment configured:"
         echo ""
-        echo "  BUILD_DATE              = ${BUILD_DATE}"
-        echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
+        echo "  XBR_PROTOCOL_BUILD_DATE = ${XBR_PROTOCOL_BUILD_DATE}"
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
+        echo "  XBR_PROTOCOL_BUILD_ID   = ${XBR_PROTOCOL_BUILD_ID}"
+        echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
         echo ""
 
     - name: Deploy (build, package and upload)
