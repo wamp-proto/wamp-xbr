@@ -88,11 +88,11 @@ update_dependencies:
 # https://www.npmjs.com/package/truffle-flattener
 # https://github.com/nomiclabs/truffle-flattener
 flatten:
-	./node_modules/.bin/truffle-flattener ./contracts/XBRToken.sol > ./contracts/XBRTokenFlattened.sol
-	sed -i '/^\/\/ SPDX/d' ./contracts/XBRTokenFlattened.sol
+	./node_modules/.bin/truffle-flattener ./contracts/XBRToken.sol > ./build/contracts/XBRTokenFlattened.sol
+	sed -i '/^\/\/ SPDX/d' ./build/contracts/XBRTokenFlattened.sol
 
-	./node_modules/.bin/truffle-flattener ./contracts/XBRNetwork.sol > ./contracts/XBRNetworkFlattened.sol
-	sed -i '/^\/\/ SPDX/d' ./contracts/XBRNetworkFlattened.sol
+	./node_modules/.bin/truffle-flattener ./contracts/XBRNetwork.sol > ./build/contracts/XBRNetworkFlattened.sol
+	sed -i '/^\/\/ SPDX/d' ./build/contracts/XBRNetworkFlattened.sol
 
 lint:
 	$(SOLHINT) "contracts/**/*.sol"

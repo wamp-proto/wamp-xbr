@@ -9,7 +9,9 @@
         "crossbar",
         "autobahn",
         "wamp",
+        "data-governance",
         "data-service",
+        "data-market",
         "data-monetization"
     ],
     "author": "Crossbar.io Technologies GmbH",
