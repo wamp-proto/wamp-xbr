@@ -20,7 +20,8 @@
         "type": "git",
         "url": "git://github.com/crossbario/xbr-protocol.git"
     },
-    "dependencies": {},
+    "dependencies": {
+    },
     "devDependencies": {
         "bindings": "^1.5.0",
         "browserify": "^17.0.0",
@@ -31,13 +32,16 @@
         "ethereumjs-util": "^7.0.7",
         "node-buffer": "^1.0.3",
         "nodeunit": "^0.11.3",
+        "verify-on-etherscan": "^1.2.1",
         "@openzeppelin/contracts": "^3.3.0",
+        "@openzeppelin/cli": "^2.8.2",
         "solhint": "^3.3.2",
         "solidity-coverage": "^0.7.13",
         "truffle": "^5.1.61",
         "truffle-contract": "^4.0.31",
         "truffle-flattener": "^1.5.0",
-        "truffle-hdwallet-provider": "^1.0.17"
+        "truffle-hdwallet-provider": "^1.0.17",
+        "truffle-plugin-verify": "^0.5.4"
     },
     "scripts": {
         "test": "truffle test --network ganache",
