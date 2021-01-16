@@ -3,6 +3,7 @@
 set +o verbose -o errexit
 
 # XBR_PROTOCOL_VERSION      : must be set in travis.yml!
+# XBR_PROTOCOL_VCS_REF      : must be set in travis.yml!
 export AWS_DEFAULT_REGION=eu-central-1
 export AWS_S3_BUCKET_NAME=xbr.foundation
 # AWS_ACCESS_KEY_ID         : must be set in Travis CI build context!
@@ -25,7 +26,7 @@ aws --version
 echo 'building contracts ABI bundle ..'
 
 tox -c tox.ini -e truffle-build
-cd ./build/contracts/ && zip ../../xbr-protocol-${XBR_PROTOCOL_VERSION}.zip *.json && cd ../..
+cd ./build/contracts/ && zip ../../xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip *.json && cd ../..
 
 # upload to S3 bucket
 echo 'uploading contracts ABI bundle ..'
@@ -33,18 +34,24 @@ echo 'uploading contracts ABI bundle ..'
 # "aws s3 ls" will return -1 when no files are found! but we don't want our script to exit
 aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/ || true
 
+aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip || true
 aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip || true
 aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip || true
 
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip
 aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
 aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip
+
+aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/
 
 echo 'package uploaded to:'
 echo ''
 echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-latest.zip'
 echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
+echo '      https://s3.eu-central-1.amazonaws.com/xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}'.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-latest.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
+echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}'.zip'
 echo ''
 
 echo 'notify crossbar-builder ..'
@@ -63,6 +70,8 @@ wamp --max-failures 3 \
 
 echo 'building docs ..'
 tox -c tox.ini -e sphinx
+
+echo 'publishing docs ..'
 aws s3 cp --recursive --acl public-read ./docs/_build s3://${AWS_S3_BUCKET_NAME}/docs
 aws cloudfront create-invalidation --distribution-id EVZPVW5R6WNNF --paths "/*"
 
