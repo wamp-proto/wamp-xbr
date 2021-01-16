@@ -27,6 +27,7 @@ echo 'building contracts ABI bundle ..'
 
 tox -c tox.ini -e truffle-build
 cd ./build/contracts/ && zip ../../xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip *.json && cd ../..
+ls -la ./*.zip
 
 # upload to S3 bucket
 echo 'uploading contracts ABI bundle ..'
@@ -38,9 +39,9 @@ aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION
 aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip || true
 aws s3 rm s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip || true
 
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
-aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-${XBR_PROTOCOL_VERSION}.zip
+aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_VERSION}-${XBR_PROTOCOL_VCS_REF}.zip s3://${AWS_S3_BUCKET_NAME}/lib/abi/xbr-protocol-latest.zip
 
 aws s3 ls ${AWS_S3_BUCKET_NAME}/lib/abi/
 
