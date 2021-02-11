@@ -348,3 +348,12 @@ publish_docs:
 
 clean_docs:
 	-rm -rf docs/_build
+
+# build Python XBR contracts/ABI package
+build_python: compile
+	python setup.py sdist bdist_wheel
+
+# publish Python XBR contracts/ABI package to PyPI
+publish_python: build_python
+	ls -la dist
+	twine upload dist/*
