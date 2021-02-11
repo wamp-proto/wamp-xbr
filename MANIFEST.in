@@ -1,15 +1,3 @@
 include LICENSE
-recursive-include xbr/contracts *.json
-
-include xbr/contracts/ECDSA.json
-include xbr/contracts/ERC20Detailed.json
-include xbr/contracts/ERC20.json
-include xbr/contracts/IERC20.json
-include xbr/contracts/Migrations.json
-include xbr/contracts/Roles.json
-include xbr/contracts/SafeMath.json
-include xbr/contracts/XBRMaintained.json
-include xbr/contracts/XBRNetwork.json
-include xbr/contracts/XBRNetworkProxy.json
-include xbr/contracts/XBRPaymentChannel.json
-include xbr/contracts/XBRToken.json
+recursive-include xbr/contract *.json
+recursive-include xbr/abi *.json
