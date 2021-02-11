@@ -95,6 +95,11 @@ jobs:
         truffle migrate --reset --network ganache
         tox -c tox.ini -e truffle-test
 
+    - name: Build Python package
+      run: |
+        make compile
+        python setup.py sdist bdist_wheel --universal
+
     # FIXME: sth is broken rgd keys when run under "coverage" ..
     # - name: Run Coverage
     #   run: tox -c tox.ini -e coverage
