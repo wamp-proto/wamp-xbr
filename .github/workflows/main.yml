@@ -26,6 +26,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install OS dependencies
+      run: |
+        sudo apt update
+        sudo apt install cloc
+
     # https://github.com/actions/setup-node
     - name: Set up Node
       uses: actions/setup-node@v2
