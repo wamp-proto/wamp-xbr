@@ -51,6 +51,26 @@ aws s3 cp --acl public-read ./xbr-protocol-${XBR_PROTOCOL_BUILD_ID}.zip s3://$AW
 
 aws s3 ls $AWS_S3_BUCKET_NAME/lib/abi/
 
+# build python source dist and wheels
+echo 'building contracts Python package ..'
+make compile
+python setup.py sdist bdist_wheel --universal
+ls -la ./dist
+
+# upload to S3: https://s3.eu-central-1.amazonaws.com/crossbarbuilder/wheels/
+echo 'uploading contracts Python package ..'
+# "aws s3 ls" will return -1 when no files are found! but we don't want our script to exit
+aws s3 ls ${AWS_S3_BUCKET_NAME}/wheels/xbr- || true
+
+# aws s3 cp --recursive ./dist s3://${AWS_S3_BUCKET_NAME}/wheels
+aws s3 rm s3://${AWS_S3_BUCKET_NAME}/wheels/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl
+aws s3 rm s3://${AWS_S3_BUCKET_NAME}/wheels/xbr-latest-py2.py3-none-any.whl
+
+aws s3 cp --acl public-read ./dist/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl s3://${AWS_S3_BUCKET_NAME}/wheels/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl
+aws s3 cp --acl public-read ./dist/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl s3://${AWS_S3_BUCKET_NAME}/wheels/xbr-latest-py2.py3-none-any.whl
+
+aws s3 ls ${AWS_S3_BUCKET_NAME}/wheels/xbr-
+
 echo 'notify crossbar-builder ..'
 
 # tell crossbar-builder about this new wheel push
@@ -76,7 +96,7 @@ echo ''
 echo 'SUMMARY:'
 echo '========'
 echo ''
-echo 'package uploaded to:'
+echo 'ABI bundle uploaded to:'
 echo ''
 echo '      https://s3.$AWS_DEFAULT_REGION.amazonaws.com/$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-latest.zip'
 echo '      https://s3.$AWS_DEFAULT_REGION.amazonaws.com/$AWS_S3_BUCKET_NAME/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
@@ -86,10 +106,13 @@ echo '      https://xbr.network/lib/abi/xbr-protocol-latest.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_VERSION}'.zip'
 echo '      https://xbr.network/lib/abi/xbr-protocol-'${XBR_PROTOCOL_BUILD_ID}'.zip'
 echo ''
+echo 'Python package uploaded to:'
 echo ''
-echo 'docs uploaded to:'
+echo '      https://crossbarbuilder.s3.eu-central-1.amazonaws.com/wheels/xbr-latest-py2.py3-none-any.whl'
+echo '      https://crossbarbuilder.s3.eu-central-1.amazonaws.com/wheels/xbr-'${XBR_PROTOCOL_VERSION}'-py2.py3-none-any.whl'
+echo ''
+echo 'Docs uploaded to:'
 echo ''
 echo '      https://s3.$AWS_DEFAULT_REGION.amazonaws.com/$AWS_S3_BUCKET_NAME/docs/index.html'
-echo ''
 echo '      https://xbr.network/docs/index.html'
 echo ''
