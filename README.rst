@@ -25,19 +25,19 @@ Contract addresses
 
 Contract addresses for local development on Ganache, using the
 
-```
-export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pioneer submit female collect"
-```
+.. code:: console
+
+   export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pioneer submit female collect"
 
 which result in the following contract addresses (when the deployment is the very first transactions on Ganache):
 
-```
-export XBR_DEBUG_TOKEN_ADDR=0xCfEB869F69431e42cdB54A4F4f105C19C080A601
-export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
-export XBR_DEBUG_MARKET_ADDR=0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
-export XBR_DEBUG_CATALOG_ADDR=0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
-export XBR_DEBUG_CHANNEL_ADDR=0xe982E462b094850F12AF94d21D470e21bE9D0E9C
-```
+.. code:: console
+
+   export XBR_DEBUG_TOKEN_ADDR=0xCfEB869F69431e42cdB54A4F4f105C19C080A601
+   export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
+   export XBR_DEBUG_MARKET_ADDR=0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
+   export XBR_DEBUG_CATALOG_ADDR=0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+   export XBR_DEBUG_CHANNEL_ADDR=0xe982E462b094850F12AF94d21D470e21bE9D0E9C
 
 Application development
 -----------------------
@@ -53,7 +53,8 @@ and error prone to maintain. An alternative way is using a client library with b
 
 The XBR project currently maintains the following **XBR-enabled client libraries**:
 
--  `Autobahn|Python <https://github.com/crossbario/autobahn-python>`__ for Python 3.5+
+-  `XBR (contract ABIs package) <https://pypi.org/project/xbr/>`__ for Python
+-  `Autobahn|Python <https://github.com/crossbario/autobahn-python>`__ for Python (uses the XBR package)
 -  `Autobahn|JavaScript <https://github.com/crossbario/autobahn-js>`__ for JavaScript, in browser and NodeJS
 -  `Autobahn|Java <https://github.com/crossbario/autobahn-java>`__ (*beta XBR support*) for Java on Android and Java 8 / Netty
 -  `Autobahn|C++ <https://github.com/crossbario/autobahn-cpp>`__ (*XBR support planned*) for C++ 11+ and Boost/ASIO

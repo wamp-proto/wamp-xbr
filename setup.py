@@ -18,7 +18,7 @@ setup(
     author_email='autobahnws@googlegroups.com',
     url='https://github.com/crossbario/xbr-protocol',
     platforms=('Any'),
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     packages=['xbr'],
 
     # this flag will make files from MANIFEST.in go into _source_ distributions only
@@ -42,7 +42,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
