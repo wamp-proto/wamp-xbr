@@ -62,6 +62,97 @@ The XBR project currently maintains the following **XBR-enabled client libraries
 XBR support can be added to any `WAMP client library <https://wamp-proto.org/implementations.html#libraries>`__
 with a language run-time that has packages for Ethereum application development.
 
+Build and Release
+-----------------
+
+Ethereum
+........
+
+To build and release the XBR contracts on Ethereum (Rinkeby), set your ``XBR_HDWALLET_SEED`` and run:
+
+.. code:: console
+
+   export XBR_HDWALLET_SEED="uncover current ...
+   make clean compile deploy_rinkeby
+
+
+Documentation
+.............
+
+To build and publish the `XBR contracts documentation <https://xbr.network/docs/protocol/index.html>`__:
+
+.. code:: console
+
+   pip install -r requirements-dev.txt
+   make clean docs publish_docs
+
+
+Docker
+......
+
+The following is for building our development blockchain Docker image, which contains
+Ganache with the XBR smart contracts already deployed into, and with initial balances
+for testaccounts (both ETH and XBR).
+
+The deploying user account 0 becomes contracts owner, and the user is derived from a seedphrase
+read from an env var:
+
+.. code:: console
+
+   export XBR_HDWALLET_SEED="myth like bonus scare over problem client lizard pioneer submit female collect"
+
+The resulting contract addresses, which must be used by XBR clients:
+
+.. code:: console
+
+   export XBR_DEBUG_TOKEN_ADDR=0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+   export XBR_DEBUG_NETWORK_ADDR=0xC89Ce4735882C9F0f0FE26686c53074E09B0D550
+
+The Docker images are published to:
+
+* `public <https://hub.docker.com/r/crossbario/crossbarfx-blockchain>`__
+* `admin <https://hub.docker.com/repository/docker/crossbario/crossbarfx-blockchain>`__
+
+Building the Docker Image
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Clean file staging area to create blockchain docker image and run a blockchain from the
+empty staging area:
+
+.. code:: console
+
+   make clean_ganache run_ganache
+
+Compile XBR contracts, deploy to the blockchain and initialize blockchain data
+
+.. code:: console
+
+   make compile deploy_ganache init_ganache
+
+Now stop the blockchina, and build the Docker image using the initialized data
+from the staging area, and publish the image:
+
+.. code:: console
+
+   make build_ganache_docker publish_ganache_docker:
+
+
+Python
+......
+
+To build and release the XBR contract ABIs Python package **xbr**:
+
+.. code:: console
+
+   make clean compile build_python publish_python
+
+.. note::
+
+   In general, the Python package should have the same version as the XBR contracts
+   tagged and deployed. Also the ABI bundle archives (ZIP files) should be in-sync
+   to the former as well.
+
+
 .. |Build| image:: https://github.com/crossbario/xbr-protocol/workflows/main/badge.svg
    :target: https://github.com/crossbario/xbr-protocol/actions?query=workflow%3Amain
    :alt: Build Status
