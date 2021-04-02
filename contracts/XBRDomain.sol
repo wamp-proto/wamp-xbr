@@ -283,8 +283,8 @@ contract XBRDomain is XBRMaintained {
                 uint8(nodeType) == uint8(XBRTypes.NodeType.EDGE), "INVALID_NODE_TYPE");
 
         // transfer tokens for license
-        require(amount > 0 && amount <= IERC20(network.token).totalSupply(), "INVALID_AMOUNT");
-        require(IERC20(network.token).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
+        require(amount > 0 && amount <= IERC20(network.token()).totalSupply(), "INVALID_AMOUNT");
+        require(IERC20(network.token()).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
 
         // remember node
         nodes[nodeId] = XBRTypes.Node(paired, domainId, nodeType, nodeKey, amount, config, signature);
@@ -325,11 +325,11 @@ contract XBRDomain is XBRMaintained {
         // determine set N of all nodes owned by domain owner, the node weights W,
         //   and XBR tokens B held by the domain owner user
         // compute max licensed workers from N, W, B
-        bytes16 domainId = nodes[nodesByKey[nodeKey]].domainId;
-        address owner = domains[domainId].owner;
+        // bytes16 domainId = nodes[nodesByKey[nodeKey]].domainId;
+        // address owner = domains[domainId].owner;
 
         // XBR tokens currently held by owning user
-        uint256 amount = network.token[owner];
+        // uint256 amount = network.token[owner];
 
         // XBR tokens corresponding to the node in relation to all nodes owned by user
 

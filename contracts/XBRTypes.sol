@@ -128,11 +128,11 @@ library XBRTypes {
         // Node key (Ed25519 public key).
         bytes32 key;
 
-        // Optional (encrypted) node configuration on IPFS.
-        string config;
-
         // License amount in XBR token assigned to this node. This will determine the licensed maximum concurrent workers the (master) node can manage.
         uint256 amount;
+
+        // Optional (encrypted) node configuration on IPFS.
+        string config;
 
         // Signature for this record.
         bytes signature;
@@ -476,6 +476,9 @@ library XBRTypes {
 
         // The Ed25519 public node key.
         bytes32 nodeKey;
+
+        // Amount of XBR token reserved as license stake for this node.
+        uint256 amount;
 
         // Optional IPFS Multihash pointing to node configuration stored on IPFS.
         string config;
