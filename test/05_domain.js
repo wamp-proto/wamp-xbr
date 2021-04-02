@@ -263,6 +263,7 @@ contract('XBRNetwork', accounts => {
 
         const domainId = utils.sha3("MyDomain1").substring(0, 34);
         const nodeId = utils.sha3("MyNode1").substring(0, 34);
+        const amount = new BN(10000000);
 
         const nodeType = NodeType_EDGE;
         const nodeKey = '0xbae3cb9f8d280a5d7a945c0ac3407f22290778fb470b4220e3667559100c12da';
@@ -270,7 +271,7 @@ contract('XBRNetwork', accounts => {
 
         const paired = await web3.eth.getBlockNumber();
 
-        await domain.pairNode(nodeId, domainId, nodeType, nodeKey, config, {from: alice, gasLimit: gasLimit});
+        await domain.pairNode(nodeId, domainId, nodeType, nodeKey, amount, config, {from: alice, gasLimit: gasLimit});
 
         const node_ = await domain.nodes(nodeId);
 
@@ -286,6 +287,7 @@ contract('XBRNetwork', accounts => {
 
         const domainId = utils.sha3("MyDomain2").substring(0, 34);
         const nodeId = utils.sha3("MyNode2").substring(0, 34);
+        const amount = new BN(10000000);
 
         // charlie = accounts[5]
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
@@ -311,7 +313,7 @@ contract('XBRNetwork', accounts => {
         const signature = sign_pair_node(member_key, msg);
 
         await domain.pairNodeFor(member, paired, nodeId, domainId, nodeType,
-                nodeKey, config, signature, {from: alice, gasLimit: gasLimit});
+                nodeKey, amount, config, signature, {from: alice, gasLimit: gasLimit});
 
         const node_ = await domain.nodes(nodeId);
 

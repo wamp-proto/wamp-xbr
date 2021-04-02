@@ -286,7 +286,9 @@ contract XBRDomain is XBRMaintained {
 
         // transfer tokens for license
         require(amount > 0 && amount <= IERC20(network.token()).totalSupply(), "INVALID_AMOUNT");
-        require(IERC20(network.token()).balanceOf(member) >= amount, "INSUFFICIENT_AMOUNT");
+
+        // FIXME:
+        // require(IERC20(network.token()).balanceOf(member) >= amount, "INSUFFICIENT_AMOUNT");
         // require(IERC20(network.token()).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
 
         // remember node
