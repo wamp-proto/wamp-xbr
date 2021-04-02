@@ -119,6 +119,7 @@ library XBRTypes {
         // Block number when the node was paired to the respective domain.
         uint256 paired;
 
+        // The domain this node is paired with.
         bytes16 domain;
 
         // Type of node.
@@ -130,6 +131,10 @@ library XBRTypes {
         // Optional (encrypted) node configuration on IPFS.
         string config;
 
+        // License amount in XBR token assigned to this node. This will determine the licensed maximum concurrent workers the (master) node can manage.
+        uint256 amount;
+
+        // Signature for this record.
         bytes signature;
     }
 

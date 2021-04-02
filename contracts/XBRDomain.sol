@@ -49,13 +49,13 @@ contract XBRDomain is XBRMaintained {
     event DomainClosed (bytes16 indexed domainId, XBRTypes.DomainStatus status);
 
     /// Event emitted when a new node was paired with the domain.
-    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, uint256 paired, bytes32 nodeKey, string config);
+    event NodePaired (bytes16 indexed domainId, bytes16 nodeId, uint256 paired, bytes32 nodeKey, uint256 amount, string config);
 
     /// Event emitted when a node was updated.
-    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, uint256 updated, bytes32 nodeKey, string config);
+    event NodeUpdated (bytes16 indexed domainId, bytes16 nodeId, uint256 updated, bytes32 nodeKey, uint256 amount, string config);
 
     /// Event emitted when a node was released from a domain.
-    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId, uint256 released);
+    event NodeReleased (bytes16 indexed domainId, bytes16 nodeId, uint256 released, uint256 amount);
 
     /// Instance of XBRNetwork contract this contract is linked to.
     XBRNetwork public network;
@@ -234,9 +234,9 @@ contract XBRDomain is XBRMaintained {
     /// @param nodeKey The Ed25519 public node key.
     /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
     function pairNode (bytes16 nodeId, bytes16 domainId, XBRTypes.NodeType nodeType, bytes32 nodeKey,
-        string memory config) public {
+        uint256 amount, string memory config) public {
 
-        _pairNode(msg.sender, block.number, nodeId, domainId, nodeType, nodeKey, config, "");
+        _pairNode(msg.sender, block.number, nodeId, domainId, nodeType, nodeKey, amount, config, "");
     }
 
     /// Pair a node with a XBR Domain.
@@ -253,19 +253,19 @@ contract XBRDomain is XBRMaintained {
     /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
     /// @param signature Signature created by the member.
     function pairNodeFor (address member, uint256 paired, bytes16 nodeId, bytes16 domainId,
-        XBRTypes.NodeType nodeType, bytes32 nodeKey, string memory config, bytes memory signature) public {
+        XBRTypes.NodeType nodeType, bytes32 nodeKey, uint256 amount, string memory config, bytes memory signature) public {
 
         require(XBRTypes.verify(member, XBRTypes.EIP712NodePair(network.verifyingChain(), network.verifyingContract(),
-            member, paired, nodeId, domainId, nodeType, nodeKey, config), signature), "INVALID_SIGNATURE");
+            member, paired, nodeId, domainId, nodeType, nodeKey, amount, config), signature), "INVALID_SIGNATURE");
 
         // signature must have been created in a window of 5 blocks from the current one
         require(paired <= block.number && paired >= (block.number - 4), "INVALID_BLOCK_NUMBER");
 
-        _pairNode(member, paired, nodeId, domainId, nodeType, nodeKey, config, signature);
+        _pairNode(member, paired, nodeId, domainId, nodeType, nodeKey, amount, config, signature);
     }
 
     function _pairNode (address member, uint256 paired, bytes16 nodeId, bytes16 domainId,
-        XBRTypes.NodeType nodeType, bytes32 nodeKey, string memory config, bytes memory signature) private {
+        XBRTypes.NodeType nodeType, bytes32 nodeKey, uint256 amount, string memory config, bytes memory signature) private {
 
         // domain to which the node is paired must exist
         require(domains[domainId].owner != address(0), "NO_SUCH_DOMAIN");
@@ -282,8 +282,12 @@ contract XBRDomain is XBRMaintained {
                 uint8(nodeType) == uint8(XBRTypes.NodeType.CORE) ||
                 uint8(nodeType) == uint8(XBRTypes.NodeType.EDGE), "INVALID_NODE_TYPE");
 
+        // transfer tokens for license
+        require(amount > 0 && amount <= IERC20(network.token).totalSupply(), "INVALID_AMOUNT");
+        require(IERC20(network.token).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
+
         // remember node
-        nodes[nodeId] = XBRTypes.Node(paired, domainId, nodeType, nodeKey, config, signature);
+        nodes[nodeId] = XBRTypes.Node(paired, domainId, nodeType, nodeKey, amount, config, signature);
 
         // update index
         nodesByKey[nodeKey] = nodeId;
@@ -292,7 +296,7 @@ contract XBRDomain is XBRMaintained {
         domains[domainId].nodes.push(nodeId);
 
         // notify observers
-        emit NodePaired(domainId, nodeId, paired, nodeKey, config);
+        emit NodePaired(domainId, nodeId, paired, nodeKey, amount, config);
     }
 
     // /**
@@ -312,6 +316,25 @@ contract XBRDomain is XBRMaintained {
      */
     function getNodeByKey(bytes32 nodeKey) public view returns (bytes16) {
         return nodesByKey[nodeKey];
+    }
+
+    function getLicensedWorkersByNodeKey(bytes32 nodeKey) public view returns (uint16) {
+        // License for usage of one concurrent CrossbarFX worker for N XBR token held by the user (CrossbarFX licensee).
+
+        // determine owner of (master) node
+        // determine set N of all nodes owned by domain owner, the node weights W,
+        //   and XBR tokens B held by the domain owner user
+        // compute max licensed workers from N, W, B
+        bytes16 domainId = nodes[nodesByKey[nodeKey]].domainId;
+        address owner = domains[domainId].owner;
+
+        // XBR tokens currently held by owning user
+        uint256 amount = network.token[owner];
+
+        // XBR tokens corresponding to the node in relation to all nodes owned by user
+
+        // concurrent workers as licensed according to XBR tokens for node
+        return 0;
     }
 
     /**
