@@ -119,6 +119,7 @@ library XBRTypes {
         // Block number when the node was paired to the respective domain.
         uint256 paired;
 
+        // The domain this node is paired with.
         bytes16 domain;
 
         // Type of node.
@@ -127,9 +128,13 @@ library XBRTypes {
         // Node key (Ed25519 public key).
         bytes32 key;
 
+        // License amount in XBR token assigned to this node. This will determine the licensed maximum concurrent workers the (master) node can manage.
+        uint256 amount;
+
         // Optional (encrypted) node configuration on IPFS.
         string config;
 
+        // Signature for this record.
         bytes signature;
     }
 
@@ -472,6 +477,9 @@ library XBRTypes {
         // The Ed25519 public node key.
         bytes32 nodeKey;
 
+        // Amount of XBR token reserved as license stake for this node.
+        uint256 amount;
+
         // Optional IPFS Multihash pointing to node configuration stored on IPFS.
         string config;
     }
@@ -758,7 +766,7 @@ library XBRTypes {
 
     // EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,string config)");
+    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,uint256 amount,string config)");
 
     // EIP712 type data.
     // solhint-disable-next-line
@@ -887,6 +895,7 @@ library XBRTypes {
             obj.domainId,
             obj.nodeType,
             obj.nodeKey,
+            obj.amount,
             keccak256(bytes(obj.config))
         ));
     }

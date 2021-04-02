@@ -353,6 +353,15 @@ clean_docs:
 build_python: compile
 	python setup.py sdist bdist_wheel
 
+# publish Python XBR contracts/ABI package to crossbarbuilder
+upload_python: build_python
+	ls -la dist
+	aws s3 rm s3://crossbarbuilder/wheels/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl
+	aws s3 rm s3://crossbarbuilder/wheels/xbr-latest-py2.py3-none-any.whl
+	aws s3 cp --acl public-read ./dist/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl s3://crossbarbuilder/wheels/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl
+	aws s3 cp --acl public-read ./dist/xbr-${XBR_PROTOCOL_VERSION}-py2.py3-none-any.whl s3://crossbarbuilder/wheels/xbr-latest-py2.py3-none-any.whl
+	aws s3 ls crossbarbuilder/wheels/xbr-
+
 # publish Python XBR contracts/ABI package to PyPI
 publish_python: build_python
 	ls -la dist

@@ -3,6 +3,8 @@ The XBR Protocol
 
 |Build| |Deploy| |Coverage| |Docs (on CDN)| |Docs (on S3)| |ABIs (on CDN)| |ABIs (on S3)|
 
+---------
+
 The **XBR Protocol** enables secure peer-to-peer data-trading and -service microtransactions in
 `Open Data Markets <https://xbr.network>`__ between multiple independent entities.
 

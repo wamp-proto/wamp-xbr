@@ -72,6 +72,7 @@ jobs:
         echo "  BUILD_DATE              = ${BUILD_DATE}"
         echo "  XBR_PROTOCOL_VERSION    = ${XBR_PROTOCOL_VERSION}"
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
+        echo "  XBR_HDWALLET_SEED       = ${XBR_HDWALLET_SEED}"
         echo ""
         which python
         python -V
