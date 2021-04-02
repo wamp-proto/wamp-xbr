@@ -265,11 +265,9 @@ contract('XBRNetwork', accounts => {
         const domainId = utils.sha3("MyDomain1").substring(0, 34);
         const nodeId = utils.sha3("MyNode1").substring(0, 34);
         const amount = new BN(10000000);
-
         const nodeType = NodeType_EDGE;
         const nodeKey = '0xbae3cb9f8d280a5d7a945c0ac3407f22290778fb470b4220e3667559100c12da';
         const config = 'QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW';
-
         const paired = await web3.eth.getBlockNumber();
 
         await domain.pairNode(nodeId, domainId, nodeType, nodeKey, amount, config, {from: alice, gasLimit: gasLimit});
@@ -280,6 +278,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(node_.domain, domainId, "wrong domain attribute in node");
         assert.equal(node_.nodeType, NodeType_EDGE, "wrong nodeType attribute in node");
         assert.equal(node_.key, nodeKey, "wrong key attribute in node");
+        assert(node_.amount.eq(amount), "wrong amount attribute in node");
         assert.equal(node_.config, config, "wrong config attribute in node");
         assert.equal(node_.signature, null, "wrong signature attribute in node");
     });
@@ -289,13 +288,10 @@ contract('XBRNetwork', accounts => {
         const domainId = utils.sha3("MyDomain2").substring(0, 34);
         const nodeId = utils.sha3("MyNode2").substring(0, 34);
         const amount = new BN(10000000);
-
         // charlie = accounts[5]
         const member = w3_utils.toChecksumAddress('0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC');
         const member_key = '0x395df67f0c2d2d9fe1ad08d1bc8b6627011959b79c53d7dd6a3536a33ab8a4fd';
-
         const paired = await web3.eth.getBlockNumber();
-
         const nodeType = NodeType_EDGE;
         const nodeKey = '0xba1a0068a4c49c7a764cd5b1b553f6cef0a81573b9eeb6a6d3f753dc9b93f728';
         const config = 'QmQ5JFWUMNhDGLigbqzWkJxJiB3mKRgT8L99pq7tx6ypKW';
@@ -323,6 +319,7 @@ contract('XBRNetwork', accounts => {
         assert.equal(node_.domain, domainId, "wrong domain attribute in node");
         assert.equal(node_.nodeType, NodeType_EDGE, "wrong nodeType attribute in node");
         assert.equal(node_.key, nodeKey, "wrong key attribute in node");
+        assert(node_.amount.eq(amount), "wrong amount attribute in node");
         assert.equal(node_.config, config, "wrong config attribute in node");
         assert.equal(node_.signature, signature, "wrong signature attribute in node");
     });

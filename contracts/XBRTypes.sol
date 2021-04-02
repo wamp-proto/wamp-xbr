@@ -766,7 +766,7 @@ library XBRTypes {
 
     // EIP712 type data.
     // solhint-disable-next-line
-    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,string config)");
+    bytes32 constant EIP712_NODE_PAIR_TYPEHASH = keccak256("EIP712NodePair(uint256 chainId,address verifyingContract,address member,uint256 paired,bytes16 nodeId,bytes16 domainId,uint8 nodeType,bytes32 nodeKey,uint256 amount,string config)");
 
     // EIP712 type data.
     // solhint-disable-next-line
@@ -895,6 +895,7 @@ library XBRTypes {
             obj.domainId,
             obj.nodeType,
             obj.nodeKey,
+            obj.amount,
             keccak256(bytes(obj.config))
         ));
     }

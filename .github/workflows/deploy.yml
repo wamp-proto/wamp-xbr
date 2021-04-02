@@ -26,6 +26,7 @@ jobs:
       AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       WAMP_PRIVATE_KEY:      ${{ secrets.WAMP_PRIVATE_KEY }}
+      XBR_HDWALLET_SEED:     ${{ secrets.XBR_HDWALLET_SEED }}
 
     runs-on: ubuntu-20.04
     steps:
@@ -68,6 +69,7 @@ jobs:
         echo "  XBR_PROTOCOL_BUILD_DATE = ${XBR_PROTOCOL_BUILD_DATE}"
         echo "  XBR_PROTOCOL_VCS_REF    = ${XBR_PROTOCOL_VCS_REF}"
         echo "  XBR_PROTOCOL_BUILD_ID   = ${XBR_PROTOCOL_BUILD_ID}"
+        echo "  XBR_HDWALLET_SEED       = ${XBR_HDWALLET_SEED}"
         echo ""
 
     - name: Deploy (build, package and upload)
