@@ -323,7 +323,7 @@ contract XBRDomain is XBRMaintained {
         return nodesByKey[nodeKey];
     }
 
-    function getLicensedWorkersByNodeKey(bytes32 nodeKey) public view returns (uint16) {
+    function getLicensedWorkersByNodeKey(bytes32 nodeKey) public view returns (uint32) {
         // License for usage of one concurrent CrossbarFX worker for N XBR token held by the user (CrossbarFX licensee).
 
         // determine owner of (master) node
@@ -335,25 +335,28 @@ contract XBRDomain is XBRMaintained {
 
         // XBR tokens currently held by owning user
         // uint256 amount = network.token[owner];
+        require(nodesByKey[nodeKey] != 0, "INVALID_NODE_KEY_1");
+        bytes16 nodeId = nodesByKey[nodeKey];
 
-        // XBR tokens corresponding to the node in relation to all nodes owned by user
-
-        bytes16 domainId = nodes[nodesByKey[nodeKey]].domain;
+        require(nodes[nodeId].domain != 0, "INVALID_NODE_KEY_2");
+        bytes16 domainId = nodes[nodeId].domain;
         address owner = domains[domainId].owner;
 
+        require(owner != address(0), "INVALID_NODE_KEY_3");
         uint256 xbr_held = IERC20(network.token()).balanceOf(owner);
-
-        // perpetual, concurrent worker license (fx_price: XBR/worker)
-        uint32 fx_licensed_workers = 10;  // xbr_held / fx_price
-
         uint256 xbr_node = nodes[nodesByKey[nodeKey]].amount;
         uint256 xbr_total_nodes = xbr_node;
 
-        // require(IERC20(network.token()).balanceOf(member) >= amount, "INSUFFICIENT_AMOUNT");
-
+        // perpetual, concurrent worker license (fx_price: XBR/worker)
+        uint32 fx_licensed_workers = 0;
+        if (xbr_held > 0) {
+            fx_licensed_workers = 10;
+        } else {
+            fx_licensed_workers = 5;
+        }
 
         // concurrent workers as licensed according to XBR tokens for node
-        return 0;
+        return fx_licensed_workers;
     }
 
     /**
