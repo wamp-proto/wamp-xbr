@@ -232,6 +232,7 @@ contract XBRDomain is XBRMaintained {
     /// @param domainId The ID of the domain to pair the node with.
     /// @param nodeType The type of node to pair the node under.
     /// @param nodeKey The Ed25519 public node key.
+    /// @param amount Amount of XBR token reserved as license stake for this node.
     /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
     function pairNode (bytes16 nodeId, bytes16 domainId, XBRTypes.NodeType nodeType, bytes32 nodeKey,
         uint256 amount, string memory config) public {
@@ -250,6 +251,7 @@ contract XBRDomain is XBRMaintained {
     /// @param domainId The ID of the domain to pair the node with.
     /// @param nodeType The type of node to pair the node under.
     /// @param nodeKey The Ed25519 public node key.
+    /// @param amount Amount of XBR token reserved as license stake for this node.
     /// @param config Optional IPFS Multihash pointing to node configuration stored on IPFS
     /// @param signature Signature created by the member.
     function pairNodeFor (address member, uint256 paired, bytes16 nodeId, bytes16 domainId,
@@ -284,7 +286,8 @@ contract XBRDomain is XBRMaintained {
 
         // transfer tokens for license
         require(amount > 0 && amount <= IERC20(network.token()).totalSupply(), "INVALID_AMOUNT");
-        require(IERC20(network.token()).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
+        require(IERC20(network.token()).balanceOf(member) >= amount, "INSUFFICIENT_AMOUNT");
+        // require(IERC20(network.token()).transferFrom(member, address(this), amount), "TRANSFER_FROM_MEMBER_FAILED");
 
         // remember node
         nodes[nodeId] = XBRTypes.Node(paired, domainId, nodeType, nodeKey, amount, config, signature);
