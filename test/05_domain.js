@@ -70,6 +70,7 @@ const EIP712NodePair = {
             {name: 'domainId', type: 'bytes16'},
             {name: 'nodeType', type: 'uint8'},
             {name: 'nodeKey', type: 'bytes32'},
+            {name: 'amount', type: 'uint256'},
             {name: 'config', type: 'string'},
         ]
     },
@@ -308,6 +309,7 @@ contract('XBRNetwork', accounts => {
             'domainId': domainId,
             'nodeType': nodeType,
             'nodeKey': nodeKey,
+            'amount': amount,
             'config': config,
         }
         const signature = sign_pair_node(member_key, msg);
