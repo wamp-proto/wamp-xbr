@@ -30,9 +30,9 @@ module.exports = {
         },
 
         ganache: {
-            provider: function() {
-                return new HDWalletProvider(XBR_HDWALLET_SEED, "http://localhost:1545", 0)
-            },
+            // provider: function() {
+            //     return new HDWalletProvider(XBR_HDWALLET_SEED, "http://localhost:1545")
+            // },
             host: "localhost",
 	        port: 1545,
             network_id: "5777",

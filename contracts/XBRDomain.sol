@@ -338,6 +338,20 @@ contract XBRDomain is XBRMaintained {
 
         // XBR tokens corresponding to the node in relation to all nodes owned by user
 
+        bytes16 domainId = nodes[nodesByKey[nodeKey]].domain;
+        address owner = domains[domainId].owner;
+
+        uint256 xbr_held = IERC20(network.token()).balanceOf(owner);
+
+        // perpetual, concurrent worker license (fx_price: XBR/worker)
+        uint32 fx_licensed_workers = 10;  // xbr_held / fx_price
+
+        uint256 xbr_node = nodes[nodesByKey[nodeKey]].amount;
+        uint256 xbr_total_nodes = xbr_node;
+
+        // require(IERC20(network.token()).balanceOf(member) >= amount, "INSUFFICIENT_AMOUNT");
+
+
         // concurrent workers as licensed according to XBR tokens for node
         return 0;
     }
