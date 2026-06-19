@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xbr"
-version = "25.12.2"
+version = "26.6.1"
 description = "XBR smart contracts and ABIs"
 readme = "README.md"
 license = "MIT"
@@ -31,11 +31,11 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     # WAMP client library - core dependency for XBR protocol
-    "autobahn>=25.12.2",
+    "autobahn>=26.6.2",
     # Async compatibility layer (Twisted/asyncio)
     "txaio>=25.12.2",
     # Object-relational database layer (flatbuffers reflection for schema handling)
-    "zlmdb>=25.12.3",
+    "zlmdb>=26.6.1",
     # bitarray is required by eth-account, but on pypy
     # see discussion/links on https://github.com/crossbario/autobahn-python/pull/1617
     "bitarray>=2.7.5",
