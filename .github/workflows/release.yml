@@ -182,7 +182,6 @@ jobs:
           files: ${{ github.workspace }}/dist/*
           draft: false
           prerelease: true
-          discussion_category_name: ci-cd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -290,7 +289,6 @@ jobs:
           files: ${{ github.workspace }}/dist/*
           draft: false
           prerelease: false
-          discussion_category_name: ci-cd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -13,6 +13,20 @@ Unreleased
 
 *No unreleased changes yet.*
 
+26.6.1 (2026-06-19)
+-------------------
+
+**Dependencies**
+
+* Require ``autobahn >= 26.6.2`` and ``zlmdb >= 26.6.1`` for the coordinated WAMP 26.6.1 release. xbr uses ``zlmdb.flatbuffers.reflection`` together with autobahn, so it needs the FlatBuffers-compatible pair (autobahn synced to FlatBuffers v25.12.19 at 26.6.1). The autobahn floor is ``26.6.2`` specifically because ``import xbr`` pulls in ``autobahn.wamp.cryptosign``, whose import was broken on CPython 3.11/3.12/3.13 in autobahn 26.6.1 (autobahn #1878). ``txaio`` is left at its existing permissive floor (`#176 <https://github.com/crossbario/wamp-xbr/issues/176>`_)
+
+**Build & CI/CD**
+
+* Bump the shared ``wamp-ai`` (→ ``4669dc8``) and ``wamp-cicd`` (→ ``f77ca2b``) Git submodules to match the rest of the WAMP project group; the ``wamp-cicd`` bump carries the GHSA-6658 shell-injection hardening in the shared ``identifiers.yml`` reusable workflow (`#176 <https://github.com/crossbario/wamp-xbr/issues/176>`_)
+* Converge the GitHub Discussions release announcement onto a single mechanism, matching autobahn-python / txaio / cfxdb: the ``release-post-comment.yml`` workflow now resolves the ``ci-cd`` Discussions category **by name** (case-insensitive) and posts for both nightly and stable releases, and the redundant ``softprops`` ``discussion_category_name`` was removed from the release steps so a release posts exactly one announcement (`#176 <https://github.com/crossbario/wamp-xbr/issues/176>`_)
+* Fix the ``ty`` type-checker config for current ty: rename the removed rule ``non-subscriptable`` → ``not-subscriptable`` (an unknown ``--ignore`` rule is a fatal error) and ignore ``possibly-missing-submodule`` (a false positive from zlmdb's dynamic FlatBuffers re-exports) (`#176 <https://github.com/crossbario/wamp-xbr/issues/176>`_)
+* Remove the obsolete ``.github/workflows/deploy.yml.orig`` attic file (`#176 <https://github.com/crossbario/wamp-xbr/issues/176>`_)
+
 25.12.2 (2025-12-17)
 --------------------
 
