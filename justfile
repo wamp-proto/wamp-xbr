@@ -69,7 +69,7 @@ _get-spec short_name:
         cpy313)  echo "cpython-3.13";;
         cpy312)  echo "cpython-3.12";;
         cpy311)  echo "cpython-3.11";;
-        pypy311) echo "pypy-3.11";;
+        pypy311) echo "pypy-3.11.15";;  # PyPy 7.3.23 = last pp73 ABI; pinned on purpose (PyPy 8.0 = new pp80 ABI)
         *)       echo "Unknown environment: {{short_name}}" >&2; exit 1;;
     esac
 
@@ -406,7 +406,7 @@ check-typing venv="":
     echo "    Using Python: ${VENV_PYTHON}"
     # TEMPORARY (WAMP fleet rollout wave1-2026-09): newer ty reports redundant-condition, unused-awaitable.
     # These are REAL bugs (e.g. `assert (x for x in y)` is always true, so the check never
-    # runs) - tracked in follow-up issues and to be fixed before 26.9.1; then drop these ignores.
+    # runs) - tracked in #188, to be fixed before 26.9.1; then drop these ignores.
     ty check \
         --python "${VENV_PYTHON}" \
         --ignore unresolved-import \
@@ -528,7 +528,7 @@ test-wheel-install wheel_path:
         cp313|cpy313) PYTHON_VERSION="3.13" ;;
         cp312|cpy312) PYTHON_VERSION="3.12" ;;
         cp311|cpy311) PYTHON_VERSION="3.11" ;;
-        pp311|pypy311) PYTHON_VERSION="pypy3.11" ;;
+        pp311|pypy311) PYTHON_VERSION="pypy3.11.15" ;;
         *) echo "Unknown Python tag: ${PYTAG}"; exit 1 ;;
     esac
 
@@ -602,7 +602,7 @@ test-sdist-install sdist_path:
         cpy313) PYTHON_VERSION="3.13" ;;
         cpy312) PYTHON_VERSION="3.12" ;;
         cpy311) PYTHON_VERSION="3.11" ;;
-        pypy311) PYTHON_VERSION="pypy3.11" ;;
+        pypy311) PYTHON_VERSION="pypy3.11.15" ;;
         *) echo "Unknown system venv: ${SYS_VENV}"; exit 1 ;;
     esac
 
