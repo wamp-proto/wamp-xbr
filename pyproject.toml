@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xbr"
-version = "26.6.1"
+version = "26.9.1.dev1"
 description = "XBR smart contracts and ABIs"
 readme = "README.md"
 license = "MIT"
