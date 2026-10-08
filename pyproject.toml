@@ -219,6 +219,7 @@ exclude = [
 
 # Ruff configuration (replaces flake8, black, yapf)
 [tool.ruff]
+extend-exclude = [".ai", ".autobahn-crossbar-ai", ".cicd", "docs/_vendor/sphinxcontrib-soliditydomain"]
 line-length = 119
 target-version = "py311"
 
