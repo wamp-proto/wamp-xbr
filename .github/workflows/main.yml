@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-24.04]
-        env: ['cpy311', 'cpy312', 'cpy313', 'cpy314']
+        env: ['cpy311', 'cpy312', 'cpy313', 'cpy314', 'pypy311']
 
     continue-on-error: false
 
