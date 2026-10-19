@@ -8,8 +8,18 @@ This document contains a reverse-chronological list of changes to wamp-xbr.
     For detailed release information including artifacts,
     see :doc:`releases`.
 
-Unreleased
-----------
+26.10.1 (2026-10-19)
+--------------------
+
+**Dependencies**
+
+* Require ``bitarray >= 3.12.1``: bitarray 3.12.0 uses ``Py_ISSPACE``, which PyPy 3.11 (PyPy 7.3) does not provide, so ``from bitarray import util``, and with it ``eth_account``, ``web3`` and xbr's XBR features, failed to import on PyPy (ilanschnell/bitarray#257) (`#209 <https://github.com/crossbario/wamp-xbr/issues/209>`_)
+
+**Build & CI/CD**
+
+* Run the test suite on PyPy 3.11 too (xbr was never tested on PyPy), and add import smoke tests (``xbr/test/test_xbr_imports.py``) that import bitarray, ``eth_abi``, ``eth_account`` and ``web3`` directly, require ``HAS_XBR``, and check every name crossbar imports from xbr. ``xbr/__init__.py`` turns an ``ImportError`` into ``HAS_XBR = False``, so a broken dependency made the suite pass by skipping instead of failing (`#209 <https://github.com/crossbario/wamp-xbr/issues/209>`_)
+* Apply the fleet's shared ``python-package`` and ``way-a`` aspects (generated ``aspects.toml``, house MIT headers on the test modules that lacked them), and bump ``.cicd`` (wamp-cicd) to ``027f339`` (`#193 <https://github.com/crossbario/wamp-xbr/issues/193>`_, `#197 <https://github.com/crossbario/wamp-xbr/issues/197>`_, `#199 <https://github.com/crossbario/wamp-xbr/issues/199>`_, `#205 <https://github.com/crossbario/wamp-xbr/issues/205>`_, `#207 <https://github.com/crossbario/wamp-xbr/issues/207>`_, `#214 <https://github.com/crossbario/wamp-xbr/issues/214>`_)
+* First release from ``crossbario/wamp-xbr``: the repository moved from ``wamp-proto/wamp-xbr`` (`#191 <https://github.com/crossbario/wamp-xbr/issues/191>`_)
 
 **Other**
 

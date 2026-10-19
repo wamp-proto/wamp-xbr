@@ -5,6 +5,52 @@ This page provides links to release artifacts for each version of wamp-xbr.
 
 For detailed changelog entries, see :doc:`changelog`.
 
+26.10.1
+-------
+
+**Release Date:** 2026-10-19
+
+**Release Type:** Stable release
+
+Release Artifacts
+^^^^^^^^^^^^^^^^^
+
+* Wheel: ``xbr-26.10.1-py3-none-any.whl``
+* Source: ``xbr-26.10.1.tar.gz``
+
+Release Links
+^^^^^^^^^^^^^
+
+* `GitHub Release <https://github.com/crossbario/wamp-xbr/releases/tag/v26_10_1>`__
+* `PyPI Package <https://pypi.org/project/xbr/26.10.1/>`__
+* `Documentation <https://xbr.readthedocs.io/en/v26.10.1/>`__
+
+**Detailed Changes:** See :doc:`changelog` (26.10.1 section)
+
+
+26.6.1
+------
+
+**Release Date:** 2026-06-19
+
+**Release Type:** Stable release
+
+Release Artifacts
+^^^^^^^^^^^^^^^^^
+
+* Wheel: ``xbr-26.6.1-py3-none-any.whl``
+* Source: ``xbr-26.6.1.tar.gz``
+
+Release Links
+^^^^^^^^^^^^^
+
+* `GitHub Release <https://github.com/crossbario/wamp-xbr/releases/tag/v26_6_1>`__
+* `PyPI Package <https://pypi.org/project/xbr/26.6.1/>`__
+* `Documentation <https://xbr.readthedocs.io/en/v26.6.1/>`__
+
+**Detailed Changes:** See :doc:`changelog` (26.6.1 section)
+
+
 25.12.2
 -------
 
